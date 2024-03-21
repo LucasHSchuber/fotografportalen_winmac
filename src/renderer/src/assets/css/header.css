@@ -1,0 +1,8 @@
+/* header css */
+
+.header-wrapper{
+    padding: 1em 2em;
+}
+.header-wrapper .logo{
+    width: 2em;
+}
