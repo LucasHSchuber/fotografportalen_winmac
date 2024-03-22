@@ -43,17 +43,22 @@ function App() {
           <Header />
         </div>
 
-        <div className="route-layout">
-          <Routes>
-            <Route path="/" element={<Index />} />
-          </Routes>
+        <div className="content">
+
+          <div className="route-layout">
+            <Routes>
+              <Route path="/" element={<Index />} />
+            </Routes>
+          </div>
+
+          <div className="route-layout">
+            <Routes>
+              <Route path="/home" element={<Home />} />
+            </Routes>
+          </div>
+
         </div>
 
-        <div className="route-layout">
-          <Routes>
-            <Route path="/home" element={<Home />} />
-          </Routes>
-        </div>
       </div>
 
 

@@ -58,10 +58,10 @@ function Index() {
   }
 
   return (
-    <div className="">
+    <div className="index-wrapper">
       <h1>Index</h1>
       <p>Home Directory: {homeDir}</p>
-      <button onClick={toHome}>To Home</button>
+      {/* <button onClick={toHome}>To Home</button> */}
 
       <div>
         <table className="user-table">
@@ -71,6 +71,7 @@ function Index() {
               <th>Name</th>
               <th>Work Name</th>
               <th>County</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
@@ -80,6 +81,7 @@ function Index() {
                 <td>{user.name}</td>
                 <td>{user.workname}</td>
                 <td>{user.county}</td>
+                <td>{user.date.substring(0, 10)}</td>
               </tr>
             ))}
           </tbody>

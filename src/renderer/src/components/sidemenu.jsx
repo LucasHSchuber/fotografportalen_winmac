@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import logo from "../assets/images/camera1.png";
 
 function Sidemenu() {
@@ -9,10 +9,8 @@ function Sidemenu() {
                 <img src={logo} alt="Logo" />
             </div>
             <ul className="menu">
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/services">Services</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li><NavLink exact to="/" activeClassName="activeLink">Index</NavLink></li>
+                <li><NavLink to="/home" activeClassName="activeLink">Home</NavLink></li>
             </ul>
         </div>
     );

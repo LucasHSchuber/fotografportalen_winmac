@@ -9,6 +9,7 @@ const fse = require("fs-extra");
 const icon = path.join(__dirname, "../../resources/icon.png");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
+const os = require('os'); // Import the os module
 const BrowserWindow = electron.BrowserWindow;
 // import updateQuestion from "./api/updateQuestion"
 // import deleteQuestion from "./api/deleteQuestion"
@@ -29,8 +30,8 @@ function createWindow() {
   
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1000,
+    height: 600,
     minWidth: 600,
     minHeight: 550,
     show: false,
@@ -40,7 +41,8 @@ function createWindow() {
     webPreferences: {
       preload : path.join(__dirname, '../preload/index.js') ,
       sandbox: false,
-      contextIsolation : true,
+      contextIsolation: true,
+      nodeIntegration: true,
       webSecurity: false
     }
   })
@@ -113,24 +115,50 @@ const db = new sqlite3.Database(dbPath, (err) => {
     createTables(); // Call the function to create tables
   }
 });
+
+
+
 // Function to create tables
 function createTables() {
+  // Create users table
   db.run(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    workname TEXT NOT NULL,
-    county TEXT NOT NULL,
-    date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-  )
-`, (err) => {
-      if (err) {
-          console.error('Error creating users table:', err.message);
-      } else {
-          console.log('Users table created successfully');
-      }
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      workname TEXT NOT NULL,
+      county TEXT NOT NULL,
+      anomaly TEXT NOT NULL,
+      projectname TEXT,
+      date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating users table:', err.message);
+    } else {
+      console.log('Users table created successfully');
+    }
+  });
+
+  // Create org table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS org (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      orgname TEXT NOT NULL,
+      amount INTEGER NOT NULL,
+      portrait BOOLEAN NOT NULL,
+      unit BOOLEAN NOT NULL,
+      date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating org table:', err.message);
+    } else {
+      console.log('Org table created successfully');
+    }
   });
 }
+
+
 
 
 // const database = new sqlite.Database(
@@ -157,23 +185,23 @@ ipcMain.handle("maximize", () => {
   }
 });
 
-
+//create new user
 ipcMain.handle("createUser", async (event, args) => {
   try {
       if (!args || typeof args !== 'object') {
           throw new Error('Invalid arguments received for createUser');
       }
 
-      const { name, workname, county } = args;
+      const { name, workname, county, anomaly } = args;
 
       if (!name || !workname || !county) {
           throw new Error('Missing required user data for createUser');
       }
-
+      const anomalyValue = anomaly || ''; // Set anomalyValue to empty string if anomaly is empty
       await db.run(`
-          INSERT INTO users (name, workname, county)
-          VALUES (?, ?, ?)
-      `, [name.toLowerCase(), workname.toLowerCase(), county.toLowerCase()]);
+          INSERT INTO users (name, workname, county, anomaly)
+          VALUES (?, ?, ?, ?)
+          `, [name.toLowerCase(), workname.toLowerCase(), county.toLowerCase(), anomalyValue.toLowerCase()]);
 
       console.log('User data added successfully');
       event.sender.send('add-user-response', { success: true });
@@ -184,6 +212,7 @@ ipcMain.handle("createUser", async (event, args) => {
   }
 });
 
+//get all users
 ipcMain.handle("getUsers", async () => {
   const users = [];
 
@@ -203,6 +232,7 @@ ipcMain.handle("getUsers", async () => {
         name: row.name,
         workname: row.workname,
         county: row.county,
+        date: row.date,
         // Add more fields as needed based on your database schema
       });
     });
@@ -212,6 +242,41 @@ ipcMain.handle("getUsers", async () => {
     });
   });
 });
+
+
+//create new / add new file/data to local computer
+ipcMain.handle("createUserToComp", async (event, args) => {
+  const desktopPath = path.join(os.homedir(), 'Desktop'); // Get the desktop path
+  const dataFolderPath = path.join(desktopPath, 'data'); // Create a folder path named "data"
+  const filePath = path.join(dataFolderPath, 'userData.json'); // Specify the filename
+
+  const { name, workname, county, anomaly } = args;
+  
+  if (!name || !workname || !county) {
+    throw new Error('Missing required user input to write to file');
+}
+
+  // Check if the file exists
+  fs.access(filePath, fs.constants.F_OK, async (err) => {
+    if (err) {
+      // File doesn't exist, create a new file and write the data
+      const data = JSON.stringify(args, null, 2); // Convert args to JSON string
+      await fs.promises.mkdir(dataFolderPath, { recursive: true }); // Create the data folder if it doesn't exist
+      await fs.promises.writeFile(filePath, data + '\n');
+      console.log('New file created and data written successfully');
+      event.sender.send('createUserToComp-response', { success: true }); // Send success response
+    } else {
+      // File exists, append the data
+      const existingData = await fs.promises.readFile(filePath, 'utf8'); // Read existing data from file
+      const newData = existingData + '\n' + JSON.stringify(args, null, 2); // Append new data
+      await fs.promises.writeFile(filePath, newData); // Write the updated data back to the file
+      console.log('Data appended to existing file');
+      event.sender.send('createUserToComp-response', { success: true }); // Send success response
+    }
+  });
+});
+
+
 
 
 // ipcMain.handle("showDialog", async (event, args) => {
