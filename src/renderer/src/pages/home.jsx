@@ -9,6 +9,9 @@ function Home() {
     const [county, setCounty] = useState('');
     const [anomaly, setAnomaly] = useState('');
 
+    const [user, setUser] = useState([]);
+
+
     const Navigate = useNavigate();
 
     //navigate user to index
@@ -27,17 +30,21 @@ function Home() {
             const result = await window.api.createUser({ name, workname, county, anomaly });
             const resultToComp = await window.api.createUserToComp({ name, workname, county, anomaly, date: currentDate });
             // if (result.success && resultToComp.success) {
-                console.log('User created and data saved to desktop successfully');
-                setName('');
-                setWorkname('');
-                setCounty('');
-                setAnomaly('');
+            console.log('User created and data saved to desktop successfully');
+            setName('');
+            setWorkname('');
+            setCounty('');
+            setAnomaly('');
 
-                //set to localstorage
-                localStorage.setItem('user_name', name);
-                localStorage.setItem('user_workname', workname);
-                localStorage.setItem('user_county', county);
-                localStorage.setItem('user_county', anomaly);
+            //set to localstorage
+            localStorage.setItem('user_name', name);
+            localStorage.setItem('user_workname', workname);
+            localStorage.setItem('user_county', county);
+            localStorage.setItem('user_county', anomaly);
+
+            fetchUser(workname);
+
+
             // } else {
             //     console.error('Error creating user or saving data:', result.error || resultToComp.error);
             //     // Handle error case, e.g., show a generic error message or notify the user
@@ -49,7 +56,25 @@ function Home() {
     };
 
 
-
+    const fetchUser = async (workname) => {
+        try {
+            // Simulate a delay using setTimeout
+            setTimeout(async () => {
+                const userData = await window.api.getUser(workname); // Fetch users data from main process
+                console.log('User Data:', userData); // Log the users data
+                console.log(userData.user);
+                if (userData.user) {
+                    // If userData.user is a valid user object
+                    setUser([userData.user]); // Set the user state with an array containing the user object
+                } else {
+                    // If userData.user is null, undefined, or any other falsy value
+                    setUser([]); // Set an empty array as the user state
+                }
+            }, 1000); // Delay for 1 second (1000 milliseconds)
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
 
     return (
         <div className="home-wrapper">
@@ -72,6 +97,41 @@ function Home() {
                 </div>
                 <button className='button standard' type="submit">Add User</button>
             </form>
+
+            <div>
+                <table className="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Work Name</th>
+                            <th>County</th>
+                            <th>Anomaly</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {user.length > 0 ? (
+                            user.map((userData) => (
+                                <tr key={userData.id}>
+                                    <td>{userData.id}</td>
+                                    <td>{userData.name}</td>
+                                    <td>{userData.workname}</td>
+                                    <td>{userData.county}</td>
+                                    <td>{userData.anomaly}</td>
+                                    <td>{userData.date}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6">No user data available</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+
+            </div>
+
 
         </div>
     );

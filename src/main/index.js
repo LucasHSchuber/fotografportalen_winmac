@@ -6,7 +6,7 @@ const fs = require("fs");
 const fsa = require("fs/promises");
 const sqlite3 = require('sqlite3').verbose();
 const fse = require("fs-extra");
-const icon = path.join(__dirname, "../../resources/icon.png");
+const icon = path.join(__dirname, "../../resources/icon2.png");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
 const os = require('os'); // Import the os module
@@ -38,6 +38,7 @@ function createWindow() {
     // frame: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
+    // icon: path.join(__dirname, '../../resources/icon2.png'),
     webPreferences: {
       preload : path.join(__dirname, '../preload/index.js') ,
       sandbox: false,
@@ -216,7 +217,7 @@ ipcMain.handle("createUser", async (event, args) => {
 ipcMain.handle("getUsers", async () => {
   const users = [];
 
-  const retrieveQuery = "SELECT * FROM users"; // Modify the query as per your database schema
+  const retrieveQuery = "SELECT * FROM users"; 
 
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbPath);
@@ -233,7 +234,6 @@ ipcMain.handle("getUsers", async () => {
         workname: row.workname,
         county: row.county,
         date: row.date,
-        // Add more fields as needed based on your database schema
       });
     });
 
@@ -242,6 +242,44 @@ ipcMain.handle("getUsers", async () => {
     });
   });
 });
+
+//get spcific user
+ipcMain.handle("getUser", async (event, workname) => {
+  const retrieveQuery = "SELECT * FROM users WHERE workname = ?"; 
+
+  try {
+      const user = await new Promise((resolve, reject) => {
+          const db = new sqlite3.Database(dbPath);
+
+          db.get(retrieveQuery, [workname], (error, row) => {
+              if (error) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: error });
+              } else if (!row) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: 'User not found' });
+              } else {
+                  db.close();
+                  resolve({
+                      id: row.id,
+                      name: row.name,
+                      workname: row.workname,
+                      county: row.county,
+                      anomaly: row.anomaly,
+                      date: row.date
+                  });
+              }
+          });
+      });
+
+      return { statusCode: 1, user: user };
+  } catch (error) {
+      console.error('Error fetching user data:', error);
+      return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
 
 
 //create new / add new file/data to local computer

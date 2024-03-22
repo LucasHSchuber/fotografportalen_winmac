@@ -2,6 +2,11 @@
 
 
 /* WRAPPERS */
+
+.index-wrapper, .home-wrapper{
+  padding: 0 0 5em 0;
+}
+
 .index-wrapper h1, .home-wrapper h1{
   color: #005670;
   font-size: 1.8em;
@@ -17,6 +22,7 @@
   margin: 0.1em;
   background-color: #efefef;
 }
+
 
 
 /* Table Styles */

@@ -9,16 +9,13 @@ const api = {
   homeDir: () => os.homedir(),
 
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
-
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
 
   createUser: args => ipcRenderer.invoke('createUser', args), // Database Call For Create User
-  
   createUserToComp: args => ipcRenderer.invoke('createUserToComp', args), // Database Call For Create User
 
   getUsers: () => ipcRenderer.invoke('getUsers'),
-  
-
+  getUser: (workname) => ipcRenderer.invoke('getUser', workname), // Pass workname to getUser handler in main process
 
 }
 
