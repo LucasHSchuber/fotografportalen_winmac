@@ -11,6 +11,7 @@ const ipcMain = electron.ipcMain;
 const app = electron.app;
 const os = require('os'); // Import the os module
 const BrowserWindow = electron.BrowserWindow;
+const isDev = require('electron-is-dev');
 // import updateQuestion from "./api/updateQuestion"
 // import deleteQuestion from "./api/deleteQuestion"
 // import insertQuestion from "./api/insertQuestion"
@@ -18,6 +19,14 @@ const BrowserWindow = electron.BrowserWindow;
 // import getCourseOutcomes from "./api/getCourseOutcomes"
 // import updateCourseOutcomes from "./api/updateCourseOutcomes"
 import express from 'express';
+
+if (isDev) {
+  console.log('Running in development mode');
+} else {
+  console.log('Running in production mode');
+}
+
+
  
 let mainWindow , CourseWindow;
 function createWindow() {
@@ -148,7 +157,9 @@ function createTables() {
       amount INTEGER NOT NULL,
       portrait BOOLEAN NOT NULL,
       unit BOOLEAN NOT NULL,
-      date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      user_id INTEGER NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id)
     )
   `, (err) => {
     if (err) {
@@ -280,8 +291,6 @@ ipcMain.handle("getUser", async (event, workname) => {
 });
 
 
-
-
 //create new / add new file/data to local computer
 ipcMain.handle("createUserToComp", async (event, args) => {
   const desktopPath = path.join(os.homedir(), 'Desktop'); // Get the desktop path
@@ -313,6 +322,79 @@ ipcMain.handle("createUserToComp", async (event, args) => {
     }
   });
 });
+
+
+//create new group
+ipcMain.handle("createGroup", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for createGroup');
+      }
+
+      const { orgname, amount, portrait, unit, user_id } = args;
+
+      if (!orgname || !amount || user_id === undefined || user_id === null) {
+        throw new Error('Missing required data for createGroup');
+    }
+
+      // Assuming you have a 'users' table with 'id' column
+      const userExists = await db.get("SELECT id FROM users WHERE id = ?", user_id);
+      if (!userExists) {
+          throw new Error('Invalid user ID');
+      }
+
+      await db.run(`
+          INSERT INTO org (orgname, amount, portrait, unit, user_id)
+          VALUES (?, ?, ?, ?, ?)
+      `, [orgname.toLowerCase(), amount.toLowerCase(), portrait, unit, user_id]);
+
+
+      console.log('Group data added successfully');
+      event.sender.send('add-group-response', { success: true });
+      
+  } catch (err) {
+      console.error('Error adding user data:', err.message);
+      event.sender.send('add-group-response', { error: err.message });
+  }
+});
+
+
+//crate new window
+ipcMain.handle("createNewWindow", async (event, args) => {
+  try {
+      const CourseWindow = new BrowserWindow({
+          parent: mainWindow, // Set the parent window if needed
+          modal: true, // Example: Open as a modal window
+          width: 900,
+          height: 550,
+          minWidth: 600,
+          minHeight: 550,
+          // show: false,
+          // frame: false,
+          autoHideMenuBar: true,
+          webPreferences: {
+              preload: path.join(__dirname, '../preload/index.html'),
+              worldSafeExecuteJavaScript: true,
+              contextIsolation: true,
+          },
+      });
+      // Load the URL for the new window if needed
+      CourseWindow.loadURL(
+        isDev
+            ? "http://localhost:5173/#/addgroup"
+            : `file://${path.join(__dirname, "../build/index.html")}`
+    );
+      // Optionally return some data back to the renderer process
+      return { success: true, message: 'New window created successfully' };
+  } catch (error) {
+      // Handle any errors that occur while creating the new window
+      console.error('Error creating new window:', error);
+      throw new Error('Failed to create new window');
+  }
+});
+
+
+
 
 
 

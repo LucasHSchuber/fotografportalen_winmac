@@ -11,6 +11,7 @@ function Sidemenu() {
             <ul className="menu">
                 <li><NavLink exact to="/" activeClassName="activeLink">Index</NavLink></li>
                 <li><NavLink to="/home" activeClassName="activeLink">Home</NavLink></li>
+                <li><NavLink to="/addgroup" activeClassName="activeLink">Add group</NavLink></li>
             </ul>
         </div>
     );

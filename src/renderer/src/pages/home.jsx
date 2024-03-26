@@ -11,14 +11,13 @@ function Home() {
 
     const [user, setUser] = useState([]);
 
-
     const Navigate = useNavigate();
 
-    //navigate user to index
-    const toIndex = () => {
-        Navigate('/');
-    }
 
+    useEffect(() => {
+        let user_id = localStorage.getItem("user_id");
+        console.log(user_id);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -44,7 +43,6 @@ function Home() {
 
             fetchUser(workname);
 
-
             // } else {
             //     console.error('Error creating user or saving data:', result.error || resultToComp.error);
             //     // Handle error case, e.g., show a generic error message or notify the user
@@ -63,6 +61,9 @@ function Home() {
                 const userData = await window.api.getUser(workname); // Fetch users data from main process
                 console.log('User Data:', userData); // Log the users data
                 console.log(userData.user);
+                localStorage.setItem("user_id", userData.user.id);
+                let user_id = localStorage.getItem("user_id");
+                console.log(user_id);
                 if (userData.user) {
                     // If userData.user is a valid user object
                     setUser([userData.user]); // Set the user state with an array containing the user object
@@ -70,7 +71,7 @@ function Home() {
                     // If userData.user is null, undefined, or any other falsy value
                     setUser([]); // Set an empty array as the user state
                 }
-            }, 1000); // Delay for 1 second (1000 milliseconds)
+            }, 1600); // Delay for 1,6 second (1000 milliseconds)
         } catch (error) {
             console.error('Error fetching user data:', error);
         }

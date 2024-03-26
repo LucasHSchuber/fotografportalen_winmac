@@ -7,6 +7,7 @@ import Index from "./pages/index";
 import Home from "./pages/home";
 import Header from "./pages/header";
 import Sidemenu from "./components/sidemenu";
+import Addgroup from "./pages/addgroup";
 
 //importing css style
 import "./App.css";
@@ -54,6 +55,12 @@ function App() {
           <div className="route-layout">
             <Routes>
               <Route path="/home" element={<Home />} />
+            </Routes>
+          </div>
+
+          <div className="route-layout">
+            <Routes>
+              <Route path="/addgroup" element={<Addgroup />} />
             </Routes>
           </div>
 

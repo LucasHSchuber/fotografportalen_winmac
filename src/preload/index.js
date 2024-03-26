@@ -17,6 +17,11 @@ const api = {
   getUsers: () => ipcRenderer.invoke('getUsers'),
   getUser: (workname) => ipcRenderer.invoke('getUser', workname), // Pass workname to getUser handler in main process
 
+  createGroup: args => ipcRenderer.invoke('createGroup', args), // Database Call For Create Group
+
+  createNewWindow: (args) => ipcRenderer.invoke('createNewWindow', args), // open new window
+
+
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
