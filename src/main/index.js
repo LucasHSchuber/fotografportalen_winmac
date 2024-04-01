@@ -39,8 +39,8 @@ function createWindow() {
   
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 600,
+    width: 1100,
+    height: 650,
     minWidth: 600,
     minHeight: 550,
     show: false,
@@ -56,6 +56,17 @@ function createWindow() {
       webSecurity: false
     }
   })
+
+
+  // Hide the menu bar
+  // mainWindow.setMenuBarVisibility(false);
+// Open DevTools in development mode
+  // if (isDev) {
+  //  mainWindow.webContents.openDevTools({ mode: 'detach' });
+  // }
+  if (isDev) {
+    mainWindow.webContents.openDevTools({});
+   }
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
