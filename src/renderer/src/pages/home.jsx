@@ -54,28 +54,28 @@ function Home() {
     };
 
 
-    const fetchUser = async (workname) => {
-        try {
-            // Simulate a delay using setTimeout
-            setTimeout(async () => {
-                const userData = await window.api.getUser(workname); // Fetch users data from main process
-                console.log('User Data:', userData); // Log the users data
-                console.log(userData.user);
-                localStorage.setItem("user_id", userData.user.id);
-                let user_id = localStorage.getItem("user_id");
-                console.log(user_id);
-                if (userData.user) {
-                    // If userData.user is a valid user object
-                    setUser([userData.user]); // Set the user state with an array containing the user object
-                } else {
-                    // If userData.user is null, undefined, or any other falsy value
-                    setUser([]); // Set an empty array as the user state
-                }
-            }, 1600); // Delay for 1,6 second (1000 milliseconds)
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-        }
-    };
+    // const fetchUser = async (workname) => {
+    //     try {
+    //         // Simulate a delay using setTimeout
+    //         setTimeout(async () => {
+    //             const userData = await window.api.getUser(workname); // Fetch users data from main process
+    //             console.log('User Data:', userData); // Log the users data
+    //             console.log(userData.user);
+    //             localStorage.setItem("user_id", userData.user.id);
+    //             let user_id = localStorage.getItem("user_id");
+    //             console.log(user_id);
+    //             if (userData.user) {
+    //                 // If userData.user is a valid user object
+    //                 setUser([userData.user]); // Set the user state with an array containing the user object
+    //             } else {
+    //                 // If userData.user is null, undefined, or any other falsy value
+    //                 setUser([]); // Set an empty array as the user state
+    //             }
+    //         }, 1600); // Delay for 1,6 second (1000 milliseconds)
+    //     } catch (error) {
+    //         console.error('Error fetching user data:', error);
+    //     }
+    // };
 
     return (
         <div className="home-wrapper">
@@ -99,7 +99,7 @@ function Home() {
                 <button className='button standard' type="submit">Add User</button>
             </form>
 
-            <div>
+            {/* <div>
                 <table className="user-table">
                     <thead>
                         <tr>
@@ -130,9 +130,7 @@ function Home() {
                         )}
                     </tbody>
                 </table>
-
-            </div>
-
+            </div> */}
 
         </div>
     );

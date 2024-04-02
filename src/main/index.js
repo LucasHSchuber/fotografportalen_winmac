@@ -12,6 +12,7 @@ const app = electron.app;
 const os = require('os'); // Import the os module
 const BrowserWindow = electron.BrowserWindow;
 const isDev = require('electron-is-dev');
+const { autoUpdater } = require('electron-updater');
 // import updateQuestion from "./api/updateQuestion"
 // import deleteQuestion from "./api/deleteQuestion"
 // import insertQuestion from "./api/insertQuestion"
@@ -25,6 +26,17 @@ if (isDev) {
 } else {
   console.log('Running in production mode');
 }
+
+// //setup logger
+// autoUpdater.logger = require('electron-log');
+// autoUpdater.logger.transports.file.level = 'info';
+
+// //seutup updater events
+// autoUpdater.on('checking-for-update', () => {
+//   console.log('checking for updates...');
+// });
+
+
 
 
  
@@ -61,12 +73,12 @@ function createWindow() {
   // Hide the menu bar
   // mainWindow.setMenuBarVisibility(false);
 // Open DevTools in development mode
-  // if (isDev) {
-  //  mainWindow.webContents.openDevTools({ mode: 'detach' });
-  // }
   if (isDev) {
-    mainWindow.webContents.openDevTools({});
-   }
+   mainWindow.webContents.openDevTools({ mode: 'detach' });
+  }
+  // if (isDev) {
+  //   mainWindow.webContents.openDevTools({});
+  //  }
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

@@ -11,6 +11,36 @@ function Index() {
   const [homeDir, setHomeDir] = useState('');
 
 
+
+  // Function to fetch projects from EXPRESS-BILD API
+  const fetchProjects = async () => {
+    try {
+      let response = await axios.get('https://backend.expressbild.org/index.php/rest/teamleader/projects');
+
+      if (response && response.data) {
+        console.log('Fetched projects:', response.data);
+
+      } else {
+        console.error('Empty response received');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (!error.response) {
+          console.error('Network Error: Please check your internet connection');
+        } else {
+          console.error('Request failed with status code:', error.response.status);
+        }
+      } else {
+        console.error('Error fetching projects:', error.message);
+      }
+    }
+  };
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+
+
   // Function to fetch home directory and update state
   const fetchHomeDir = async () => {
     try {
@@ -20,6 +50,7 @@ function Index() {
       console.error('Error fetching home directory:', error);
     }
   };
+
 
   // Call fetchHomeDir when component mounts
   useEffect(() => {
