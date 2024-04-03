@@ -4,15 +4,38 @@ const log = require('electron-log');
 const path = require("path");
 const fs = require("fs");
 const fsa = require("fs/promises");
+const util = require('util');
 const sqlite3 = require('sqlite3').verbose();
 const fse = require("fs-extra");
-const icon = path.join(__dirname, "../../resources/icon2.png");
+// const icon = path.join(__dirname, "../../resources/icon2.png");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
 const os = require('os'); // Import the os module
 const BrowserWindow = electron.BrowserWindow;
 const isDev = require('electron-is-dev');
 const { autoUpdater } = require('electron-updater');
+// const icon = path.join(__dirname, "../../resources/icon2.png");
+// const icon2 = path.join(__dirname, "../../resources/icon2.icns");
+
+// Set the icon path based on the build environment
+let iconPath;
+if (isDev) {
+  // Development mode path
+  let iconPath = path.join(__dirname, '..', '..', 'resources', 'icon2.png');
+  if (process.platform === 'darwin') {
+    iconPath = path.join(__dirname, '..', '..', 'resources', 'icon2.icns');
+  }
+} else {
+  // Production mode path
+  let iconPath = path.join(__dirname, '../../resources/icon2.png').replace("app.asar", "app.asar.unpacked");
+  if (process.platform === 'darwin') {
+    iconPath = path.join(__dirname, '../../resources/icon2.icns').replace("app.asar", "app.asar.unpacked");
+  }
+}
+
+
+
+
 // import updateQuestion from "./api/updateQuestion"
 // import deleteQuestion from "./api/deleteQuestion"
 // import insertQuestion from "./api/insertQuestion"
@@ -27,19 +50,7 @@ if (isDev) {
   console.log('Running in production mode');
 }
 
-// //setup logger
-// autoUpdater.logger = require('electron-log');
-// autoUpdater.logger.transports.file.level = 'info';
 
-// //seutup updater events
-// autoUpdater.on('checking-for-update', () => {
-//   console.log('checking for updates...');
-// });
-
-
-
-
- 
 let mainWindow , CourseWindow;
 function createWindow() {
   
@@ -52,13 +63,14 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1100,
-    height: 650,
+    height: 700,
     minWidth: 600,
     minHeight: 550,
     show: false,
     // frame: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    // ...(process.platform === 'linux' ? { icon } : {}),
+    icon: iconPath, 
     // icon: path.join(__dirname, '../../resources/icon2.png'),
     webPreferences: {
       preload : path.join(__dirname, '../preload/index.js') ,
@@ -101,7 +113,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   log.info("Ready")
-  electronApp.setAppUserModelId('com.exampapersetter')
+  electronApp.setAppUserModelId('ElectronReactApp')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -135,9 +147,17 @@ process.on("uncaughtException", (error) => {
 
 log.info(process.resourcesPath)
 
+
 //Database Connection And Instance
 // Construct the absolute path to the SQLite database file
-const dbPath = path.join(__dirname, '..', '..', 'resources', 'mydb.db');
+let dbPath;
+if (isDev) {
+  // Development mode path
+  dbPath = path.join(__dirname, '..', '..', 'resources', 'fp.db');
+} else {
+  // Production mode path
+  dbPath = path.join(__dirname, "../../resources/fp.db").replace("app.asar", "app.asar.unpacked")
+}
 
 // Create or open SQLite database
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -156,41 +176,107 @@ function createTables() {
   // Create users table
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      workname TEXT NOT NULL,
-      county TEXT NOT NULL,
-      anomaly TEXT NOT NULL,
-      projectname TEXT,
-      date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL,
+      firstname TEXT NOT NULL,
+      lastname TEXT NOT NULL,
+      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {
     if (err) {
       console.error('Error creating users table:', err.message);
     } else {
       console.log('Users table created successfully');
+      insertDataToTables();
     }
   });
 
-  // Create org table
+  // Create project table
   db.run(`
-    CREATE TABLE IF NOT EXISTS org (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      orgname TEXT NOT NULL,
-      amount INTEGER NOT NULL,
-      portrait BOOLEAN NOT NULL,
+    CREATE TABLE IF NOT EXISTS projects (
+      project_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      projectname TEXT NOT NULL,
+      type SRTING NOT NULL,
+      anomaly TEXT NOT NULL,
+      merged_units TEXT NOT NULL,
       unit BOOLEAN NOT NULL,
-      date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      alert_salet BOOLEAN NULL,
+      is_deleted BOOLEAN NOT NULL,
+      is_sent BOOLEAN NOT NULL,
+      sent_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       user_id INTEGER NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES users(id)
+      FOREIGN KEY (user_id) REFERENCES users(user_id)
     )
   `, (err) => {
     if (err) {
-      console.error('Error creating org table:', err.message);
+      console.error('Error creating projects table:', err.message);
     } else {
-      console.log('Org table created successfully');
+      console.log('Projects table created successfully');
     }
   });
+
+    // Create teams table
+    db.run(`
+    CREATE TABLE IF NOT EXISTS teams (
+      team_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      teamname TEXT NOT NULL,
+      amount INT NOT NULL,
+      leader_firstname STRING NOT NULL,
+      leader_lastname STRING NOT NULL,
+      leader_address STRING NOT NULL,
+      leader_postalcode STRING NOT NULL,
+      leader_county STRING NOT NULL,
+      leader_mobile STRING NOT NULL,
+      leader_email STRING NOT NULL,
+      leader_ssn INTEGER NOT NULL,
+      portrait BOOLEAN NOT NULL,
+      crowd BOOLEAN NOT NULL,
+      sold_calendar BOOLEAN NOT NULL,
+      project_id INTEGER NOT NULL,
+      FOREIGN KEY (project_id) REFERENCES projects(project_id)
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating teams table:', err.message);
+    } else {
+      console.log('Teams table created successfully');
+    }
+  });
+
+   // Create _projects table
+   db.run(`
+   CREATE TABLE IF NOT EXISTS _projects (
+     project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
+     project_uuid STRING NOT NULL,
+     projectname STRING NOT NULL,
+     lang STRING NOT NULL
+   )
+ `, (err) => {
+   if (err) {
+     console.error('Error creating _projects table:', err.message);
+   } else {
+     console.log('_projects table created successfully');
+   }
+ });
+
+}
+
+// Function to insert data into tables
+function insertDataToTables(){
+
+  db.run(`
+  INSERT INTO users (email, firstname, lastname) 
+  VALUES ('user@example.com', 'John', 'Doe')
+`, (err) => {
+  if (err) {
+    console.error('Error inserting user:', err.message);
+  } else {
+    console.log('User inserted successfully');
+  }
+
+});
+
 }
 
 
@@ -220,6 +306,46 @@ ipcMain.handle("maximize", () => {
   }
 });
 
+
+
+
+ipcMain.handle("createProjects", async (event, projects) => {
+  try {
+    console.log('Received projects data:', projects); // Log received data for debugging
+
+    if (!Array.isArray(projects)) {
+      throw new Error('Invalid data received for createProjects');
+    }
+
+     // Clear existing data from the _projects table
+     await db.run('DELETE FROM _projects');
+
+    // Insert each project into the database
+    const stmt = db.prepare('INSERT INTO _projects (project_uuid, projectname, lang) VALUES (?, ?, ?)');
+    for (const project of projects) {
+      // Check if _project_uuid is provided and not null
+      if (!project.project_uuid) {
+        console.error('Error adding project:', 'Missing _project_uuid');
+        continue; // Skip insertion for this project
+      }
+
+      stmt.run(project.project_uuid, project.projectname, project.lang);
+    }
+    stmt.finalize();
+
+    console.log('Projects added successfully');
+    event.sender.send('add-projects-response', { success: true }); // Send success response
+  } catch (err) {
+    console.error('Error adding projects:', err.message);
+    event.sender.send('add-projects-response', { error: err.message }); // Send error response
+  }
+});
+
+
+
+
+
+
 //create new user
 ipcMain.handle("createUser", async (event, args) => {
   try {
@@ -247,45 +373,45 @@ ipcMain.handle("createUser", async (event, args) => {
   }
 });
 
-//get all users
-ipcMain.handle("getUsers", async () => {
-  const users = [];
+// //get all users
+// ipcMain.handle("getUser", async () => {
+//   const user = [];
 
-  const retrieveQuery = "SELECT * FROM users"; 
+//   const retrieveQuery = "SELECT * FROM users"; 
 
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(dbPath);
+//   return new Promise((resolve, reject) => {
+//     const db = new sqlite3.Database(dbPath);
 
-    db.each(retrieveQuery, (error, row) => {
-      if (error != null) {
-        db.close();
-        reject({ statusCode: 0, errorMessage: error });
-      }
+//     db.each(retrieveQuery, (error, row) => {
+//       if (error != null) {
+//         db.close();
+//         reject({ statusCode: 0, errorMessage: error });
+//       }
 
-      users.push({
-        id: row.id,
-        name: row.name,
-        workname: row.workname,
-        county: row.county,
-        date: row.date,
-      });
-    });
+//       user.push({
+//         id: row.id,
+//         name: row.name,
+//         workname: row.workname,
+//         county: row.county,
+//         date: row.date,
+//       });
+//     });
 
-    db.close(() => {
-      resolve({ statusCode: 1, users: users });
-    });
-  });
-});
+//     db.close(() => {
+//       resolve({ statusCode: 1, users: user });
+//     });
+//   });
+// });
 
 //get spcific user
-ipcMain.handle("getUser", async (event, workname) => {
-  const retrieveQuery = "SELECT * FROM users WHERE workname = ?"; 
+ipcMain.handle("getUser", async (event, id) => {
+  const retrieveQuery = "SELECT * FROM users WHERE user_id = ?"; 
 
   try {
       const user = await new Promise((resolve, reject) => {
           const db = new sqlite3.Database(dbPath);
 
-          db.get(retrieveQuery, [workname], (error, row) => {
+          db.get(retrieveQuery, [id], (error, row) => {
               if (error) {
                   db.close();
                   reject({ statusCode: 0, errorMessage: error });
@@ -295,12 +421,11 @@ ipcMain.handle("getUser", async (event, workname) => {
               } else {
                   db.close();
                   resolve({
-                      id: row.id,
-                      name: row.name,
-                      workname: row.workname,
-                      county: row.county,
-                      anomaly: row.anomaly,
-                      date: row.date
+                      user_id: row.user_id,
+                      email: row.email,
+                      firstname: row.firstname,
+                      lastname: row.lastname,
+                      created: row.created
                   });
               }
           });

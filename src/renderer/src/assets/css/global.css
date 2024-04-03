@@ -1,7 +1,11 @@
-* {}
+* {
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
 
 body {
-    background-color: #b3ccd4;
+    background-color: #ffffff;
+
 }
 
 .route-layout {
@@ -11,5 +15,4 @@ body {
 
 .main-content {
     margin-left: 7em;
-    /* Adjust margin to accommodate the sidebar width plus some extra space */
 }

@@ -1,0 +1,163 @@
+/* main_teamleader css */
+
+
+/* TEALEADER */
+
+.teamleader-wrapper {
+    padding: 6em 0 2em 0;
+    color: #323232;
+}
+
+.teamleader-wrapper .header {
+    width: 85%;
+}
+
+.teamleader-wrapper .header h4 {
+    font-weight: 700;
+}
+
+.teamleader-wrapper .header p {
+    font-size: 0.9em;
+}
+
+.title-img {
+    width: 1em;
+    margin-right: 0.4em;
+    margin-top: -0.2em;
+}
+
+
+
+/* HOME */
+
+
+/* loading bar */
+.loading-bar-container {
+    text-align: center;
+    /* margin-top: 20em; */
+    width: 30vh;
+    height: 4px;
+    background-color: #e0e0e0;
+    margin-left: 30%;
+}
+
+.loading-bar {
+    text-align: center;
+    height: 100%;
+    width: 10%;
+    background-color: #00b3ff;
+    transition: width 2s ease;
+    animation: fillLoadingBar 2s linear;
+}
+
+.loading-bar-text {
+    text-align: center;
+    margin-top: 10em;
+    width: 30vh;
+    height: 4px;
+    margin-left: 30%;
+    padding-bottom: 3em;
+}
+
+@keyframes fillLoadingBar {
+    0% {
+        width: 0%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+
+/* PREV WORK */
+
+.prevwork-box-left {
+    background-color: #f4f4f4;
+    color: #868686 !important;
+    padding: 1em 1em 0 1em;
+    height: fit-content;
+    border-radius: 7px;
+    /* min-width: 25em; */
+    width: fit-content;
+}
+
+.prevwork-box-mid {
+    background-color: #f4f4f4;
+    /* background-color: rgb(237, 237, 237); */
+    /* border: 1px solid rgb(138, 138, 138); */
+    padding: 1em 0.7em 0 0.5em;
+    height: fit-content;
+    align-items: center !important;
+    border-radius: 7px;
+}
+
+.prevwork-box-right {
+    background-color: rgb(237, 237, 237);
+    padding: 1em 1em 1em 1em;
+    height: fit-content;
+    align-items: center !important;
+    border-radius: 7px;
+}
+
+.prevwork-box-left,
+.prevwork-box-mid,
+.prevwork-box-right {
+    font-size: 0.9em !important;
+}
+
+.prevwork-box-right:hover {
+    background-color: #00b3ff;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+
+
+/* NEW PROJECT */
+/* modal */
+.modal-content {
+    text-align: center;
+}
+
+.modal-footer {
+    justify-content: center;
+}
+
+/* form */
+.newproject-form input {
+    width: 30em;
+    height: 2.5em;
+    padding: 0 0 0 0.5em;
+}
+
+.work-type-button {
+    padding: 1.2em 1.5em 0.5em 1.5em;
+    margin: 0.5em 0.2em 0.5em 0;
+    background-color: rgb(71, 71, 71);
+    border: 1px solid rgb(189, 189, 189, 0);
+    border-radius: 1px;
+    transition: 0.1s;
+    /* border: none; */
+    cursor: pointer;
+    color: white;
+
+}
+
+.work-type-button:hover {
+    border: 1px solid rgb(189, 189, 189, 0);
+    background-color: #00b3ff;
+    border-radius: 7px;
+    color: white;
+}
+
+.selected-type {
+    border: 1px solid rgb(189, 189, 189);
+    background-color: #00b3ff !important;
+    color: white;
+    border-radius: 7px;
+}
+
+.type-img {
+    width: 2em;
+}

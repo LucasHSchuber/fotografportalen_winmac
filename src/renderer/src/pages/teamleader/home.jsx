@@ -41,7 +41,7 @@ function Home() {
             localStorage.setItem('user_county', county);
             localStorage.setItem('user_county', anomaly);
 
-            fetchUser(workname);
+            // fetchUser(workname);
 
             // } else {
             //     console.error('Error creating user or saving data:', result.error || resultToComp.error);

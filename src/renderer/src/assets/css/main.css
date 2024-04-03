@@ -3,20 +3,77 @@
 
 /* WRAPPERS */
 
-.index-wrapper,
+
+
+
+/* INDEX */
+.index-wrapper {
+  padding: 0 0 0 0;
+}
+
+.index-box-left {
+  background-color: #F1F1F1;
+  width: 40% !important;
+  height: 100vh;
+}
+
+.index-box-right {
+  background-color: white;
+  width: 50% !important;
+  height: 100vh;
+  padding-top: 1em;
+}
+
+.avatar-container {
+  width: 60px; 
+  height: 60px;
+  overflow: hidden;
+  border-radius: 50%;
+  margin-right: 15px; 
+  background-color: #2b2b2b;
+}
+.profile-picture {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.index-box {
+  margin: 2em 4em;
+  font-size: 0.8em;
+}
+
+.index-title {
+  color: white;
+  font-size: 1em;
+  width: fit-content;
+  padding: 0.2em 0.6em;
+  border-radius: 5px;
+}
+
+.one {
+  background-color: #00c9a4;
+}
+
+.two {
+  background-color: #ff4d4d;
+}
+.three {
+  background-color: #0091D0;
+}
+
+.hr{
+  background-color: rgb(243, 243, 243);
+}
+
+
+/* HOME */
+
 .home-wrapper {
   padding: 0 0 5em 0;
 }
 
-.index-wrapper h1,
-.home-wrapper h1 {
-  color: #005670;
-  font-size: 1.8em;
-}
 
-
-
-/* HOME */
 .home-wrapper textarea,
 .home-wrapper input {
   border-radius: 5px;
@@ -54,14 +111,7 @@
   background-color: #e6eef1;
 }
 
-/* .user-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  } */
 
-/* .user-table tbody tr:hover {
-    background-color: #f1f1f1;
-  }
-   */
 
 
 /* ADD GROUP */
