@@ -18,13 +18,16 @@ function Newproject_teamleader() {
     // Define states
     const [projectName, setProjectName] = useState('');
     const [type, setType] = useState('');
+    const [project_uuid, setProject_uuid] = useState('');
+
     const [isSelectedType1, setIsSelectedType1] = useState(false);
     const [isSelectedType2, setIsSelectedType2] = useState(false);
 
     const [_projects, set_Projects] = useState([]);
 
 
-    const Navigate = useNavigate();
+
+    const navigate = useNavigate();
 
 
 
@@ -36,16 +39,13 @@ function Newproject_teamleader() {
 
             try {
 
-                const projects = await fetchProjectsByLang(user_lang); // Call the fetchProjects function
-                console.log('Projects:', projects);
+                const projects = await fetchProjectsByLang(user_lang);
                 set_Projects(projects.result);
-
-
+                console.log('Projects:', projects.result);
 
             } catch (error) {
                 console.error('Error fetching projects by language from big database:', error);
 
-                //fetch from sqlite database
                 const response = await window.api.get_Projects(user_lang);
                 console.log('Create Projects Response:', response);
 
@@ -55,11 +55,9 @@ function Newproject_teamleader() {
                         console.log('Projects fetched successfully');
                     } else {
                         console.log('No projects found for the specified language.');
-                        // Handle no projects found scenario (e.g., display a message to the user)
                     }
                 } else {
                     console.error('Error fetching projects:', response.errorMessage);
-                    // Handle API error (e.g., display an error message to the user)
                 }
 
             }
@@ -71,21 +69,136 @@ function Newproject_teamleader() {
 
 
 
-
-    const handleProjectChange = (e) => {
-        setProjectName(e.target.value);
+    const handleProjectChange = (value) => {
+        setProjectName(value);
         console.log(projectName);
+
     };
+
+
+    const findUuid = (projectName) => {
+        const selectedProject = _projects.find(project => project.projectname === projectName);
+        if (selectedProject) {
+            let _uuid = selectedProject.project_uuid;
+            setProject_uuid(_uuid);
+        }
+    }
 
     const handleSubmit = (e) => {
+
         e.preventDefault();
+
+        findUuid(projectName)
+
         console.log('Selected project:', projectName);
         console.log('Selected type:', type);
+        console.log('Selected project uuid:', project_uuid);
+
+        const confirmationMessage = `Create new project: ${projectName}\n\n`;
+
+        if (window.confirm(confirmationMessage)) {
+            CreateNewProject();
+
+        } else {
+            // Handle cancellation here
+            console.log('Creation canceled.');
+        }
     };
+
+
+    const CreateNewProject = async () => {
+        try {
+
+            if (!projectName || !type || !project_uuid) {
+                throw new Error('Project name, type, and project_uuid are required.');
+            }
+
+            const response = await window.api.checkProjectExists(project_uuid);
+            console.log('Project already exists - response:', response);
+
+            if (response && response.statusCode === 1) {
+                console.log('Project exists:', response.projectname);
+                return true; // Project exists
+            } else {
+                console.log('Project does not exist.');
+
+
+                let user_id = localStorage.getItem("user_id");
+                const args = {
+                    projectname: projectName,
+                    type: type,
+                    project_uuid: project_uuid,
+                    user_id: user_id
+                };
+                console.log(args);
+
+                const response = await window.api.createNewProject(args);
+                console.log('Create New Projects Response:', response);
+
+                if (response && response.success) {
+                    console.log('Project created successfully');
+
+                    //get latest tuppel in table
+                    const latestProjectResponse = await window.api.getLatestProject(project_uuid);
+                    console.log('Check Latest Project Response:', latestProjectResponse);
+                    //store the project_id in session_storage
+                    sessionStorage.setItem("project_id", latestProjectResponse.project_id);
+                    // navigate("/");
+                    
+                } else {
+                    console.error('Error creating project:', response?.error || 'Unknown error');
+                }
+
+
+            }
+        } catch (error) {
+            console.error('Error checking project existence:', error);
+            return false; // Error occurred, assume project doesn't exist
+        }
+        // try {
+        //     if (!projectName || !type || !project_uuid) {
+        //         throw new Error('Project name, type, and uuid are required.');
+        //     }
+
+        //     // Check if a project with the given project_uuid already exists
+        //     const response = await window.api.checkProjectExists(project_uuid);
+        //     console.log('Check Project Exists Response:', response);
+
+        //     if (!exists) {
+        //         let user_id = localStorage.getItem("user_id");
+        //         const args = {
+        //             projectname: projectName,
+        //             type: type,
+        //             project_uuid: project_uuid,
+        //             user_id: user_id
+        //         };
+        //         console.log(args);
+
+        //         const response = await window.api.createNewProject(args);
+        //         console.log('Create New Projects Response:', response);
+
+        //         if (response && response.success) {
+        //             // Handle success case
+        //             console.log('Project created successfully');
+        //             // navigate("/");
+        //         } else {
+        //             // Handle error case
+        //             console.error('Error creating project:', response?.error || 'Unknown error');
+        //             // Show an error message to the user
+        //         }
+        //     } else {
+        //         console.log('Project already exists, skipping creation.');
+        //     }
+
+        // } catch (error) {
+        //     console.error('Error creating project:', error.message);
+        //     // Show an error message to the user
+        // }
+    }
 
     const handleProjectType = (projectType) => {
         setType(projectType);
-        if (projectType === 1) {
+        if (projectType === "Sport") {
             setIsSelectedType1(true);
             setIsSelectedType2(false);
         } else {
@@ -112,28 +225,29 @@ function Newproject_teamleader() {
                         type="text"
                         list="projects"
                         value={projectName}
-                        onChange={handleProjectChange}
+                        onChange={(e) => handleProjectChange(e.target.value)}
                         placeholder="Search projects..."
                         style={{ maxWidth: '100%', overflowX: 'auto' }}
+                        className="datalist-input"
                     />
                     <datalist
                         id="projects"
-                        style={{ maxHeight: '200px', overflowY: 'auto', position: 'absolute', zIndex: '1000' }} // Set a maximum height and enable vertical scrolling
                     >
                         {_projects.map(project => (
-                            <option key={project.project_id} value={project.projectname} /> // Add a key prop to each option for React's rendering
+                            <option className="datalist-option" key={project.project_uuid} value={project.projectname} />
                         ))}
+                        <option value="search_for_more">Search for more...</option>
                     </datalist>
                     <div className="my-2">
                         <button className={`work-type-button ${isSelectedType1 ? 'selected-type' : ''}`}
-                            type="button" onClick={() => handleProjectType(1)}>
+                            type="button" onClick={() => handleProjectType("Sport")}>
                             <img className="type-img" src={running} alt="running"></img>
                             <p>
                                 Sport Photography
                             </p>
                         </button>
-                        <button value={2} className={`work-type-button ${isSelectedType2 ? 'selected-type' : ''}`}
-                            type="button" onClick={() => handleProjectType(2)}>
+                        <button className={`work-type-button ${isSelectedType2 ? 'selected-type' : ''}`}
+                            type="button" onClick={() => handleProjectType("School")}>
                             <img className="type-img" src={academic} alt="academic"></img>
                             <p>
                                 School Photography

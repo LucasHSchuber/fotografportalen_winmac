@@ -1,0 +1,5 @@
+ALL SESSIONSTORAGE VARIABLES:
+
+user_id
+hasLoadingBarShownBefore
+project_id

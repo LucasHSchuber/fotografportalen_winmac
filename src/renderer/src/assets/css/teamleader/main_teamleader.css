@@ -70,6 +70,7 @@
 }
 
 
+
 /* PREV WORK */
 
 .prevwork-box-left {
@@ -114,6 +115,42 @@
 
 
 
+
+/* CURR WORK */
+.currwork-box-left {
+    background-color: rgb(237, 237, 237);
+    color: #323232 !important;
+    padding: 1em 1em 0 1em;
+    height: fit-content;
+    border-radius: 7px;
+    width: 35em;
+}
+
+.currwork-box-right {
+    background-color: rgb(237, 237, 237);
+    padding: 1em 1em 1em 1em;
+    height: fit-content;
+    align-items: center !important;
+    border-radius: 7px;
+}
+
+.currwork-box-left,
+.currwork-box-right {
+    font-size: 0.9em !important;
+}
+
+.currwork-box-left:hover, .currwork-box-right:hover {
+    background-color: #00b3ff;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.type-img-currwork{
+    width: 1.6em;
+}
+
+
+
 /* NEW PROJECT */
 /* modal */
 .modal-content {
@@ -129,25 +166,28 @@
     width: 30em;
     height: 2.5em;
     padding: 0 0 0 0.5em;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .work-type-button {
     padding: 1.2em 1.5em 0.5em 1.5em;
     margin: 0.5em 0.2em 0.5em 0;
-    background-color: rgb(71, 71, 71);
+    background-color: rgb(54, 54, 54);
     border: 1px solid rgb(189, 189, 189, 0);
     border-radius: 1px;
-    transition: 0.1s;
+    transition: 0.2s;
     /* border: none; */
     cursor: pointer;
     color: white;
-
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .work-type-button:hover {
     border: 1px solid rgb(189, 189, 189, 0);
-    background-color: #00b3ff;
-    border-radius: 7px;
+    background-color: #000000;
+    /* border-radius: 7px; */
     color: white;
 }
 
@@ -155,7 +195,7 @@
     border: 1px solid rgb(189, 189, 189);
     background-color: #00b3ff !important;
     color: white;
-    border-radius: 7px;
+    border-radius: 12px;
 }
 
 .type-img {

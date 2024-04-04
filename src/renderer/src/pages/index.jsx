@@ -10,9 +10,17 @@ import Sidemenu_small from "../components/sidemenu_small";
 function Index() {
   //define states
   const [localstorage_name, setLocalstorage_name] = useState([]);
-
   const [users, setUsers] = useState([]);
   const [homeDir, setHomeDir] = useState('');
+
+
+
+
+//assign the user_id sessionstorage (later login)
+  useEffect(() => {
+    sessionStorage.setItem("user_id", 2);
+    console.log(sessionStorage.getItem("user_id"));
+  }, []);
 
 
 
@@ -44,7 +52,6 @@ function Index() {
   // }, []);
 
 
-
   // Function to fetch home directory and update state
   const fetchHomeDir = async () => {
     try {
@@ -54,8 +61,6 @@ function Index() {
       console.error('Error fetching home directory:', error);
     }
   };
-
-
   // Call fetchHomeDir when component mounts
   useEffect(() => {
     fetchHomeDir();
@@ -63,11 +68,12 @@ function Index() {
 
 
 
-
+//fetch user
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUser = async () => {
+      let user_id = sessionStorage.getItem("user_id");
       try {
-        const usersData = await window.api.getUsers(); // Fetch users data from main process
+        const usersData = await window.api.getUser(user_id); // Fetch users data from main process
         console.log('Users Data:', usersData); // Log the users data
         setUsers(usersData.users);
         console.log(usersData.users);
@@ -76,7 +82,7 @@ function Index() {
       }
     };
 
-    fetchUsers();
+    fetchUser();
 
     let user_name = localStorage.getItem("user_name");
     setLocalstorage_name(user_name);

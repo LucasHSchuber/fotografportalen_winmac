@@ -11,10 +11,29 @@ import fetchProjects from '../../assets/js/fetchProjects';
 
 function Home_teamleader() {
     // Define states
-    const [loading, setLoading] = useState(true); // State to manage loading
+    const [loading, setLoading] = useState(true); // Set initial loading state to true
     const [user, setUser] = useState(true); // State to manage loading
     const [hasFetchedData, setHasFetchedData] = useState(false);
 
+
+    
+    //load loading bar on load
+    useEffect(() => {
+        // Check if the loading bar has been shown before
+        const hasLoadingBarShownBefore = sessionStorage.getItem("hasLoadingBarShown");
+        // If it has not been shown before, show the loading bar
+        if (!hasLoadingBarShownBefore) {
+            const timer = setTimeout(() => {
+                setLoading(false);
+                sessionStorage.setItem("hasLoadingBarShown", "true");
+            }, 2000);
+
+            return () => clearTimeout(timer);
+        } else {
+            setLoading(false);
+        }
+    }, []);
+       
 
 
     //fetch all projects from big(express-bild) database
@@ -37,7 +56,6 @@ function Home_teamleader() {
     };
 
     useEffect(() => {
-        console.log('Inside useEffect...');
         // Only fetch data if it hasn't been fetched yet
         if (!hasFetchedData) {
             fetchData();
@@ -58,7 +76,9 @@ function Home_teamleader() {
                 //store lang in local storage
                 localStorage.setItem("user_lang", userData.user.lang);
                 console.log(userData.user.lang);
-                
+                localStorage.setItem("user_id", userData.user.user_id);
+                console.log(userData.user.user_id);
+
             } catch (error) {
                 console.error('Error fetching users data:', error);
             }
@@ -68,23 +88,7 @@ function Home_teamleader() {
     }, []);
 
 
-    const hasLoadingBarShownBefore = localStorage.getItem("hasLoadingBarShown");
-    //load loading bar on load
-    useEffect(() => {
-        // Check if the loading bar has been shown before
-        const hasLoadingBarShownBefore = localStorage.getItem("hasLoadingBarShown");
-        // If it has not been shown before, show the loading bar
-        if (!hasLoadingBarShownBefore) {
-            const timer = setTimeout(() => {
-                setLoading(false);
-                localStorage.setItem("hasLoadingBarShown", "true");
-            }, 2000);
 
-            return () => clearTimeout(timer);
-        } else {
-            setLoading(false);
-        }
-    }, []);
 
 
 
