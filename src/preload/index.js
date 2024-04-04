@@ -11,10 +11,10 @@ const api = {
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
 
+  getUser: (id) => ipcRenderer.invoke('getUser', id), // Pass id to getUser handler in main process
 
-  getUser: (id) => ipcRenderer.invoke('getUser', id), // Pass workname to getUser handler in main process
-
-  createProjects: projects => ipcRenderer.invoke('createProjects', projects), // Database Call For Create Project
+  create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
+  get_Projects: (user_lang) => ipcRenderer.invoke('get_Projects', user_lang), // Pass workname to getUser handler in main process
 
 
 
@@ -23,15 +23,11 @@ const api = {
 
 
   createUserToComp: args => ipcRenderer.invoke('createUserToComp', args), // Database Call For Create User
-
   createUser: args => ipcRenderer.invoke('createUser', args), // Database Call For Create User
   // getUsers: () => ipcRenderer.invoke('getUsers'),
   // getUser: (workname) => ipcRenderer.invoke('getUser', workname), // Pass workname to getUser handler in main process
-
   createGroup: args => ipcRenderer.invoke('createGroup', args), // Database Call For Create Group
-
   createNewWindow: (args) => ipcRenderer.invoke('createNewWindow', args), // open new window
-
 
 }
 

@@ -8,6 +8,9 @@ import academic from "../../assets/images/academic.png";
 import NewProjectModal from "../../components/teamleader/newprojectModal";
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
+
+import fetchProjectsByLang from '../../assets/js/fetchProjectsByLang';
+
 import '../../assets/css/teamleader/main_teamleader.css';
 
 
@@ -18,7 +21,55 @@ function Newproject_teamleader() {
     const [isSelectedType1, setIsSelectedType1] = useState(false);
     const [isSelectedType2, setIsSelectedType2] = useState(false);
 
+    const [_projects, set_Projects] = useState([]);
+
+
     const Navigate = useNavigate();
+
+
+
+    //fetch all projects from big(express-bild) database - if not working, fetch from  sqlite table 
+    useEffect(() => {
+        const fetchData = async () => {
+            const user_lang = localStorage.getItem("user_lang");
+            console.log(user_lang);
+
+            try {
+
+                const projects = await fetchProjectsByLang(user_lang); // Call the fetchProjects function
+                console.log('Projects:', projects);
+                set_Projects(projects.result);
+
+
+
+            } catch (error) {
+                console.error('Error fetching projects by language from big database:', error);
+
+                //fetch from sqlite database
+                const response = await window.api.get_Projects(user_lang);
+                console.log('Create Projects Response:', response);
+
+                if (response.statusCode === 1) {
+                    if (response.projects.length > 0) {
+                        set_Projects(response.projects);
+                        console.log('Projects fetched successfully');
+                    } else {
+                        console.log('No projects found for the specified language.');
+                        // Handle no projects found scenario (e.g., display a message to the user)
+                    }
+                } else {
+                    console.error('Error fetching projects:', response.errorMessage);
+                    // Handle API error (e.g., display an error message to the user)
+                }
+
+            }
+        };
+
+        fetchData();
+    }, []);
+
+
+
 
 
     const handleProjectChange = (e) => {
@@ -63,16 +114,16 @@ function Newproject_teamleader() {
                         value={projectName}
                         onChange={handleProjectChange}
                         placeholder="Search projects..."
+                        style={{ maxWidth: '100%', overflowX: 'auto' }}
                     />
-                    <datalist id="projects">
-                        <option value="Proj1" />
-                        <option value="Proj2" />
-                        <option value="Proj3" />
-                        <option value="Proj4" />
-                        <option value="Proj5" />
-
+                    <datalist
+                        id="projects"
+                        style={{ maxHeight: '200px', overflowY: 'auto', position: 'absolute', zIndex: '1000' }} // Set a maximum height and enable vertical scrolling
+                    >
+                        {_projects.map(project => (
+                            <option key={project.project_id} value={project.projectname} /> // Add a key prop to each option for React's rendering
+                        ))}
                     </datalist>
-
                     <div className="my-2">
                         <button className={`work-type-button ${isSelectedType1 ? 'selected-type' : ''}`}
                             type="button" onClick={() => handleProjectType(1)}>

@@ -180,6 +180,7 @@ function createTables() {
       email TEXT NOT NULL,
       firstname TEXT NOT NULL,
       lastname TEXT NOT NULL,
+      lang STRING NOT NULL,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {
@@ -266,31 +267,29 @@ function createTables() {
 function insertDataToTables(){
 
   db.run(`
-  INSERT INTO users (email, firstname, lastname) 
-  VALUES ('user@example.com', 'John', 'Doe')
+  INSERT INTO users (email, firstname, lastname, lang) 
+  VALUES ('user@example.com', 'John', 'Doe', 'SE')
 `, (err) => {
   if (err) {
     console.error('Error inserting user:', err.message);
   } else {
     console.log('User inserted successfully');
   }
-
 });
+
+  db.run(`
+  INSERT INTO users (email, firstname, lastname, lang) 
+  VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'SE')
+  `, (err) => {
+  if (err) {
+    console.error('Error inserting user:', err.message);
+  } else {
+    console.log('User inserted successfully');
+  }
+  });
 
 }
 
-
-
-
-// const database = new sqlite.Database(
-//   is.dev
-//     ? path.join(path.join(app.getAppPath(), "resources/database.db"))
-//     : path.join(__dirname, "../../resources/database.db").replace("app.asar", "app.asar.unpacked"),
-//   (err) => {
-//     if (err) log.log("Database Error" + app.getAppPath());
-//     else log.log("Database Loaded");
-//   }
-// );
 
 // Function To Minimize Window
 ipcMain.handle("minimize", () => {
@@ -309,12 +308,12 @@ ipcMain.handle("maximize", () => {
 
 
 
-ipcMain.handle("createProjects", async (event, projects) => {
+ipcMain.handle("create_Projects", async (event, projects) => {
   try {
     console.log('Received projects data:', projects); // Log received data for debugging
 
     if (!Array.isArray(projects)) {
-      throw new Error('Invalid data received for createProjects');
+      throw new Error('Invalid data received for create_Projects');
     }
 
      // Clear existing data from the _projects table
@@ -344,34 +343,89 @@ ipcMain.handle("createProjects", async (event, projects) => {
 
 
 
+//get spcific user
+ipcMain.handle("getUser", async (event, id) => {
+  const retrieveQuery = "SELECT * FROM users WHERE user_id = ?"; 
 
-
-//create new user
-ipcMain.handle("createUser", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for createUser');
-      }
+      const user = await new Promise((resolve, reject) => {
+          const db = new sqlite3.Database(dbPath);
 
-      const { name, workname, county, anomaly } = args;
+          db.get(retrieveQuery, [id], (error, row) => {
+              if (error) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: error });
+              } else if (!row) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: 'User not found' });
+              } else {
+                  db.close();
+                  resolve({
+                      user_id: row.user_id,
+                      email: row.email,
+                      firstname: row.firstname,
+                      lastname: row.lastname,
+                      lang: row.lang,
+                      created: row.created
+                  });
+              }
+          });
+      });
 
-      if (!name || !workname || !county) {
-          throw new Error('Missing required user data for createUser');
-      }
-      const anomalyValue = anomaly || ''; // Set anomalyValue to empty string if anomaly is empty
-      await db.run(`
-          INSERT INTO users (name, workname, county, anomaly)
-          VALUES (?, ?, ?, ?)
-          `, [name.toLowerCase(), workname.toLowerCase(), county.toLowerCase(), anomalyValue.toLowerCase()]);
-
-      console.log('User data added successfully');
-      event.sender.send('add-user-response', { success: true });
-      
-  } catch (err) {
-      console.error('Error adding user data:', err.message);
-      event.sender.send('add-user-response', { error: err.message });
+      return { statusCode: 1, user: user };
+  } catch (error) {
+      console.error('Error fetching user data:', error);
+      return { statusCode: 0, errorMessage: error.message };
   }
 });
+
+
+
+
+//get all projects
+ipcMain.handle("get_Projects", async (event, user_lang) => {
+  const allProjects = [];
+
+  const retrieveQuery = "SELECT * FROM _projects WHERE lang = ?"; 
+  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_lang]);
+
+
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath);
+
+    db.each(retrieveQuery, [user_lang], (error, row) => {
+      if (error != null) {
+        db.close();
+        reject({ statusCode: 0, errorMessage: error });
+      }
+
+      allProjects.push({
+        project_uuid: row.project_uuid,
+        projectname: row.projectname,
+        lang: row.lang,
+      });
+    });
+
+    db.close(() => {
+      resolve({ statusCode: 1, projects: allProjects });
+    });
+  });
+});
+
+
+
+
+
+// const database = new sqlite.Database(
+//   is.dev
+//     ? path.join(path.join(app.getAppPath(), "resources/database.db"))
+//     : path.join(__dirname, "../../resources/database.db").replace("app.asar", "app.asar.unpacked"),
+//   (err) => {
+//     if (err) log.log("Database Error" + app.getAppPath());
+//     else log.log("Database Loaded");
+//   }
+// );
+
 
 // //get all users
 // ipcMain.handle("getUser", async () => {
@@ -403,40 +457,35 @@ ipcMain.handle("createUser", async (event, args) => {
 //   });
 // });
 
-//get spcific user
-ipcMain.handle("getUser", async (event, id) => {
-  const retrieveQuery = "SELECT * FROM users WHERE user_id = ?"; 
 
+
+//create new user
+ipcMain.handle("createUser", async (event, args) => {
   try {
-      const user = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for createUser');
+      }
 
-          db.get(retrieveQuery, [id], (error, row) => {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error });
-              } else if (!row) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: 'User not found' });
-              } else {
-                  db.close();
-                  resolve({
-                      user_id: row.user_id,
-                      email: row.email,
-                      firstname: row.firstname,
-                      lastname: row.lastname,
-                      created: row.created
-                  });
-              }
-          });
-      });
+      const { name, workname, county, anomaly } = args;
 
-      return { statusCode: 1, user: user };
-  } catch (error) {
-      console.error('Error fetching user data:', error);
-      return { statusCode: 0, errorMessage: error.message };
+      if (!name || !workname || !county) {
+          throw new Error('Missing required user data for createUser');
+      }
+      const anomalyValue = anomaly || ''; // Set anomalyValue to empty string if anomaly is empty
+      await db.run(`
+          INSERT INTO users (name, workname, county, anomaly)
+          VALUES (?, ?, ?, ?)
+          `, [name.toLowerCase(), workname.toLowerCase(), county.toLowerCase(), anomalyValue.toLowerCase()]);
+
+      console.log('User data added successfully');
+      event.sender.send('add-user-response', { success: true });
+      
+  } catch (err) {
+      console.error('Error adding user data:', err.message);
+      event.sender.send('add-user-response', { error: err.message });
   }
 });
+
 
 
 //create new / add new file/data to local computer

@@ -13,19 +13,17 @@ function Home_teamleader() {
     // Define states
     const [loading, setLoading] = useState(true); // State to manage loading
     const [user, setUser] = useState(true); // State to manage loading
+    const [hasFetchedData, setHasFetchedData] = useState(false);
 
 
-    const Navigate = useNavigate();
 
     //fetch all projects from big(express-bild) database
-
     const fetchData = async () => {
         const projects = await fetchProjects(); // Call the fetchProjects function
-        // Handle the fetched projects data here
         console.log('Projects:', projects);
-
+        // Handle the fetched projects data here
         const project = projects.result;
-        const response = await window.api.createProjects(project);
+        const response = await window.api.create_Projects(project);
         console.log('Create Projects Response:', response);
 
         if (response && response.success) {
@@ -38,15 +36,29 @@ function Home_teamleader() {
         }
     };
 
+    useEffect(() => {
+        console.log('Inside useEffect...');
+        // Only fetch data if it hasn't been fetched yet
+        if (!hasFetchedData) {
+            fetchData();
+            setHasFetchedData(true);
+        }
+    }, [hasFetchedData]);
+
 
 
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const userData = await window.api.getUser(1); // Fetch users data from main process
+                //later fetch the user with correct user id stored in local storage since login
+                const userData = await window.api.getUser(2); // Fetch users data from main process
                 console.log('Users Data:', userData); // Log the users data
                 setUser(userData.user.firstname + " " + userData.user.lastname);
+                //store lang in local storage
+                localStorage.setItem("user_lang", userData.user.lang);
+                console.log(userData.user.lang);
+                
             } catch (error) {
                 console.error('Error fetching users data:', error);
             }
@@ -72,12 +84,6 @@ function Home_teamleader() {
         } else {
             setLoading(false);
         }
-    }, []);
-
-
-    useEffect(() => {
-        let user_id = localStorage.getItem("user_id");
-        console.log(user_id);
     }, []);
 
 

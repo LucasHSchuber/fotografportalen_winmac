@@ -1,6 +1,7 @@
-// apiCalls.js
 
 import axios from 'axios';
+
+
 
 const fetchProjects = async () => {
   try {
@@ -26,5 +27,7 @@ const fetchProjects = async () => {
     return null;
   }
 };
+
+
 
 export default fetchProjects;
