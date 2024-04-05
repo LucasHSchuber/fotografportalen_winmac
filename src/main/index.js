@@ -232,9 +232,10 @@ function createTables() {
       leader_mobile STRING NOT NULL,
       leader_email STRING NOT NULL,
       leader_ssn INTEGER NOT NULL,
-      portrait BOOLEAN NOT NULL,
-      crowd BOOLEAN NOT NULL,
-      sold_calendar BOOLEAN NOT NULL,
+      portrait BOOLEAN,
+      crowd BOOLEAN,
+      sold_calendar BOOLEAN,
+      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       project_id INTEGER NOT NULL,
       FOREIGN KEY (project_id) REFERENCES projects(project_id)
     )
@@ -382,52 +383,7 @@ ipcMain.handle("getUser", async (event, id) => {
 
 
 
-//get all projects
-// ipcMain.handle("getAllProjects", async (event, user_id) => {
-//   const allProjects = [];
-
-//   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ?"; 
-//   console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
-
-//     try {
-//       const project = await new Promise((resolve, reject) => {
-//           const db = new sqlite3.Database(dbPath);
-
-//           db.get(retrieveQuery, [user_id], (error, row) => {
-//               if (error) {
-//                   db.close();
-//                   reject({ statusCode: 0, errorMessage: error });
-//               } else if (!row) {
-//                   db.close();
-//                   reject({ statusCode: 0, errorMessage: 'Projects not found' });
-//               } else {
-//                   db.close();
-//                   resolve({
-//                       statusCode: 1,
-//                       project_id: row.project_id,
-//                       project_uuid: row.project_uuid,
-//                       projectname: row.projectname,
-//                       type: row.type,
-//                       anomaly: row.anomaly,
-//                       merged_units: row.merged_units,
-//                       unit: row.unit,
-//                       alert_salet: row.alert_salet,
-//                       is_deleted: row.is_deleted,
-//                       is_sent: row.is_sent,
-//                       sent_date: row.sent_date,
-//                       user_id: row.user_id,
-//                       created: row.created
-//                   });
-//               }
-//           });
-//       });
-
-//       return project;
-//   } catch (error) {
-//       console.error('Error fetching project data:', error);
-//       return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
+//get all projects by user_id
 ipcMain.handle("getAllProjects", async (event, user_id) => {
   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0"; 
   console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
@@ -470,6 +426,59 @@ ipcMain.handle("getAllProjects", async (event, user_id) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
+
+
+//get project by porject_id
+ipcMain.handle("getProjectById", async (event, project_id) => {
+  const retrieveQuery = "SELECT * FROM projects WHERE project_id = ?"; 
+  console.log('SQL Query:', retrieveQuery, 'Parameters:', [project_id]);
+
+  try {
+    const project = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.get(retrieveQuery, [project_id], (error, row) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        if (!row) {
+          // If no project is found, resolve with null
+          db.close();
+          resolve({ statusCode: 1, project: null });
+          return;
+        }
+
+        const project = {
+          project_id: row.project_id,
+          project_uuid: row.project_uuid,
+          projectname: row.projectname,
+          type: row.type,
+          anomaly: row.anomaly,
+          merged_units: row.merged_units,
+          unit: row.unit,
+          alert_salet: row.alert_salet,
+          is_deleted: row.is_deleted,
+          is_sent: row.is_sent,
+          sent_date: row.sent_date,
+          user_id: row.user_id,
+          created: row.created
+        };
+
+        db.close(() => {
+          resolve({ statusCode: 1, project: project });
+        });
+      });
+    });
+
+    return project;
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
 
 
 
@@ -618,6 +627,131 @@ ipcMain.handle("getLatestProject", async (event, project_uuid) => {
   } catch (error) {
       console.error('Error fetching project data:', error);
       return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+
+//create new team
+ipcMain.handle("createNewTeam", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for createNewTeam');
+      }
+
+      const { 
+          teamname, 
+          amount, 
+          leader_firstname, 
+          leader_lastname, 
+          leader_address, 
+          leader_postalcode, 
+          leader_county, 
+          leader_mobile, 
+          leader_email, 
+          leader_ssn, 
+          portrait, 
+          project_id,
+          crowd, 
+          sold_calendar 
+      } = args;
+
+      if (!teamname || !amount || !leader_firstname || !leader_lastname || !leader_address || !leader_postalcode || !leader_county || !leader_mobile || !leader_email || !leader_ssn || !project_id) {
+          throw new Error('Missing required data for createNewTeam');
+      }
+      
+      await db.run(`
+          INSERT INTO teams (
+              teamname, 
+              amount, 
+              leader_firstname, 
+              leader_lastname, 
+              leader_address, 
+              leader_postalcode, 
+              leader_county, 
+              leader_mobile, 
+              leader_email, 
+              leader_ssn, 
+              portrait, 
+              crowd, 
+              sold_calendar,
+              project_id
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `, [
+              teamname, 
+              amount, 
+              leader_firstname, 
+              leader_lastname, 
+              leader_address, 
+              leader_postalcode, 
+              leader_county, 
+              leader_mobile, 
+              leader_email, 
+              leader_ssn, 
+              portrait ? 1 : 0, // Convert boolean to integer
+              crowd ? 1 : 0, // Convert boolean to integer
+              sold_calendar ? 1 : 0, // Convert boolean to integer
+              project_id
+          ]);
+
+      console.log('Team added successfully');
+      
+      // Send success response to the frontend
+      event.sender.send('createNewTeam-response', { success: true });
+      return { success: true };
+      
+  } catch (err) {
+      console.error('Error adding new team:', err.message);
+      // Send error response to the frontend
+      event.sender.send('createNewTeam-response', { error: err.message });
+      return { error: err.message };
+  }
+});
+
+
+//get all teams by project_id
+ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
+  const retrieveQuery = "SELECT * FROM teams WHERE project_id = ?"; 
+  console.log('SQL Query:', retrieveQuery, 'Parameters:', [project_id]);
+
+  try {
+    const teams = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, [project_id], (error, rows) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        const allTeams = rows.map(row => ({
+          team_id: row.team_id,
+          teamname: row.teamname,
+          amount: row.amount,
+          leader_firstname: row.leader_firstname,
+          leader_lastname	: row.leader_lastname	,
+          leader_address: row.leader_address,
+          leader_postalcode: row.leader_postalcode,
+          leader_county: row.leader_county,
+          leader_mobile: row.leader_mobile,
+          leader_email: row.leader_email,
+          leader_ssn: row.leader_ssn,
+          portrait: row.portrait,
+          sold_calendar: row.sold_calendar,
+          project_id: row.project_id
+        }));
+
+        db.close(() => {
+          resolve({ statusCode: 1, teams: allTeams });
+        });
+      });
+    });
+
+    return teams;
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
 

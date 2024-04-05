@@ -1,7 +1,7 @@
 /* main_teamleader css */
 
 
-/* TEALEADER */
+/* GENERAL - TEAMEADER */
 
 .teamleader-wrapper {
     padding: 6em 0 2em 0;
@@ -13,6 +13,10 @@
 }
 
 .teamleader-wrapper .header h4 {
+    font-weight: 700;
+}
+
+.teamleader-wrapper .header h5 {
     font-weight: 700;
 }
 
@@ -139,13 +143,14 @@
     font-size: 0.9em !important;
 }
 
-.currwork-box-left:hover, .currwork-box-right:hover {
+.currwork-box-left:hover,
+.currwork-box-right:hover {
     background-color: #00b3ff;
     transition: 0.2s;
     cursor: pointer;
 }
 
-.type-img-currwork{
+.type-img-currwork {
     width: 1.6em;
 }
 
@@ -200,4 +205,36 @@
 
 .type-img {
     width: 2em;
+}
+
+
+
+
+/* PORTAL */
+.portal-title-img {
+    width: 1.5em;
+    margin-right: 0.4em;
+    margin-top: -0.2em;
+}
+
+.portal-analytics {
+    background-color: #1d1d1d;
+    border-radius: 50%; 
+    color: white; 
+    width: 5em; 
+    height: 5em;
+    font-size: 1em;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+
+.portal-team-box {
+    background-color: rgb(237, 237, 237);
+    color: #323232 !important;
+    padding: 1em 1em 0 1em;
+    height: fit-content;
+    border-radius: 7px;
+    width: 35em;
 }

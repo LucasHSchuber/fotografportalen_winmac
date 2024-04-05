@@ -21,10 +21,17 @@ const api = {
   getLatestProject: (project_uuid) => ipcRenderer.invoke('getLatestProject', project_uuid), // Pass workname to getUser handler in main process
 
   getAllProjects: (user_id) => ipcRenderer.invoke('getAllProjects', user_id), // Pass user_id to get all projects by user
+  getProjectById: (project_id) => ipcRenderer.invoke('getProjectById', project_id), // Pass project_id to get projects by project_id
+
+  createNewTeam: args => ipcRenderer.invoke('createNewTeam', args), // Database Call For Create new Team
+  getTeamsByProjectId: (project_id) => ipcRenderer.invoke('getTeamsByProjectId', project_id), // Pass project_id to get teams by project_id
 
 
 
 
+
+
+  
 
 
   createUserToComp: args => ipcRenderer.invoke('createUserToComp', args), // Database Call For Create User

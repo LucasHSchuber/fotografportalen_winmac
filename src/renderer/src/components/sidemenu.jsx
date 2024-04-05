@@ -21,7 +21,7 @@ function Sidemenu() {
                     </NavLink>
                 </div>
                 <div className="link-box">
-                    <NavLink to="/home" >
+                    <NavLink to="/" >
                         <img className="link-img" src={cloud} alt="cloud" />
                         <p>Filetransfer</p>
                     </NavLink>

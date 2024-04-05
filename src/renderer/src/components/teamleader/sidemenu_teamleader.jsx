@@ -9,8 +9,8 @@ import suitcase from "../../assets/images/suitcase.png";
 import NewProjectModal from "../../components/teamleader/newprojectModal";
 
 
-import '../../assets/css/teamleader/sidemenu_teamleader.css'
-import '../../assets/css/teamleader/sidemenu_teamleader.css'
+import '../../assets/css/teamleader/components_teamleader.css'
+
 
 const Sidemenu_teamleader = () => {
 
