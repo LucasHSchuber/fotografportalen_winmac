@@ -1,5 +1,12 @@
-ALL SESSIONSTORAGE VARIABLES:
+ALL STORAGE VARIABLES:
+
+
+LOCAL STORAGE:
 
 user_id
 hasLoadingBarShownBefore
 project_id
+project_type
+
+
+SESSION STORAGE:

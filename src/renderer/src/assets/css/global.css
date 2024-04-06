@@ -16,3 +16,16 @@ body {
 .main-content {
     margin-left: 7em;
 }
+
+.form-input-field{
+    width: 50%;
+    height: 2.7em;
+    padding: 0.3em;
+    margin-bottom: 0.4em;
+}
+
+.page-loading{
+    text-align: center;
+    padding-top: 10em;
+    font-weight: 700;
+}

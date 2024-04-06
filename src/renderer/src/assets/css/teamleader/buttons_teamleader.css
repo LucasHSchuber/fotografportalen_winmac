@@ -29,4 +29,12 @@
     background-color: #0196d5;
 }
 
+.fixed-width{
+    width: 11em !important;
+}
+
+.fixed-height{
+    height: 3em !important;
+}
+
 .danger {}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import flash_black from "../../assets/images/flash_black.png";
 import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
@@ -9,7 +9,7 @@ import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader
 import '../../assets/css/teamleader/main_teamleader.css';
 
 
-function Newteam_teamleader() {
+function Addleaderinfo_teamleader() {
     // Define states
 
     const [formData, setFormData] = useState({
@@ -28,7 +28,11 @@ function Newteam_teamleader() {
         sold_calendar: false
     });
 
-
+    const navigate = useNavigate();
+    const handleCancel = () => {
+        let project_id = localStorage.getItem("project_id");
+        navigate(`/portal_teamleader/${project_id}`);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -53,7 +57,7 @@ function Newteam_teamleader() {
                 ...formData,
                 amount: amountNumber,
                 leader_ssn: leaderSsnNumber,
-                project_id: project_id 
+                project_id: project_id
             });
             console.log('Team response:', teamData);
         } catch (error) {
@@ -96,43 +100,46 @@ function Newteam_teamleader() {
         <div className="teamleader-wrapper">
 
             <div className="header">
-                <h4><i class="fa-solid fa-plus"></i> New team</h4>
+                <h5><i class="fa-solid fa-plus"></i> New team</h5>
             </div>
 
             <form onSubmit={handleSubmit}>
-                <div>
-                    <input type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" required />
-                </div>
-                <div>
-                    <input type="number" name="amount" value={formData.amount} onChange={handleChange} placeholder="Amount" required />
-                </div>
-                <div>
-                    <input type="text" name="leader_firstname" value={formData.leader_firstname} onChange={handleChange} placeholder="Leader First Name" required />
-                </div>
-                <div>
-                    <input type="text" name="leader_lastname" value={formData.leader_lastname} onChange={handleChange} placeholder="Leader Last Name" required />
-                </div>
-                <div>
-                    <input type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" required />
-                </div>
-                <div>
-                    <input type="text" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder="Leader Postal Code" required />
-                </div>
-                <div>
-                    <input type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" required />
-                </div>
-                <div>
-                    <input type="email" name="leader_email" value={formData.leader_email} onChange={handleChange} placeholder="Leader Email" required />
-                </div>
-                <div>
-                    <input type="text" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Leader SSN" required />
-                </div>
-                <div>
-                    <input type="text" name="leader_mobile" value={formData.leader_mobile} onChange={handleChange} placeholder="Leader Mobile" required />
+                <div className="mt-4 mb-2">
+                    <div>
+                        <input className="form-input-field" type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="number" name="amount" value={formData.amount} onChange={handleChange} placeholder="Amount" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_firstname" value={formData.leader_firstname} onChange={handleChange} placeholder="Leader First Name" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_lastname" value={formData.leader_lastname} onChange={handleChange} placeholder="Leader Last Name" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder="Leader Postal Code" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="email" name="leader_email" value={formData.leader_email} onChange={handleChange} placeholder="Leader Email" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Leader SSN" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_mobile" value={formData.leader_mobile} onChange={handleChange} placeholder="Leader Mobile" required />
+                    </div>
                 </div>
 
                 <div>
-                    <button type="submit">Submit</button>
+                    <button className="button cancel fixed-width fixed-height mr-1" onClick={handleCancel}>Cancel</button>
+                    <button className="button standard fixed-width fixed-height" type="submit">Save</button>
                 </div>
             </form>
 
@@ -141,4 +148,4 @@ function Newteam_teamleader() {
         </div>
     );
 }
-export default Newteam_teamleader;
+export default Addleaderinfo_teamleader;

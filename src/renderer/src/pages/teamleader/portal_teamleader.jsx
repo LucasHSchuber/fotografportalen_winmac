@@ -24,7 +24,7 @@ function Portal_teamleader() {
     const { project_id } = useParams();
 
 
-    const Navigate = useNavigate();
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -35,6 +35,8 @@ function Portal_teamleader() {
                 console.log('Projects:', projectData.project);
                 setProject(projectData.project);
                 setProjectType(projectData.project.type);
+                localStorage.setItem("project_type", projectData.project.type);
+                console.log(localStorage.getItem("project_type"));
                 console.log(projectData.project.type);
                 setLoading(false); // Set loading to false when data is fetched
             } catch (error) {
@@ -59,7 +61,7 @@ function Portal_teamleader() {
 
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className="page-loading">Loading...</div>;
     }
     return (
         <div className="teamleader-wrapper">

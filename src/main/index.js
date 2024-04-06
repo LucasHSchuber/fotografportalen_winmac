@@ -757,6 +757,14 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
 
 
 
+ipcMain.on('navigateBack', (event) => { // Corrected to match the IPC event name
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+  if (focusedWindow) {
+      focusedWindow.webContents.goBack(); // Navigate back in the Electron window
+  }
+});
+
+
 // const database = new sqlite.Database(
 //   is.dev
 //     ? path.join(path.join(app.getAppPath(), "resources/database.db"))

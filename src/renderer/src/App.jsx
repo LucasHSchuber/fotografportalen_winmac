@@ -16,7 +16,7 @@ import Currwork_teamleader from "./pages/teamleader/currwork_teamleader";
 import Newproject_teamleader from "./pages/teamleader/newproject_teamleader";
 import Portal_teamleader from "./pages/teamleader/portal_teamleader";
 import Addleaderinfo_teamleader from "./pages/teamleader/addleaderinfo_teamleader";
-// import Newteam_teamleader from "./pages/teamleader/newteam_teamleader";
+import Newteam_teamleader from "./pages/teamleader/newteam_teamleader";
 // import Sidemenu_teamleader from "./components/teamleader/sidemenu_teamleader";
 // import Minimenu_teamleader from "./components/teamleader/minimenu_teamleader";
 
@@ -105,11 +105,11 @@ function App() {
             </Routes>
           </div>
 
-          {/* <div className="route-layout">
+          <div className="route-layout">
             <Routes>
               <Route path="/newteam_teamleader" element={<Newteam_teamleader />} />
             </Routes>
-          </div> */}
+          </div>
 
           <div className="route-layout">
             <Routes>

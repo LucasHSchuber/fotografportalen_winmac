@@ -27,11 +27,12 @@ const api = {
   getTeamsByProjectId: (project_id) => ipcRenderer.invoke('getTeamsByProjectId', project_id), // Pass project_id to get teams by project_id
 
 
+  navigateBack: () => ipcRenderer.send('navigateBack'), // Send a message to Electron's main process to navigate back
 
 
 
 
-  
+
 
 
   createUserToComp: args => ipcRenderer.invoke('createUserToComp', args), // Database Call For Create User
