@@ -12,11 +12,13 @@ function Index() {
   const [localstorage_name, setLocalstorage_name] = useState([]);
   const [users, setUsers] = useState([]);
   const [homeDir, setHomeDir] = useState('');
+  const [projectsArray, setProjectsArray] = useState([]);
 
 
+  const Navigate = useNavigate();
 
 
-//assign the user_id sessionstorage (later login)
+  //assign the user_id sessionstorage (later login)
   useEffect(() => {
     sessionStorage.setItem("user_id", 2);
     console.log(sessionStorage.getItem("user_id"));
@@ -24,51 +26,44 @@ function Index() {
 
 
 
-  // // Function to fetch projects from EXPRESS-BILD API
-  // const fetchProjects = async () => {
-  //   try {
-  //     let response = await axios.get('https://backend.expressbild.org/index.php/rest/teamleader/projects');
-
-  //     if (response && response.data) {
-  //       console.log('Fetched projects:', response.data);
-
-  //     } else {
-  //       console.error('Empty response received');
-  //     }
-  //   } catch (error) {
-  //     if (axios.isAxiosError(error)) {
-  //       if (!error.response) {
-  //         console.error('Network Error: Please check your internet connection');
-  //       } else {
-  //         console.error('Request failed with status code:', error.response.status);
-  //       }
-  //     } else {
-  //       console.error('Error fetching projects:', error.message);
-  //     }
-  //   }
-  // };
-  // useEffect(() => {
-  //   fetchProjects();
-  // }, []);
-
-
-  // Function to fetch home directory and update state
-  const fetchHomeDir = async () => {
-    try {
-      const result = await window.api.homeDir(); // Fetch home directory from main process
-      setHomeDir(result); // Update state with the home directory value
-    } catch (error) {
-      console.error('Error fetching home directory:', error);
-    }
-  };
-  // Call fetchHomeDir when component mounts
   useEffect(() => {
-    fetchHomeDir();
+    let user_id = sessionStorage.getItem("user_id");
+    console.log(user_id);
+
+    const getAllProjects = async () => {
+      try {
+        const projects = await window.api.getAllProjects(user_id);
+        console.log('Projects:', projects.projects);
+        setProjectsArray(projects.projects);
+        // setLoading(false);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    getAllProjects();
   }, []);
 
 
 
-//fetch user
+
+  // // Function to fetch home directory and update state
+  // const fetchHomeDir = async () => {
+  //   try {
+  //     const result = await window.api.homeDir(); // Fetch home directory from main process
+  //     setHomeDir(result); // Update state with the home directory value
+  //   } catch (error) {
+  //     console.error('Error fetching home directory:', error);
+  //   }
+  // };
+  // // Call fetchHomeDir when component mounts
+  // useEffect(() => {
+  //   fetchHomeDir();
+  // }, []);
+
+
+
+  //fetch user
   useEffect(() => {
     const fetchUser = async () => {
       let user_id = sessionStorage.getItem("user_id");
@@ -91,12 +86,7 @@ function Index() {
 
 
 
-  const Navigate = useNavigate();
 
-  //navigate user to index
-  const toHome = () => {
-    Navigate('/home');
-  }
 
   return (
     <div className="d-flex index-wrapper">
@@ -123,10 +113,16 @@ function Index() {
 
         <div className="index-box">
           <h1 className="index-title two">Alerts</h1>
-          <h6><b>You have 2 unsent jobs</b></h6>
+          <h6><b>You have {projectsArray.length > 0 ? projectsArray.length : 0} unsent jobs ready to be sent</b></h6>
           <ul>
-            <li>Ekhammarskolan</li>
-            <li>Tyresö FF</li>
+            {projectsArray && projectsArray.length > 0 ? (
+              projectsArray.map(project => (
+
+                <li>{project.projectname}</li>
+              ))
+              ) : (
+                <h6> </h6>
+            )}
           </ul>
         </div>
       </div>

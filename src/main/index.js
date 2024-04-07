@@ -224,16 +224,18 @@ function createTables() {
       team_id INTEGER PRIMARY KEY AUTOINCREMENT,
       teamname TEXT NOT NULL,
       amount INT NOT NULL,
-      leader_firstname STRING NOT NULL,
-      leader_lastname STRING NOT NULL,
-      leader_address STRING NOT NULL,
-      leader_postalcode STRING NOT NULL,
-      leader_county STRING NOT NULL,
-      leader_mobile STRING NOT NULL,
-      leader_email STRING NOT NULL,
-      leader_ssn INTEGER NOT NULL,
+      leader_firstname STRING,
+      leader_lastname STRING,
+      leader_address STRING,
+      leader_postalcode STRING,
+      leader_county STRING,
+      leader_mobile STRING,
+      leader_email STRING,
+      leader_ssn INTEGER,
       portrait BOOLEAN,
       crowd BOOLEAN,
+      protected_id BOOLEAN,
+      named_photolink BOOLEAN,
       sold_calendar BOOLEAN,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       project_id INTEGER NOT NULL,
@@ -660,22 +662,9 @@ ipcMain.handle("createNewTeam", async (event, args) => {
           throw new Error('Missing required data for createNewTeam');
       }
       
-      await db.run(`
+      const result = await db.run(`
           INSERT INTO teams (
-              teamname, 
-              amount, 
-              leader_firstname, 
-              leader_lastname, 
-              leader_address, 
-              leader_postalcode, 
-              leader_county, 
-              leader_mobile, 
-              leader_email, 
-              leader_ssn, 
-              portrait, 
-              crowd, 
-              sold_calendar,
-              project_id
+              teamname, amount, leader_firstname, leader_lastname, leader_address, leader_postalcode, leader_county, leader_mobile, leader_email, leader_ssn, portrait, crowd, sold_calendar,project_id
           )
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `, [
@@ -694,8 +683,8 @@ ipcMain.handle("createNewTeam", async (event, args) => {
               sold_calendar ? 1 : 0, // Convert boolean to integer
               project_id
           ]);
-
-      console.log('Team added successfully');
+          
+      console.log(`Team added successfully`);
       
       // Send success response to the frontend
       event.sender.send('createNewTeam-response', { success: true });
@@ -754,6 +743,68 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
+
+
+
+
+//create new class
+ipcMain.handle("createNewClass", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for createNewClass');
+      }
+
+      const { 
+          teamname, 
+          amount, 
+          protected_id,
+          named_photolink,
+          portrait, 
+          project_id,
+          crowd
+      } = args;
+
+      if (!teamname || !amount || !protected_id || !named_photolink || !project_id) {
+          throw new Error('Missing required data for createNewTeam');
+      }
+      
+      const result = await db.run(`
+          INSERT INTO teams (
+              teamname, 
+              amount, 
+              protected_id,
+              named_photolink,
+              portrait, 
+              crowd, 
+              project_id
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          `, [
+              teamname, 
+              amount, 
+              protected_id ? 1 : 0, // Convert boolean to integer,
+              named_photolink ? 1 : 0, // Convert boolean to integer
+              portrait ? 1 : 0, // Convert boolean to integer
+              crowd ? 1 : 0, // Convert boolean to integer
+              project_id
+          ]);
+          
+      console.log(`Class added successfully`);
+      
+      // Send success response to the frontend
+      event.sender.send('createNewClass-response', { success: true });
+      return { success: true };
+      
+  } catch (err) {
+      console.error('Error adding new class:', err.message);
+      // Send error response to the frontend
+      event.sender.send('createNewClass-response', { error: err.message });
+      return { error: err.message };
+  }
+});
+
+
+
 
 
 

@@ -13,12 +13,12 @@ function Newteam_teamleader() {
     // Define states
     const [projectType, setProjectType] = useState({});
     const [formData, setFormData] = useState({
-        teamName: '',
+        teamname: '',
         amount: 0,
-        protectedId: false,
-        allNamedInPhotolink: false,
+        protected_id: false,
+        named_photolink: false,
         portrait: false,
-        groupPhoto: false
+        crowd: false
     });
 
 
@@ -43,10 +43,36 @@ function Newteam_teamleader() {
         setFormData({ ...formData, [name]: newValue });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission here
+
+        let project_id = localStorage.getItem("project_id");
+        console.log(project_id);
         console.log(formData);
+        console.log(projectType);
+
+        const amountNumber = parseInt(formData.amount);
+        console.log(amountNumber);
+
+        //if class (school)
+        if (projectType === "school") {
+
+            try {
+                const classData = await window.api.createNewClass({
+                    ...formData,
+                    amount: amountNumber,
+                    project_id: project_id
+                });
+                console.log('Class response:', classData);
+            } catch (error) {
+                console.error('Error adding class:', error);
+            }
+            //if team (sport)
+        } else if (projectType === "sport") {
+
+        } else {
+            console.log("Project type is not defined");
+        }
     };
 
 
@@ -67,10 +93,10 @@ function Newteam_teamleader() {
                             <input
                                 className="form-input-field"
                                 type="text"
-                                id="teamName"
-                                name="teamName"
+                                id="teamname"
+                                name="teamname"
                                 placeholder={projectType === "school" ? "Class name" : "Team name"}
-                                value={formData.teamName}
+                                value={formData.teamname}
                                 onChange={handleChange}
                                 required
                             />
@@ -94,35 +120,11 @@ function Newteam_teamleader() {
                             <input
                                 className="checkmark mr-2"
                                 type="checkbox"
-                                name="protectedId"
-                                checked={formData.protectedId}
-                                onChange={handleChange}
-                            />
-                            Protected ID?
-                        </label>
-                    </div>
-                    <div className="checkbox-container">
-                        <label>
-                            <input
-                                className="checkmark mr-2"
-                                type="checkbox"
-                                name="allNamedInPhotolink"
-                                checked={formData.allNamedInPhotolink}
-                                onChange={handleChange}
-                            />
-                            All named in photolink?
-                        </label>
-                    </div>
-                    <div className="checkbox-container">
-                        <label>
-                            <input
-                                className="checkmark mr-2"
-                                type="checkbox"
                                 name="portrait"
                                 checked={formData.portrait}
                                 onChange={handleChange}
                             />
-                            Portrait?
+                            I took portraits
                         </label>
                     </div>
                     <div className="checkbox-container">
@@ -130,13 +132,38 @@ function Newteam_teamleader() {
                             <input
                                 className="checkmark mr-2"
                                 type="checkbox"
-                                name="groupPhoto"
-                                checked={formData.groupPhoto}
+                                name="crowd"
+                                checked={formData.crowd}
                                 onChange={handleChange}
                             />
-                            Group Photo?
+                            I took group photo
                         </label>
                     </div>
+                    <div className="checkbox-container">
+                        <label>
+                            <input
+                                className="checkmark mr-2"
+                                type="checkbox"
+                                name="protected_id"
+                                checked={formData.protected_id}
+                                onChange={handleChange}
+                            />
+                            There were people with protected ID
+                        </label>
+                    </div>
+                    <div className="checkbox-container">
+                        <label>
+                            <input
+                                className="checkmark mr-2"
+                                type="checkbox"
+                                name="named_photolink"
+                                checked={formData.named_photolink}
+                                onChange={handleChange}
+                            />
+                            All people are named in photolink
+                        </label>
+                    </div>
+
                     <button className="button cancel fixed-width fixed-height mr-1" onClick={handleCancel}>Cancel</button>
                     <button className="button standard fixed-width fixed-height" type="submit">Save</button>
                 </form>

@@ -26,7 +26,6 @@ function Newproject_teamleader() {
     const [_projects, set_Projects] = useState([]);
 
 
-
     const navigate = useNavigate();
 
 
@@ -122,7 +121,6 @@ function Newproject_teamleader() {
             } else {
                 console.log('Project does not exist.');
 
-
                 let user_id = localStorage.getItem("user_id");
                 const args = {
                     projectname: projectName,
@@ -130,7 +128,6 @@ function Newproject_teamleader() {
                     project_uuid: project_uuid,
                     user_id: user_id
                 };
-                console.log(args);
 
                 const response = await window.api.createNewProject(args);
                 console.log('Create New Projects Response:', response);
@@ -138,12 +135,12 @@ function Newproject_teamleader() {
                 if (response && response.success) {
                     console.log('Project created successfully');
 
-                    //get latest tuppel in table
+                    //get latest tuppel in projects-table
                     const latestProjectResponse = await window.api.getLatestProject(project_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
                     //store the project_id in session_storage
                     sessionStorage.setItem("project_id", latestProjectResponse.project_id);
-                    // navigate("/");
+                    navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
                     
                 } else {
                     console.error('Error creating project:', response?.error || 'Unknown error');

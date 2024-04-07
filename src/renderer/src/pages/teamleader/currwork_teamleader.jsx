@@ -46,7 +46,7 @@ function Currwork_teamleader() {
 
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className="page-loading">Loading...</div>;
     }
     // fetch projects WHERE user_id = ? AND WHERE is_sent = 0
     return (

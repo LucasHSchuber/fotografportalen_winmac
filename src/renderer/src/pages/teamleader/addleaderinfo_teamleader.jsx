@@ -11,7 +11,6 @@ import '../../assets/css/teamleader/main_teamleader.css';
 
 function Addleaderinfo_teamleader() {
     // Define states
-
     const [formData, setFormData] = useState({
         teamname: "",
         amount: 0,
@@ -50,7 +49,6 @@ function Addleaderinfo_teamleader() {
         // Convert leader_ssn to number if it represents a numerical value
         const leaderSsnNumber = parseInt(formData.leader_ssn);
         console.log(leaderSsnNumber);
-        // console.log(leader_ssn);
 
         try {
             const teamData = await window.api.createNewTeam({
@@ -60,6 +58,22 @@ function Addleaderinfo_teamleader() {
                 project_id: project_id
             });
             console.log('Team response:', teamData);
+
+            //get latest tuppel in teams-table
+            try {
+                const teamsData = await window.api.getTeamsByProjectId(project_id);
+                console.log('Teams:', teamsData.teams);
+                setTimeout(() => {
+                    const lastObject = teamsData.teams[teamsData.teams.length - 1];
+                    console.log('Last Object:', lastObject);
+                    localStorage.setItem("team_id", lastObject.team_id);
+                    console.log(localStorage.getItem("team_id"));
+                    // navigate("/");
+                }, 500);
+            } catch (error) {
+                console.error('Error fetching teams:', error);
+            }
+
         } catch (error) {
             console.error('Error adding team:', error);
         }

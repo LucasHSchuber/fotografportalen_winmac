@@ -76,15 +76,22 @@ function Portal_teamleader() {
                         <h6 style={{ textDecoration: "underline" }} ><b>{project.type === "school" ? "Classes" : "Teams"}</b></h6>
 
                         <div>
-                            {teams.map(data => (
-                                <div key={data.team_id} className="portal-team-box d-flex mb-2"
-                                >
-                                    <p className="ml-2 mr-2">{data.teamname}</p>
-                                    <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
-                                    <p className="mx-2 ">{data.unit === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p>
-                                    <p className="mx-2">{data.amount}</p>
-                                </div>
-                            ))}
+                            {teams && teams.length > 0 ? (
+                                    teams.map(data => (
+                                        <div key={data.team_id} className="portal-team-box d-flex mb-2"
+                                        >
+                                            <p className="ml-2 mr-2">{data.teamname}</p>
+                                            <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
+                                            <p className="mx-2 ">{data.unit === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p>
+                                            <p className="mx-2">{data.amount}st</p>
+                                        </div>
+                                    ))
+
+                            ) : (
+                            <>
+                                <h6>{project.type === "school" ? "No classes yet" : "No teams yet"}</h6>
+                            </>
+                            )}
                         </div>
 
                         <div className="d-flex mt-5">
