@@ -19,6 +19,16 @@
     background-color: rgb(0, 0, 0);
 }
 
+.delete {
+    background-color: red;
+    transition: 0.2s;
+    color: white;
+}
+
+.delete:hover {
+    background-color: rgb(206, 0, 0);
+}
+
 .standard {
     background-color: #00b3ff;
     color: white;
@@ -29,12 +39,10 @@
     background-color: #0196d5;
 }
 
-.fixed-width{
+.fixed-width {
     width: 11em !important;
 }
 
-.fixed-height{
+.fixed-height {
     height: 3em !important;
 }
-
-.danger {}

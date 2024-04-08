@@ -4,7 +4,7 @@
 /* GENERAL - TEAMEADER */
 
 .teamleader-wrapper {
-    padding: 6em 0 2em 0;
+    padding: 6em 0 6em 0;
     color: #323232;
 }
 
@@ -217,7 +217,13 @@
     margin-top: -0.2em;
 }
 
-.portal-analytics {
+.portal-analytics p {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9em;
+}
+
+.portal-analytics-number {
     background-color: #1d1d1d;
     border-radius: 50%;
     color: white;
@@ -228,6 +234,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: auto;
 }
 
 .portal-team-box {
@@ -260,4 +267,15 @@
 
 input[type=checkbox] {
     accent-color: #00b3ff;
+}
+
+
+
+
+/* CALENDAR SALE */
+
+.calendarsale-hero-img{
+    height: 10em;
+    width: 100% !important;
+    object-fit: cover;
 }

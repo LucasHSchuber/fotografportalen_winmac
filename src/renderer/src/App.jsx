@@ -17,6 +17,8 @@ import Newproject_teamleader from "./pages/teamleader/newproject_teamleader";
 import Portal_teamleader from "./pages/teamleader/portal_teamleader";
 import Addleaderinfo_teamleader from "./pages/teamleader/addleaderinfo_teamleader";
 import Newteam_teamleader from "./pages/teamleader/newteam_teamleader";
+import Calendarsale_teamleader from "./pages/teamleader/calendarsale_teamleader";
+import Yescalendarsale_teamleader from "./pages/teamleader/yescalendarsale_teamleader";
 // import Sidemenu_teamleader from "./components/teamleader/sidemenu_teamleader";
 // import Minimenu_teamleader from "./components/teamleader/minimenu_teamleader";
 
@@ -108,6 +110,18 @@ function App() {
           <div className="route-layout">
             <Routes>
               <Route path="/newteam_teamleader" element={<Newteam_teamleader />} />
+            </Routes>
+          </div>
+
+          <div className="route-layout">
+            <Routes>
+              <Route path="/calendarsale_teamleader" element={<Calendarsale_teamleader />} />
+            </Routes>
+          </div>
+
+          <div className="route-layout">
+            <Routes>
+              <Route path="/yescalendarsale_teamleader" element={<Yescalendarsale_teamleader />} />
             </Routes>
           </div>
 

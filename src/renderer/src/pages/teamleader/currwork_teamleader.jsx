@@ -71,14 +71,17 @@ function Currwork_teamleader() {
                                 </div>
                                 <div className="currwork-box-right mx-2"
                                     value={project.project_id}
-                                    onClick={() => enterProject(project.project_id)}
+                                    // onClick={() => enterProject(project.project_id)}
                                 >
                                     <i className="fa-regular fa-paper-plane"></i>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <p>No projects found.</p>
+                        <div>
+                            <p>No projects found.</p>
+                            <a style={{ textDecoration: "underline" }} href="#" onClick={() => window.location.reload()}>Reload page</a>
+                        </div>
                     )}
                 </div>
 

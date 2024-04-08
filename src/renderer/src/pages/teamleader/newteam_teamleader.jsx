@@ -16,10 +16,11 @@ function Newteam_teamleader() {
         teamname: '',
         amount: 0,
         protected_id: false,
-        named_photolink: false,
+        // named_photolink: false,
         portrait: false,
         crowd: false
     });
+    const [project_id, setProject_id] = useState("");
 
 
     const navigate = useNavigate();
@@ -27,13 +28,15 @@ function Newteam_teamleader() {
 
     const handleCancel = () => {
         let project_id = localStorage.getItem("project_id");
+        setProject_id(project_id);
         navigate(`/portal_teamleader/${project_id}`);
     };
 
     useEffect(() => {
         let project_type = localStorage.getItem("project_type");
         setProjectType(project_type);
-        console.log(project_type);
+        let project_id = localStorage.getItem("project_id");
+        setProject_id(project_id);
     }, []);
 
 
@@ -54,21 +57,50 @@ function Newteam_teamleader() {
         const amountNumber = parseInt(formData.amount);
         console.log(amountNumber);
 
+        // Set boolean values to 0 if not checked
+        const portraitValue = formData.portrait ? 1 : 0;
+        const crowdValue = formData.crowd ? 1 : 0;
+        const protectedIdValue = formData.protected_id ? 1 : 0;
+        // const namedPhotolinkValue = formData.named_photolink ? 1 : 0;
+
+
         //if class (school)
         if (projectType === "school") {
-
             try {
                 const classData = await window.api.createNewClass({
                     ...formData,
                     amount: amountNumber,
-                    project_id: project_id
+                    project_id: project_id,
+                    portrait: portraitValue, 
+                    crowd: crowdValue, 
+                    protected_id: protectedIdValue
+                    // named_photolink: namedPhotolinkValue
                 });
                 console.log('Class response:', classData);
+                navigate(`/portal_teamleader/${project_id}`);
             } catch (error) {
                 console.error('Error adding class:', error);
             }
             //if team (sport)
         } else if (projectType === "sport") {
+            // try {
+            //     const teamData = await window.api.addInfoToTeam({
+            //         ...formData,
+            //         amount: amountNumber,
+            //         project_id: project_id,
+            //         portrait: portraitValue, 
+            //         crowd: crowdValue, 
+            //         protected_id: protectedIdValue,
+            //         named_photolink: namedPhotolinkValue
+            //     });
+            //     console.log('Team response:', teamData);
+
+            //     navigate(`/portal_teamleader/${project_id}`);
+            // } catch (error) {
+            //     console.error('Error adding class:', error);
+            // }
+
+            navigate(`/portal_teamleader/${project_id}`);
 
         } else {
             console.log("Project type is not defined");
@@ -151,7 +183,7 @@ function Newteam_teamleader() {
                             There were people with protected ID
                         </label>
                     </div>
-                    <div className="checkbox-container">
+                    {/* <div className="checkbox-container">
                         <label>
                             <input
                                 className="checkmark mr-2"
@@ -162,7 +194,7 @@ function Newteam_teamleader() {
                             />
                             All people are named in photolink
                         </label>
-                    </div>
+                    </div> */}
 
                     <button className="button cancel fixed-width fixed-height mr-1" onClick={handleCancel}>Cancel</button>
                     <button className="button standard fixed-width fixed-height" type="submit">Save</button>

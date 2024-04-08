@@ -117,11 +117,12 @@ function Index() {
           <ul>
             {projectsArray && projectsArray.length > 0 ? (
               projectsArray.map(project => (
-
-                <li>{project.projectname}</li>
+                <div key={project.project_id}>
+                  <li>{project.projectname}</li>
+                </div>
               ))
-              ) : (
-                <h6> </h6>
+            ) : (
+              <h6> </h6>
             )}
           </ul>
         </div>

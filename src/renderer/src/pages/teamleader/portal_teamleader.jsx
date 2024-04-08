@@ -16,6 +16,7 @@ function Portal_teamleader() {
     // Define states
     const [project, setProject] = useState({});
     const [projectType, setProjectType] = useState({});
+    const [projectName, setProjectName] = useState("");
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -29,18 +30,29 @@ function Portal_teamleader() {
 
     useEffect(() => {
 
+        let retryCount = 0;
+        const maxRetries = 3; // Maximum number of retries
+
         const fetchProject = async () => {
             try {
+                console.log(project_id);
                 const projectData = await window.api.getProjectById(project_id);
                 console.log('Projects:', projectData.project);
                 setProject(projectData.project);
                 setProjectType(projectData.project.type);
+                setProjectName(projectData.project.projectname);
                 localStorage.setItem("project_type", projectData.project.type);
-                console.log(localStorage.getItem("project_type"));
-                console.log(projectData.project.type);
                 setLoading(false); // Set loading to false when data is fetched
             } catch (error) {
                 console.error('Error fetching project:', error);
+                if (retryCount < maxRetries) {
+                    console.log(`Retrying... Retry count: ${retryCount}`);
+                    retryCount++;
+                    fetchProject(); // Retry fetching project data
+                } else {
+                    console.error('Max retries reached. Unable to fetch project data.');
+                    // Handle the error or retry limit reached scenario here
+                }
             }
         };
 
@@ -77,38 +89,40 @@ function Portal_teamleader() {
 
                         <div>
                             {teams && teams.length > 0 ? (
-                                    teams.map(data => (
-                                        <div key={data.team_id} className="portal-team-box d-flex mb-2"
-                                        >
-                                            <p className="ml-2 mr-2">{data.teamname}</p>
-                                            <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
-                                            <p className="mx-2 ">{data.unit === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p>
-                                            <p className="mx-2">{data.amount}st</p>
-                                        </div>
-                                    ))
+                                teams.sort((a, b) => new Date(b.created) - new Date(a.created)).map(data => (
+                                    <div key={data.team_id} className="portal-team-box d-flex mb-2"
+                                    >
+                                        <p className="ml-2 mr-2">{data.teamname}</p>
+                                        <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
+                                        <p className="mx-2 ">{data.crowd === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p>
+                                        <p className="mx-2">{data.amount}st</p>
+                                    </div>
+                                ))
 
                             ) : (
-                            <>
-                                <h6>{project.type === "school" ? "No classes yet" : "No teams yet"}</h6>
-                            </>
+                                <>
+                                    <h6>{project.type === "school" ? "No classes yet" : "No teams yet"}</h6>
+                                </>
                             )}
                         </div>
 
                         <div className="d-flex mt-5">
-                            <div className="mr-3">
+                            <div className="mr-3 portal-analytics">
                                 <p>
-                                    test
+                                    Photographed subjects
                                 </p>
-                                <div className="portal-analytics">
-                                    X
+                                <div className="test">
+                                    <div className="portal-analytics-number">
+                                        {teams.reduce((total, team) => total + team.amount, 0)}
+                                    </div>
                                 </div>
                             </div>
-                            <div>
+                            <div className="portal-analytics">
                                 <p>
-                                    test
+                                    {projectType === "school" ? "Photographed classes" : "Photographed teams"}
                                 </p>
-                                <div className="portal-analytics">
-                                    Y
+                                <div className="portal-analytics-number">
+                                    {teams.length}
                                 </div>
                             </div>
                         </div>
@@ -116,7 +130,7 @@ function Portal_teamleader() {
                 )}
             </div>
 
-            <Minimenu_teamleader project_type={projectType} />
+            <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} />
             <Sidemenu_teamleader />
         </div>
     );

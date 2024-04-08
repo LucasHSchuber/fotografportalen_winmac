@@ -23,6 +23,8 @@ const api = {
   getAllProjects: (user_id) => ipcRenderer.invoke('getAllProjects', user_id), // Pass user_id to get all projects by user
   getProjectById: (project_id) => ipcRenderer.invoke('getProjectById', project_id), // Pass project_id to get projects by project_id
 
+  deleteProject: (project_id) => ipcRenderer.invoke('deleteProject', project_id), // Pass project_id to delete projects by project_id
+
   createNewTeam: args => ipcRenderer.invoke('createNewTeam', args), // Database Call For Create new Team
   getTeamsByProjectId: (project_id) => ipcRenderer.invoke('getTeamsByProjectId', project_id), // Pass project_id to get teams by project_id
 

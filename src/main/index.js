@@ -387,7 +387,7 @@ ipcMain.handle("getUser", async (event, id) => {
 
 //get all projects by user_id
 ipcMain.handle("getAllProjects", async (event, user_id) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0"; 
+  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0 AND is_deleted = 0"; 
   console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
 
   try {
@@ -520,7 +520,7 @@ ipcMain.handle("get_Projects", async (event, user_lang) => {
 
 //get spcific project and see if it exists
 ipcMain.handle("checkProjectExists", async (event, project_uuid) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE project_uuid = ?";
+  const retrieveQuery = "SELECT * FROM projects WHERE project_uuid = ? AND is_deleted = 0";
 
   try {
       const project = await new Promise((resolve, reject) => {
@@ -633,6 +633,60 @@ ipcMain.handle("getLatestProject", async (event, project_uuid) => {
 });
 
 
+ipcMain.handle("deleteProject", async (event, project_id) => {
+  const updateQuery = "UPDATE projects SET is_deleted = 1 WHERE project_id = ?"; 
+
+  try {
+      const result = await new Promise((resolve, reject) => {
+          const db = new sqlite3.Database(dbPath);
+
+          db.run(updateQuery, [project_id], function(error) {
+              if (error) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: error });
+              } else {
+                  db.close();
+                  resolve({ rowsAffected: this.changes });
+              }
+          });
+      });
+
+      return { statusCode: 1, result };
+  } catch (error) {
+      console.error('Error updating project:', error);
+      return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+// //delete porject
+// ipcMain.handle("deleteProject", async (event, project_id) => {
+//   const deleteQuery = "DELETE FROM projects WHERE project_id = ?"; 
+
+//   try {
+//       const result = await new Promise((resolve, reject) => {
+//           const db = new sqlite3.Database(dbPath);
+
+//           db.run(deleteQuery, [project_id], function(error) {
+//               if (error) {
+//                   db.close();
+//                   reject({ statusCode: 0, errorMessage: error });
+//               } else {
+//                   db.close();
+//                   resolve({ rowsAffected: this.changes });
+//               }
+//           });
+//       });
+
+//       return { statusCode: 1, result };
+//   } catch (error) {
+//       console.error('Error deleting project:', error);
+//       return { statusCode: 0, errorMessage: error.message };
+//   }
+// });
+
+
+
 
 //create new team
 ipcMain.handle("createNewTeam", async (event, args) => {
@@ -651,22 +705,22 @@ ipcMain.handle("createNewTeam", async (event, args) => {
           leader_county, 
           leader_mobile, 
           leader_email, 
-          leader_ssn, 
+          // leader_ssn, 
           portrait, 
           project_id,
           crowd, 
           sold_calendar 
       } = args;
 
-      if (!teamname || !amount || !leader_firstname || !leader_lastname || !leader_address || !leader_postalcode || !leader_county || !leader_mobile || !leader_email || !leader_ssn || !project_id) {
+      if (!teamname || !amount || !leader_firstname || !leader_lastname || !leader_address || !leader_postalcode || !leader_county || !leader_mobile || !leader_email || !project_id) {
           throw new Error('Missing required data for createNewTeam');
       }
       
       const result = await db.run(`
           INSERT INTO teams (
-              teamname, amount, leader_firstname, leader_lastname, leader_address, leader_postalcode, leader_county, leader_mobile, leader_email, leader_ssn, portrait, crowd, sold_calendar,project_id
+              teamname, amount, leader_firstname, leader_lastname, leader_address, leader_postalcode, leader_county, leader_mobile, leader_email, portrait, crowd, sold_calendar,project_id
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `, [
               teamname, 
               amount, 
@@ -677,10 +731,9 @@ ipcMain.handle("createNewTeam", async (event, args) => {
               leader_county, 
               leader_mobile, 
               leader_email, 
-              leader_ssn, 
-              portrait ? 1 : 0, // Convert boolean to integer
-              crowd ? 1 : 0, // Convert boolean to integer
-              sold_calendar ? 1 : 0, // Convert boolean to integer
+              portrait ? 1 : 0, 
+              crowd ? 1 : 0, 
+              sold_calendar ? 1 : 0,
               project_id
           ]);
           
@@ -727,7 +780,11 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
           leader_email: row.leader_email,
           leader_ssn: row.leader_ssn,
           portrait: row.portrait,
+          crowd: row.crowd,
+          protected_id: row.protected_id,
+          named_photolink: row.named_photolink,
           sold_calendar: row.sold_calendar,
+          created: row.created,
           project_id: row.project_id
         }));
 
@@ -758,13 +815,13 @@ ipcMain.handle("createNewClass", async (event, args) => {
           teamname, 
           amount, 
           protected_id,
-          named_photolink,
+          // named_photolink,
           portrait, 
           project_id,
           crowd
       } = args;
 
-      if (!teamname || !amount || !protected_id || !named_photolink || !project_id) {
+      if (!teamname || !amount || !project_id) {
           throw new Error('Missing required data for createNewTeam');
       }
       
@@ -773,17 +830,16 @@ ipcMain.handle("createNewClass", async (event, args) => {
               teamname, 
               amount, 
               protected_id,
-              named_photolink,
               portrait, 
               crowd, 
               project_id
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?)
           `, [
               teamname, 
               amount, 
               protected_id ? 1 : 0, // Convert boolean to integer,
-              named_photolink ? 1 : 0, // Convert boolean to integer
+              // named_photolink ? 1 : 0, // Convert boolean to integer
               portrait ? 1 : 0, // Convert boolean to integer
               crowd ? 1 : 0, // Convert boolean to integer
               project_id
