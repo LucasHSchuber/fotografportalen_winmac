@@ -47,11 +47,13 @@ const DeleteProjectModal = ({ showModal, handleClose, projectName }) => {
 
     return (
         <Modal className="mt-5" show={showModal} onHide={handleClose}>
-            <Modal.Body className="mt-3 mb-4">
-                <Modal.Title><h5 className="mb-4" style={{ color: "red" }}>Delete project "{projectName}"?</h5></Modal.Title>
-                <h6 className="mb-3">Type in "{projectName}" to delete the project </h6>
+            <Modal.Body className="mt-3 mb-3">
+                <Modal.Title><h6 className="mb-2" style={{ color: "red" }}><b>Delete project "{projectName}"?</b></h6></Modal.Title>
+                <h6 className="mb-4"><em>Type in "{projectName}" to delete the project </em></h6>
+                <h6 className="mb-4" style={{ color: "red", textDecoration: "underline" }}>This action can not be undone</h6>
                 <input
                     className="form-input-field"
+                    placeholder="Project name"
                     style={{ border: "1px solid red" }}
                     value={deleteInputValue}
                     onChange={handleInputChange}

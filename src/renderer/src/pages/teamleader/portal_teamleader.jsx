@@ -51,7 +51,8 @@ function Portal_teamleader() {
                     fetchProject(); // Retry fetching project data
                 } else {
                     console.error('Max retries reached. Unable to fetch project data.');
-                    // Handle the error or retry limit reached scenario here
+                    window.location.reload();
+
                 }
             }
         };
@@ -67,8 +68,9 @@ function Portal_teamleader() {
             }
         };
 
-        fetchTeamsByProjectId();
+        
         fetchProject();
+        fetchTeamsByProjectId();
     }, [project_id]);
 
 

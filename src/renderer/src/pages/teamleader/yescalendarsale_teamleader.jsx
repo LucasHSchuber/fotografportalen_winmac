@@ -19,7 +19,7 @@ function Calendarsale_teamleader() {
 
 
 
-    const handleCancel = () => {
+    const handleBack = () => {
         let project_id = localStorage.getItem("project_id");
         setProject_id(project_id);
         navigate(`/calendarsale_teamleader`);
@@ -41,16 +41,15 @@ function Calendarsale_teamleader() {
         let project_id = localStorage.getItem("project_id");
         console.log(project_id);
 
-        const ssn = parseInt(formData.ssn);
-        console.log(ssn);
+        const ssn_int = parseInt(ssn);
+        const termsValue = terms ? 1 : 0;
+        console.log(ssn_int);
+        console.log(termsValue);
 
-        const terms = terms ? 1 : 0;
+        //method to add data to table
 
-        //method to add ssn
 
-        setSsn("");
-
-        navigate(`/calendarsale_teamleader`);
+        // navigate(`/`);
 
     };
 
@@ -83,7 +82,7 @@ function Calendarsale_teamleader() {
                         </label>
                     </div>
 
-                    <button className="button cancel fixed-width fixed-height mr-1" onClick={handleCancel}>Cancel</button>
+                    <button className="button cancel fixed-width fixed-height mr-1" onClick={handleBack}>Back</button>
                     <button className="button standard fixed-width fixed-height" type="submit">Save</button>
 
                 </form>

@@ -9,10 +9,18 @@ import '../../assets/css/teamleader/main_teamleader.css';
 
 function Calendarsale_teamleader() {
     // Define states
+    const [project_id, setProject_id] = useState(false);
 
 
     const navigate = useNavigate();
 
+
+
+    const handleBack = () => {
+        let project_id = localStorage.getItem("project_id");
+        setProject_id(project_id);
+        navigate(`/addleaderinfo_teamleader`);
+    };
 
     const yesCalendarSales = () => {
         navigate("/yescalendarsale_teamleader");
@@ -40,7 +48,8 @@ function Calendarsale_teamleader() {
                 </div>
 
                 <div>
-                    <button className="button standard" onClick={yesCalendarSales}>Yes, of course</button>
+                    <button className="button cancel fixed-width fixed-height mr-1" onClick={handleBack}>Back</button>
+                    <button className="button standard fixed-width fixed-height " onClick={yesCalendarSales}>Yes, of course</button>
                     <br />
                     <a style={{ textDecoration: "underline" }} onClick={noCalendarSales}>No, I'm not intersted in earning money by selling calendars</a>
                     <br />
