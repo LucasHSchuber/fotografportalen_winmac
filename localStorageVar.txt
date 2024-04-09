@@ -8,6 +8,8 @@ hasLoadingBarShownBefore
 project_id
 project_type
 team_id
+calendar_sale - (0/1)
+
 
 
 SESSION STORAGE:

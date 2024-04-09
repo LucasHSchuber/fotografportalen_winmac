@@ -16,7 +16,6 @@ function Newteam_teamleader() {
         teamname: '',
         amount: 0,
         protected_id: false,
-        // named_photolink: false,
         portrait: false,
         crowd: false
     });
@@ -50,9 +49,7 @@ function Newteam_teamleader() {
         e.preventDefault();
 
         let project_id = localStorage.getItem("project_id");
-        console.log(project_id);
         console.log(formData);
-        console.log(projectType);
 
         const amountNumber = parseInt(formData.amount);
         console.log(amountNumber);
@@ -61,8 +58,6 @@ function Newteam_teamleader() {
         const portraitValue = formData.portrait ? 1 : 0;
         const crowdValue = formData.crowd ? 1 : 0;
         const protectedIdValue = formData.protected_id ? 1 : 0;
-        // const namedPhotolinkValue = formData.named_photolink ? 1 : 0;
-
 
         //if class (school)
         if (projectType === "school") {
@@ -71,10 +66,9 @@ function Newteam_teamleader() {
                     ...formData,
                     amount: amountNumber,
                     project_id: project_id,
-                    portrait: portraitValue, 
-                    crowd: crowdValue, 
+                    portrait: portraitValue,
+                    crowd: crowdValue,
                     protected_id: protectedIdValue
-                    // named_photolink: namedPhotolinkValue
                 });
                 console.log('Class response:', classData);
                 navigate(`/portal_teamleader/${project_id}`);
@@ -83,22 +77,26 @@ function Newteam_teamleader() {
             }
             //if team (sport)
         } else if (projectType === "sport") {
-            // try {
-            //     const teamData = await window.api.addInfoToTeam({
-            //         ...formData,
-            //         amount: amountNumber,
-            //         project_id: project_id,
-            //         portrait: portraitValue, 
-            //         crowd: crowdValue, 
-            //         protected_id: protectedIdValue,
-            //         named_photolink: namedPhotolinkValue
-            //     });
-            //     console.log('Team response:', teamData);
+            let team_id = localStorage.getItem("team_id");
+            let calendar_sale = localStorage.getItem("calendar_sale");
+            console.log(team_id);
+            console.log(calendar_sale);
+            try {
+                const teamData = await window.api.addTeamDataToTeam({
+                    ...formData,
+                    amount: amountNumber,
+                    team_id: team_id,
+                    portrait: portraitValue,
+                    crowd: crowdValue,
+                    protected_id: protectedIdValue,
+                    sold_calendar: calendar_sale
+                });
+                console.log('Team response:', teamData);
 
-            //     navigate(`/portal_teamleader/${project_id}`);
-            // } catch (error) {
-            //     console.error('Error adding class:', error);
-            // }
+                navigate(`/portal_teamleader/${project_id}`);
+            } catch (error) {
+                console.error('Error adding class:', error);
+            }
 
             navigate(`/portal_teamleader/${project_id}`);
 
@@ -106,6 +104,7 @@ function Newteam_teamleader() {
             console.log("Project type is not defined");
         }
     };
+
 
 
 
@@ -120,6 +119,7 @@ function Newteam_teamleader() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
+                        {projectType && projectType === "school" ? (
                         <div>
                             {/* <label htmlFor="teamName">New Team:</label> */}
                             <input
@@ -133,6 +133,9 @@ function Newteam_teamleader() {
                                 required
                             />
                         </div>
+                        ) : (
+                            ""
+                        )}
                         <div>
                             {/* <label htmlFor="amount">Amount:</label> */}
                             <input
@@ -140,7 +143,7 @@ function Newteam_teamleader() {
                                 type="number"
                                 id="amount"
                                 name="amount"
-                                placeholder={projectType === "school" ? "Amount of students" : "Amount of players"}
+                                placeholder={projectType === "school" ? "Amount of photographed students" : "Amount of photographed players"}
                                 value={formData.amount}
                                 onChange={handleChange}
                                 required

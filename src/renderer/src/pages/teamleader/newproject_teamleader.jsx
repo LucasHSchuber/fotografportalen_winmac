@@ -25,9 +25,7 @@ function Newproject_teamleader() {
 
     const [_projects, set_Projects] = useState([]);
 
-
     const navigate = useNavigate();
-
 
 
     //fetch all projects from big(express-bild) database - if not working, fetch from  sqlite table 
@@ -37,7 +35,6 @@ function Newproject_teamleader() {
             console.log(user_lang);
 
             try {
-
                 const projects = await fetchProjectsByLang(user_lang);
                 set_Projects(projects.result);
                 console.log('Projects:', projects.result);
@@ -138,6 +135,8 @@ function Newproject_teamleader() {
                     //get latest tuppel in projects-table
                     const latestProjectResponse = await window.api.getLatestProject(project_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
+                    localStorage.setItem("project_id", latestProjectResponse.project_id)
+                    console.log(localStorage.getItem("project_id"));
                     //store the project_id in session_storage
                     sessionStorage.setItem("project_id", latestProjectResponse.project_id);
                     navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);

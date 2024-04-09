@@ -223,7 +223,7 @@ function createTables() {
     CREATE TABLE IF NOT EXISTS teams (
       team_id INTEGER PRIMARY KEY AUTOINCREMENT,
       teamname TEXT NOT NULL,
-      amount INT NOT NULL,
+      amount INT,
       leader_firstname STRING,
       leader_lastname STRING,
       leader_address STRING,
@@ -232,6 +232,7 @@ function createTables() {
       leader_mobile STRING,
       leader_email STRING,
       leader_ssn INTEGER,
+      calendar_amount INTEGER,
       portrait BOOLEAN,
       crowd BOOLEAN,
       protected_id BOOLEAN,
@@ -697,43 +698,33 @@ ipcMain.handle("createNewTeam", async (event, args) => {
 
       const { 
           teamname, 
-          amount, 
           leader_firstname, 
           leader_lastname, 
-          leader_address, 
-          leader_postalcode, 
-          leader_county, 
           leader_mobile, 
           leader_email, 
-          // leader_ssn, 
+          calendar_amount,
           portrait, 
           project_id,
           crowd, 
           sold_calendar 
       } = args;
 
-      if (!teamname || !amount || !leader_firstname || !leader_lastname || !leader_address || !leader_postalcode || !leader_county || !leader_mobile || !leader_email || !project_id) {
+      if (!teamname || !leader_firstname || !leader_lastname || !leader_mobile || !leader_email || !calendar_amount || !project_id) {
           throw new Error('Missing required data for createNewTeam');
       }
       
       const result = await db.run(`
           INSERT INTO teams (
-              teamname, amount, leader_firstname, leader_lastname, leader_address, leader_postalcode, leader_county, leader_mobile, leader_email, portrait, crowd, sold_calendar,project_id
+              teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, calendar_amount, project_id
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
           `, [
               teamname, 
-              amount, 
               leader_firstname, 
               leader_lastname, 
-              leader_address, 
-              leader_postalcode, 
-              leader_county, 
               leader_mobile, 
               leader_email, 
-              portrait ? 1 : 0, 
-              crowd ? 1 : 0, 
-              sold_calendar ? 1 : 0,
+              calendar_amount,
               project_id
           ]);
           
@@ -802,6 +793,53 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
 });
 
 
+//Update team
+ipcMain.handle("addDataToTeam", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for addDataToTeam');
+      }
+      const { 
+          leader_address,
+          leader_postalcode,
+          leader_county,
+          leader_ssn,
+          team_id
+      } = args;
+
+      if (!leader_address || !leader_postalcode || !leader_county || !leader_ssn || !team_id) {
+          throw new Error('Missing required data for addDataToTeam');
+      }
+      
+      const result = await db.run(`
+          UPDATE teams
+          SET leader_address = ?,
+              leader_postalcode = ?,
+              leader_county = ?,
+              leader_ssn = ?
+          WHERE team_id = ?
+          `, [
+            leader_address, 
+            leader_postalcode, 
+            leader_county, 
+            leader_ssn,
+            team_id
+          ]);
+          
+      console.log(`Team updated successfully`);
+      
+      // Send success response to the frontend
+      event.sender.send('addDataToTeam-response', { success: true });
+      return { success: true };
+      
+  } catch (err) {
+      console.error('Error updating team:', err.message);
+      // Send error response to the frontend
+      event.sender.send('addDataToTeam-response', { error: err.message });
+      return { error: err.message };
+  }
+});
+
 
 
 //create new class
@@ -815,7 +853,6 @@ ipcMain.handle("createNewClass", async (event, args) => {
           teamname, 
           amount, 
           protected_id,
-          // named_photolink,
           portrait, 
           project_id,
           crowd
@@ -839,7 +876,6 @@ ipcMain.handle("createNewClass", async (event, args) => {
               teamname, 
               amount, 
               protected_id ? 1 : 0, // Convert boolean to integer,
-              // named_photolink ? 1 : 0, // Convert boolean to integer
               portrait ? 1 : 0, // Convert boolean to integer
               crowd ? 1 : 0, // Convert boolean to integer
               project_id
@@ -858,6 +894,63 @@ ipcMain.handle("createNewClass", async (event, args) => {
       return { error: err.message };
   }
 });
+
+
+
+
+
+//Add team data to team
+ipcMain.handle("addTeamDataToTeam", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for addTeamDataToTeam');
+      }
+
+      const { 
+          amount, 
+          protected_id,
+          portrait, 
+          crowd,
+          sold_calendar,
+          team_id
+      } = args;
+
+      if (!amount || !team_id) {
+          throw new Error('Missing required data for addTeamDataToTeam');
+      }
+      
+      const result = await db.run(`
+        UPDATE teams
+        SET amount = ?,
+        protected_id = ?,
+        portrait = ?,
+        crowd = ?,
+        sold_calendar = ?
+        WHERE team_id = ?
+        `, [
+          amount, 
+          protected_id ? 1 : 0,
+          portrait ? 1 : 0,
+          crowd ? 1 : 0,
+          sold_calendar ? 1 : 0,
+          team_id
+      ]);
+          
+      console.log(`Team data added successfully`);
+      
+      // Send success response to the frontend
+      event.sender.send('addTeamDataToTeam-response', { success: true });
+      return { success: true };
+      
+  } catch (err) {
+      console.error('Error adding data to team:', err.message);
+      // Send error response to the frontend
+      event.sender.send('addTeamDataToTeam-response', { error: err.message });
+      return { error: err.message };
+  }
+});
+
+
 
 
 

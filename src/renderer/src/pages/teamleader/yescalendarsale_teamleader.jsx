@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from 'react-router-dom';
-import flash_black from "../../assets/images/flash_black.png";
-import running_black from "../../assets/images/running_black.png";
-import academic_black from "../../assets/images/academic_black.png";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
@@ -11,46 +8,73 @@ import '../../assets/css/teamleader/main_teamleader.css';
 
 function Calendarsale_teamleader() {
     // Define states
-    const [ssn, setSsn] = useState("");
-    const [terms, setTerms] = useState(false);
+    const [formData, setFormData] = useState({
+        leader_address: "",
+        leader_postalcode: "",
+        leader_county: "",
+        leader_ssn: "",
+        terms: false
+    });
     const [project_id, setProject_id] = useState(false);
 
+
     const navigate = useNavigate();
-
-
-
     const handleBack = () => {
-        let project_id = localStorage.getItem("project_id");
-        setProject_id(project_id);
         navigate(`/calendarsale_teamleader`);
     };
 
+
     const handleChange = (e) => {
         const { name, value, checked } = e.target;
-        setTerms({ terms, [name]: checked });
-        setSsn(value);
-        setTerms(value);
-
-        console.log(ssn);
-        console.log(terms);
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: name === 'terms' ? checked : value // Update terms separately
+        }));
     };
+
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        let project_id = localStorage.getItem("project_id");
-        console.log(project_id);
 
-        const ssn_int = parseInt(ssn);
-        const termsValue = terms ? 1 : 0;
-        console.log(ssn_int);
-        console.log(termsValue);
+
+        if (!formData.terms) {
+            const confirmResponse = window.confirm("You must accept the terms.");
+            if (!confirmResponse) {
+                return;
+            } else {
+                return;
+            }
+        }
+
+        let team_id = localStorage.getItem("team_id");
+        if (!team_id) {
+            console.error("Team ID not found in localStorage");
+            return;
+        }
+        console.log(formData);
 
         //method to add data to table
+        try {
+            const teamData = await window.api.addDataToTeam({
+                ...formData,
+                team_id: team_id
+            });
+            console.log('Teams:', teamData.teams);
 
+            setFormData({
+                leader_address: "",
+                leader_postalcode: "",
+                leader_county: "",
+                leader_ssn: "",
+                terms: false
+            });
 
-        // navigate(`/`);
+            navigate(`/newteam_teamleader`);
 
+        } catch (error) {
+            console.error('Error fetching teams:', error);
+        }
     };
 
 
@@ -67,15 +91,24 @@ function Calendarsale_teamleader() {
 
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <input className="form-input-field" type="number" name="SSN" value={ssn} onChange={handleChange} placeholder="Social security number" required />
+                        <input className="form-input-field" type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Social security number" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="number" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder="Leader Postal Code" required />
+                    </div>
+                    <div>
+                        <input className="form-input-field" type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" required />
                     </div>
                     <div className="checkbox-container">
                         <label>
                             <input
                                 className="checkmark mr-2"
                                 type="checkbox"
-                                name="named_photolink"
-                                checked={terms}
+                                name="terms"
+                                checked={formData.terms}
                                 onChange={handleChange}
                             />
                             I agree to the terms and conditions

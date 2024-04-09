@@ -15,17 +15,23 @@ function Calendarsale_teamleader() {
     const navigate = useNavigate();
 
 
-
+    //if pressing back button
     const handleBack = () => {
         let project_id = localStorage.getItem("project_id");
         setProject_id(project_id);
         navigate(`/addleaderinfo_teamleader`);
     };
 
+    //if pressing yes button
     const yesCalendarSales = () => {
+        localStorage.setItem("calendar_sale", 1);
+        console.log(localStorage.getItem("calendar_sale"));
         navigate("/yescalendarsale_teamleader");
     }
+    //if pressing no button
     const noCalendarSales = () => {
+        localStorage.setItem("calendar_sale", 0);
+        console.log(localStorage.getItem("calendar_sale"));
         navigate("/newteam_teamleader");
     }
 
@@ -51,9 +57,8 @@ function Calendarsale_teamleader() {
                     <button className="button cancel fixed-width fixed-height mr-1" onClick={handleBack}>Back</button>
                     <button className="button standard fixed-width fixed-height " onClick={yesCalendarSales}>Yes, of course</button>
                     <br />
-                    <a style={{ textDecoration: "underline" }} onClick={noCalendarSales}>No, I'm not intersted in earning money by selling calendars</a>
-                    <br />
-                    <button className="button" onClick={noCalendarSales}>No</button>
+                    <a style={{ textDecoration: "underline", cursor: "pointer" }} onClick={noCalendarSales}>No, I'm not intersted in earning money by selling calendars</a>
+                    {/* <button className="button" onClick={noCalendarSales}>No</button> */}
                 </div>
 
             </div>

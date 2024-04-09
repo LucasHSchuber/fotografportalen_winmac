@@ -10,18 +10,11 @@ function Addleaderinfo_teamleader() {
     // Define states
     const [formData, setFormData] = useState({
         teamname: "",
-        amount: 0,
+        calendar_amount: "",
         leader_firstname: "",
         leader_lastname: "",
-        leader_address: "",
-        leader_postalcode: "",
-        leader_county: "",
         leader_mobile: "",
-        leader_email: "",
-        // leader_ssn: "",
-        portrait: false,
-        crowd: false,
-        sold_calendar: false
+        leader_email: ""
     });
 
     const navigate = useNavigate();
@@ -43,7 +36,7 @@ function Addleaderinfo_teamleader() {
         console.log(project_id);
 
         // Convert amount to number
-        const amountNumber = parseInt(formData.amount);
+        const amountNumber = parseInt(formData.calendar_amount);
         console.log(amountNumber);
         // Convert leader_ssn to number if it represents a numerical value
         // const leaderSsnNumber = parseInt(formData.leader_ssn);
@@ -52,8 +45,7 @@ function Addleaderinfo_teamleader() {
         try {
             const teamData = await window.api.createNewTeam({
                 ...formData,
-                amount: amountNumber,
-                // leader_ssn: leaderSsnNumber,
+                calendar_amount: amountNumber,
                 project_id: project_id
             });
             console.log('Team response:', teamData);
@@ -66,8 +58,6 @@ function Addleaderinfo_teamleader() {
                     const lastObject = teamsData.teams[teamsData.teams.length - 1];
                     console.log('Last Object:', lastObject);
                     localStorage.setItem("team_id", lastObject.team_id);
-                    console.log(localStorage.getItem("team_id"));
-                    // navigate("/");
                 }, 500);
             } catch (error) {
                 console.error('Error fetching teams:', error);
@@ -79,18 +69,11 @@ function Addleaderinfo_teamleader() {
 
         setFormData({
             teamname: "",
-            amount: 0,
+            calendar_amount: "",
             leader_firstname: "",
             leader_lastname: "",
-            leader_address: "",
-            leader_postalcode: "",
-            leader_county: "",
             leader_mobile: "",
             leader_email: "",
-            // leader_ssn: "",
-            portrait: false,
-            crowd: false,
-            sold_calendar: false
         });
 
         navigate(`/calendarsale_teamleader`);
@@ -124,7 +107,7 @@ function Addleaderinfo_teamleader() {
                         <input className="form-input-field" type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" required />
                     </div>
                     <div>
-                        <input className="form-input-field" type="number" name="amount" value={formData.amount} onChange={handleChange} placeholder="Amount" required />
+                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of players with calendar" required />
                     </div>
                     <br></br>
                     <h6><b>Team leader info:</b></h6>
@@ -134,7 +117,7 @@ function Addleaderinfo_teamleader() {
                     <div>
                         <input className="form-input-field" type="text" name="leader_lastname" value={formData.leader_lastname} onChange={handleChange} placeholder="Leader Last Name" required />
                     </div>
-                    <div>
+                    {/* <div>
                         <input className="form-input-field" type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" required />
                     </div>
                     <div>
@@ -142,7 +125,7 @@ function Addleaderinfo_teamleader() {
                     </div>
                     <div>
                         <input className="form-input-field" type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" required />
-                    </div>
+                    </div> */}
                     <div>
                         <input className="form-input-field" type="email" name="leader_email" value={formData.leader_email} onChange={handleChange} placeholder="Leader Email" required />
                     </div>

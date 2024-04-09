@@ -19,21 +19,23 @@ const api = {
   checkProjectExists: (project_uuid) => ipcRenderer.invoke('checkProjectExists', project_uuid), // Database Call For Checking if Project Exists
   createNewProject: args => ipcRenderer.invoke('createNewProject', args), // Database Call For Create new Project
   getLatestProject: (project_uuid) => ipcRenderer.invoke('getLatestProject', project_uuid), // Pass workname to getUser handler in main process
-
   getAllProjects: (user_id) => ipcRenderer.invoke('getAllProjects', user_id), // Pass user_id to get all projects by user
   getProjectById: (project_id) => ipcRenderer.invoke('getProjectById', project_id), // Pass project_id to get projects by project_id
-
   deleteProject: (project_id) => ipcRenderer.invoke('deleteProject', project_id), // Pass project_id to delete projects by project_id
-
-  createNewTeam: args => ipcRenderer.invoke('createNewTeam', args), // Database Call For Create new Team
-  getTeamsByProjectId: (project_id) => ipcRenderer.invoke('getTeamsByProjectId', project_id), // Pass project_id to get teams by project_id
 
   createNewClass: args => ipcRenderer.invoke('createNewClass', args), // Database Call For Create new Class
 
-
-
+  getTeamsByProjectId: (project_id) => ipcRenderer.invoke('getTeamsByProjectId', project_id), // Pass project_id to get teams by project_id
+  createNewTeam: args => ipcRenderer.invoke('createNewTeam', args), // Database Call For Create new Team
+  addDataToTeam: args => ipcRenderer.invoke('addDataToTeam', args), // Database Call For adding data to Team
+  addTeamDataToTeam: args => ipcRenderer.invoke('addTeamDataToTeam', args), // Database Call For adding MORE data to Team
 
   
+
+
+
+
+
   // navigateBack: () => ipcRenderer.send('navigateBack'), // Send a message to Electron's main process to navigate back
 
 
