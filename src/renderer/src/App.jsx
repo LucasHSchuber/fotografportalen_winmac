@@ -4,10 +4,10 @@ import { useEffect } from "react";
 
 //importing pages and components
 import Index from "./pages/index";
-import Home from "./pages/teamleader/home";
+// import Home from "./pages/teamleader/home";
 import Sidemenu from "./components/sidemenu";
 import Sidemenu_small from "./components/sidemenu_small";
-import Addgroup from "./pages/teamleader/addgroup";
+// import Addgroup from "./pages/teamleader/addgroup";
 
 //teamleader pages and components
 import Home_teamleader from "./pages/teamleader/home_teamleader";
@@ -125,17 +125,17 @@ function App() {
             </Routes>
           </div>
 
-          <div className="route-layout">
+          {/* <div className="route-layout">
             <Routes>
               <Route path="/home" element={<Home />} />
             </Routes>
-          </div>
+          </div> */}
 
-          <div className="route-layout">
+          {/* <div className="route-layout">
             <Routes>
               <Route path="/addgroup" element={<Addgroup />} />
             </Routes>
-          </div>
+          </div> */}
 
         </div>
 

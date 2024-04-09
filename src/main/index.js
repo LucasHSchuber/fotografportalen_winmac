@@ -180,6 +180,7 @@ function createTables() {
       email TEXT NOT NULL,
       firstname TEXT NOT NULL,
       lastname TEXT NOT NULL,
+      city TEXT NOT NULL,
       lang STRING NOT NULL,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -272,8 +273,8 @@ function createTables() {
 function insertDataToTables(){
 
   db.run(`
-  INSERT INTO users (email, firstname, lastname, lang) 
-  VALUES ('user@example.com', 'John', 'Doe', 'SE')
+  INSERT INTO users (email, firstname, lastname, city, lang) 
+  VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE')
 `, (err) => {
   if (err) {
     console.error('Error inserting user:', err.message);
@@ -283,8 +284,8 @@ function insertDataToTables(){
 });
 
   db.run(`
-  INSERT INTO users (email, firstname, lastname, lang) 
-  VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'SE')
+  INSERT INTO users (email, firstname, lastname, city, lang) 
+  VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'Stockholm', 'SE')
   `, (err) => {
   if (err) {
     console.error('Error inserting user:', err.message);
@@ -370,6 +371,7 @@ ipcMain.handle("getUser", async (event, id) => {
                       email: row.email,
                       firstname: row.firstname,
                       lastname: row.lastname,
+                      city: row.city,
                       lang: row.lang,
                       created: row.created
                   });
@@ -932,7 +934,7 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
           protected_id ? 1 : 0,
           portrait ? 1 : 0,
           crowd ? 1 : 0,
-          sold_calendar ? 1 : 0,
+          sold_calendar,
           team_id
       ]);
           
@@ -946,6 +948,44 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
       console.error('Error adding data to team:', err.message);
       // Send error response to the frontend
       event.sender.send('addTeamDataToTeam-response', { error: err.message });
+      return { error: err.message };
+  }
+});
+
+
+//Add team data to team
+ipcMain.handle("addAnomalyToProject", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for addTeamDataToTeam');
+      }
+
+      const { anomaly, project_id } = args;
+
+      if (!project_id) {
+        throw new Error('Missing required data for addAnomalyToProject');
+      }
+      
+      const result = await db.run(`
+      UPDATE projects
+      SET anomaly = ?
+      WHERE project_id = ?
+  `, [
+      anomaly, 
+      project_id
+  ]);
+  
+          
+      console.log(`Anomaly added successfully`);
+      
+      // Send success response to the frontend
+      event.sender.send('addAnomalyToProject-response', { success: true });
+      return { success: true };
+      
+  } catch (err) {
+      console.error('Error adding data to team:', err.message);
+      // Send error response to the frontend
+      event.sender.send('addAnomalyToProject-response', { error: err.message });
       return { error: err.message };
   }
 });

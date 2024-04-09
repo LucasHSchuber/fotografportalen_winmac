@@ -81,6 +81,7 @@ function Newteam_teamleader() {
             let calendar_sale = localStorage.getItem("calendar_sale");
             console.log(team_id);
             console.log(calendar_sale);
+            // const calendarSaleValue = calendar_sale ? 1 : 0;
             try {
                 const teamData = await window.api.addTeamDataToTeam({
                     ...formData,

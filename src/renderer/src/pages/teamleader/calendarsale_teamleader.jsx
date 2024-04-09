@@ -57,6 +57,7 @@ function Calendarsale_teamleader() {
                     <button className="button cancel fixed-width fixed-height mr-1" onClick={handleBack}>Back</button>
                     <button className="button standard fixed-width fixed-height " onClick={yesCalendarSales}>Yes, of course</button>
                     <br />
+                    <br />
                     <a style={{ textDecoration: "underline", cursor: "pointer" }} onClick={noCalendarSales}>No, I'm not intersted in earning money by selling calendars</a>
                     {/* <button className="button" onClick={noCalendarSales}>No</button> */}
                 </div>

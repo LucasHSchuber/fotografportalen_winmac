@@ -30,6 +30,8 @@ const api = {
   addDataToTeam: args => ipcRenderer.invoke('addDataToTeam', args), // Database Call For adding data to Team
   addTeamDataToTeam: args => ipcRenderer.invoke('addTeamDataToTeam', args), // Database Call For adding MORE data to Team
 
+  addAnomalyToProject: args => ipcRenderer.invoke('addAnomalyToProject', args), // Database Call For adding anomaly data to Project
+
   
 
 

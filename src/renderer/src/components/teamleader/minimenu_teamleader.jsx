@@ -6,7 +6,7 @@ import DeleteProjectModal from "../../components/teamleader/deleteprojectModal";
 
 import '../../assets/css/teamleader/components_teamleader.css'
 
-const Minimenu_teamleader = ({ project_type, project_id, project_name }) => {
+const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAnomalyReport}) => {
 
     //define states
     const [showModal, setShowModal] = useState(false);
@@ -36,16 +36,8 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name }) => {
     const deleteProject = async () => {
         console.log("delete project " + project_id)
         setShowModal(true);
-
-        // try {
-        //     const deleted = await window.api.deleteProject(project_id);
-        //     console.log('Delete:', deleted);
-
-        // } catch (error) {
-        //     console.error('Error deleting project:', error);
-        // }
-
     }
+
 
 
     return (
@@ -65,14 +57,15 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name }) => {
                 <button className="minimenu-button">
                     <i className="fa-regular fa-paper-plane"></i>
                 </button>
-                <button className="minimenu-button">
+                <button className="minimenu-button"
+                     onClick={toggleAnomalyReport}
+                >
                     <i class="fa-regular fa-flag"></i>
                 </button>
             </div>
 
 
-            <DeleteProjectModal showModal={showModal} handleClose={handleClose} projectName={project_name}/>
-
+            <DeleteProjectModal showModal={showModal} handleClose={handleClose} projectName={project_name} />
 
         </div>
     );

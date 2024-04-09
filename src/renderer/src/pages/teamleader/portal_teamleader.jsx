@@ -8,6 +8,7 @@ import portrait from "../../assets/images/portrait.png";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Minimenu_teamleader from "../../components/teamleader/minimenu_teamleader";
+import Anomalyreport from "../../components/teamleader/anomalyreport";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -17,51 +18,72 @@ function Portal_teamleader() {
     const [project, setProject] = useState({});
     const [projectType, setProjectType] = useState({});
     const [projectName, setProjectName] = useState("");
+    const [projectAnomaly, setProjectAnomaly] = useState("");
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [showAnomalyReport, setShowAnomalyReport] = useState(false); // State for toggling Anomalyreport visibility
+
 
     // Accessing the projectId from URL parameters
     const { project_id } = useParams();
 
 
+    const toggleAnomalyReport = () => {
+        setShowAnomalyReport(!showAnomalyReport);
+    };
+
     //load loading bar on load
     useEffect(() => {
-            const timer = setTimeout(() => {
-                setLoading(false);
-            }, 1000);
-            return () => clearTimeout(timer);
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
     }, []);
 
 
     useEffect(() => {
-    const fetchProject = async () => {
+        const fetchProject = async () => {
+            try {
+                const projectData = await window.api.getProjectById(project_id);
+                console.log('Project:', projectData.project);
+                setProject(projectData.project);
+                setProjectType(projectData.project.type);
+                setProjectName(projectData.project.projectname);
+                setProjectAnomaly(projectData.project.anomaly);
+                localStorage.setItem("project_type", projectData.project.type);
+            } catch (error) {
+                console.error('Error fetching project:', error);
+            }
+        };
+
+        const fetchTeamsByProjectId = async () => {
+            try {
+                const teamsData = await window.api.getTeamsByProjectId(project_id);
+                console.log('Teams:', teamsData.teams);
+                setTeams(teamsData.teams);
+                // setLoading(false); // Set loading to false when data is fetched
+            } catch (error) {
+                console.error('Error fetching teams:', error);
+            }
+        };
+
+        fetchProject();
+        fetchTeamsByProjectId();
+    }, []);
+
+
+    //triggered after updating anomaly report
+    const refreshAnomalyData = async () => {
         try {
-            console.log(project_id);
             const projectData = await window.api.getProjectById(project_id);
-            console.log('Projects:', projectData.project);
-            setProject(projectData.project);
-            setProjectType(projectData.project.type);
-            setProjectName(projectData.project.projectname);
-            localStorage.setItem("project_type", projectData.project.type);
+            console.log('Project Anomaly Refresh:', projectData.project);
+            setProjectAnomaly(projectData.project.anomaly);
         } catch (error) {
-            console.error('Error fetching project:', error);
+            console.error('Error refreshing project:', error);
         }
     };
 
-    const fetchTeamsByProjectId = async () => {
-        try {
-            const teamsData = await window.api.getTeamsByProjectId(project_id);
-            console.log('Teams:', teamsData.teams);
-            setTeams(teamsData.teams);
-            // setLoading(false); // Set loading to false when data is fetched
-        } catch (error) {
-            console.error('Error fetching teams:', error);
-        }
-    };
-
-    fetchProject();
-    fetchTeamsByProjectId();
-}, []);
 
 
     return (
@@ -83,7 +105,7 @@ function Portal_teamleader() {
                         {project && ( // Check if projectname is available
                             <>
                                 <div className="header mb-5">
-                                    <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname} - <em>{project.created.substring(0, 10)}</em></h5>
+                                    <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created.substring(0, 10)})</em></h5>
                                     {/* <h6 className=""><em>{project.created.substring(0, 10)}</em></h6> */}
                                 </div>
 
@@ -98,7 +120,7 @@ function Portal_teamleader() {
                                                 <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
                                                 <p className="mx-2 ">{data.crowd === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p>
                                                 <p className="mx-2">{data.amount}st</p>
-                                                <p className="mx-2">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? "sold" : "not sold" : "" }</p>
+                                                <p className="mx-2">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <i class="fa-regular fa-calendar-plus"></i> : <i class="fa-regular fa-calendar-minus"></i> : ""}</p>
                                             </div>
                                         ))
 
@@ -110,7 +132,7 @@ function Portal_teamleader() {
                                 </div>
 
                                 <div className="d-flex mt-5">
-                                    <div className="mr-3 portal-analytics">
+                                    <div className="portal-analytics">
                                         <p>
                                             Photographed subjects
                                         </p>
@@ -120,7 +142,7 @@ function Portal_teamleader() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="portal-analytics">
+                                    <div className="portal-analytics mx-3">
                                         <p>
                                             {projectType === "school" ? "Photographed classes" : "Photographed teams"}
                                         </p>
@@ -128,13 +150,25 @@ function Portal_teamleader() {
                                             {teams.length}
                                         </div>
                                     </div>
+                                    {projectType === "sport" && (
+                                        <div className="portal-analytics">
+                                            <p>
+                                                Sold calendars
+                                            </p>
+                                            <div className="portal-analytics-number">
+                                                {teams.reduce((total, calendars) => total + calendars.sold_calendar, 0)}
+                                            </div>
+                                        </div>
+                                    )}
+
                                 </div>
                             </>
                         )}
                     </div>
 
-                    <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} />
+                    <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} />
                     <Sidemenu_teamleader />
+                    {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} refreshAnomalyData={refreshAnomalyData} />}
 
                 </>
             )}

@@ -216,6 +216,9 @@
     margin-right: 0.4em;
     margin-top: -0.2em;
 }
+.portal-analytics {
+    width: 10em;
+}
 
 .portal-analytics p {
     text-align: center;

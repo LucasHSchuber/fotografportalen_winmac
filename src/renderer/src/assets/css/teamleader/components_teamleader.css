@@ -27,12 +27,12 @@
 .minimenu-teamleader {
     position: fixed;
     right: 0;
-    top:0;
+    top: 0;
     /* height: 100vh; */
     padding-top: 1em !important;
     width: 4em !important;
     border: none !important;
-    box-shadow: none; 
+    box-shadow: none;
     outline: white;
 }
 
@@ -63,7 +63,7 @@
     background-color: rgb(68, 68, 68);
 }
 
-.minimenu-delete-button{
+.minimenu-delete-button {
     /* margin-bottom: 10% !important; */
     margin-top: 0.5em;
     background-color: #ff6262;
@@ -83,3 +83,21 @@
 .minimenu-delete-button:hover {
     background-color: rgb(68, 68, 68);
 }
+
+
+
+
+/* ANOMALY REPORT */
+
+.anomalyreport-teamleader {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 20em !important;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 1em 3em;
+}
+

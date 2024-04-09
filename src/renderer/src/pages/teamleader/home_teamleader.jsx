@@ -35,7 +35,6 @@ function Home_teamleader() {
     }, []);
        
 
-
     //fetch all projects from big(express-bild) database
     const fetchData = async () => {
         const projects = await fetchProjects(); // Call the fetchProjects function

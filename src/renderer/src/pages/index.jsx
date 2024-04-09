@@ -10,7 +10,7 @@ import Sidemenu_small from "../components/sidemenu_small";
 function Index() {
   //define states
   const [localstorage_name, setLocalstorage_name] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState('');
   const [projectsArray, setProjectsArray] = useState([]);
 
@@ -46,23 +46,6 @@ function Index() {
 
 
 
-
-  // // Function to fetch home directory and update state
-  // const fetchHomeDir = async () => {
-  //   try {
-  //     const result = await window.api.homeDir(); // Fetch home directory from main process
-  //     setHomeDir(result); // Update state with the home directory value
-  //   } catch (error) {
-  //     console.error('Error fetching home directory:', error);
-  //   }
-  // };
-  // // Call fetchHomeDir when component mounts
-  // useEffect(() => {
-  //   fetchHomeDir();
-  // }, []);
-
-
-
   //fetch user
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,8 +53,8 @@ function Index() {
       try {
         const usersData = await window.api.getUser(user_id); // Fetch users data from main process
         console.log('Users Data:', usersData); // Log the users data
-        setUsers(usersData.users);
-        console.log(usersData.users);
+        setUser(usersData.user);
+        console.log(usersData.user);
       } catch (error) {
         console.error('Error fetching users data:', error);
       }
@@ -86,8 +69,6 @@ function Index() {
 
 
 
-
-
   return (
     <div className="d-flex index-wrapper">
       <div className="index-box-left">
@@ -97,8 +78,8 @@ function Index() {
             <img className="profile-picture" src={profile} alt="profile picture"></img>
           </div>
           <div className="mt-2 ml-2">
-            <h5 style={{ fontWeight: "700" }}>John Doe</h5>
-            <h6><em>Stockholm</em></h6>
+            <h5 style={{ fontWeight: "700" }}>{user.firstname} {user.lastname}</h5>
+            <h6><em>{user.city}</em></h6>
           </div>
         </div>
 
