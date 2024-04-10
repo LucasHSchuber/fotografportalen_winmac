@@ -9,9 +9,9 @@ const NewProjectModal = ({ showModal, handleClose }) => {
 
     //define states
 
-    
-    const navigate = useNavigate(); 
-    const location = useLocation(); 
+
+    const navigate = useNavigate();
+    const location = useLocation();
 
 
     const navigateToNewproject = () => {
@@ -28,8 +28,7 @@ const NewProjectModal = ({ showModal, handleClose }) => {
     return (
         <Modal className="mt-5" show={showModal} onHide={handleClose}>
             <Modal.Body className="mt-3 mb-4">
-                <Modal.Title><h5>Do you want to create a new project?</h5></Modal.Title>
-
+                <Modal.Title><h5 ><b>Do you want to create a new project?</b></h5></Modal.Title>
                 <div className="mt-4">
                     <Button className="button cancel mr-1" onClick={handleClose}>
                         Cancel

@@ -64,7 +64,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 700,
-    minWidth: 600,
+    minWidth: 820,
     minHeight: 550,
     show: false,
     // frame: false,
@@ -388,9 +388,54 @@ ipcMain.handle("getUser", async (event, id) => {
 
 
 
-//get all projects by user_id
-ipcMain.handle("getAllProjects", async (event, user_id) => {
+//get all current projects by user_id
+ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0 AND is_deleted = 0"; 
+  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
+
+  try {
+    const projects = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, [user_id], (error, rows) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        const allProjects = rows.map(row => ({
+          project_id: row.project_id,
+          project_uuid: row.project_uuid,
+          projectname: row.projectname,
+          type: row.type,
+          anomaly: row.anomaly,
+          merged_units: row.merged_units,
+          unit: row.unit,
+          alert_salet: row.alert_salet,
+          is_deleted: row.is_deleted,
+          is_sent: row.is_sent,
+          sent_date: row.sent_date,
+          user_id: row.user_id,
+          created: row.created
+        }));
+
+        db.close(() => {
+          resolve({ statusCode: 1, projects: allProjects });
+        });
+      });
+    });
+
+    return projects;
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+//get all previous projects by user_id
+ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
+  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0"; 
   console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
 
   try {
@@ -636,6 +681,7 @@ ipcMain.handle("getLatestProject", async (event, project_uuid) => {
 });
 
 
+//delete project 
 ipcMain.handle("deleteProject", async (event, project_id) => {
   const updateQuery = "UPDATE projects SET is_deleted = 1 WHERE project_id = ?"; 
 
@@ -657,6 +703,33 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
       return { statusCode: 1, result };
   } catch (error) {
       console.error('Error updating project:', error);
+      return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+//send project to DB
+ipcMain.handle("sendProjectToDb", async (event, project_id) => {
+  const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP WHERE project_id = ?"; 
+
+  try {
+      const result = await new Promise((resolve, reject) => {
+          const db = new sqlite3.Database(dbPath);
+
+          db.run(updateQuery, [project_id], function(error) {
+              if (error) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: error });
+              } else {
+                  db.close();
+                  resolve({ rowsAffected: this.changes });
+              }
+          });
+      });
+
+      return { statusCode: 1, result };
+  } catch (error) {
+      console.error('Error sending project to db:', error);
       return { statusCode: 0, errorMessage: error.message };
   }
 });

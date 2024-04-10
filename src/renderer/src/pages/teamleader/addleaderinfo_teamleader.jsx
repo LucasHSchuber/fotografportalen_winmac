@@ -107,7 +107,7 @@ function Addleaderinfo_teamleader() {
                         <input className="form-input-field" type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" required />
                     </div>
                     <div>
-                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of players with calendar" required />
+                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of players in the team" required />
                     </div>
                     <br></br>
                     <h6><b>Team leader info:</b></h6>

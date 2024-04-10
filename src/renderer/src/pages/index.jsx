@@ -9,7 +9,6 @@ import Sidemenu_small from "../components/sidemenu_small";
 
 function Index() {
   //define states
-  const [localstorage_name, setLocalstorage_name] = useState([]);
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState('');
   const [projectsArray, setProjectsArray] = useState([]);
@@ -18,24 +17,23 @@ function Index() {
   const Navigate = useNavigate();
 
 
-  //assign the user_id sessionstorage (later login)
+  //assign the user_id localStorage (later login)
   useEffect(() => {
-    sessionStorage.setItem("user_id", 2);
-    console.log(sessionStorage.getItem("user_id"));
+    localStorage.setItem("user_id", 2);
+    console.log(localStorage.getItem("user_id"));
   }, []);
 
 
 
   useEffect(() => {
-    let user_id = sessionStorage.getItem("user_id");
+    let user_id = localStorage.getItem("user_id");
     console.log(user_id);
 
     const getAllProjects = async () => {
       try {
-        const projects = await window.api.getAllProjects(user_id);
+        const projects = await window.api.getAllCurrentProjects(user_id);
         console.log('Projects:', projects.projects);
         setProjectsArray(projects.projects);
-        // setLoading(false);
       } catch (error) {
         console.error('Error fetching projects:', error);
       }
@@ -49,7 +47,7 @@ function Index() {
   //fetch user
   useEffect(() => {
     const fetchUser = async () => {
-      let user_id = sessionStorage.getItem("user_id");
+      let user_id = localStorage.getItem("user_id");
       try {
         const usersData = await window.api.getUser(user_id); // Fetch users data from main process
         console.log('Users Data:', usersData); // Log the users data
@@ -63,8 +61,6 @@ function Index() {
     fetchUser();
 
     let user_name = localStorage.getItem("user_name");
-    setLocalstorage_name(user_name);
-    console.log(user_name);
   }, []); // Empty dependency array to run the effect only once
 
 
@@ -94,7 +90,7 @@ function Index() {
 
         <div className="index-box">
           <h1 className="index-title two">Alerts</h1>
-          <h6><b>You have {projectsArray.length > 0 ? projectsArray.length : 0} unsent jobs ready to be sent</b></h6>
+          <h6><b>You have {projectsArray.length > 0 ? projectsArray.length : 0} unsent jobs</b></h6>
           <ul>
             {projectsArray && projectsArray.length > 0 ? (
               projectsArray.map(project => (

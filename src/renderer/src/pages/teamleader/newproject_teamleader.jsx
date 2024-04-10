@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
-import more_black from "../../assets/images/more_black.png";
+import plus_black from "../../assets/images/plus_black.png";
 import running from "../../assets/images/running.png";
 import academic from "../../assets/images/academic.png";
 
@@ -137,8 +137,8 @@ function Newproject_teamleader() {
                     console.log('Check Latest Project Response:', latestProjectResponse);
                     localStorage.setItem("project_id", latestProjectResponse.project_id)
                     console.log(localStorage.getItem("project_id"));
-                    //store the project_id in session_storage
-                    sessionStorage.setItem("project_id", latestProjectResponse.project_id);
+                    //store the project_id in localStorage
+                    localStorage.setItem("project_id", latestProjectResponse.project_id);
                     navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
                     
                 } else {
@@ -211,7 +211,7 @@ function Newproject_teamleader() {
             <div className="newproject-teamleader-content">
 
                 <div className="header">
-                    <h4><img className="title-img" src={more_black} alt="more" /> New project</h4>
+                    <h4><img className="title-img" src={plus_black} alt="more" /> New project</h4>
                     <p>Create a new school or sport photography</p>
                 </div>
 

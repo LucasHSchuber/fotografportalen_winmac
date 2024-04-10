@@ -1,11 +1,23 @@
 * {
-    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
 
 body {
     background-color: #ffffff;
+    animation: fadeInAnimation ease 3s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
 
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 .route-layout {
@@ -17,14 +29,24 @@ body {
     margin-left: 7em;
 }
 
-.form-input-field{
+
+.form-input-field {
     width: 50%;
     height: 2.5em;
     padding: 0.3em;
     margin-bottom: 0.4em;
+    border-radius: 3px;
+    border: 1px solid rgb(175, 175, 175);
 }
 
-.page-loading{
+.form-input-field::placeholder {
+    color: rgb(168, 168, 168);
+    font-size: 0.9em;
+}
+
+
+
+.page-loading {
     text-align: center;
     padding-top: 10em;
     font-weight: 700;

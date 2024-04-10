@@ -14,13 +14,7 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
     const handleClose = () => setShowModal(false);
     const handleShow = () => setShowModal(true);
 
-
     const navigate = useNavigate();
-
-
-    console.log(project_type);
-    console.log(project_id);
-    console.log(project_name);
 
 
     //create new team
@@ -33,6 +27,7 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
         }
     }
 
+    
     const deleteProject = async () => {
         console.log("delete project " + project_id)
         setShowModal(true);
@@ -44,6 +39,7 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
         <div className="minimenu-teamleader">
             <div className="buttons-box">
                 <button className="minimenu-delete-button"
+                    style={{ marginBottom: "18em", marginTop: "1em" }}
                     onClick={() => deleteProject()}
                 >
                     <i class="fa-regular fa-trash-can"></i>

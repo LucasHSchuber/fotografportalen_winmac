@@ -5,6 +5,7 @@ import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
 import group from "../../assets/images/group.png";
 import portrait from "../../assets/images/portrait.png";
+import portrait2 from "../../assets/images/portrait2.png";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Minimenu_teamleader from "../../components/teamleader/minimenu_teamleader";
@@ -35,14 +36,8 @@ function Portal_teamleader() {
 
     //load loading bar on load
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, []);
 
 
-    useEffect(() => {
         const fetchProject = async () => {
             try {
                 const projectData = await window.api.getProjectById(project_id);
@@ -70,6 +65,12 @@ function Portal_teamleader() {
 
         fetchProject();
         fetchTeamsByProjectId();
+
+
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
     }, []);
 
 
@@ -83,7 +84,6 @@ function Portal_teamleader() {
             console.error('Error refreshing project:', error);
         }
     };
-
 
 
     return (
@@ -101,7 +101,7 @@ function Portal_teamleader() {
             ) : (
 
                 <>
-                    <div className="currwork-teamleader-content">
+                    <div className="portal-teamleader-content">
                         {project && ( // Check if projectname is available
                             <>
                                 <div className="header mb-5">
@@ -109,18 +109,25 @@ function Portal_teamleader() {
                                     {/* <h6 className=""><em>{project.created.substring(0, 10)}</em></h6> */}
                                 </div>
 
-                                <h6 style={{ textDecoration: "underline" }} ><b>{project.type === "school" ? "Classes" : "Teams"}</b></h6>
+                                <h6 className="mb-3" style={{ textDecoration: "underline" }} ><b>{project.type === "school" ? "Classes" : "Teams"}</b></h6>
 
                                 <div>
                                     {teams && teams.length > 0 ? (
                                         teams.sort((a, b) => new Date(b.created) - new Date(a.created)).map(data => (
-                                            <div key={data.team_id} className="portal-team-box d-flex mb-2"
-                                            >
-                                                <p className="ml-2 mr-2">{data.teamname}</p>
-                                                <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
-                                                <p className="mx-2 ">{data.crowd === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p>
-                                                <p className="mx-2">{data.amount}st</p>
-                                                <p className="mx-2">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <i class="fa-regular fa-calendar-plus"></i> : <i class="fa-regular fa-calendar-minus"></i> : ""}</p>
+                                            <div className="d-flex">
+                                                <div key={data.team_id} className={`d-flex mb-2 ${projectType === "school" ? "portal-class-box" : "portal-team-box"}`}
+                                                >
+                                                    <p className="ml-2 mr-4">{data.teamname}</p>
+                                                    <p className="mx-4 ">{data.portrait === 1 ? <i class="fa-solid fa-user"></i> : <i class="fa-solid fa-minus"></i>}</p>
+                                                    <p className="mx-4 ">{data.crowd === 1 ? <i class="fa-solid fa-people-group"></i> : <i class="fa-solid fa-minus"></i>}</p>
+                                                    {/* <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait2} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
+                                                <p className="mx-2 ">{data.crowd === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p> */}
+                                                    <p className="mx-4">{data.amount}st</p>
+                                                    <p className="mx-4">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <i class="fa-regular fa-calendar-plus"></i> : <i class="fa-regular fa-calendar-minus"></i> : ""}</p>
+                                                </div>
+                                                <div className="portal-edit-box ml-2">
+                                                    <p><i class="fa-solid fa-pencil"></i></p>
+                                                </div>
                                             </div>
                                         ))
 

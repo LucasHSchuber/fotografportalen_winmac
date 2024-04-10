@@ -83,8 +83,7 @@
     padding: 1em 1em 0 1em;
     height: fit-content;
     border-radius: 7px;
-    /* min-width: 25em; */
-    width: fit-content;
+    width: 30em;
 }
 
 .prevwork-box-mid {
@@ -216,6 +215,7 @@
     margin-right: 0.4em;
     margin-top: -0.2em;
 }
+
 .portal-analytics {
     width: 10em;
 }
@@ -243,11 +243,36 @@
 .portal-team-box {
     background-color: rgb(237, 237, 237);
     color: #323232 !important;
-    padding: 1em 1em 0 1em;
+    padding: 0.8em 1em 0 1em;
     height: fit-content;
     border-radius: 7px;
-    width: 35em;
+    width: 23em;
 }
+
+.portal-class-box {
+    background-color: rgb(237, 237, 237);
+    color: #323232 !important;
+    padding: 0.8em 1em 0 1em;
+    height: fit-content;
+    border-radius: 7px;
+    width: 19em;
+}
+
+.portal-edit-box {
+    background-color: rgb(237, 237, 237);
+    padding: 0.8em 1em 0 1em;
+    border-radius: 7px;
+    height: fit-content;
+    width: fit-content;
+
+}
+
+.portal-edit-box:hover {
+    background-color: #00b3ff;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
 
 
 /* NEW TEAM  */
@@ -269,7 +294,7 @@
 }
 
 input[type=checkbox] {
-    accent-color: #00b3ff;
+    accent-color: #d6d6d6;
 }
 
 
@@ -277,7 +302,7 @@ input[type=checkbox] {
 
 /* CALENDAR SALE */
 
-.calendarsale-hero-img{
+.calendarsale-hero-img {
     height: 10em;
     width: 100% !important;
     object-fit: cover;

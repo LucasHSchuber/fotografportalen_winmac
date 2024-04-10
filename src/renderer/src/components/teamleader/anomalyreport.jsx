@@ -9,6 +9,8 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, refreshAnomalyDat
 
     //define states
     const [anomaly, setAnomaly] = useState("");
+    const [isModified, setIsModified] = useState(false);
+
 
     console.log(project_anomaly);
 
@@ -19,7 +21,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, refreshAnomalyDat
 
     const handleChange = (e) => {
         setAnomaly(e.target.value);
-        console.log(anomaly);
+        setIsModified(true); // Set isModified to true when the textarea content is changed
     };
 
     const handleSubmit = async (e) => {
@@ -27,12 +29,15 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, refreshAnomalyDat
         console.log("Anomaly reported:", anomaly);
         const project_id = localStorage.getItem("project_id");
 
-        //trigger api-window to add anomaly to project_id
-        const projectData = await window.api.addAnomalyToProject({
-            anomaly: anomaly,
-            project_id: project_id
-        });
-        console.log('Anomaly:', projectData);
+        if (isModified) {
+
+            //trigger api-window to add anomaly 
+            const projectData = await window.api.addAnomalyToProject({
+                anomaly: anomaly,
+                project_id: project_id
+            });
+            console.log('Anomaly:', projectData);
+        }
 
         //close anomaly report
         toggleAnomalyReport();
@@ -49,7 +54,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, refreshAnomalyDat
                     <label> <b>Anomaly Report</b></label>
                     <textarea
                         className="form-control"
-                        rows="5"
+                        rows="4"
                         defaultValue={project_anomaly}
                         onChange={handleChange}
                         placeholder="Describe the anomaly here..."

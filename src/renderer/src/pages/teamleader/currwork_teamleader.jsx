@@ -5,6 +5,7 @@ import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
+import SendProjectModal from "../../components/teamleader/sendProjectModal";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -13,42 +14,55 @@ function Currwork_teamleader() {
     // Define states
     const [projectsArray, setProjectsArray] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProjectId, setSelectedProjectId] = useState(null); 
+    const [showSendProjectModal, setShowSendProjectModal] = useState(false);
 
-
+    const handleClose = () => setShowSendProjectModal(false);
 
     const navigate = useNavigate();
 
 
     useEffect(() => {
-        let user_id = sessionStorage.getItem("user_id");
-        console.log(user_id);
-
+        let user_id = localStorage.getItem("user_id");
         const getAllProjects = async () => {
             try {
-                const projects = await window.api.getAllProjects(user_id);
+                const projects = await window.api.getAllCurrentProjects(user_id);
                 console.log('Projects:', projects.projects);
                 setProjectsArray(projects.projects);
-                setLoading(false);
+
             } catch (error) {
                 console.error('Error fetching projects:', error);
             }
         };
-
         getAllProjects();
+
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 500);
+        return () => clearTimeout(timer);
     }, []);
 
 
+    //enter a project (portal_teamleader)
     const enterProject = (project_id) => {
         console.log(project_id);
         localStorage.setItem("project_id", project_id);
         navigate(`/portal_teamleader/${project_id}`);
     }
 
+    //send project to DB
+    const sendProject = async (project_id) => {
+        console.log(project_id);
+        setSelectedProjectId(project_id);
+        setShowSendProjectModal(true);
+    }
+
+
+
 
     if (loading) {
         return <div className="page-loading">Loading current work...</div>;
     }
-    // fetch projects WHERE user_id = ? AND WHERE is_sent = 0
     return (
         <div className="teamleader-wrapper">
             <div className="currwork-teamleader-content">
@@ -64,14 +78,16 @@ function Currwork_teamleader() {
                                 <div className="currwork-box-left d-flex"
                                     value={project.project_id}
                                     onClick={() => enterProject(project.project_id)}
+                                    title="Open job"
                                 >
-                                    <p className="mx-2 ">{project.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-currwork" src={running_black} alt="running"></img>}</p>
-                                    <p className="mx-2">{project.projectname}</p>
-                                    <p className="mx-2">{project.created.substring(0, 10)}</p>
+                                    <p className="ml-2 mr-1 ">{project.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-currwork" src={running_black} alt="running"></img>}</p>
+                                    <p className="mx-4">{project.projectname.length > 32 ? project.projectname.substring(0, 32) + "..." : project.projectname}</p>
+                                    <p className="mx-4">{project.created.substring(0, 10)}</p>
                                 </div>
                                 <div className="currwork-box-right mx-2"
                                     value={project.project_id}
-                                    // onClick={() => enterProject(project.project_id)}
+                                    onClick={() => sendProject(project.project_id)}
+                                    title="Send job"
                                 >
                                     <i className="fa-regular fa-paper-plane"></i>
                                 </div>
@@ -86,7 +102,11 @@ function Currwork_teamleader() {
                 </div>
 
             </div>
+
             <Sidemenu_teamleader />
+            <SendProjectModal showSendProjectModal={showSendProjectModal} project_id={selectedProjectId} handleClose={handleClose} />
+
+
         </div>
     );
 }

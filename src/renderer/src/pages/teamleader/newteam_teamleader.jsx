@@ -14,7 +14,7 @@ function Newteam_teamleader() {
     const [projectType, setProjectType] = useState({});
     const [formData, setFormData] = useState({
         teamname: '',
-        amount: 0,
+        amount: '',
         protected_id: false,
         portrait: false,
         crowd: false
@@ -122,7 +122,6 @@ function Newteam_teamleader() {
                     <div className="mb-4">
                         {projectType && projectType === "school" ? (
                         <div>
-                            {/* <label htmlFor="teamName">New Team:</label> */}
                             <input
                                 className="form-input-field"
                                 type="text"

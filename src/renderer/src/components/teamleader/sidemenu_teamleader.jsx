@@ -4,6 +4,7 @@ import fp from "../../assets/images/diaphragm.png";
 import house from "../../assets/images/house.png";
 import flash from "../../assets/images/flash.png";
 import more from "../../assets/images/more.png";
+import plus from "../../assets/images/plus.png";
 import suitcase from "../../assets/images/suitcase.png";
 
 import NewProjectModal from "../../components/teamleader/newprojectModal";
@@ -31,26 +32,26 @@ const Sidemenu_teamleader = () => {
             <ul className="menu">
                 <div className="link-box">
                     <NavLink exact to="/home_teamleader">
-                        <img className="link-img" src={house} alt="house" />
+                        <img className="link-img" src={house} alt="house img" />
                         <p>Home</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
                     <NavLink exact to="/prevwork_teamleader">
-                        <img className="link-img" src={suitcase} alt="suitcase" />
+                        <img className="link-img" src={suitcase} alt="suitcase img" />
                         <p>Previous work</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
                     <NavLink exact to="/currwork_teamleader">
-                        <img className="link-img" src={flash} alt="flash" />
+                        <img className="link-img" src={flash} alt="flash img" />
                         <p>Current work</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
                     {/* <NavLink exact to="/newproject_teamleader" onClick={handleShow}> */}
                     <NavLink onClick={handleShow}>
-                        <img className="link-img" src={more} alt="more" />
+                        <img className="link-img" src={plus} alt="add img" />
                         <p>New project</p>
                     </NavLink>
                 </div>

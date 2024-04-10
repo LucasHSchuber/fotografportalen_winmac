@@ -64,29 +64,23 @@ function Home_teamleader() {
 
 
 
-
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                //later fetch the user with correct user id stored in local storage since login
                 const userData = await window.api.getUser(2); // Fetch users data from main process
                 console.log('Users Data:', userData); // Log the users data
                 setUser(userData.user.firstname + " " + userData.user.lastname);
-                //store lang in local storage
+
                 localStorage.setItem("user_lang", userData.user.lang);
-                console.log(userData.user.lang);
                 localStorage.setItem("user_id", userData.user.user_id);
-                console.log(userData.user.user_id);
 
             } catch (error) {
                 console.error('Error fetching users data:', error);
             }
         };
 
-        fetchUser(); // Call fetchData when the component mounts
+        fetchUser(); 
     }, []);
-
-
 
 
 
@@ -104,7 +98,7 @@ function Home_teamleader() {
                 </div>
             ) : (
                 //html content
-                <div>
+                <>
 
                     <div className="home-teamleader-content">
                         <div className="header">
@@ -115,7 +109,7 @@ function Home_teamleader() {
 
 
                     <Sidemenu_teamleader />
-                </div>
+                </>
             )}
 
 
