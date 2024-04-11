@@ -246,7 +246,7 @@
     padding: 0.8em 1em 0 1em;
     height: fit-content;
     border-radius: 7px;
-    width: 23em;
+    width: 30em;
 }
 
 .portal-class-box {
@@ -255,20 +255,26 @@
     padding: 0.8em 1em 0 1em;
     height: fit-content;
     border-radius: 7px;
-    width: 19em;
+    width: 25em;
 }
 
-.portal-edit-box {
+.portal-edit-box,
+.portal-delete-box {
     background-color: rgb(237, 237, 237);
     padding: 0.8em 1em 0 1em;
     border-radius: 7px;
     height: fit-content;
     width: fit-content;
-
 }
 
 .portal-edit-box:hover {
     background-color: #00b3ff;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.portal-delete-box:hover {
+    background-color: #ff6262;
     transition: 0.2s;
     cursor: pointer;
 }

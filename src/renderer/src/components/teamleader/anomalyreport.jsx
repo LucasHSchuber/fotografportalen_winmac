@@ -50,10 +50,18 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, refreshAnomalyDat
     return (
         <div className="anomalyreport-teamleader">
             <form onSubmit={handleSubmit} className="mt-auto">
+                <div className="d-flex justify-content-between mb-2">
+                    <h6> <b>Anomaly Report</b></h6>
+                    <button
+                        className="close"
+                        onClick={closeAnomalyReport}
+                    >
+                        <i class="fa-solid fa-xs fa-xmark"></i>
+                    </button>
+                </div>
                 <div className="form-group">
-                    <label> <b>Anomaly Report</b></label>
                     <textarea
-                        className="form-control"
+                        className="form-control textarea"
                         rows="4"
                         defaultValue={project_anomaly}
                         onChange={handleChange}

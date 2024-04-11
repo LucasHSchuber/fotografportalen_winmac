@@ -29,10 +29,19 @@
     background-color: rgb(206, 0, 0);
 }
 
+.close {
+    background-color: inherit;
+    color: black !important;
+    outline: none !important;
+    border: none !important;
+}
+
 .standard {
     background-color: #00b3ff;
     color: white;
     transition: 0.2s;
+    outline: none !important;
+    border: none !important;
 }
 
 .standard:hover {

@@ -14,14 +14,14 @@ function Currwork_teamleader() {
     // Define states
     const [projectsArray, setProjectsArray] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedProjectId, setSelectedProjectId] = useState(null); 
+    const [projectId, setProjectId] = useState(null);
     const [showSendProjectModal, setShowSendProjectModal] = useState(false);
 
-    const handleClose = () => setShowSendProjectModal(false);
+    const handleCloseProjectModal = () => setShowSendProjectModal(false);
 
     const navigate = useNavigate();
 
-
+    //get all projects after page mount
     useEffect(() => {
         let user_id = localStorage.getItem("user_id");
         const getAllProjects = async () => {
@@ -53,10 +53,22 @@ function Currwork_teamleader() {
     //send project to DB
     const sendProject = async (project_id) => {
         console.log(project_id);
-        setSelectedProjectId(project_id);
+        setProjectId(project_id);
         setShowSendProjectModal(true);
     }
 
+
+    //refresh projects after work been sent in
+    const refreshProjects = async () => {
+        let user_id = localStorage.getItem("user_id");
+        try {
+            const projects = await window.api.getAllCurrentProjects(user_id);
+            console.log('Projects:', projects.projects);
+            setProjectsArray(projects.projects);
+        } catch (error) {
+            console.error('Error fetching projects:', error);
+        }
+    };
 
 
 
@@ -104,7 +116,7 @@ function Currwork_teamleader() {
             </div>
 
             <Sidemenu_teamleader />
-            <SendProjectModal showSendProjectModal={showSendProjectModal} project_id={selectedProjectId} handleClose={handleClose} />
+            <SendProjectModal showSendProjectModal={showSendProjectModal} project_id={projectId} handleCloseProjectModal={handleCloseProjectModal} refreshProjects={refreshProjects} />
 
 
         </div>

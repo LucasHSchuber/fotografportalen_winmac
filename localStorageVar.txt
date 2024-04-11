@@ -4,6 +4,7 @@ ALL STORAGE VARIABLES:
 LOCAL STORAGE:
 
 user_id
+user_name
 hasLoadingBarShownBefore
 project_id
 project_type

@@ -37,7 +37,6 @@ function Portal_teamleader() {
     //load loading bar on load
     useEffect(() => {
 
-
         const fetchProject = async () => {
             try {
                 const projectData = await window.api.getProjectById(project_id);
@@ -47,6 +46,8 @@ function Portal_teamleader() {
                 setProjectName(projectData.project.projectname);
                 setProjectAnomaly(projectData.project.anomaly);
                 localStorage.setItem("project_type", projectData.project.type);
+
+                fetchTeamsByProjectId();
             } catch (error) {
                 console.error('Error fetching project:', error);
             }
@@ -64,8 +65,6 @@ function Portal_teamleader() {
         };
 
         fetchProject();
-        fetchTeamsByProjectId();
-
 
         const timer = setTimeout(() => {
             setLoading(false);
@@ -114,19 +113,35 @@ function Portal_teamleader() {
                                 <div>
                                     {teams && teams.length > 0 ? (
                                         teams.sort((a, b) => new Date(b.created) - new Date(a.created)).map(data => (
-                                            <div className="d-flex">
-                                                <div key={data.team_id} className={`d-flex mb-2 ${projectType === "school" ? "portal-class-box" : "portal-team-box"}`}
+                                            <div key={data.team_id} className="d-flex">
+                                                <div className={`d-flex justify-content-between mb-2 ${projectType === "school" ? "portal-class-box" : "portal-team-box"}`}
                                                 >
-                                                    <p className="ml-2 mr-4">{data.teamname}</p>
-                                                    <p className="mx-4 ">{data.portrait === 1 ? <i class="fa-solid fa-user"></i> : <i class="fa-solid fa-minus"></i>}</p>
+                                                    <p className="ml-2 mr-4">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
+                                                    {data.protected_id === 1 ? (
+                                                        <div className="d-flex">
+                                                            <p className="ml-4">{data.portrait === 1 ? <i class="fa-solid fa-user"></i> : <i class="fa-solid fa-minus"></i>}</p>
+                                                            <p className="ml-1 mr-3 ">{data.protected_id === 1 ? <i class="fa-solid fa-user-shield"></i> : ""}</p>
+                                                        </div>
+                                                    ) : (
+                                                        <p className="mx-4 ">{data.portrait === 1 ? <i class="fa-solid fa-user"></i> : <i class="fa-solid fa-minus"></i>}</p>
+                                                    )}
+
+
                                                     <p className="mx-4 ">{data.crowd === 1 ? <i class="fa-solid fa-people-group"></i> : <i class="fa-solid fa-minus"></i>}</p>
-                                                    {/* <p className="mx-2 ">{data.portrait === 1 ? <img className="type-img-currwork" src={portrait2} alt="portrait"></img> : <i class="fa-solid fa-minus"></i>}</p>
-                                                <p className="mx-2 ">{data.crowd === 1 ? <img className="type-img-currwork" src={group} alt="group"></img> : <i class="fa-solid fa-minus"></i>}</p> */}
-                                                    <p className="mx-4">{data.amount}st</p>
-                                                    <p className="mx-4">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <i class="fa-regular fa-calendar-plus"></i> : <i class="fa-regular fa-calendar-minus"></i> : ""}</p>
+                                                    <p className="ml-4 mr-2">{data.amount}st</p>
+                                                    {projectType === "sport" ? (
+                                                        <p className="mx-4">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <i class="fa-regular fa-calendar-plus"></i> : <i class="fa-regular fa-calendar-minus"></i> : ""}</p>
+                                                    ) : (
+                                                        <>
+                                                        </>
+                                                    )}
+
                                                 </div>
                                                 <div className="portal-edit-box ml-2">
                                                     <p><i class="fa-solid fa-pencil"></i></p>
+                                                </div>
+                                                <div className="portal-delete-box ml-2">
+                                                    <p><i class="fa-regular fa-trash-can"></i></p>
                                                 </div>
                                             </div>
                                         ))

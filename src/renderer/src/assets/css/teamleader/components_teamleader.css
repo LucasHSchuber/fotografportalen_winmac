@@ -116,3 +116,43 @@
     padding: 2em 3em;
     /* border-top: 2px solid black; */
 }
+
+
+
+/* CONTROL SHEET */
+
+.controlsheet-teamleader-modalbody {
+    border: 2px solid #00b3ff;
+    padding: 4em 4em 4em 4em;
+    background-color: white;
+    width: 34em;
+
+}
+
+.controlsheet-modal-info-box {
+    text-align: left !important;
+}
+
+.controlsheet-modal-info-box span {
+    font-weight: 700;
+    text-align: left !important;
+}
+
+
+/* table */
+.controlsheet-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.controlsheet-table th,
+.controlsheet-table td {
+    padding: 6px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.controlsheet-table th {
+    background-color: #f7f7f7;
+}

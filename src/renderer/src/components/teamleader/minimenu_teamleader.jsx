@@ -3,18 +3,24 @@ import { Link, NavLink } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
 import DeleteProjectModal from "../../components/teamleader/deleteprojectModal";
+import SendProjectModal from "../../components/teamleader/sendProjectModal";
 
 import '../../assets/css/teamleader/components_teamleader.css'
 
-const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAnomalyReport}) => {
+const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAnomalyReport }) => {
 
     //define states
-    const [showModal, setShowModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showSendProjectModal, setShowSendProjectModal] = useState(false);
+    const [projectId, setProjectId] = useState(null); 
+    
 
-    const handleClose = () => setShowModal(false);
-    const handleShow = () => setShowModal(true);
+    const handleClose = () => setShowDeleteModal(false);
+    const handleCloseProjectModal = () => setShowSendProjectModal(false);
+    // const handleShow = () => setShowdeleteModal(true);
 
     const navigate = useNavigate();
+
 
 
     //create new team
@@ -27,12 +33,16 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
         }
     }
 
-    
+    // open modal for delete project
     const deleteProject = async () => {
-        console.log("delete project " + project_id)
-        setShowModal(true);
+        setShowDeleteModal(true);
     }
 
+    // open modal for send in project
+    const sendJob = async () => {
+        setProjectId(project_id);
+        setShowSendProjectModal(true);
+    }
 
 
     return (
@@ -50,18 +60,21 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
                 >
                     <i class="fa-solid fa-plus"></i>
                 </button>
-                <button className="minimenu-button">
+                <button className="minimenu-button"
+                    onClick={() => sendJob()}
+                >
                     <i className="fa-regular fa-paper-plane"></i>
                 </button>
                 <button className="minimenu-button"
-                     onClick={toggleAnomalyReport}
+                    onClick={toggleAnomalyReport}
                 >
                     <i class="fa-regular fa-flag"></i>
                 </button>
             </div>
 
 
-            <DeleteProjectModal showModal={showModal} handleClose={handleClose} projectName={project_name} />
+            <DeleteProjectModal showDeleteModal={showDeleteModal} handleClose={handleClose} projectName={project_name} />
+            <SendProjectModal showSendProjectModal={showSendProjectModal} handleCloseProjectModal={handleCloseProjectModal} project_id={projectId} />
 
         </div>
     );

@@ -20,7 +20,8 @@ function Index() {
   //assign the user_id localStorage (later login)
   useEffect(() => {
     localStorage.setItem("user_id", 2);
-    console.log(localStorage.getItem("user_id"));
+    localStorage.setItem("user_name", user.firstname + " " +user.lastname);
+    console.log(localStorage.getItem("user_name"));
   }, []);
 
 
@@ -60,8 +61,7 @@ function Index() {
 
     fetchUser();
 
-    let user_name = localStorage.getItem("user_name");
-  }, []); // Empty dependency array to run the effect only once
+  }, []); 
 
 
 

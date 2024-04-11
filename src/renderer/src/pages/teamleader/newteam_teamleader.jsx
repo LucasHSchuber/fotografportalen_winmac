@@ -121,18 +121,18 @@ function Newteam_teamleader() {
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         {projectType && projectType === "school" ? (
-                        <div>
-                            <input
-                                className="form-input-field"
-                                type="text"
-                                id="teamname"
-                                name="teamname"
-                                placeholder={projectType === "school" ? "Class name" : "Team name"}
-                                value={formData.teamname}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+                            <div>
+                                <input
+                                    className="form-input-field"
+                                    type="text"
+                                    id="teamname"
+                                    name="teamname"
+                                    placeholder={projectType === "school" ? "Class name" : "Team name"}
+                                    value={formData.teamname}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
                         ) : (
                             ""
                         )}
@@ -183,7 +183,7 @@ function Newteam_teamleader() {
                                 checked={formData.protected_id}
                                 onChange={handleChange}
                             />
-                            There were people with protected ID
+                            {projectType === "school" ? "There were students with protected ID" : "There were players with protected ID"}
                         </label>
                     </div>
                     {/* <div className="checkbox-container">
@@ -198,9 +198,10 @@ function Newteam_teamleader() {
                             All people are named in photolink
                         </label>
                     </div> */}
-
-                    <button className="button cancel fixed-width fixed-height mr-1" onClick={handleCancel}>Cancel</button>
-                    <button className="button standard fixed-width fixed-height" type="submit">Save</button>
+                    <div className="mt-4">
+                        <button className="button cancel fixed-width fixed-height mr-1" onClick={handleCancel}>Cancel</button>
+                        <button className="button standard fixed-width fixed-height" type="submit">Save</button>
+                    </div>
                 </form>
 
             </div>

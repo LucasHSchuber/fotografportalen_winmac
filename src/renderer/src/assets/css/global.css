@@ -37,6 +37,12 @@ body {
     margin-bottom: 0.4em;
     border-radius: 3px;
     border: 1px solid rgb(175, 175, 175);
+    outline: none;
+}
+
+.form-input-field:focus {
+    border-color: #00b3ff;
+    /* Change the outline color when input is focused */
 }
 
 .form-input-field::placeholder {
@@ -51,4 +57,9 @@ body {
     padding-top: 10em;
     font-weight: 700;
     margin-right: 14%;
+}
+
+.error {
+    color: rgb(0, 0, 0);
+
 }

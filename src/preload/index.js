@@ -11,6 +11,8 @@ const api = {
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
 
+
+  // TEAMLEADER
   getUser: (id) => ipcRenderer.invoke('getUser', id), // Pass id to getUser handler in main process
 
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
