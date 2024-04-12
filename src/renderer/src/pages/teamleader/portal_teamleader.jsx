@@ -10,6 +10,7 @@ import portrait2 from "../../assets/images/portrait2.png";
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Minimenu_teamleader from "../../components/teamleader/minimenu_teamleader";
 import Anomalyreport from "../../components/teamleader/anomalyreport";
+import DeleteTeam from "../../components/teamleader/deleteteamModal";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -20,19 +21,31 @@ function Portal_teamleader() {
     const [projectType, setProjectType] = useState({});
     const [projectName, setProjectName] = useState("");
     const [projectAnomaly, setProjectAnomaly] = useState("");
+    const [projectMergedTeams, setProjectMergedTeams] = useState("");
     const [teams, setTeams] = useState([]);
+    const [teamName, setTeamName] = useState("");
+    const [teamId, setTeamId] = useState("");
+
     const [loading, setLoading] = useState(true);
 
     const [showAnomalyReport, setShowAnomalyReport] = useState(false); // State for toggling Anomalyreport visibility
-
+    const [showDeleteTeamModal, setShowDeleteTeamModal] = useState(false);
 
     // Accessing the projectId from URL parameters
     const { project_id } = useParams();
+
+    const handleClose = () => setShowDeleteTeamModal(false);
 
 
     const toggleAnomalyReport = () => {
         setShowAnomalyReport(!showAnomalyReport);
     };
+
+    const openDeleteTeamModal = (team_id, team_name) => {
+        setTeamName(team_name);
+        setTeamId(team_id);
+        setShowDeleteTeamModal(true);
+    }
 
     //load loading bar on load
     useEffect(() => {
@@ -45,6 +58,7 @@ function Portal_teamleader() {
                 setProjectType(projectData.project.type);
                 setProjectName(projectData.project.projectname);
                 setProjectAnomaly(projectData.project.anomaly);
+                setProjectMergedTeams(projectData.project.merged_teams);
                 localStorage.setItem("project_type", projectData.project.type);
 
                 fetchTeamsByProjectId();
@@ -79,8 +93,20 @@ function Portal_teamleader() {
             const projectData = await window.api.getProjectById(project_id);
             console.log('Project Anomaly Refresh:', projectData.project);
             setProjectAnomaly(projectData.project.anomaly);
+            setProjectMergedTeams(projectData.project.merged_teams);
         } catch (error) {
             console.error('Error refreshing project:', error);
+        }
+    };
+
+    //triggered after deleting a team
+    const refreshTeamData = async () => {
+        try {
+            const teamsData = await window.api.getTeamsByProjectId(project_id);
+            console.log('Teams:', teamsData.teams);
+            setTeams(teamsData.teams);
+        } catch (error) {
+            console.error('Error refreshing teams:', error);
         }
     };
 
@@ -116,7 +142,7 @@ function Portal_teamleader() {
                                             <div key={data.team_id} className="d-flex">
                                                 <div className={`d-flex justify-content-between mb-2 ${projectType === "school" ? "portal-class-box" : "portal-team-box"}`}
                                                 >
-                                                    <p className="ml-2 mr-4">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
+                                                    <p className="ml-2 mr-2">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
                                                     {data.protected_id === 1 ? (
                                                         <div className="d-flex">
                                                             <p className="ml-4">{data.portrait === 1 ? <i class="fa-solid fa-user"></i> : <i class="fa-solid fa-minus"></i>}</p>
@@ -140,7 +166,9 @@ function Portal_teamleader() {
                                                 <div className="portal-edit-box ml-2">
                                                     <p><i class="fa-solid fa-pencil"></i></p>
                                                 </div>
-                                                <div className="portal-delete-box ml-2">
+                                                <div className="portal-delete-box ml-2"
+                                                    onClick={() => openDeleteTeamModal(data.team_id, data.teamname)}
+                                                >
                                                     <p><i class="fa-regular fa-trash-can"></i></p>
                                                 </div>
                                             </div>
@@ -190,8 +218,8 @@ function Portal_teamleader() {
 
                     <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} />
                     <Sidemenu_teamleader />
-                    {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} refreshAnomalyData={refreshAnomalyData} />}
-
+                    {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} merged_teams={projectMergedTeams} refreshAnomalyData={refreshAnomalyData} />}
+                    <DeleteTeam showDeleteTeamModal={showDeleteTeamModal} handleClose={handleClose} projectType={projectType} teamName={teamName} teamId={teamId} refreshTeamData={refreshTeamData}/>
                 </>
             )}
         </div>

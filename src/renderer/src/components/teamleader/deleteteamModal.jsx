@@ -5,14 +5,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
+const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamName, teamId, refreshTeamData }) => {
 
     //define states
     const [deleteInputValue, setDeleteInputValue] = useState("");
     const [deleteMessage, setDeleteMessage] = useState("");
-
-    const navigate = useNavigate();
-
 
     const handleCancel = () => {
         setDeleteMessage("");
@@ -25,40 +22,38 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
     };
 
     const handleDelete = async () => {
-        if (deleteInputValue === projectName) {
+        if (deleteInputValue === teamName) {
             console.log("Delete");
-            let project_id = localStorage.getItem("project_id");
-
+            console.log(teamId);
             try {
-                const deleted = await window.api.deleteProject(project_id);
-                console.log('Delete:', deleted);
+                const deletedTeam = await window.api.deleteTeam(teamId);
+                console.log('Delete:', deletedTeam);
 
                 setDeleteMessage("");
-                localStorage.removeItem("project_id");
-
-                navigate("/currwork_teamleader");
-
+                handleCancel();
+                refreshTeamData(); //refresh team data in parent
+                localStorage.removeItem("team_id");
             } catch (error) {
-                console.error('Error deleting project:', error);
+                console.error('Error deleting team:', error);
             }
 
         } else {
             console.log("Do not match");
-            setDeleteMessage("Input does not match with project name");
+            setDeleteMessage("Input does not match with team name");
         }
     };
 
 
     return (
-        <Modal className="mt-5" show={showDeleteModal} onHide={handleClose}>
+        <Modal className="mt-5" show={showDeleteTeamModal} onHide={handleClose}>
             <Modal.Body className="mt-3 mb-3">
-                <Modal.Title><h5 className="mb-2 error"><b>Delete project</b></h5></Modal.Title>
-                <h6 className="mb-3"><em>Type in "{projectName}" to delete the project </em></h6>
+                <Modal.Title><h5 className="mb-2 error" ><b>{projectType === "school" ? "Delete class" : "Delete team"}</b></h5></Modal.Title>
+                <h6 className="mb-3"><em>Type in "{teamName}" to delete the {projectType === "school" ? "class" : "team"} </em></h6>
                 {/* <h6 className="mb-4" style={{ color: "red", textDecoration: "underline" }}>This action can not be undone</h6> */}
 
                 <input
                     className="form-input-field"
-                    placeholder="Project name"
+                    placeholder={projectType === "school" ? "Class name" : "Team name"}
                     style={{ border: "1px solid red", width: "20em" }}
                     value={deleteInputValue}
                     onChange={handleInputChange}
@@ -72,13 +67,13 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
                         </div>
                     )}
                 </div>
-                
+
                 <div className="mt-2">
                     <Button className="button cancel fixed-width mr-1" onClick={handleCancel}>
                         Cancel
                     </Button>
                     <Button className="button delete fixed-width " onClick={handleDelete}>
-                        Delete project
+                        Delete {projectType === "school" ? "class" : "team"}
                     </Button>
                 </div>
 
@@ -87,4 +82,4 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
     );
 };
 
-export default DeleteProjectModal;
+export default DeleteTeamModal;

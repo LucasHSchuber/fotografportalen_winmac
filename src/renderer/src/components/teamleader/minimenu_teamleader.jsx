@@ -12,8 +12,8 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
     //define states
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSendProjectModal, setShowSendProjectModal] = useState(false);
-    const [projectId, setProjectId] = useState(null); 
-    
+    const [projectId, setProjectId] = useState(null);
+
 
     const handleClose = () => setShowDeleteModal(false);
     const handleCloseProjectModal = () => setShowSendProjectModal(false);
@@ -52,22 +52,26 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
                     style={{ marginBottom: "18em", marginTop: "1em" }}
                     onClick={() => deleteProject()}
                 >
+                    <span className="button-title button-title-delete">Delete project</span>
                     <i class="fa-regular fa-trash-can"></i>
                 </button>
 
                 <button className="minimenu-button"
                     onClick={() => createNewTeam()}
                 >
+                    <span className="button-title button-title-createnew">{project_type === "school" ? "Create new class" : "Create new team"}</span>
                     <i class="fa-solid fa-plus"></i>
                 </button>
                 <button className="minimenu-button"
                     onClick={() => sendJob()}
                 >
+                    <span className="button-title button-title-sendjob">Send job</span>
                     <i className="fa-regular fa-paper-plane"></i>
                 </button>
                 <button className="minimenu-button"
                     onClick={toggleAnomalyReport}
                 >
+                    <span className="button-title button-title-toggleanomalyreport">Open anomaly report</span>
                     <i class="fa-regular fa-flag"></i>
                 </button>
             </div>

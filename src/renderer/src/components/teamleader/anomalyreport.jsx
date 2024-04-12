@@ -5,40 +5,53 @@ import { useNavigate, useLocation } from 'react-router-dom';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, refreshAnomalyData }) => {
+const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, refreshAnomalyData }) => {
 
     //define states
     const [anomaly, setAnomaly] = useState("");
-    const [isModified, setIsModified] = useState(false);
+    const [mergedTeams, setMergedTeams] = useState("");
+    const [isAnomalyModified, setIsAnomalyModified] = useState(false);
+    const [isMergedTeamsModified, setIsMergedTeamsModified] = useState(false);
 
 
     console.log(project_anomaly);
 
     const closeAnomalyReport = () => {
         setAnomaly("");
+        setMergedTeams("");
         toggleAnomalyReport();
     };
 
-    const handleChange = (e) => {
+    // Handler for anomaly textarea change
+    const handleAnomalyChange = (e) => {
         setAnomaly(e.target.value);
-        setIsModified(true); // Set isModified to true when the textarea content is changed
+        setIsAnomalyModified(true);
+    };
+
+    // Handler for merged teams textarea change
+    const handleMergedTeamsChange = (e) => {
+        setMergedTeams(e.target.value);
+        setIsMergedTeamsModified(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Anomaly reported:", anomaly);
+        console.log("Merged teams reported:", mergedTeams);
         const project_id = localStorage.getItem("project_id");
 
-        if (isModified) {
+        if (isAnomalyModified || isMergedTeamsModified) {
 
-            //trigger api-window to add anomaly 
-            const projectData = await window.api.addAnomalyToProject({
-                anomaly: anomaly,
+            let updatedFields = {};
+            if (isAnomalyModified) updatedFields.anomaly = anomaly;
+            if (isMergedTeamsModified) updatedFields.merged_teams = mergedTeams;
+
+            await window.api.addAnomalyToProject({
+                ...updatedFields,
                 project_id: project_id
             });
-            console.log('Anomaly:', projectData);
+            // console.log('Updated fields:', projectData);
         }
-
         //close anomaly report
         toggleAnomalyReport();
         //referesh anomaly report in parent data
@@ -64,12 +77,22 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, refreshAnomalyDat
                         className="form-control textarea"
                         rows="4"
                         defaultValue={project_anomaly}
-                        onChange={handleChange}
+                        onChange={handleAnomalyChange}
                         placeholder="Describe the anomaly here..."
                     ></textarea>
                 </div>
+                <h6> <b>Merged teams</b></h6>
+                <div className="form-group">
+                    <textarea
+                        className="form-control textarea"
+                        rows="1"
+                        defaultValue={merged_teams}
+                        onChange={handleMergedTeamsChange}
+                        placeholder="Merged teams"
+                    ></textarea>
+                </div>
                 <button className="button cancel mr-2" onClick={closeAnomalyReport}>Cancel</button>
-                <button type="submit" className="button standard">Save</button>
+                <button type="submit" className="button standard fixed-width">Save</button>
 
             </form>
         </div>

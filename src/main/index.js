@@ -201,7 +201,7 @@ function createTables() {
       projectname TEXT NOT NULL,
       type SRTING NOT NULL,
       anomaly TEXT,
-      merged_units TEXT,
+      merged_teams TEXT,
       unit BOOLEAN,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       alert_sale BOOLEAN,
@@ -239,6 +239,7 @@ function createTables() {
       protected_id BOOLEAN,
       named_photolink BOOLEAN,
       sold_calendar BOOLEAN,
+      is_deleted BOOLEAN DEFAULT 0,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       project_id INTEGER NOT NULL,
       FOREIGN KEY (project_id) REFERENCES projects(project_id)
@@ -409,7 +410,7 @@ ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
           projectname: row.projectname,
           type: row.type,
           anomaly: row.anomaly,
-          merged_units: row.merged_units,
+          merged_teams: row.merged_teams,
           unit: row.unit,
           alert_sale: row.alert_sale,
           is_deleted: row.is_deleted,
@@ -454,7 +455,7 @@ ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
           projectname: row.projectname,
           type: row.type,
           anomaly: row.anomaly,
-          merged_units: row.merged_units,
+          merged_teams: row.merged_teams,
           unit: row.unit,
           alert_sale: row.alert_sale,
           is_deleted: row.is_deleted,
@@ -506,7 +507,7 @@ ipcMain.handle("getProjectById", async (event, project_id) => {
           projectname: row.projectname,
           type: row.type,
           anomaly: row.anomaly,
-          merged_units: row.merged_units,
+          merged_teams: row.merged_teams,
           unit: row.unit,
           alert_sale: row.alert_sale,
           is_deleted: row.is_deleted,
@@ -660,7 +661,7 @@ ipcMain.handle("getLatestProject", async (event, project_uuid) => {
                       projectname: row.projectname,
                       type: row.type,
                       anomaly: row.anomaly,
-                      merged_units: row.merged_units,
+                      merged_teams: row.merged_teams,
                       unit: row.unit,
                       alert_sale: row.alert_sale,
                       is_deleted: row.is_deleted,
@@ -702,7 +703,7 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
 
       return { statusCode: 1, result };
   } catch (error) {
-      console.error('Error updating project:', error);
+      console.error('Error deleting project:', error);
       return { statusCode: 0, errorMessage: error.message };
   }
 });
@@ -820,7 +821,7 @@ ipcMain.handle("createNewTeam", async (event, args) => {
 
 //get all teams by project_id
 ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
-  const retrieveQuery = "SELECT * FROM teams WHERE project_id = ?"; 
+  const retrieveQuery = "SELECT * FROM teams WHERE is_deleted = 0 AND project_id = ?"; 
   console.log('SQL Query:', retrieveQuery, 'Parameters:', [project_id]);
 
   try {
@@ -1026,40 +1027,80 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
 });
 
 
+
+
+//delete team 
+ipcMain.handle("deleteTeam", async (event, team_id) => {
+  const updateQuery = "UPDATE teams SET is_deleted = 1 WHERE team_id = ?"; 
+
+  try {
+      const result = await new Promise((resolve, reject) => {
+          const db = new sqlite3.Database(dbPath);
+
+          db.run(updateQuery, [team_id], function(error) {
+              if (error) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: error });
+              } else {
+                  db.close();
+                  resolve({ rowsAffected: this.changes });
+              }
+          });
+      });
+
+      return { statusCode: 1, result };
+  } catch (error) {
+      console.error('Error deleting team:', error);
+      return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
 //Add team data to team
 ipcMain.handle("addAnomalyToProject", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for addTeamDataToTeam');
-      }
+    if (!args || typeof args !== 'object') {
+      throw new Error('Invalid arguments received for addTeamDataToTeam');
+    }
 
-      const { anomaly, project_id } = args;
+    const { anomaly, merged_teams, project_id } = args;
 
-      if (!project_id) {
-        throw new Error('Missing required data for addAnomalyToProject');
-      }
-      
-      const result = await db.run(`
-      UPDATE projects
-      SET anomaly = ?
-      WHERE project_id = ?
-  `, [
-      anomaly, 
-      project_id
-  ]);
-  
-          
-      console.log(`Anomaly added successfully`);
-      
-      // Send success response to the frontend
-      event.sender.send('addAnomalyToProject-response', { success: true });
-      return { success: true };
-      
+    if (!project_id) {
+      throw new Error('Missing required project_id for addAnomalyToProject');
+    }
+
+    let query = 'UPDATE projects SET';
+    const params = [];
+
+    if (anomaly !== undefined) {
+      query += ' anomaly = ?,';
+      params.push(anomaly);
+    }
+    if (merged_teams !== undefined) {
+      query += ' merged_teams = ?,';
+      params.push(merged_teams);
+    }
+
+    // Remove the trailing comma from query
+    query = query.slice(0, -1);
+
+    query += ' WHERE project_id = ?';
+    params.push(project_id);
+
+    // Execute the query
+    const result = await db.run(query, params);
+
+    console.log(`Data (anomaly and/or merged_teams) added successfully`);
+
+    // Send success response to the frontend
+    event.sender.send('addAnomalyToProject-response', { success: true });
+    return { success: true };
+
   } catch (err) {
-      console.error('Error adding data to team:', err.message);
-      // Send error response to the frontend
-      event.sender.send('addAnomalyToProject-response', { error: err.message });
-      return { error: err.message };
+    console.error('Error adding data to team:', err.message);
+    // Send error response to the frontend
+    event.sender.send('addAnomalyToProject-response', { error: err.message });
+    return { error: err.message };
   }
 });
 

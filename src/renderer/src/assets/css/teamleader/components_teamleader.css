@@ -99,6 +99,49 @@
     background-color: rgb(68, 68, 68);
 }
 
+.button-title {
+    visibility: hidden;
+    position: absolute;
+    font-size: 0.9em;
+    background-color: rgb(50, 50, 50);
+    padding: 0.3em 1em;
+    color: rgb(244, 244, 244) !important;
+    /* margin-right: 16em; */
+    text-align: right;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    transition: opacity 0.2s ease, visibility 1s linear 0.2s;
+    opacity: 0;
+}
+
+.button-title-delete {
+    width: 8em;
+    margin-right: 12.6em;
+}
+
+.button-title-createnew {
+    width: 9.5em;
+    margin-right: 14.6em;
+}
+
+.button-title-sendjob {
+    width: 5.8em;
+    margin-right: 10.6em;
+}
+
+.button-title-toggleanomalyreport {
+    width: 12em;
+    margin-right: 16.6em;
+}
+
+.minimenu-button:hover .button-title,
+.minimenu-delete-button:hover .button-title {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 1s linear;
+    z-index: 10;
+}
+
 
 
 
@@ -108,7 +151,7 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    height: 20em !important;
+    height: 23em !important;
     width: 100%;
     background-color: #f6f6f6;
     box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.2);

@@ -115,8 +115,8 @@ function Calendarsale_teamleader() {
                         </label>
                     </div>
 
-                    <button className="button cancel fixed-width fixed-height mr-1" onClick={handleBack}>Back</button>
-                    <button className="button standard fixed-width fixed-height" type="submit">Save</button>
+                    <button className="button cancel fixed-width mr-1" onClick={handleBack}>Back</button>
+                    <button className="button standard fixed-width " type="submit">Save</button>
 
                 </form>
 

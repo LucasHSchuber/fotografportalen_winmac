@@ -127,6 +127,7 @@
     height: fit-content;
     border-radius: 7px;
     width: 35em;
+    font-size: 0.9em !important;
 }
 
 .currwork-box-right {
@@ -135,10 +136,6 @@
     height: fit-content;
     align-items: center !important;
     border-radius: 7px;
-}
-
-.currwork-box-left,
-.currwork-box-right {
     font-size: 0.9em !important;
 }
 
@@ -247,6 +244,7 @@
     height: fit-content;
     border-radius: 7px;
     width: 30em;
+    font-size: 0.9em;
 }
 
 .portal-class-box {
@@ -256,6 +254,7 @@
     height: fit-content;
     border-radius: 7px;
     width: 25em;
+    font-size: 0.9em;
 }
 
 .portal-edit-box,
@@ -265,6 +264,7 @@
     border-radius: 7px;
     height: fit-content;
     width: fit-content;
+    font-size: 0.9em;
 }
 
 .portal-edit-box:hover {
