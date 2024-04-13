@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import suitcase_black from "../../assets/images/suitcase_black.png";
-import running_black from "../../assets/images/running_black.png";
-import academic_black from "../../assets/images/academic_black.png";
+import running_gray from "../../assets/images/running_gray.png";
+import academic_gray from "../../assets/images/academic_gray.png";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Controlsheet from "../../components/teamleader/controlsheetModal";
@@ -99,13 +99,9 @@ function Prevwork_teamleader() {
                     {projectsArray && projectsArray.length > 0 ? (
                         projectsArray.map(project => (
                             <div key={project.project_id} className="prevwork-box d-flex mb-2">
-                                <div className="prevwork-box-left d-flex justify-content-between"
-                                    value={project.project_id}
-                                    onClick={() => enterProject(project.project_id)}
-                                    title="Open job"
-                                >
+                                <div className="prevwork-box-left d-flex justify-content-between" title="Job">
                                     <div className="d-flex">
-                                        <p className="ml-2">{project.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-currwork" src={running_black} alt="running"></img>}</p>
+                                        <p className="ml-2">{project.type === "school" ? <img className="type-img-currwork" src={academic_gray} alt="academic"></img> : <img className="type-img-currwork" src={running_gray} alt="running"></img>}</p>
                                         <p className="ml-3">{project.projectname.length > 25 ? project.projectname.substring(0, 25) + "..." : project.projectname}</p>
                                     </div>
                                     <p className="ml-4 mr-5">{project.created.substring(0, 10)}</p>

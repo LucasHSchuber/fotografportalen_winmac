@@ -68,15 +68,20 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                                     ? projectForControlSheet.anomaly
                                     : <em>Empty anomaly report</em>}
                             </div>
-                            {/* <div className="mt-5">
-                                <h6><em>Sent: {projectForControlSheet.sent_date}</em></h6>
-                            </div> */}
+
+                            <div className="mt-4">
+                                <h6><span>Merged teams:</span></h6>
+                                {projectForControlSheet.anomaly && projectForControlSheet.merged_teams !== "NULL"
+                                    ? projectForControlSheet.merged_teams
+                                    : <em>Empty anomaly report</em>}
+                            </div>
+
                         </div>
                     )}
                 </div>
 
 
-                <div className="mt-5">
+                <div className="mt-4">
                     <Button className="button cancel mr-1" onClick={handleClose}>
                         Close
                     </Button>

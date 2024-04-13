@@ -54,6 +54,49 @@
     animation: fillLoadingBar 2s linear;
 }
 
+
+.home-analytics-box {
+    background-color: rgb(243, 243, 243);
+    width: fit-content;
+    border-radius: 10px;
+    padding: 2em 1em;
+}
+
+.home-analytics {
+    width: 12em;
+}
+
+.home-analytics p {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9em;
+}
+
+.home-analytics-number {
+    background-color: #1d1d1d;
+    border-radius: 50%;
+    color: white;
+    width: 5em;
+    height: 5em;
+    font-size: 1em;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.home-message-box {
+    background-color: rgb(243, 243, 243);
+    width: fit-content;
+    border-radius: 10px;
+    padding: 0.5em 1em 0.1em 1em;
+}
+
+.home-message-box i {
+    color: #ff6262;
+}
+
 .loading-bar-text {
     text-align: center;
     margin-top: 10em;

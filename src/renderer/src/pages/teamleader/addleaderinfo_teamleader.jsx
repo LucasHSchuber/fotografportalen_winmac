@@ -10,7 +10,7 @@ function Addleaderinfo_teamleader() {
     // Define states
     const [formData, setFormData] = useState({
         teamname: "",
-        calendar_amount: "",
+        // calendar_amount: "",
         leader_firstname: "",
         leader_lastname: "",
         leader_mobile: "",
@@ -36,8 +36,8 @@ function Addleaderinfo_teamleader() {
         console.log(project_id);
 
         // Convert amount to number
-        const amountNumber = parseInt(formData.calendar_amount);
-        console.log(amountNumber);
+        // const amountNumber = parseInt(formData.calendar_amount);
+        // console.log(amountNumber);
         // Convert leader_ssn to number if it represents a numerical value
         // const leaderSsnNumber = parseInt(formData.leader_ssn);
         // console.log(leaderSsnNumber);
@@ -45,7 +45,7 @@ function Addleaderinfo_teamleader() {
         try {
             const teamData = await window.api.createNewTeam({
                 ...formData,
-                calendar_amount: amountNumber,
+                // calendar_amount: amountNumber,
                 project_id: project_id
             });
             console.log('Team response:', teamData);
@@ -69,7 +69,7 @@ function Addleaderinfo_teamleader() {
 
         setFormData({
             teamname: "",
-            calendar_amount: "",
+            // calendar_amount: "",
             leader_firstname: "",
             leader_lastname: "",
             leader_mobile: "",
@@ -106,9 +106,10 @@ function Addleaderinfo_teamleader() {
                     <div>
                         <input className="form-input-field" type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" required />
                     </div>
-                    <div>
-                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of players in the team" required />
-                    </div>
+                    {/* <div>
+                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of calendars" required />
+                        <h6>All</h6>
+                    </div> */}
                     <br></br>
                     <h6><b>Team leader info:</b></h6>
                     <div>

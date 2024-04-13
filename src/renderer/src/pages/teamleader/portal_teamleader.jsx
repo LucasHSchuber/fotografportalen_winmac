@@ -1,5 +1,8 @@
 import React, { useEffect, useState, } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import flash_black from "../../assets/images/flash_black.png";
 import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
@@ -164,12 +167,12 @@ function Portal_teamleader() {
 
                                                 </div>
                                                 <div className="portal-edit-box ml-2">
-                                                    <p><i class="fa-solid fa-pencil"></i></p>
+                                                    <p><FontAwesomeIcon icon={faPencilAlt} /></p>
                                                 </div>
                                                 <div className="portal-delete-box ml-2"
                                                     onClick={() => openDeleteTeamModal(data.team_id, data.teamname)}
                                                 >
-                                                    <p><i class="fa-regular fa-trash-can"></i></p>
+                                                    <p><FontAwesomeIcon icon={faTrashAlt} /></p>
                                                 </div>
                                             </div>
                                         ))

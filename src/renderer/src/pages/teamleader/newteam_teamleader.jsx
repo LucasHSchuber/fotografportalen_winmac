@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import flash_black from "../../assets/images/flash_black.png";
 import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
+import alert_black from "../../assets/images/alert_black.png";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
@@ -115,7 +116,8 @@ function Newteam_teamleader() {
             <div className="newteam-teamleader-content">
 
                 <div className="header mb-4">
-                    <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{projectType === "school" ? "Create a new class" : "Create a new team"}</h5>
+                    {/* <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{projectType === "school" ? "Create a new class" : "Create a new team"}</h5> */}
+                    <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={alert_black} alt="alert" /> }{projectType === "school" ? "Create a new class" : "Filled out by photographer"}</h5>
                 </div>
 
                 <form onSubmit={handleSubmit}>

@@ -7,7 +7,7 @@ import more from "../../assets/images/more.png";
 import plus from "../../assets/images/plus.png";
 import suitcase from "../../assets/images/suitcase.png";
 
-import NewProjectModal from "../../components/teamleader/newprojectModal";
+// import NewProjectModal from "../../components/teamleader/newprojectModal";
 
 
 import '../../assets/css/teamleader/components_teamleader.css'
@@ -19,9 +19,9 @@ const Sidemenu_teamleader = () => {
     const [showModal, setShowModal] = useState(false);
 
     const handleClose = () => setShowModal(false);
-    const handleShow = () => setShowModal(true);
+    // const handleShow = () => setShowModal(true);
 
-    
+
     return (
         <div className="sidemenu-teamleader">
             <div className="logo">
@@ -50,7 +50,8 @@ const Sidemenu_teamleader = () => {
                 </div>
                 <div className="link-box">
                     {/* <NavLink exact to="/newproject_teamleader" onClick={handleShow}> */}
-                    <NavLink onClick={handleShow}>
+                    {/* <NavLink onClick={handleShow}> */}
+                    <NavLink exact to="/newproject_teamleader">
                         <img className="link-img" src={plus} alt="add img" />
                         <p>New project</p>
                     </NavLink>
@@ -58,7 +59,7 @@ const Sidemenu_teamleader = () => {
             </ul>
 
             {/* Render the modal */}
-            <NewProjectModal showModal={showModal} handleClose={handleClose} />
+            {/* <NewProjectModal showModal={showModal} handleClose={handleClose} /> */}
         </div>
     );
 }

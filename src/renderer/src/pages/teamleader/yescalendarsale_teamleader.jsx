@@ -9,6 +9,7 @@ import '../../assets/css/teamleader/main_teamleader.css';
 function Calendarsale_teamleader() {
     // Define states
     const [formData, setFormData] = useState({
+        calendar_amount: "",
         leader_address: "",
         leader_postalcode: "",
         leader_county: "",
@@ -63,6 +64,7 @@ function Calendarsale_teamleader() {
             console.log('Teams:', teamData.teams);
 
             setFormData({
+                calendar_amount: "",
                 leader_address: "",
                 leader_postalcode: "",
                 leader_county: "",
@@ -90,6 +92,10 @@ function Calendarsale_teamleader() {
                 </div>
 
                 <form onSubmit={handleSubmit}>
+                    <div>
+                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of players that requests calendar" required />
+                        <h6 style={{ fontSize: "0.9em" }}>* All players recieve three calendars each</h6>
+                    </div>
                     <div>
                         <input className="form-input-field" type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Social security number" required />
                     </div>

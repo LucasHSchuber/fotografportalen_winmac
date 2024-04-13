@@ -62,8 +62,8 @@ function createWindow() {
   
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 700,
+    width: 1150,
+    height: 750,
     minWidth: 820,
     minHeight: 550,
     show: false,
@@ -736,34 +736,6 @@ ipcMain.handle("sendProjectToDb", async (event, project_id) => {
 });
 
 
-// //delete porject
-// ipcMain.handle("deleteProject", async (event, project_id) => {
-//   const deleteQuery = "DELETE FROM projects WHERE project_id = ?"; 
-
-//   try {
-//       const result = await new Promise((resolve, reject) => {
-//           const db = new sqlite3.Database(dbPath);
-
-//           db.run(deleteQuery, [project_id], function(error) {
-//               if (error) {
-//                   db.close();
-//                   reject({ statusCode: 0, errorMessage: error });
-//               } else {
-//                   db.close();
-//                   resolve({ rowsAffected: this.changes });
-//               }
-//           });
-//       });
-
-//       return { statusCode: 1, result };
-//   } catch (error) {
-//       console.error('Error deleting project:', error);
-//       return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
-
-
-
 
 //create new team
 ipcMain.handle("createNewTeam", async (event, args) => {
@@ -772,35 +744,23 @@ ipcMain.handle("createNewTeam", async (event, args) => {
           throw new Error('Invalid arguments received for createNewTeam');
       }
 
-      const { 
-          teamname, 
-          leader_firstname, 
-          leader_lastname, 
-          leader_mobile, 
-          leader_email, 
-          calendar_amount,
-          portrait, 
-          project_id,
-          crowd, 
-          sold_calendar 
-      } = args;
+      const { teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, project_id } = args;
 
-      if (!teamname || !leader_firstname || !leader_lastname || !leader_mobile || !leader_email || !calendar_amount || !project_id) {
+      if (!teamname || !leader_firstname || !leader_lastname || !leader_mobile || !leader_email || !project_id) {
           throw new Error('Missing required data for createNewTeam');
       }
       
       const result = await db.run(`
           INSERT INTO teams (
-              teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, calendar_amount, project_id
+              teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, project_id
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?)
           `, [
               teamname, 
               leader_firstname, 
               leader_lastname, 
               leader_mobile, 
               leader_email, 
-              calendar_amount,
               project_id
           ]);
           
@@ -875,27 +835,23 @@ ipcMain.handle("addDataToTeam", async (event, args) => {
       if (!args || typeof args !== 'object') {
           throw new Error('Invalid arguments received for addDataToTeam');
       }
-      const { 
-          leader_address,
-          leader_postalcode,
-          leader_county,
-          leader_ssn,
-          team_id
-      } = args;
+      const { leader_address, leader_postalcode, leader_county, leader_ssn, calendar_amount, team_id } = args;
 
-      if (!leader_address || !leader_postalcode || !leader_county || !leader_ssn || !team_id) {
+      if (!leader_address || !leader_postalcode || !leader_county || !leader_ssn || !calendar_amount || !team_id) {
           throw new Error('Missing required data for addDataToTeam');
       }
       
       const result = await db.run(`
           UPDATE teams
           SET leader_address = ?,
+              calendar_amount = ?,  
               leader_postalcode = ?,
               leader_county = ?,
               leader_ssn = ?
           WHERE team_id = ?
           `, [
             leader_address, 
+            calendar_amount,
             leader_postalcode, 
             leader_county, 
             leader_ssn,
@@ -924,18 +880,9 @@ ipcMain.handle("createNewClass", async (event, args) => {
       if (!args || typeof args !== 'object') {
           throw new Error('Invalid arguments received for createNewClass');
       }
-
-      const { 
-          teamname, 
-          amount, 
-          protected_id,
-          portrait, 
-          project_id,
-          crowd
-      } = args;
-
+      const { teamname, amount, protected_id, portrait, project_id, crowd } = args;
       if (!teamname || !amount || !project_id) {
-          throw new Error('Missing required data for createNewTeam');
+          throw new Error('Missing required data for createNewClass');
       }
       
       const result = await db.run(`
@@ -982,14 +929,7 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
           throw new Error('Invalid arguments received for addTeamDataToTeam');
       }
 
-      const { 
-          amount, 
-          protected_id,
-          portrait, 
-          crowd,
-          sold_calendar,
-          team_id
-      } = args;
+      const { amount, protected_id, portrait, crowd, sold_calendar, team_id } = args;
 
       if (!amount || !team_id) {
           throw new Error('Missing required data for addTeamDataToTeam');
@@ -1106,6 +1046,83 @@ ipcMain.handle("addAnomalyToProject", async (event, args) => {
 
 
 
+
+
+//get all projects and teams by user_id
+ipcMain.handle("getProjectsAndTeamsByUserId", async (event, user_id) => {
+    const retrieveQuery = `
+      SELECT t.team_id, t.teamname, t.amount, t.leader_firstname, t.leader_lastname,
+            t.leader_address, t.leader_postalcode, t.leader_county, t.leader_mobile,
+            t.leader_email, t.leader_ssn, t.calendar_amount, t.portrait, t.crowd,
+            t.protected_id, t.named_photolink, t.sold_calendar, t.is_deleted, t.created,
+            t.project_id, p.project_uuid, p.projectname, p.type, p.anomaly, p.merged_teams,
+            p.unit, p.alert_sale, p.is_deleted AS project_is_deleted, p.is_sent, p.sent_date,
+            p.user_id AS project_user_id, p.created AS project_created
+      FROM teams AS t
+      JOIN projects AS p ON t.project_id = p.project_id
+      WHERE p.user_id = ? AND t.is_deleted = 0 AND p.is_deleted = 0
+    `;
+  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
+
+  try {
+    const data = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, [user_id], (error, rows) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        const allData = rows.map(row => ({
+          project_id: row.project_id,
+          project_uuid: row.project_uuid,
+          projectname: row.projectname,
+          type: row.type,
+          anomaly: row.anomaly,
+          merged_teams: row.merged_teams,
+          unit: row.unit,
+          alert_sale: row.alert_sale,
+          is_deleted: row.project_is_deleted,
+          is_sent: row.is_sent,
+          sent_date: row.sent_date,
+          user_id: row.project_user_id,
+          created: row.project_created,
+          teams: {
+            team_id: row.team_id,
+            teamname: row.teamname,
+            amount: row.amount,
+            leader_firstname: row.leader_firstname,
+            leader_lastname: row.leader_lastname,
+            leader_address: row.leader_address,
+            leader_postalcode: row.leader_postalcode,
+            leader_county: row.leader_county,
+            leader_mobile: row.leader_mobile,
+            leader_email: row.leader_email,
+            leader_ssn: row.leader_ssn,
+            calendar_amount: row.calendar_amount,
+            portrait: row.portrait,
+            crowd: row.crowd,
+            protected_id: row.protected_id,
+            named_photolink: row.named_photolink,
+            sold_calendar: row.sold_calendar,
+            is_deleted: row.is_deleted,
+            created: row.created,
+          },
+        }));
+
+        db.close(() => {
+          resolve({ statusCode: 1, data: allData });
+        });
+      });
+    });
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
 
 
 

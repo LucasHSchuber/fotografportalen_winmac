@@ -12,7 +12,9 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@renderer': resolve('src/renderer/src'),
+        '@fortawesome/react-fontawesome': '@fortawesome/react-fontawesome'
+
       }
     },
     publicDir: 'src/assets',

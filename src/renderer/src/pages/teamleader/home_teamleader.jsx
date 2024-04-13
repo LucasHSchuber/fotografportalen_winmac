@@ -13,10 +13,11 @@ function Home_teamleader() {
     // Define states
     const [loading, setLoading] = useState(true); // Set initial loading state to true
     const [user, setUser] = useState(true); // State to manage loading
+    const [data, setData] = useState([]); // State to manage loadin
     const [hasFetchedData, setHasFetchedData] = useState(false);
 
 
-    
+
     //load loading bar on load
     useEffect(() => {
         // Check if the loading bar has been shown before
@@ -33,7 +34,7 @@ function Home_teamleader() {
             setLoading(false);
         }
     }, []);
-       
+
 
     //fetch all projects from big(express-bild) database
     const fetchData = async () => {
@@ -62,13 +63,13 @@ function Home_teamleader() {
         }
     }, [hasFetchedData]);
 
-
-
+    //get user data &
+    //get all project and teams by user_id
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const userData = await window.api.getUser(2); // Fetch users data from main process
-                console.log('Users Data:', userData); // Log the users data
+                const userData = await window.api.getUser(2);
+                console.log('Users Data:', userData);
                 setUser(userData.user.firstname + " " + userData.user.lastname);
 
                 localStorage.setItem("user_lang", userData.user.lang);
@@ -79,8 +80,22 @@ function Home_teamleader() {
             }
         };
 
-        fetchUser(); 
+        const user_id = localStorage.getItem("user_id");
+
+        const fetchProjectsAndTeams = async () => {
+            try {
+                const data = await window.api.getProjectsAndTeamsByUserId(user_id);
+                console.log('Data:', data.data);
+                setData(data.data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchUser();
+        fetchProjectsAndTeams();
     }, []);
+
 
 
 
@@ -106,6 +121,44 @@ function Home_teamleader() {
                             <p>This is your plattform for keeping track of your jobs, working progress and control sheet</p>
                         </div>
                     </div>
+
+                    <div className="home-analytics-box d-flex mt-5">
+                        <div className="home-analytics mx-2">
+                            <p>
+                                Total jobs
+                            </p>
+                            <div className="home-analytics-number">
+                                {new Set(data.map(project => project.project_id)).size}
+                            </div>
+                        </div>
+                        <div className="home-analytics">
+                            <p>
+                                Total photographed subjects
+                            </p>
+                            <div className="test">
+                                <div className="home-analytics-number">
+                                    {data.reduce((total, project) => total + project.teams.amount, 0)}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="home-analytics">
+                            <p>
+                                Total sold calendars
+                            </p>
+                            <div className="home-analytics-number">
+                                {/* {teams.reduce((total, calendars) => total + calendars.sold_calendar, 0)} */}
+                            </div>
+                        </div>
+                    </div>
+
+                    {new Set(data.filter(project => project.is_sent === 0).map(project => project.project_id)).size > 0 ? (
+                        <div className="home-message-box my-3 d-flex">
+                            <h6> <i class="fa-solid fa-circle-exclamation"></i> &nbsp;<b> Message: </b> &nbsp; </h6>
+                            <h6> You have {new Set(data.filter(project => project.is_sent === 0).map(project => project.project_id)).size} unsent job</h6>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
 
 
                     <Sidemenu_teamleader />
