@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import suitcase_black from "../../assets/images/suitcase_black.png";
 import running_gray from "../../assets/images/running_gray.png";
 import academic_gray from "../../assets/images/academic_gray.png";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faNewspaper, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope as farEnvelope } from '@fortawesome/free-regular-svg-icons';
+
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Controlsheet from "../../components/teamleader/controlsheetModal";
@@ -19,6 +23,9 @@ function Prevwork_teamleader() {
     const [userForControlSheet, setUserForControlSheet] = useState([]);
     const [projectId, setProjectId] = useState("");
     const [projectType, setProjectType] = useState("");
+
+    const [loading, setLoading] = useState(true);
+
 
 
 
@@ -42,6 +49,12 @@ function Prevwork_teamleader() {
             }
         };
         getAllProjects();
+
+
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1000);
+        return () => clearTimeout(timer);
 
     }, []);
 
@@ -85,7 +98,16 @@ function Prevwork_teamleader() {
     };
 
 
-
+    if (loading) {
+        return <div>
+            <div className="loading-bar-text">
+                <p><b>Loading previuous work...</b></p>
+            </div>
+            <div className="loading-bar-container">
+                <div className="loading-bar"></div>
+            </div>
+        </div>;
+    }
     return (
         <div className="teamleader-wrapper">
             <div className="prevwork-teamleader-content">
@@ -105,7 +127,7 @@ function Prevwork_teamleader() {
                                         <p className="ml-3">{project.projectname.length > 25 ? project.projectname.substring(0, 25) + "..." : project.projectname}</p>
                                     </div>
                                     <p className="ml-4 mr-5">{project.created.substring(0, 10)}</p>
-                                    <p><i class="fa-solid fa-lock"></i></p>
+                                    <FontAwesomeIcon className="mt-1" icon={faLock} />
                                 </div>
 
                                 <div className="prevwork-box-mid mx-2">
@@ -115,12 +137,12 @@ function Prevwork_teamleader() {
                                     title="View control sheet"
                                     onClick={() => viewControlSheet(project.project_id, project.type)}
                                 >
-                                    <i class="fa-solid fa-newspaper"></i>
+                                    <FontAwesomeIcon icon={faNewspaper} />
                                 </div>
                                 <div className="prevwork-box-right mx-2"
                                     title="Report to office"
                                 >
-                                    <i class="fa-regular fa-envelope"></i>
+                                    <FontAwesomeIcon icon={farEnvelope} />
                                 </div>
 
                             </div>

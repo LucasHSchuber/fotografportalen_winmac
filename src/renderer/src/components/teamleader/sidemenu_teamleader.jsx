@@ -25,25 +25,25 @@ const Sidemenu_teamleader = () => {
     return (
         <div className="sidemenu-teamleader">
             <div className="logo">
-                <NavLink exact to="/" >
+                <NavLink to="/" exact="true">
                     <img src={fp} alt="Logo" />
                 </NavLink>
             </div>
             <ul className="menu">
                 <div className="link-box">
-                    <NavLink exact to="/home_teamleader">
+                    <NavLink exact="true" to="/home_teamleader">
                         <img className="link-img" src={house} alt="house img" />
                         <p>Home</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
-                    <NavLink exact to="/prevwork_teamleader">
+                    <NavLink exact="true" to="/prevwork_teamleader">
                         <img className="link-img" src={suitcase} alt="suitcase img" />
                         <p>Previous work</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
-                    <NavLink exact to="/currwork_teamleader">
+                    <NavLink exact="true" to="/currwork_teamleader">
                         <img className="link-img" src={flash} alt="flash img" />
                         <p>Current work</p>
                     </NavLink>
@@ -51,7 +51,7 @@ const Sidemenu_teamleader = () => {
                 <div className="link-box">
                     {/* <NavLink exact to="/newproject_teamleader" onClick={handleShow}> */}
                     {/* <NavLink onClick={handleShow}> */}
-                    <NavLink exact to="/newproject_teamleader">
+                    <NavLink exact="true" to="/newproject_teamleader">
                         <img className="link-img" src={plus} alt="add img" />
                         <p>New project</p>
                     </NavLink>

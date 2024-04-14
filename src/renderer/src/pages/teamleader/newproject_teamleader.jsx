@@ -68,48 +68,57 @@ function Newproject_teamleader() {
     const handleProjectChange = (value) => {
         setProjectName(value);
         console.log(projectName);
-
     };
 
 
-    const findUuid = (projectName) => {
-        const selectedProject = _projects.find(project => project.projectname === projectName);
-        if (selectedProject) {
-            let _uuid = selectedProject.project_uuid;
-            setProject_uuid(_uuid);
-        }
-    }
 
     const handleSubmit = (e) => {
-
         e.preventDefault();
 
-        findUuid(projectName)
+        // findUuid(projectName)
+        const selectedProject = _projects.find(project => project.projectname === projectName);
+
+        let _uuid = selectedProject.project_uuid;
+        console.log(_uuid);
+        setProject_uuid(_uuid);
+
 
         console.log('Selected project:', projectName);
         console.log('Selected type:', type);
-        console.log('Selected project uuid:', project_uuid);
+        console.log('Selected project uuid:', _uuid);
 
         const confirmationMessage = `Create new project: ${projectName}\n\n`;
 
         if (window.confirm(confirmationMessage)) {
-            CreateNewProject();
-
+            CreateNewProject(_uuid);
         } else {
-            // Handle cancellation here
             console.log('Creation canceled.');
         }
     };
 
 
-    const CreateNewProject = async () => {
+
+    // const findUuid = (projectName) => {
+    //     const selectedProject = _projects.find(project => project.projectname === projectName);
+    //     console.log(projectName);
+    //     console.log(selectedProject);
+    //     if (selectedProject) {
+    //         let _uuid = selectedProject.project_uuid;
+    //         console.log(_uuid);
+    //         setProject_uuid(_uuid);
+    //     }
+    // }
+
+
+
+    const CreateNewProject = async (_uuid) => {
         try {
 
-            if (!projectName || !type || !project_uuid) {
+            if (!projectName || !type || !_uuid) {
                 throw new Error('Project name, type, and project_uuid are required.');
             }
 
-            const response = await window.api.checkProjectExists(project_uuid);
+            const response = await window.api.checkProjectExists(_uuid);
             console.log('Project already exists - response:', response);
 
             if (response && response.statusCode === 1) {
@@ -122,7 +131,7 @@ function Newproject_teamleader() {
                 const args = {
                     projectname: projectName,
                     type: type,
-                    project_uuid: project_uuid,
+                    project_uuid: _uuid,
                     user_id: user_id
                 };
 
@@ -133,14 +142,14 @@ function Newproject_teamleader() {
                     console.log('Project created successfully');
 
                     //get latest tuppel in projects-table
-                    const latestProjectResponse = await window.api.getLatestProject(project_uuid);
+                    const latestProjectResponse = await window.api.getLatestProject(_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
                     localStorage.setItem("project_id", latestProjectResponse.project_id)
                     console.log(localStorage.getItem("project_id"));
                     //store the project_id in localStorage
                     localStorage.setItem("project_id", latestProjectResponse.project_id);
                     navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
-                    
+
                 } else {
                     console.error('Error creating project:', response?.error || 'Unknown error');
                 }
@@ -151,46 +160,8 @@ function Newproject_teamleader() {
             console.error('Error checking project existence:', error);
             return false; // Error occurred, assume project doesn't exist
         }
-        // try {
-        //     if (!projectName || !type || !project_uuid) {
-        //         throw new Error('Project name, type, and uuid are required.');
-        //     }
-
-        //     // Check if a project with the given project_uuid already exists
-        //     const response = await window.api.checkProjectExists(project_uuid);
-        //     console.log('Check Project Exists Response:', response);
-
-        //     if (!exists) {
-        //         let user_id = localStorage.getItem("user_id");
-        //         const args = {
-        //             projectname: projectName,
-        //             type: type,
-        //             project_uuid: project_uuid,
-        //             user_id: user_id
-        //         };
-        //         console.log(args);
-
-        //         const response = await window.api.createNewProject(args);
-        //         console.log('Create New Projects Response:', response);
-
-        //         if (response && response.success) {
-        //             // Handle success case
-        //             console.log('Project created successfully');
-        //             // navigate("/");
-        //         } else {
-        //             // Handle error case
-        //             console.error('Error creating project:', response?.error || 'Unknown error');
-        //             // Show an error message to the user
-        //         }
-        //     } else {
-        //         console.log('Project already exists, skipping creation.');
-        //     }
-
-        // } catch (error) {
-        //     console.error('Error creating project:', error.message);
-        //     // Show an error message to the user
-        // }
     }
+
 
     const handleProjectType = (projectType) => {
         setType(projectType);
@@ -206,6 +177,7 @@ function Newproject_teamleader() {
     };
 
 
+
     return (
         <div className="teamleader-wrapper">
             <div className="newproject-teamleader-content">
@@ -214,7 +186,6 @@ function Newproject_teamleader() {
                     <h4><img className="title-img" src={plus_black} alt="more" /> New project</h4>
                     <p>Create a new school or sport photography</p>
                 </div>
-
 
                 <form className="newproject-form" onSubmit={handleSubmit}>
                     <input

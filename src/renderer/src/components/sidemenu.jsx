@@ -15,13 +15,13 @@ function Sidemenu() {
             </div>
             <ul className="menu">
                 <div className="link-box">
-                    <NavLink exact to="/home_teamleader">
+                    <NavLink to="/home_teamleader" exact="true">
                         <img className="link-img" src={teamleader} alt="teamleader" />
                         <p>Teamleader</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
-                    <NavLink to="/" >
+                    <NavLink to="/" exact="true" >
                         <img className="link-img" src={cloud} alt="cloud" />
                         <p>Filetransfer</p>
                     </NavLink>

@@ -38,7 +38,7 @@ function Currwork_teamleader() {
 
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 500);
+        }, 1000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -73,7 +73,14 @@ function Currwork_teamleader() {
 
 
     if (loading) {
-        return <div className="page-loading">Loading current work...</div>;
+        return <div>
+            <div className="loading-bar-text">
+                <p><b>Loading current work...</b></p>
+            </div>
+            <div className="loading-bar-container">
+                <div className="loading-bar"></div>
+            </div>
+        </div>;
     }
     return (
         <div className="teamleader-wrapper">
