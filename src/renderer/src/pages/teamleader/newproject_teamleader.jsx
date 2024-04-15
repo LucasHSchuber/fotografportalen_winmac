@@ -16,16 +16,21 @@ import '../../assets/css/teamleader/main_teamleader.css';
 
 function Newproject_teamleader() {
     // Define states
+    const [_projects, set_Projects] = useState([]);
     const [projectName, setProjectName] = useState('');
     const [type, setType] = useState('');
     const [project_uuid, setProject_uuid] = useState('');
 
+    const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+
     const [isSelectedType1, setIsSelectedType1] = useState(false);
     const [isSelectedType2, setIsSelectedType2] = useState(false);
 
-    const [_projects, set_Projects] = useState([]);
-
     const navigate = useNavigate();
+
+    const handleClose = () => { setShowNewProjectModal(false) };
+
+
 
 
     //fetch all projects from big(express-bild) database - if not working, fetch from  sqlite table 
@@ -63,13 +68,10 @@ function Newproject_teamleader() {
     }, []);
 
 
-
-
     const handleProjectChange = (value) => {
         setProjectName(value);
         console.log(projectName);
     };
-
 
 
     const handleSubmit = (e) => {
@@ -79,46 +81,27 @@ function Newproject_teamleader() {
         const selectedProject = _projects.find(project => project.projectname === projectName);
 
         let _uuid = selectedProject.project_uuid;
-        console.log(_uuid);
         setProject_uuid(_uuid);
-
 
         console.log('Selected project:', projectName);
         console.log('Selected type:', type);
         console.log('Selected project uuid:', _uuid);
 
-        const confirmationMessage = `Create new project: ${projectName}\n\n`;
-
-        if (window.confirm(confirmationMessage)) {
-            CreateNewProject(_uuid);
-        } else {
-            console.log('Creation canceled.');
-        }
+        setShowNewProjectModal(true);
     };
 
 
 
-    // const findUuid = (projectName) => {
-    //     const selectedProject = _projects.find(project => project.projectname === projectName);
-    //     console.log(projectName);
-    //     console.log(selectedProject);
-    //     if (selectedProject) {
-    //         let _uuid = selectedProject.project_uuid;
-    //         console.log(_uuid);
-    //         setProject_uuid(_uuid);
-    //     }
-    // }
-
-
-
-    const CreateNewProject = async (_uuid) => {
+    const CreateNewProject = async () => {
+        console.log("creating a new project....");
+        console.log(project_uuid);
         try {
 
-            if (!projectName || !type || !_uuid) {
+            if (!projectName || !type || !project_uuid) {
                 throw new Error('Project name, type, and project_uuid are required.');
             }
 
-            const response = await window.api.checkProjectExists(_uuid);
+            const response = await window.api.checkProjectExists(project_uuid);
             console.log('Project already exists - response:', response);
 
             if (response && response.statusCode === 1) {
@@ -131,7 +114,7 @@ function Newproject_teamleader() {
                 const args = {
                     projectname: projectName,
                     type: type,
-                    project_uuid: _uuid,
+                    project_uuid: project_uuid,
                     user_id: user_id
                 };
 
@@ -142,7 +125,7 @@ function Newproject_teamleader() {
                     console.log('Project created successfully');
 
                     //get latest tuppel in projects-table
-                    const latestProjectResponse = await window.api.getLatestProject(_uuid);
+                    const latestProjectResponse = await window.api.getLatestProject(project_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
                     localStorage.setItem("project_id", latestProjectResponse.project_id)
                     console.log(localStorage.getItem("project_id"));
@@ -158,7 +141,7 @@ function Newproject_teamleader() {
             }
         } catch (error) {
             console.error('Error checking project existence:', error);
-            return false; // Error occurred, assume project doesn't exist
+            return false;
         }
     }
 
@@ -228,6 +211,7 @@ function Newproject_teamleader() {
             </div>
 
             <Sidemenu_teamleader />
+            <NewProjectModal projectName={projectName} projectType={type} showNewProjectModal={showNewProjectModal} handleClose={handleClose} CreateNewProject={CreateNewProject} />
         </div>
     );
 }

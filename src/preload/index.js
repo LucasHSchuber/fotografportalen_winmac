@@ -33,13 +33,15 @@ const api = {
   createNewTeam: args => ipcRenderer.invoke('createNewTeam', args), // Database Call For Create new Team
   addDataToTeam: args => ipcRenderer.invoke('addDataToTeam', args), // Database Call For adding data to Team
   addTeamDataToTeam: args => ipcRenderer.invoke('addTeamDataToTeam', args), // Database Call For adding MORE data to Team
+  getTeam: (team_id) => ipcRenderer.invoke('getTeam', team_id), // Pass team_id to get team by team_id
   deleteTeam: (team_id) => ipcRenderer.invoke('deleteTeam', team_id), // Pass team_id to delete team by team_id
+  editTeam: (args) => ipcRenderer.invoke('editTeam', args), // Pass args to edit team by team_id
 
   addAnomalyToProject: args => ipcRenderer.invoke('addAnomalyToProject', args), // Database Call For adding anomaly data to Project
 
   getProjectsAndTeamsByUserId: (user_id) => ipcRenderer.invoke('getProjectsAndTeamsByUserId', user_id), // Pass user_id to get all projects and teams by user
 
-  
+
 
 
 

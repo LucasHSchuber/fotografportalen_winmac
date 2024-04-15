@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
+import CalendarConfirm from "../../components/teamleader/calendarconfirmModal";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -17,6 +18,10 @@ function Calendarsale_teamleader() {
         terms: false
     });
     const [project_id, setProject_id] = useState(false);
+    const [showCalendarConfirmModal, setShowCalendarConfirmModal] = useState(false);
+
+    const handleClose = () => { setShowCalendarConfirmModal(false) };
+
 
 
     const navigate = useNavigate();
@@ -35,9 +40,9 @@ function Calendarsale_teamleader() {
 
 
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
 
         if (!formData.terms) {
             const confirmResponse = window.confirm("You must accept the terms.");
@@ -48,13 +53,12 @@ function Calendarsale_teamleader() {
             }
         }
 
-        let team_id = localStorage.getItem("team_id");
-        if (!team_id) {
-            console.error("Team ID not found in localStorage");
-            return;
-        }
-        console.log(formData);
+        setShowCalendarConfirmModal(true);
+    };
 
+    const confirmCalendar = async () => {
+
+        let team_id = localStorage.getItem("team_id");
         //method to add data to table
         try {
             const teamData = await window.api.addDataToTeam({
@@ -71,13 +75,13 @@ function Calendarsale_teamleader() {
                 leader_ssn: "",
                 terms: false
             });
-
-            navigate(`/newteam_teamleader`);
+            navigate("/newteam_teamleader");
 
         } catch (error) {
             console.error('Error fetching teams:', error);
         }
-    };
+    }
+
 
 
     return (
@@ -129,6 +133,8 @@ function Calendarsale_teamleader() {
             </div>
 
             <Sidemenu_teamleader />
+            <CalendarConfirm showCalendarConfirmModal={showCalendarConfirmModal} handleClose={handleClose} confirmCalendar={confirmCalendar} />
+
         </div>
     );
 }

@@ -15,6 +15,9 @@ function Home_teamleader() {
     const [user, setUser] = useState(true); // State to manage loading
     const [data, setData] = useState([]); // State to manage loadin
     const [hasFetchedData, setHasFetchedData] = useState(false);
+    const [projectsArray, setProjectsArray] = useState([]);
+
+    
 
 
 
@@ -92,9 +95,24 @@ function Home_teamleader() {
             }
         };
 
+
+        const getAllProjects = async () => {
+            try {
+                const projects = await window.api.getAllCurrentProjects(user_id);
+                console.log('Projects:', projects.projects);
+                setProjectsArray(projects.projects);
+
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+        };
+
         fetchUser();
         fetchProjectsAndTeams();
+        getAllProjects();
     }, []);
+
+
 
 
 
@@ -128,7 +146,7 @@ function Home_teamleader() {
                                 Total jobs
                             </p>
                             <div className="home-analytics-number">
-                                {new Set(data.map(project => project.project_id)).size}
+
                             </div>
                         </div>
                         <div className="home-analytics">
@@ -151,15 +169,11 @@ function Home_teamleader() {
                         </div>
                     </div>
 
-                    {new Set(data.filter(project => project.is_sent === 0).map(project => project.project_id)).size > 0 ? (
-                        <div className="home-message-box my-3 d-flex">
-                            <h6> <i class="fa-solid fa-circle-exclamation"></i> &nbsp;<b> Message: </b> &nbsp; </h6>
-                            <h6> You have {new Set(data.filter(project => project.is_sent === 0).map(project => project.project_id)).size} unsent job</h6>
-                        </div>
-                    ) : (
-                        <></>
-                    )}
 
+                    <div className="home-message-box my-3 d-flex">
+                        <h6> <i class="fa-solid fa-circle-exclamation"></i> &nbsp;<b> Message: </b> &nbsp; </h6>
+                        <h6> You have <b>{projectsArray.length > 0 ? projectsArray.length : "0"}</b> unsent job</h6>
+                    </div>
 
                     <Sidemenu_teamleader />
                 </>

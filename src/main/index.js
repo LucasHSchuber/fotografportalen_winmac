@@ -996,11 +996,111 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
 });
 
 
+
+
+
+//edit team data
+ipcMain.handle("editTeam", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for editTeam');
+      }
+
+      const { amount, protected_id, portrait, crowd, teamname, team_id } = args;
+
+      if (!amount || !teamname || !team_id) {
+          throw new Error('Missing required data for editTeam');
+      }
+      
+      const result = await db.run(`
+        UPDATE teams
+        SET amount = ?,
+        teamname = ?,
+        protected_id = ?,
+        portrait = ?,
+        crowd = ?
+        WHERE team_id = ?
+        `, [
+          amount, 
+          teamname,
+          protected_id,
+          portrait,
+          crowd,
+          team_id
+      ]);
+          
+      console.log(`Team data edited successfully`);
+      
+      // Send success response to the frontend
+      event.sender.send('editTeam-response', { success: true });
+      return { success: true };
+      
+  } catch (err) {
+      console.error('Error editing data:', err.message);
+      // Send error response to the frontend
+      event.sender.send('editTeam-response', { error: err.message });
+      return { error: err.message };
+  }
+});
+
+
+
+//get team by team id
+ipcMain.handle("getTeam", async (event, team_id) => {
+  const retrieveQuery = "SELECT * FROM teams WHERE team_id = ?"; 
+  console.log('SQL Query:', retrieveQuery, 'Parameters:', [team_id]);
+
+  try {
+    const team = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, [team_id], (error, rows) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        const teamData = rows.map(row => ({
+          team_id: row.team_id,
+          teamname: row.teamname,
+          amount: row.amount,
+          leader_firstname: row.leader_firstname,
+          leader_lastname	: row.leader_lastname	,
+          leader_address: row.leader_address,
+          leader_postalcode: row.leader_postalcode,
+          leader_county: row.leader_county,
+          leader_mobile: row.leader_mobile,
+          leader_email: row.leader_email,
+          leader_ssn: row.leader_ssn,
+          portrait: row.portrait,
+          crowd: row.crowd,
+          protected_id: row.protected_id,
+          named_photolink: row.named_photolink,
+          sold_calendar: row.sold_calendar,
+          created: row.created,
+          project_id: row.project_id
+        }));
+
+        db.close(() => {
+          resolve({ statusCode: 1, team: teamData });
+        });
+      });
+    });
+
+    return team;
+  } catch (error) {
+    console.error('Error fetching team:', error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+
 //Add team data to team
 ipcMain.handle("addAnomalyToProject", async (event, args) => {
   try {
     if (!args || typeof args !== 'object') {
-      throw new Error('Invalid arguments received for addTeamDataToTeam');
+      throw new Error('Invalid arguments received for addAnomalyToProject');
     }
 
     const { anomaly, merged_teams, project_id } = args;

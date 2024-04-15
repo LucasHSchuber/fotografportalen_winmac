@@ -11,7 +11,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
     const [anomaly, setAnomaly] = useState("");
     const [mergedTeams, setMergedTeams] = useState("");
     const [isAnomalyModified, setIsAnomalyModified] = useState(false);
-    const [isMergedTeamsModified, setIsMergedTeamsModified] = useState(false);
+    const [isMergedTeamsModified, setIsMergedTeamsModified] = useState(false); 
 
 
     console.log(project_anomaly);

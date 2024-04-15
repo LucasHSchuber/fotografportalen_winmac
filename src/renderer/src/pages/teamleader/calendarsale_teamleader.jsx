@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import calendarsale from "../../assets/images/calendarimg.jpg";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
+import CalendarConfirm from "../../components/teamleader/calendarconfirmModal";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -10,7 +11,9 @@ import '../../assets/css/teamleader/main_teamleader.css';
 function Calendarsale_teamleader() {
     // Define states
     const [project_id, setProject_id] = useState(false);
+    const [showCalendarConfirmModal, setShowCalendarConfirmModal] = useState(false);
 
+    const handleClose = () => { setShowCalendarConfirmModal(false) };
 
     const navigate = useNavigate();
 
@@ -25,13 +28,15 @@ function Calendarsale_teamleader() {
     //if pressing yes button
     const yesCalendarSales = () => {
         localStorage.setItem("calendar_sale", 1);
-        console.log(localStorage.getItem("calendar_sale"));
         navigate("/yescalendarsale_teamleader");
     }
     //if pressing no button
     const noCalendarSales = () => {
         localStorage.setItem("calendar_sale", 0);
-        console.log(localStorage.getItem("calendar_sale"));
+        setShowCalendarConfirmModal(true);
+    }
+
+    const confirmCalendar = () => {
         navigate("/newteam_teamleader");
     }
 
@@ -59,12 +64,12 @@ function Calendarsale_teamleader() {
                     <br />
                     <br />
                     <a style={{ textDecoration: "underline", cursor: "pointer" }} onClick={noCalendarSales}>No, I'm not intersted in earning money by selling calendars</a>
-                    {/* <button className="button" onClick={noCalendarSales}>No</button> */}
                 </div>
 
             </div>
 
             <Sidemenu_teamleader />
+            <CalendarConfirm showCalendarConfirmModal={showCalendarConfirmModal} handleClose={handleClose} confirmCalendar={confirmCalendar} />
         </div>
     );
 }

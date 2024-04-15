@@ -14,6 +14,7 @@ import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader
 import Minimenu_teamleader from "../../components/teamleader/minimenu_teamleader";
 import Anomalyreport from "../../components/teamleader/anomalyreport";
 import DeleteTeam from "../../components/teamleader/deleteteamModal";
+import EditTeam from "../../components/teamleader/editteamModal";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -28,16 +29,19 @@ function Portal_teamleader() {
     const [teams, setTeams] = useState([]);
     const [teamName, setTeamName] = useState("");
     const [teamId, setTeamId] = useState("");
+    const [editTeam, setEditTeam] = useState({});
 
     const [loading, setLoading] = useState(true);
 
     const [showAnomalyReport, setShowAnomalyReport] = useState(false); // State for toggling Anomalyreport visibility
     const [showDeleteTeamModal, setShowDeleteTeamModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     // Accessing the projectId from URL parameters
     const { project_id } = useParams();
 
     const handleClose = () => setShowDeleteTeamModal(false);
+    const handleCloseEditModal = () => setShowEditModal(false);
 
 
     const toggleAnomalyReport = () => {
@@ -49,6 +53,13 @@ function Portal_teamleader() {
         setTeamId(team_id);
         setShowDeleteTeamModal(true);
     }
+
+    const openEditModal = async (team_id, data) => {
+        // setTeamName(data.team_name);
+        setTeamId(team_id);
+        setEditTeam(data);
+        setShowEditModal(true);
+    };
 
     //load loading bar on load
     useEffect(() => {
@@ -133,7 +144,7 @@ function Portal_teamleader() {
                         {project && ( // Check if projectname is available
                             <>
                                 <div className="header mb-5">
-                                    <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created.substring(0, 10)})</em></h5>
+                                    <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created.length > 0 ? project.created.substring(0, 10) : ""})</em></h5>
                                     {/* <h6 className=""><em>{project.created.substring(0, 10)}</em></h6> */}
                                 </div>
 
@@ -166,7 +177,9 @@ function Portal_teamleader() {
                                                     )}
 
                                                 </div>
-                                                <div className="portal-edit-box ml-2">
+                                                <div className="portal-edit-box ml-2"
+                                                    onClick={() => openEditModal(data.team_id, data)}
+                                                >
                                                     <p><FontAwesomeIcon icon={faPencilAlt} /></p>
                                                 </div>
                                                 <div className="portal-delete-box ml-2"
@@ -222,7 +235,9 @@ function Portal_teamleader() {
                     <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} />
                     <Sidemenu_teamleader />
                     {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} merged_teams={projectMergedTeams} refreshAnomalyData={refreshAnomalyData} />}
-                    <DeleteTeam showDeleteTeamModal={showDeleteTeamModal} handleClose={handleClose} projectType={projectType} teamName={teamName} teamId={teamId} refreshTeamData={refreshTeamData}/>
+                    <DeleteTeam showDeleteTeamModal={showDeleteTeamModal} handleClose={handleClose} projectType={projectType} teamName={teamName} teamId={teamId} refreshTeamData={refreshTeamData} />
+                    <EditTeam showEditModal={showEditModal} handleCloseEditModal={handleCloseEditModal} projectType={projectType} teamData={editTeam} teamId={teamId} refreshTeamData={refreshTeamData}  />
+
                 </>
             )}
         </div>
