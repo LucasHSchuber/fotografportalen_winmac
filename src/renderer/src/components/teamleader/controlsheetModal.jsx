@@ -53,7 +53,7 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="5">No teams</td>
+                                <td colSpan="5">{projectType === "school" ? "No classes" : "No teams"}</td>
                             </tr>
                         )}
                     </tbody>
@@ -70,10 +70,10 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                             </div>
 
                             <div className="mt-4">
-                                <h6><span>Merged teams:</span></h6>
+                                <h6><span>{projectType === "school" ? "Merged classes" : "Merged teams"}</span></h6>
                                 {projectForControlSheet.anomaly && projectForControlSheet.merged_teams !== "NULL"
                                     ? projectForControlSheet.merged_teams
-                                    : <em>Empty anomaly report</em>}
+                                    : <em>{projectType === "school" ? "No merged classes" : " No merged teams"}</em>}
                             </div>
 
                         </div>

@@ -32,7 +32,6 @@ function Prevwork_teamleader() {
 
     useEffect(() => {
         let user_id = localStorage.getItem("user_id");
-        console.log(user_id);
     }, []);
 
     useEffect(() => {
@@ -62,10 +61,10 @@ function Prevwork_teamleader() {
     //open contol sheet modal
     const handleClose = () => { setShowcControlSheetModal(false); }
     const viewControlSheet = (project_id, project_type) => {
-        console.log(project_id);
-        console.log(project_type);
+
         setProjectId(project_id);
         setProjectType(project_type);
+
         fetchTeamsForControlSheet(project_id);
         setShowcControlSheetModal(true);
     }
@@ -101,7 +100,7 @@ function Prevwork_teamleader() {
     if (loading) {
         return <div>
             <div className="loading-bar-text">
-                <p><b>Loading previuous work...</b></p>
+                <p><b>Loading previous work...</b></p>
             </div>
             <div className="loading-bar-container">
                 <div className="loading-bar"></div>

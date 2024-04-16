@@ -30,6 +30,8 @@ function Portal_teamleader() {
     const [teamName, setTeamName] = useState("");
     const [teamId, setTeamId] = useState("");
     const [editTeam, setEditTeam] = useState({});
+    const [userForControlSheet, setUserForControlSheet] = useState([]);
+
 
     const [loading, setLoading] = useState(true);
 
@@ -69,6 +71,7 @@ function Portal_teamleader() {
                 const projectData = await window.api.getProjectById(project_id);
                 console.log('Project:', projectData.project);
                 setProject(projectData.project);
+
                 setProjectType(projectData.project.type);
                 setProjectName(projectData.project.projectname);
                 setProjectAnomaly(projectData.project.anomaly);
@@ -92,7 +95,20 @@ function Portal_teamleader() {
             }
         };
 
+        const fetchUser = async () => {
+            let user_id = localStorage.getItem("user_id");
+            try {
+                const userData = await window.api.getUser(user_id);
+                console.log('User:', userData.user);
+                setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        }
+
+        fetchUser();
         fetchProject();
+
 
         const timer = setTimeout(() => {
             setLoading(false);
@@ -108,6 +124,7 @@ function Portal_teamleader() {
             console.log('Project Anomaly Refresh:', projectData.project);
             setProjectAnomaly(projectData.project.anomaly);
             setProjectMergedTeams(projectData.project.merged_teams);
+            setProject(projectData.project);
         } catch (error) {
             console.error('Error refreshing project:', error);
         }
@@ -140,8 +157,9 @@ function Portal_teamleader() {
             ) : (
 
                 <>
-                    <div className="portal-teamleader-content">
-                        {project && ( // Check if projectname is available
+                    {project && ( // Check if project is available
+                        <div className="portal-teamleader-content">
+
                             <>
                                 <div className="header mb-5">
                                     <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created.length > 0 ? project.created.substring(0, 10) : ""})</em></h5>
@@ -229,14 +247,15 @@ function Portal_teamleader() {
 
                                 </div>
                             </>
-                        )}
-                    </div>
 
-                    <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} />
+                        </div>
+                    )}
+
+                    <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} project={project} teams={teams} userForControlSheet={userForControlSheet} />
                     <Sidemenu_teamleader />
                     {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} merged_teams={projectMergedTeams} refreshAnomalyData={refreshAnomalyData} />}
                     <DeleteTeam showDeleteTeamModal={showDeleteTeamModal} handleClose={handleClose} projectType={projectType} teamName={teamName} teamId={teamId} refreshTeamData={refreshTeamData} />
-                    <EditTeam showEditModal={showEditModal} handleCloseEditModal={handleCloseEditModal} projectType={projectType} teamData={editTeam} teamId={teamId} refreshTeamData={refreshTeamData}  />
+                    <EditTeam showEditModal={showEditModal} handleCloseEditModal={handleCloseEditModal} projectType={projectType} teamData={editTeam} teamId={teamId} refreshTeamData={refreshTeamData} />
 
                 </>
             )}

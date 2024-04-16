@@ -89,6 +89,13 @@ function Calendarsale_teamleader() {
 
             <div className="calendarsale-teamleader-content">
 
+
+                <div className="breadcrumbs d-flex mb-4">
+                    <div className="breadcrumbs-box ">1. New team</div>
+                    <div className="breadcrumbs-box">2. Calander</div>
+                    <div className="breadcrumbs-box breadcrumbs-active">3. Calendar information</div>
+                </div>
+
                 <div className="header mb-4">
                     <h5>Cashing!</h5>
                     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Optio officiis saepe sunt rerum, consequatur quas distinctio minus quo veritatis at eveniet culpa, blanditiis repudiandae consequuntur libero porro perferendis eius aut.</p>

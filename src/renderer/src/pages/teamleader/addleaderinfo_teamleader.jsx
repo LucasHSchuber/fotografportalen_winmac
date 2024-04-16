@@ -35,13 +35,6 @@ function Addleaderinfo_teamleader() {
         let project_id = localStorage.getItem("project_id");
         console.log(project_id);
 
-        // Convert amount to number
-        // const amountNumber = parseInt(formData.calendar_amount);
-        // console.log(amountNumber);
-        // Convert leader_ssn to number if it represents a numerical value
-        // const leaderSsnNumber = parseInt(formData.leader_ssn);
-        // console.log(leaderSsnNumber);
-
         try {
             const teamData = await window.api.createNewTeam({
                 ...formData,
@@ -82,19 +75,14 @@ function Addleaderinfo_teamleader() {
 
 
 
-
-    // const enterProject = (project_id) => {
-    //     console.log(project_id);
-    //     navigate(`/portal_teamleader/${project_id}`);
-    // }
-
-
-    // if (loading) {
-    //     return <div>Loading...</div>;
-    // }
-    // fetch projects WHERE user_id = ? AND WHERE is_sent = 0
     return (
         <div className="teamleader-wrapper">
+
+            <div className="breadcrumbs d-flex mb-4">
+                <div className="breadcrumbs-box breadcrumbs-active">1. New team</div>
+                <div className="breadcrumbs-box">2. Calander</div>
+                <div className="breadcrumbs-box">3. Calendar information</div>
+            </div>
 
             <div className="header">
                 <h5><i class="fa-solid fa-plus"></i> New team</h5>

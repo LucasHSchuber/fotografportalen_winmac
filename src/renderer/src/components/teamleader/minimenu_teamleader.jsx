@@ -4,18 +4,23 @@ import { useNavigate } from 'react-router-dom';
 
 import DeleteProjectModal from "../../components/teamleader/deleteprojectModal";
 import SendProjectModal from "../../components/teamleader/sendProjectModal";
+import ConfirmControlSheetModal from "../../components/teamleader/confirmcontrolsheetModal";
 
 import '../../assets/css/teamleader/components_teamleader.css'
 
-const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAnomalyReport }) => {
+const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAnomalyReport, project, teams, userForControlSheet }) => {
 
     //define states
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showSendProjectModal, setShowSendProjectModal] = useState(false);
+    const [showConfirmControlSheetModal, setShowConfirmControlSheetModal] = useState(false);
     const [projectId, setProjectId] = useState(null);
+    const [alertSale, setAlertSale] = useState(null);
 
 
     const handleClose = () => setShowDeleteModal(false);
+    const handleCloseControlSheetModal = () => setShowConfirmControlSheetModal(false);
+
     const handleCloseProjectModal = () => setShowSendProjectModal(false);
     // const handleShow = () => setShowdeleteModal(true);
 
@@ -39,11 +44,21 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
     }
 
     // open modal for send in project
-    const sendJob = async () => {
+    const openConfirmControlSheetModal = async () => {
         setProjectId(project_id);
+        setShowConfirmControlSheetModal(true);
+    }
+
+    //send job
+    const sendJob = async (alert_sale) => {
+        console.log(alert_sale);
+        setAlertSale(alert_sale);
         setShowSendProjectModal(true);
     }
 
+
+    console.log(project);
+    console.log(teams);
 
     return (
         <div className="minimenu-teamleader">
@@ -63,7 +78,7 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
                     <i class="fa-solid fa-plus"></i>
                 </button>
                 <button className="minimenu-button"
-                    onClick={() => sendJob()}
+                    onClick={() => openConfirmControlSheetModal()}
                 >
                     <span className="button-title button-title-sendjob">Send job</span>
                     <i className="fa-regular fa-paper-plane"></i>
@@ -78,7 +93,8 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
 
 
             <DeleteProjectModal showDeleteModal={showDeleteModal} handleClose={handleClose} projectName={project_name} />
-            <SendProjectModal showSendProjectModal={showSendProjectModal} handleCloseProjectModal={handleCloseProjectModal} project_id={projectId} />
+            <SendProjectModal showSendProjectModal={showSendProjectModal} handleCloseProjectModal={handleCloseProjectModal} project_id={projectId} alertSale={alertSale} />
+            <ConfirmControlSheetModal showConfirmControlSheetModal={showConfirmControlSheetModal} handleCloseControlSheetModal={handleCloseControlSheetModal} projectType={project_type} project={project} teams={teams} userForControlSheet={userForControlSheet} sendJob={sendJob} />
 
         </div>
     );

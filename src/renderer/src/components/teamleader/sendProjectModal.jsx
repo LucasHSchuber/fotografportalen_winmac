@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProjectModal, refreshProjects }) => {
+const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProjectModal, refreshProjects, alertSale }) => {
 
     //define states
     const [username, setUsername] = useState("")
@@ -16,7 +16,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     const navigate = useNavigate();
 
-
     const closeModal = () => {
         setPasswordMessage("");
         setUsernameMessage("");
@@ -25,12 +24,10 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     const handleUsernameChange = (e) => {
         setUsername(e.target.value);
-        console.log(username);
     };
 
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
-        console.log(password);
     };
 
 
@@ -68,13 +65,17 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
         setPassword("");
         setUsername("");
         handleCloseProjectModal();
-
         setShowConfirmationModal(false); // Close confirmation modal
     };
 
+
+    //send job to database
     const sendJob = async () => {
+        console.log(alertSale);
+        alertSale === "true" ? 1 : 0;
+
         try {
-            const sentProject = await window.api.sendProjectToDb(project_id);
+            const sentProject = await window.api.sendProjectToDb(project_id, alertSale);
             console.log('Sent:', sentProject);
 
             setShowConfirmationModal(false);
@@ -126,13 +127,12 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                         )}
                     </div>
 
-
                     <div className="mt-3">
                         <Button className="button cancel fixed-width mr-1" onClick={closeModal}>
                             Cancel
                         </Button>
                         <Button className="button standard fixed-width" onClick={logIn}>
-                            Send in work
+                            Log in
                         </Button>
                     </div>
 
@@ -145,7 +145,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                     <Modal.Title><h5 className="mb-2" ><b>Are you sure you want to send in the work?</b></h5></Modal.Title>
                     <h6 className="mb-3">This action can not be undone. <br></br> You will find this project under previous work</h6>
 
-                    <div className="mt-2">
+                    <div className="mt-4">
                         <Button className="button cancel fixed-width mr-1" onClick={cancelConfirmation}>
                             Cancel
                         </Button>

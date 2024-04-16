@@ -710,14 +710,14 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
 
 
 //send project to DB
-ipcMain.handle("sendProjectToDb", async (event, project_id) => {
-  const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP WHERE project_id = ?"; 
+ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale) => {
+  const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ? WHERE project_id = ?"; 
 
   try {
       const result = await new Promise((resolve, reject) => {
           const db = new sqlite3.Database(dbPath);
 
-          db.run(updateQuery, [project_id], function(error) {
+          db.run(updateQuery, [alertSale, project_id], function(error) {
               if (error) {
                   db.close();
                   reject({ statusCode: 0, errorMessage: error });
@@ -734,6 +734,31 @@ ipcMain.handle("sendProjectToDb", async (event, project_id) => {
       return { statusCode: 0, errorMessage: error.message };
   }
 });
+
+// ipcMain.handle("sendProjectToDb", async (event, project_id) => {
+//   const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP WHERE project_id = ?"; 
+
+//   try {
+//       const result = await new Promise((resolve, reject) => {
+//           const db = new sqlite3.Database(dbPath);
+
+//           db.run(updateQuery, [project_id], function(error) {
+//               if (error) {
+//                   db.close();
+//                   reject({ statusCode: 0, errorMessage: error });
+//               } else {
+//                   db.close();
+//                   resolve({ rowsAffected: this.changes });
+//               }
+//           });
+//       });
+
+//       return { statusCode: 1, result };
+//   } catch (error) {
+//       console.error('Error sending project to db:', error);
+//       return { statusCode: 0, errorMessage: error.message };
+//   }
+// });
 
 
 

@@ -127,10 +127,9 @@ function Newproject_teamleader() {
                     //get latest tuppel in projects-table
                     const latestProjectResponse = await window.api.getLatestProject(project_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
+                    
                     localStorage.setItem("project_id", latestProjectResponse.project_id)
                     console.log(localStorage.getItem("project_id"));
-                    //store the project_id in localStorage
-                    localStorage.setItem("project_id", latestProjectResponse.project_id);
                     navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
 
                 } else {
