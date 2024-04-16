@@ -25,10 +25,12 @@ function Addleaderinfo_teamleader() {
         navigate(`/portal_teamleader/${project_id}`);
     };
 
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -43,17 +45,20 @@ function Addleaderinfo_teamleader() {
             });
             console.log('Team response:', teamData);
 
-            //get latest tuppel in teams-table
-            try {
-                const teamsData = await window.api.getTeamsByProjectId(project_id);
-                console.log('Teams:', teamsData.teams);
-                setTimeout(() => {
-                    const lastObject = teamsData.teams[teamsData.teams.length - 1];
-                    console.log('Last Object:', lastObject);
-                    localStorage.setItem("team_id", lastObject.team_id);
-                }, 500);
-            } catch (error) {
-                console.error('Error fetching teams:', error);
+            if (teamData && teamData.statusCode === 1) {
+                //get latest tuppel in teams-table
+                try {
+                    console.log("OK OK OK");
+                    const teamsData = await window.api.getTeamsByProjectId(project_id);
+                    console.log('Teams:', teamsData.teams);
+                    setTimeout(() => {
+                        const lastObject = teamsData.teams[teamsData.teams.length - 1];
+                        console.log('Last Object:', lastObject);
+                        localStorage.setItem("team_id", lastObject.team_id);
+                    }, 1000);
+                } catch (error) {
+                    console.error('Error fetching teams:', error);
+                }
             }
 
         } catch (error) {
@@ -70,7 +75,6 @@ function Addleaderinfo_teamleader() {
         });
 
         navigate(`/calendarsale_teamleader`);
-
     };
 
 

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
+
+
 
 // import "../../assets/css/teamleader/newprojectModal.css";
 
@@ -48,8 +52,8 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                                 <tr key={data.team_id}>
                                     <td>{data.teamname.length > 22 ? data.teamname.substring(0, 22) + "..." : data.teamname}</td>
                                     <td>{data.amount}st</td>
-                                    <td>{data.portrait === 1 ? <i class="fa-regular fa-circle-check"></i> : ""}</td>
-                                    <td>{data.crowd === 1 ? <i class="fa-regular fa-circle-check"></i> : ""}</td>
+                                    <td>{data.portrait === 1 ? <FontAwesomeIcon icon={faCheckCircle} />: ""}</td>
+                                    <td>{data.crowd === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
                                 </tr>
                             ))
                         ) : (
@@ -80,18 +84,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                         </div>
                     )}
                 </div>
-
-                {/* <div className="checkbox-container mt-4">
-                    <label style={{ marginRight: "8em" }}>
-                        <input
-                            className="checkmark mr-2"
-                            type="checkbox"
-                            name="name_photolink"
-
-                        />
-                        {projectType === "school" ? "All classes have been named in photolink" : "All teams have been named in photolink"}
-                    </label>
-                </div> */}
+                <hr></hr>
                 <div className="checkbox-container mt-4">
                     <label style={{ marginRight: "9em" }}>
                         <input

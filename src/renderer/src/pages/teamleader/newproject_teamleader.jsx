@@ -5,6 +5,8 @@ import plus_black from "../../assets/images/plus_black.png";
 import running from "../../assets/images/running.png";
 import academic from "../../assets/images/academic.png";
 
+import Select from 'react-select';
+
 import NewProjectModal from "../../components/teamleader/newprojectModal";
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
@@ -18,6 +20,7 @@ function Newproject_teamleader() {
     // Define states
     const [_projects, set_Projects] = useState([]);
     const [projectName, setProjectName] = useState('');
+    const [chosenProjectName, setChosenProjectName] = useState('');
     const [type, setType] = useState('');
     const [project_uuid, setProject_uuid] = useState('');
 
@@ -68,17 +71,40 @@ function Newproject_teamleader() {
     }, []);
 
 
-    const handleProjectChange = (value) => {
-        setProjectName(value);
-        console.log(projectName);
-    };
+    // const handleProjectChange = (value) => {
+    //     setProjectName(value);
+    //     console.log(projectName);
+    // };
 
+    const handleProjectChange = (selectedOption) => {
+        // setChosenProjectName(selectedOption.label);
+        // setProjectName(selectedOption);
+        // console.log(selectedOption);
+        // console.log(selectedOption.label);
+        if (selectedOption) {
+            setChosenProjectName(selectedOption.label);
+            setProjectName(selectedOption);
+            console.log(selectedOption);
+            console.log(selectedOption.label);
+        } else {
+            // Handle the case when selectedOption is null
+            setChosenProjectName('');
+            setProjectName('');
+            console.log('No project selected');
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        if (!projectName) {
+            console.error('Project name is undefined.');
+            return; // Exit early if projectName is undefined
+        }
+        console.log('Selected project:', projectName ? projectName.label : null);
         // findUuid(projectName)
-        const selectedProject = _projects.find(project => project.projectname === projectName);
+        const selectedProject = _projects.find(project => project.projectname === chosenProjectName);
+        console.log(selectedProject);
 
         let _uuid = selectedProject.project_uuid;
         setProject_uuid(_uuid);
@@ -95,9 +121,9 @@ function Newproject_teamleader() {
     const CreateNewProject = async () => {
         console.log("creating a new project....");
         console.log(project_uuid);
-        try {
 
-            if (!projectName || !type || !project_uuid) {
+        try {
+            if (!chosenProjectName || !type || !project_uuid) {
                 throw new Error('Project name, type, and project_uuid are required.');
             }
 
@@ -112,7 +138,7 @@ function Newproject_teamleader() {
 
                 let user_id = localStorage.getItem("user_id");
                 const args = {
-                    projectname: projectName,
+                    projectname: chosenProjectName,
                     type: type,
                     project_uuid: project_uuid,
                     user_id: user_id
@@ -127,7 +153,7 @@ function Newproject_teamleader() {
                     //get latest tuppel in projects-table
                     const latestProjectResponse = await window.api.getLatestProject(project_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
-                    
+
                     localStorage.setItem("project_id", latestProjectResponse.project_id)
                     console.log(localStorage.getItem("project_id"));
                     navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
@@ -135,8 +161,6 @@ function Newproject_teamleader() {
                 } else {
                     console.error('Error creating project:', response?.error || 'Unknown error');
                 }
-
-
             }
         } catch (error) {
             console.error('Error checking project existence:', error);
@@ -159,6 +183,15 @@ function Newproject_teamleader() {
     };
 
 
+    // Custom styles for the Select component
+    const customStyles = {
+        control: styles => ({
+            ...styles,
+            width: '30em'
+        })
+    };
+
+
 
     return (
         <div className="teamleader-wrapper">
@@ -170,7 +203,7 @@ function Newproject_teamleader() {
                 </div>
 
                 <form className="newproject-form" onSubmit={handleSubmit}>
-                    <input
+                    {/* <input
                         type="text"
                         list="projects"
                         value={projectName}
@@ -179,6 +212,7 @@ function Newproject_teamleader() {
                         style={{ maxWidth: '100%', overflowX: 'auto' }}
                         className="datalist-input"
                     />
+             
                     <datalist
                         id="projects"
                     >
@@ -186,7 +220,15 @@ function Newproject_teamleader() {
                             <option className="datalist-option" key={project.project_uuid} value={project.projectname} />
                         ))}
                         <option value="search_for_more">Search for more...</option>
-                    </datalist>
+                    </datalist> */}
+                    <Select
+                        value={projectName}
+                        onChange={handleProjectChange}
+                        options={_projects.map(project => ({ value: project.project_uuid, label: project.projectname }))}
+                        isClearable
+                        placeholder="Search projects..."
+                        styles={customStyles}
+                    />
                     <div className="my-2">
                         <button className={`work-type-button ${isSelectedType1 ? 'selected-type' : ''}`}
                             type="button" onClick={() => handleProjectType("Sport")}>
@@ -210,7 +252,7 @@ function Newproject_teamleader() {
             </div>
 
             <Sidemenu_teamleader />
-            <NewProjectModal projectName={projectName} projectType={type} showNewProjectModal={showNewProjectModal} handleClose={handleClose} CreateNewProject={CreateNewProject} />
+            <NewProjectModal projectName={chosenProjectName} projectType={type} showNewProjectModal={showNewProjectModal} handleClose={handleClose} CreateNewProject={CreateNewProject} />
         </div>
     );
 }

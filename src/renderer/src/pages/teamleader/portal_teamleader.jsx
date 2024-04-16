@@ -2,6 +2,8 @@ import React, { useEffect, useState, } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import { faUser, faMinus, faPeopleGroup, faUserShield } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarPlus, faCalendarMinus } from '@fortawesome/free-regular-svg-icons';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import flash_black from "../../assets/images/flash_black.png";
 import running_black from "../../assets/images/running_black.png";
@@ -9,6 +11,7 @@ import academic_black from "../../assets/images/academic_black.png";
 import group from "../../assets/images/group.png";
 import portrait from "../../assets/images/portrait.png";
 import portrait2 from "../../assets/images/portrait2.png";
+
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Minimenu_teamleader from "../../components/teamleader/minimenu_teamleader";
@@ -177,18 +180,18 @@ function Portal_teamleader() {
                                                     <p className="ml-2 mr-2">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
                                                     {data.protected_id === 1 ? (
                                                         <div className="d-flex">
-                                                            <p className="ml-4">{data.portrait === 1 ? <i class="fa-solid fa-user"></i> : <i class="fa-solid fa-minus"></i>}</p>
-                                                            <p className="ml-1 mr-3 ">{data.protected_id === 1 ? <i class="fa-solid fa-user-shield"></i> : ""}</p>
+                                                            <p className="ml-4">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
+                                                            <p className="ml-1 mr-3 ">{data.protected_id === 1 ? <FontAwesomeIcon icon={faUserShield} /> : ""}</p>
                                                         </div>
                                                     ) : (
-                                                        <p className="mx-4 ">{data.portrait === 1 ? <i class="fa-solid fa-user"></i> : <i class="fa-solid fa-minus"></i>}</p>
+                                                        <p className="mx-4 ">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     )}
 
 
-                                                    <p className="mx-4 ">{data.crowd === 1 ? <i class="fa-solid fa-people-group"></i> : <i class="fa-solid fa-minus"></i>}</p>
+                                                    <p className="mx-4 ">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     <p className="ml-4 mr-2">{data.amount}st</p>
                                                     {projectType === "sport" ? (
-                                                        <p className="mx-4">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <i class="fa-regular fa-calendar-plus"></i> : <i class="fa-regular fa-calendar-minus"></i> : ""}</p>
+                                                        <p className="mx-4">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon icon={faCalendarPlus} /> : <FontAwesomeIcon icon={faCalendarMinus} /> : ""}</p>
                                                     ) : (
                                                         <>
                                                         </>

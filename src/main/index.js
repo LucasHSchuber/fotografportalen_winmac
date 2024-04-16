@@ -792,8 +792,8 @@ ipcMain.handle("createNewTeam", async (event, args) => {
       console.log(`Team added successfully`);
       
       // Send success response to the frontend
-      event.sender.send('createNewTeam-response', { success: true });
-      return { success: true };
+      event.sender.send('createNewTeam-response', { success: true, statusCode: 1 });
+      return { success: true, statusCode: 1 };
       
   } catch (err) {
       console.error('Error adding new team:', err.message);

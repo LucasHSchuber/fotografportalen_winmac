@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faFlag, faTrashAlt, faPaperPlane } from '@fortawesome/free-regular-svg-icons';
 
 import DeleteProjectModal from "../../components/teamleader/deleteprojectModal";
 import SendProjectModal from "../../components/teamleader/sendProjectModal";
@@ -68,26 +71,26 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
                     onClick={() => deleteProject()}
                 >
                     <span className="button-title button-title-delete">Delete project</span>
-                    <i class="fa-regular fa-trash-can"></i>
+                    <FontAwesomeIcon icon={faTrashAlt} /> 
                 </button>
 
                 <button className="minimenu-button"
                     onClick={() => createNewTeam()}
                 >
                     <span className="button-title button-title-createnew">{project_type === "school" ? "Create new class" : "Create new team"}</span>
-                    <i class="fa-solid fa-plus"></i>
+                    <FontAwesomeIcon icon={faPlus} />
                 </button>
                 <button className="minimenu-button"
                     onClick={() => openConfirmControlSheetModal()}
                 >
                     <span className="button-title button-title-sendjob">Send job</span>
-                    <i className="fa-regular fa-paper-plane"></i>
+                    <FontAwesomeIcon icon={faPaperPlane} />
                 </button>
                 <button className="minimenu-button"
                     onClick={toggleAnomalyReport}
                 >
                     <span className="button-title button-title-toggleanomalyreport">Open anomaly report</span>
-                    <i class="fa-regular fa-flag"></i>
+                    <FontAwesomeIcon icon={faFlag} />
                 </button>
             </div>
 

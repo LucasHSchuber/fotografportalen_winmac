@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
 
 // import "../../assets/css/teamleader/newprojectModal.css";
 
@@ -47,8 +49,8 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                                 <tr key={data.team_id}>
                                     <td>{data.teamname.length > 22 ? data.teamname.substring(0, 22) + "..." : data.teamname}</td>
                                     <td>{data.amount}st</td>
-                                    <td>{data.portrait === 1 ? <i class="fa-regular fa-circle-check"></i> : ""}</td>
-                                    <td>{data.crowd === 1 ? <i class="fa-regular fa-circle-check"></i> : ""}</td>
+                                    <td>{data.portrait === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
+                                    <td>{data.crowd === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
                                 </tr>
                             ))
                         ) : (

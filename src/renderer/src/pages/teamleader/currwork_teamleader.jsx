@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import flash_black from "../../assets/images/flash_black.png";
 import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPaperPlane } from '@fortawesome/free-regular-svg-icons';
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import SendProjectModal from "../../components/teamleader/sendProjectModal";
@@ -108,7 +110,7 @@ function Currwork_teamleader() {
                                     onClick={() => sendProject(project.project_id)}
                                     title="Send job"
                                 >
-                                    <i className="fa-regular fa-paper-plane"></i>
+                                    <FontAwesomeIcon icon={faPaperPlane} />
                                 </div>
                             </div>
                         ))

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
@@ -169,9 +171,8 @@ function Home_teamleader() {
                         </div>
                     </div>
 
-
                     <div className="home-message-box my-3 d-flex">
-                        <h6> <i class="fa-solid fa-circle-exclamation"></i> &nbsp;<b> Message: </b> &nbsp; </h6>
+                        <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Message: </b> &nbsp; </h6>
                         <h6> You have <b>{projectsArray.length > 0 ? projectsArray.length : "0"}</b> unsent job</h6>
                     </div>
 

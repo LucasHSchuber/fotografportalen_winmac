@@ -3,7 +3,8 @@
 .button {
     font-weight: 700;
     outline: none !important;
-    border: none !important;
+    outline: 1px solid rgb(212, 212, 212);
+    border: none;
     border-radius: 3px;
     padding: 0.5em 1em;
     cursor: pointer;
@@ -40,8 +41,6 @@
     background-color: #00b3ff;
     color: white;
     transition: 0.2s;
-    outline: none !important;
-    border: none !important;
 }
 
 .standard:hover {
