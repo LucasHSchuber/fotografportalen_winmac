@@ -188,10 +188,17 @@ function Newproject_teamleader() {
         control: styles => ({
             ...styles,
             width: '30em'
+        }),
+        menu: base => ({
+            ...base,
+            width: '30em' // Set the width of the dropdown menu
+        }),
+        noOptionsMessage: base => ({
+            ...base,
+            width: '30em', // Set the width of the no options message
+            textAlign: 'center' // Optionally, center the message
         })
     };
-
-
 
     return (
         <div className="teamleader-wrapper">

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 // import "../../assets/css/teamleader/newprojectModal.css";
 
@@ -69,7 +71,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
                         className="close"
                         onClick={closeAnomalyReport}
                     >
-                        <i class="fa-solid fa-xs fa-xmark"></i>
+                       <FontAwesomeIcon icon={faTimes} className="fa-xs" />
                     </button>
                 </div>
                 <div className="form-group">

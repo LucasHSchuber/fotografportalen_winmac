@@ -199,3 +199,30 @@
 .controlsheet-table th {
     background-color: #f7f7f7;
 }
+
+
+
+/* CHART */
+
+.chart-teamleader-wrapper{
+    background-color: rgb(243, 243, 243);
+    border-radius: 10px;
+    padding: 2.5em 2em;
+    width: fit-content;
+}
+.custom-tooltip {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 0.8em;
+    border-radius: 5px;
+}
+
+.custom-tooltip p {
+    margin: 1px 0;
+}
+
+.chart-container h6{
+    text-decoration: underline;
+}

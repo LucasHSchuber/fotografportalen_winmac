@@ -94,7 +94,7 @@ function Currwork_teamleader() {
 
                 <div className="my-5">
                     {projectsArray && projectsArray.length > 0 ? (
-                        projectsArray.map(project => (
+                        projectsArray.sort((a, b) => new Date(b.created) - new Date(a.created)).map(project => (
                             <div key={project.project_id} className="currwork-box d-flex mb-2">
                                 <div className="currwork-box-left d-flex"
                                     value={project.project_id}

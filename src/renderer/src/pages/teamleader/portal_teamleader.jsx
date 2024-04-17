@@ -165,7 +165,7 @@ function Portal_teamleader() {
 
                             <>
                                 <div className="header mb-5">
-                                    <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created.length > 0 ? project.created.substring(0, 10) : ""})</em></h5>
+                                    <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created && project.created.length > 0 ? project.created.substring(0, 10) : ""})</em></h5>
                                     {/* <h6 className=""><em>{project.created.substring(0, 10)}</em></h6> */}
                                 </div>
 
@@ -225,7 +225,7 @@ function Portal_teamleader() {
                                         </p>
                                         <div className="test">
                                             <div className="portal-analytics-number">
-                                                {teams.reduce((total, team) => total + team.amount, 0)}
+                                                {teams.length > 0 ? teams.reduce((total, team) => total + team.amount, 0) : 0}
                                             </div>
                                         </div>
                                     </div>
@@ -243,7 +243,7 @@ function Portal_teamleader() {
                                                 Sold calendars
                                             </p>
                                             <div className="portal-analytics-number">
-                                                {teams.reduce((total, calendars) => total + calendars.sold_calendar, 0)}
+                                                {teams.length > 0 ? teams.reduce((total, calendars) => total + calendars.sold_calendar, 0) : 0}
                                             </div>
                                         </div>
                                     )}

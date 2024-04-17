@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
@@ -89,7 +91,7 @@ function Addleaderinfo_teamleader() {
             </div>
 
             <div className="header">
-                <h5><i class="fa-solid fa-plus"></i> New team</h5>
+                <h5><FontAwesomeIcon icon={faPlus} /> New team</h5>
             </div>
 
             <form onSubmit={handleSubmit}>

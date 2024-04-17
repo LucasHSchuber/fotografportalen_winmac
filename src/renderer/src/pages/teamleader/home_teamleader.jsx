@@ -4,22 +4,26 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
+import SubjectsChart from "../../components/teamleader/subjectsChart";
+import TeamsChart from "../../components/teamleader/teamsChart";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
 import fetchProjects from '../../assets/js/fetchProjects';
+
 // import fetchUser from '../../assets/js/fetchUser';
 
 
 function Home_teamleader() {
     // Define states
-    const [loading, setLoading] = useState(true); // Set initial loading state to true
-    const [user, setUser] = useState(true); // State to manage loading
-    const [data, setData] = useState([]); // State to manage loadin
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(true);
+    const [data, setData] = useState([]);
     const [hasFetchedData, setHasFetchedData] = useState(false);
-    const [projectsArray, setProjectsArray] = useState([]);
+    const [currProjectsArray, setCurrProjectsArray] = useState([]);
+    const [prevProjectsArray, setPrevProjectsArray] = useState([]);
 
-    
+
 
 
 
@@ -45,17 +49,15 @@ function Home_teamleader() {
     const fetchData = async () => {
         const projects = await fetchProjects(); // Call the fetchProjects function
         console.log('Projects:', projects);
-        // Handle the fetched projects data here
+
         const project = projects.result;
         const response = await window.api.create_Projects(project);
         console.log('Create Projects Response:', response);
 
         if (response && response.success) {
-            // Handle success case
             console.log('Projects added successfully');
 
         } else {
-            // Handle error case
             console.error('Error adding projects:', response?.error || 'Unknown error');
         }
     };
@@ -98,11 +100,22 @@ function Home_teamleader() {
         };
 
 
-        const getAllProjects = async () => {
+        const fetchAllCurrentProjects = async () => {
             try {
                 const projects = await window.api.getAllCurrentProjects(user_id);
                 console.log('Projects:', projects.projects);
-                setProjectsArray(projects.projects);
+                setCurrProjectsArray(projects.projects);
+
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+        };
+
+        const fetchAllPreviousProjects = async () => {
+            try {
+                const projects = await window.api.getAllPreviousProjects(user_id);
+                console.log('Projects:', projects.projects);
+                setPrevProjectsArray(projects.projects);
 
             } catch (error) {
                 console.error('Error fetching projects:', error);
@@ -111,11 +124,9 @@ function Home_teamleader() {
 
         fetchUser();
         fetchProjectsAndTeams();
-        getAllProjects();
+        fetchAllCurrentProjects();
+        fetchAllPreviousProjects();
     }, []);
-
-
-
 
 
 
@@ -145,10 +156,10 @@ function Home_teamleader() {
                     <div className="home-analytics-box d-flex mt-5">
                         <div className="home-analytics mx-2">
                             <p>
-                                Total jobs
+                                Total completed jobs
                             </p>
                             <div className="home-analytics-number">
-
+                                {prevProjectsArray && prevProjectsArray.length > 0 ? prevProjectsArray.length : "0"}
                             </div>
                         </div>
                         <div className="home-analytics">
@@ -167,14 +178,19 @@ function Home_teamleader() {
                             </p>
                             <div className="home-analytics-number">
                                 {/* {teams.reduce((total, calendars) => total + calendars.sold_calendar, 0)} */}
+                                {data.reduce((total, calendar) => total + calendar.teams.sold_calendar, 0)}
                             </div>
                         </div>
                     </div>
 
                     <div className="home-message-box my-3 d-flex">
                         <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Message: </b> &nbsp; </h6>
-                        <h6> You have <b>{projectsArray.length > 0 ? projectsArray.length : "0"}</b> unsent job</h6>
+                        <h6> You have <b>{currProjectsArray.length > 0 ? currProjectsArray.length : "0"}</b> unsent job</h6>
                     </div>
+
+                    < SubjectsChart data={data} />
+                    < TeamsChart data={data} />
+
 
                     <Sidemenu_teamleader />
                 </>

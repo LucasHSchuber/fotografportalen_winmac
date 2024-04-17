@@ -5,7 +5,7 @@ import running_gray from "../../assets/images/running_gray.png";
 import academic_gray from "../../assets/images/academic_gray.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faNewspaper, faLock } from '@fortawesome/free-solid-svg-icons';
-import { faEnvelope as farEnvelope } from '@fortawesome/free-regular-svg-icons';
+import { faEnvelope as farEnvelope, faPaperPlane } from '@fortawesome/free-regular-svg-icons';
 
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
@@ -118,7 +118,7 @@ function Prevwork_teamleader() {
 
                 <div className="my-5">
                     {projectsArray && projectsArray.length > 0 ? (
-                        projectsArray.map(project => (
+                        projectsArray.sort((a, b) => new Date(b.sent_date) - new Date(a.sent_date)).map(project => (
                             <div key={project.project_id} className="prevwork-box d-flex mb-2">
                                 <div className="prevwork-box-left d-flex justify-content-between" title="Job">
                                     <div className="d-flex">
@@ -130,7 +130,7 @@ function Prevwork_teamleader() {
                                 </div>
 
                                 <div className="prevwork-box-mid mx-2">
-                                    <p className="ml-2"> <i class="fa-regular fa-paper-plane"></i> {project.sent_date.substring(0, 10)}</p>
+                                    <p className="ml-2"> <FontAwesomeIcon icon={faPaperPlane} /> {project.sent_date.substring(0, 10)}</p>
                                 </div>
                                 <div className="prevwork-box-right"
                                     title="View control sheet"

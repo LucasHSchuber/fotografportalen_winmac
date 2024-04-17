@@ -3,6 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 // import "../../assets/css/teamleader/newprojectModal.css";
 
@@ -67,15 +68,19 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                             <div className="">
                                 <h6><span>Anomaly report:</span></h6>
                                 {projectForControlSheet.anomaly && projectForControlSheet.anomaly !== "NULL"
-                                    ? projectForControlSheet.anomaly
-                                    : <em>Empty anomaly report</em>}
+                                    ? <h6>{projectForControlSheet.anomaly}</h6>
+                                    : <h6><em>Empty anomaly report</em></h6>}
                             </div>
-
                             <div className="mt-4">
                                 <h6><span>{projectType === "school" ? "Merged classes" : "Merged teams"}</span></h6>
                                 {projectForControlSheet.anomaly && projectForControlSheet.merged_teams !== "NULL"
-                                    ? projectForControlSheet.merged_teams
+                                    ? <h6>{projectForControlSheet.merged_teams}</h6>
                                     : <em>{projectType === "school" ? "No merged classes" : " No merged teams"}</em>}
+                            </div>
+                            <div className="mt-4 d-flex">
+                                {/* <h6><span>Alert sale</span></h6> */}
+                                {projectForControlSheet.alert_sale && projectForControlSheet.alert_sale === 1
+                                    ? <h6><FontAwesomeIcon icon={faCheck} color="green" className="mx-1"/> <em>Sales alerted</em></h6> : <h6><em>Sales not alerted</em></h6>}
                             </div>
 
                         </div>

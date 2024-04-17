@@ -4,6 +4,8 @@ import { Link, NavLink } from "react-router-dom";
 import fp from "../assets/images/diaphragm.png";
 import teamleader from "../assets/images/teamwork.png";
 import cloud from "../assets/images/cloud.png";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog, faUser } from '@fortawesome/free-solid-svg-icons';
 
 
 function Sidemenu_small() {
@@ -11,10 +13,10 @@ function Sidemenu_small() {
         <div className="sidemenu_small">
             <ul className="menu-small">
                 <div className="link-box-small">
-                    <i class="icons fa-solid fa-gear"></i>
+                    <FontAwesomeIcon icon={faCog} className="icons" />
                 </div>
                 <div className="link-box-small">
-                    <i class="icons fa-solid fa-user"></i>
+                    <FontAwesomeIcon icon={faUser} className="icons" />
                 </div>
             </ul>
         </div>

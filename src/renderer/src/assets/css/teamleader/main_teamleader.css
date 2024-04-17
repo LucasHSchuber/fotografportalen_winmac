@@ -59,7 +59,7 @@
     background-color: rgb(243, 243, 243);
     width: fit-content;
     border-radius: 10px;
-    padding: 2em 1em;
+    padding: 2.5em 1em;
 }
 
 .home-analytics {
@@ -131,6 +131,7 @@
 
 .prevwork-box-mid {
     background-color: #f4f4f4;
+    color: #868686 !important;
     /* background-color: rgb(237, 237, 237); */
     /* border: 1px solid rgb(138, 138, 138); */
     padding: 1em 0.7em 0 0.5em;

@@ -1185,7 +1185,7 @@ ipcMain.handle("getProjectsAndTeamsByUserId", async (event, user_id) => {
             p.user_id AS project_user_id, p.created AS project_created
       FROM teams AS t
       JOIN projects AS p ON t.project_id = p.project_id
-      WHERE p.user_id = ? AND t.is_deleted = 0 AND p.is_deleted = 0
+      WHERE p.user_id = ? AND t.is_deleted = 0 AND p.is_deleted = 0 AND p.is_sent = 1
     `;
   console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
 
