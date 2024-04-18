@@ -29,6 +29,10 @@ function Newproject_teamleader() {
     const [isSelectedType1, setIsSelectedType1] = useState(false);
     const [isSelectedType2, setIsSelectedType2] = useState(false);
 
+    const [projectExistsMessage, setProjectExistsMessage] = useState(false);
+    const [missingProjectname, setMissingProjectname] = useState(false);
+    const [missingType, setMissingType] = useState(false);
+
     const navigate = useNavigate();
 
     const handleClose = () => { setShowNewProjectModal(false) };
@@ -79,15 +83,12 @@ function Newproject_teamleader() {
     const handleProjectChange = (selectedOption) => {
         // setChosenProjectName(selectedOption.label);
         // setProjectName(selectedOption);
-        // console.log(selectedOption);
-        // console.log(selectedOption.label);
         if (selectedOption) {
             setChosenProjectName(selectedOption.label);
             setProjectName(selectedOption);
             console.log(selectedOption);
             console.log(selectedOption.label);
         } else {
-            // Handle the case when selectedOption is null
             setChosenProjectName('');
             setProjectName('');
             console.log('No project selected');
@@ -97,10 +98,23 @@ function Newproject_teamleader() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!projectName) {
-            console.error('Project name is undefined.');
-            return; // Exit early if projectName is undefined
+        if (!projectName && !type) {
+            setMissingProjectname(true);
+            setMissingType(true);
+            return;
+        } else if (!projectName) {
+            setMissingProjectname(true);
+            setMissingType("");
+            return;
+        } else if (!type) {
+            setMissingType(true);
+            setMissingProjectname(false);
+            throw new Error('Project type is required.');
+        } else {
+            setMissingProjectname(false);
+            setMissingType(false);
         }
+
         console.log('Selected project:', projectName ? projectName.label : null);
         // findUuid(projectName)
         const selectedProject = _projects.find(project => project.projectname === chosenProjectName);
@@ -132,6 +146,7 @@ function Newproject_teamleader() {
 
             if (response && response.statusCode === 1) {
                 console.log('Project exists:', response.projectname);
+                setProjectExistsMessage("The choosen project has already been created");
                 return true; // Project exists
             } else {
                 console.log('Project does not exist.');
@@ -179,7 +194,6 @@ function Newproject_teamleader() {
             setIsSelectedType2(true);
         }
         console.log(projectType);
-
     };
 
 
@@ -252,6 +266,14 @@ function Newproject_teamleader() {
                             </p>
                         </button>
                     </div>
+
+                    {projectExistsMessage || missingProjectname || missingType ? (
+                        <ul className="error">
+                            {projectExistsMessage && <li>Project already exists</li>}
+                            {missingProjectname && <li>Project name is missing (choose a project in the list)</li>}
+                            {missingType && <li>Project type is missing (School or Sport photography)</li>}
+                        </ul>
+                    ) : null}
 
                     <button type="submit" className="button standard">Create new project</button>
                 </form>

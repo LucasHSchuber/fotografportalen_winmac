@@ -129,7 +129,7 @@ function Prevwork_teamleader() {
                                     <FontAwesomeIcon className="mt-1" icon={faLock} />
                                 </div>
 
-                                <div className="prevwork-box-mid mx-2">
+                                <div className="prevwork-box-mid mx-2"  title="Sent date">
                                     <p className="ml-2"> <FontAwesomeIcon icon={faPaperPlane} /> {project.sent_date.substring(0, 10)}</p>
                                 </div>
                                 <div className="prevwork-box-right"

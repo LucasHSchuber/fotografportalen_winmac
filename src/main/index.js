@@ -836,6 +836,7 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
           protected_id: row.protected_id,
           named_photolink: row.named_photolink,
           sold_calendar: row.sold_calendar,
+          calendar_amount: row.calendar_amount,
           created: row.created,
           project_id: row.project_id
         }));
@@ -1031,10 +1032,10 @@ ipcMain.handle("editTeam", async (event, args) => {
           throw new Error('Invalid arguments received for editTeam');
       }
 
-      const { amount, protected_id, portrait, crowd, teamname, team_id } = args;
+      const { amount, protected_id, portrait, crowd, teamname, team_id, sold_calendar } = args;
 
       if (!amount || !teamname || !team_id) {
-          throw new Error('Missing required data for editTeam');
+          throw new Error('Missing required data for editTeam (amount, teamname, team_id)');
       }
       
       const result = await db.run(`
@@ -1043,6 +1044,7 @@ ipcMain.handle("editTeam", async (event, args) => {
         teamname = ?,
         protected_id = ?,
         portrait = ?,
+        sold_calendar = ?,
         crowd = ?
         WHERE team_id = ?
         `, [
@@ -1050,6 +1052,7 @@ ipcMain.handle("editTeam", async (event, args) => {
           teamname,
           protected_id,
           portrait,
+          sold_calendar,
           crowd,
           team_id
       ]);

@@ -26,14 +26,28 @@ function Currwork_teamleader() {
     //get all projects after page mount
     useEffect(() => {
         let user_id = localStorage.getItem("user_id");
-        const getAllProjects = async () => {
+        const getAllProjects = async (retryCount = 3) => {
             try {
                 const projects = await window.api.getAllCurrentProjects(user_id);
                 console.log('Projects:', projects.projects);
-                setProjectsArray(projects.projects);
+                if (projects && projects.projects) {
+                    setProjectsArray(projects.projects);
+                } else {
+                    console.error('Invalid projects data:', projects);
+                }
 
             } catch (error) {
                 console.error('Error fetching projects:', error);
+                if (retryCount > 0) {
+                    console.log(`Retrying... Attempts left: ${retryCount}`);
+                    // Retry fetching projects after a delay
+                    setTimeout(() => {
+                        getAllProjects(retryCount - 1);
+                    }, 1000); // Adjust the delay as needed
+                } else {
+                    console.error('Max retry attempts reached. Failed to fetch projects.');
+                    // Handle maximum retry attempts reached
+                }
             }
         };
         getAllProjects();

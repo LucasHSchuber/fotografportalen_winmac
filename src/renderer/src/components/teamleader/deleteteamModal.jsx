@@ -39,7 +39,7 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
 
         } else {
             console.log("Do not match");
-            setDeleteMessage("Input does not match with team name");
+            setDeleteMessage(projectType === "school" ? "Input does not match with class name" : "Input does not match with team name");
         }
     };
 

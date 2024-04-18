@@ -359,6 +359,31 @@ input[type=checkbox] {
 }
 
 
+
+
+
+/* YES CALENDAR SALE */
+
+.termsandcondition-box {
+    background-color: rgb(245, 245, 245);
+    color: rgb(0, 0, 0);
+    border: 2px solid rgb(222, 222, 222);
+    padding: 3em 4em 5em 4em;
+    width: 50%;
+    height: 40em;
+    margin: 0 auto;
+    z-index: 30;
+    position: fixed;
+    top: 8em;
+    left: 27%;
+    font-size: 0.85em;
+    overflow: scroll;
+    box-shadow: 0 0 30px 4px rgba(128, 128, 128, 0.4);
+}
+
+
+
+
 /* ADD LEADER INFO PAGE */
 
 .breadcrumbs {

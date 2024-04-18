@@ -207,7 +207,7 @@
 .chart-teamleader-wrapper{
     background-color: rgb(243, 243, 243);
     border-radius: 10px;
-    padding: 2.5em 2em;
+    padding: 2.5em 2em 1.5em 2em;
     width: fit-content;
 }
 .custom-tooltip {
@@ -225,4 +225,13 @@
 
 .chart-container h6{
     text-decoration: underline;
+}
+
+.chart-container select{
+    /* background-color: rgb(255, 255, 255); */
+    background-color:inherit;
+    color: #333333;
+    border-radius: 5px;
+    border: 1px solid #d8d8d8;
+    padding: 0.2em;
 }

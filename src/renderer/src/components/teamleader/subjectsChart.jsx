@@ -2,33 +2,40 @@ import React, { useState, useEffect, useRef } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 
-
-const SubjectsChart = ({ data }) => {
+const SubjectsChart = ({ data, prevProjectsLength }) => {
 
 
     // const lastTenJobs = data.slice(-10).map(job => ({
     //     date: job.created.substring(0, 10),
     //     amount: job.teams.amount
     // }));
+    const [chartData, setChartData] = useState([]);
+    const [userInputChartOne, setUserInputChartOne] = useState(10);
 
-    const getLastTenProjectsData = () => {
-        // Step 1: Extract the last 10 unique project_ids
-        const uniqueProjectIds = [...new Set(data.map(item => item.project_id))].slice(-10);
-        // Step 2 and 3: Sum up the amount for each project_id
-        const projectData = uniqueProjectIds.map(projectId => {
-            const projectItems = data.filter(item => item.project_id === projectId);
-            const sumAmount = projectItems.reduce((total, item) => total + item.teams.amount, 0);
-            const sentDate = projectItems[0].sent_date;
-            const projectName = projectItems[0].projectname;
-            return { sentDate, sumAmount, projectName };
-        });
 
-        // Sort projectData array based on sentDate
-        projectData.sort((a, b) => new Date(a.sentDate) - new Date(b.sentDate));
-        return projectData;
-    };
+    useEffect(() => {
+        const getLastTenProjectsData = () => {
+            // Extract the last 10 unique project_ids
+            const uniqueProjectIds = [...new Set(data.map(item => item.project_id))].slice(-userInputChartOne);
+            // Sum up the amount for each project_id
+            const projectData = uniqueProjectIds.map(projectId => {
+                const projectItems = data.filter(item => item.project_id === projectId);
+                const sumAmount = projectItems.reduce((total, item) => total + item.teams.amount, 0);
+                const sentDate = projectItems[0].sent_date;
+                const projectName = projectItems[0].projectname;
+                return { sentDate, sumAmount, projectName };
+            });
 
-    const chartData = getLastTenProjectsData();
+            // Sort projectData array based on sentDate
+            projectData.sort((a, b) => new Date(a.sentDate) - new Date(b.sentDate));
+            setChartData(projectData);
+        };
+
+
+        getLastTenProjectsData();
+    }, [data, userInputChartOne])
+
+
 
     //custom tooltip
     const CustomTooltip = ({ active, payload, label }) => {
@@ -50,13 +57,23 @@ const SubjectsChart = ({ data }) => {
     return (
         <div className="chart-teamleader-wrapper my-3">
             <div className="chart-container">
-                <h6 className="mb-3"><b>Amount of photographed subjects - last 10 jobs</b></h6>
-                <BarChart width={560} height={280} data={chartData}>
+                <div className="d-flex">
+                    <h6 style={{ textDecoration: "none", margin: "0.3em 0.5em 0 0" }}>Change scope: </h6>
+                    <select value={userInputChartOne} onChange={(e) => setUserInputChartOne(e.target.value)}>
+                        {[...Array(prevProjectsLength).keys()].map((num) => (
+                            <option key={num + 1} value={num + 1} >
+                                {num + 1}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <h6 className="my-3"><b>Amount of photographed subjects - last {userInputChartOne} jobs</b></h6>
+                <BarChart width={560} height={240} data={chartData}>
                     <CartesianGrid strokeDasharray="0 0" />
                     <XAxis dataKey="sentDate" tickFormatter={(tick) => tick.substring(5, 10)} label={{ value: 'Sent date', position: 'insideBottom', dy: 10, fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
                     <YAxis label={{ value: 'Amount', angle: -90, position: 'insideLeft', fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    <Legend payload={[{ value: '', type: 'line', id: 'ID01' }]} />
                     <Bar dataKey="sumAmount" fill="#1d1d1d" name="Amount" />
                 </BarChart>
             </div>

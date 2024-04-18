@@ -25,8 +25,6 @@ function Home_teamleader() {
 
 
 
-
-
     //load loading bar on load
     useEffect(() => {
         // Check if the loading bar has been shown before
@@ -47,7 +45,7 @@ function Home_teamleader() {
 
     //fetch all projects from big(express-bild) database
     const fetchData = async () => {
-        const projects = await fetchProjects(); // Call the fetchProjects function
+        const projects = await fetchProjects();
         console.log('Projects:', projects);
 
         const project = projects.result;
@@ -77,10 +75,16 @@ function Home_teamleader() {
             try {
                 const userData = await window.api.getUser(2);
                 console.log('Users Data:', userData);
-                setUser(userData.user.firstname + " " + userData.user.lastname);
 
-                localStorage.setItem("user_lang", userData.user.lang);
-                localStorage.setItem("user_id", userData.user.user_id);
+                if (userData && userData.user) {
+                    setUser(userData.user.firstname + " " + userData.user.lastname);
+
+                    localStorage.setItem("user_lang", userData.user.lang);
+                    localStorage.setItem("user_id", userData.user.user_id);
+
+                } else {
+                    console.error('Invalid user data:', userData);
+                }
 
             } catch (error) {
                 console.error('Error fetching users data:', error);
@@ -104,8 +108,12 @@ function Home_teamleader() {
             try {
                 const projects = await window.api.getAllCurrentProjects(user_id);
                 console.log('Projects:', projects.projects);
-                setCurrProjectsArray(projects.projects);
 
+                if (projects && projects.projects) {
+                    setCurrProjectsArray(projects.projects);
+                } else {
+                    console.error('Invalid projects data:', projects);
+                }
             } catch (error) {
                 console.error('Error fetching projects:', error);
             }
@@ -115,8 +123,12 @@ function Home_teamleader() {
             try {
                 const projects = await window.api.getAllPreviousProjects(user_id);
                 console.log('Projects:', projects.projects);
-                setPrevProjectsArray(projects.projects);
 
+                if (projects && projects.projects) {
+                    setPrevProjectsArray(projects.projects);
+                } else {
+                    console.error('Invalid previous projects data:', projects);
+                }
             } catch (error) {
                 console.error('Error fetching projects:', error);
             }
@@ -145,7 +157,6 @@ function Home_teamleader() {
             ) : (
                 //html content
                 <>
-
                     <div className="home-teamleader-content">
                         <div className="header">
                             <h4>Welcome to Teamleader, {user}!</h4>
@@ -153,7 +164,18 @@ function Home_teamleader() {
                         </div>
                     </div>
 
-                    <div className="home-analytics-box d-flex mt-5">
+                    {currProjectsArray && currProjectsArray.length > 0 ? (
+                        <div className="home-message-box mb-3 mt-5 d-flex">
+                            <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Message: </b> &nbsp; </h6>
+                            <h6> You have <b>{currProjectsArray.length > 0 ? currProjectsArray.length : "0"}</b> unsent job(s)</h6>
+                        </div>
+                    ) : (
+                        <>
+
+                        </>
+                    )}
+
+                    <div className="home-analytics-box d-flex">
                         <div className="home-analytics mx-2">
                             <p>
                                 Total completed jobs
@@ -183,13 +205,10 @@ function Home_teamleader() {
                         </div>
                     </div>
 
-                    <div className="home-message-box my-3 d-flex">
-                        <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Message: </b> &nbsp; </h6>
-                        <h6> You have <b>{currProjectsArray.length > 0 ? currProjectsArray.length : "0"}</b> unsent job</h6>
-                    </div>
 
-                    < SubjectsChart data={data} />
-                    < TeamsChart data={data} />
+
+                    < SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length}/>
+                    < TeamsChart data={data} prevProjectsLength={prevProjectsArray.length}/>
 
 
                     <Sidemenu_teamleader />
