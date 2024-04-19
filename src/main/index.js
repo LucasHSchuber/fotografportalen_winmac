@@ -252,6 +252,40 @@ function createTables() {
     }
   });
 
+  
+    // Create teams_history table
+    db.run(`
+    CREATE TABLE IF NOT EXISTS teams_history (
+      team_history_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      teamname TEXT,
+      amount INT,
+      leader_firstname STRING,
+      leader_lastname STRING,
+      leader_address STRING,
+      leader_postalcode STRING,
+      leader_county STRING,
+      leader_mobile STRING,
+      leader_email STRING,
+      leader_ssn INTEGER,
+      calendar_amount INTEGER,
+      portrait BOOLEAN,
+      crowd BOOLEAN,
+      protected_id BOOLEAN,
+      named_photolink BOOLEAN,
+      sold_calendar BOOLEAN,
+      is_deleted BOOLEAN DEFAULT 0,
+      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      team_id INTEGER NOT NULL,
+      FOREIGN KEY (team_id) REFERENCES teams(team_id)
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating teams_history table:', err.message);
+    } else {
+      console.log('Teams_history table created successfully');
+    }
+  });
+
    // Create _projects table
    db.run(`
    CREATE TABLE IF NOT EXISTS _projects (
@@ -1086,6 +1120,19 @@ ipcMain.handle("editTeam", async (event, args) => {
       if (!amount || !teamname || !team_id) {
           throw new Error('Missing required data for editTeam (amount, teamname, team_id)');
       }
+
+      // Adding data to teams_history table
+      // Define SQL statement to insert updated team data into teams_history table
+        const historySQL = `
+            INSERT INTO teams_history (team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, crowd, protected_id, sold_calendar)
+            SELECT team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, crowd, protected_id, sold_calendar
+            FROM teams
+            WHERE team_id = ?
+        `;
+
+        // Execute insertion SQL statement to copy current team data to teams_history table
+        await db.run(historySQL, [team_id]);
+
       
       const result = await db.run(`
       UPDATE teams
