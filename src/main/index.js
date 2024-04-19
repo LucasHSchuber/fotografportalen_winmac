@@ -1025,6 +1025,55 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
 
 
 
+// //edit team data
+// ipcMain.handle("editTeam", async (event, args) => {
+//   try {
+//       if (!args || typeof args !== 'object') {
+//           throw new Error('Invalid arguments received for editTeam');
+//       }
+
+//       const { amount, protected_id, portrait, crowd, teamname, team_id, sold_calendar } = args;
+
+//       if (!amount || !teamname || !team_id) {
+//           throw new Error('Missing required data for editTeam (amount, teamname, team_id)');
+//       }
+      
+//       const result = await db.run(`
+//         UPDATE teams
+//         SET amount = ?,
+//         teamname = ?,
+//         protected_id = ?,
+//         portrait = ?,
+//         sold_calendar = ?,
+//         crowd = ?
+//         WHERE team_id = ?
+//         `, [
+//           amount, 
+//           teamname,
+//           protected_id,
+//           portrait,
+//           sold_calendar,
+//           crowd,
+//           team_id
+//       ]);
+          
+//       console.log(`Team data edited successfully`);
+      
+//       // Send success response to the frontend
+//       event.sender.send('editTeam-response', { success: true });
+//       return { success: true };
+      
+//   } catch (err) {
+//       console.error('Error editing data:', err.message);
+//       // Send error response to the frontend
+//       event.sender.send('editTeam-response', { error: err.message });
+//       return { error: err.message };
+//   }
+// });
+
+
+
+
 //edit team data
 ipcMain.handle("editTeam", async (event, args) => {
   try {
@@ -1032,29 +1081,48 @@ ipcMain.handle("editTeam", async (event, args) => {
           throw new Error('Invalid arguments received for editTeam');
       }
 
-      const { amount, protected_id, portrait, crowd, teamname, team_id, sold_calendar } = args;
+      const { amount, protected_id, portrait, crowd, teamname, team_id, sold_calendar, leader_firstname, leader_lastname, leader_email, leader_ssn, leader_mobile, leader_postalcode, leader_address, calendar_amount, leader_county} = args;
 
       if (!amount || !teamname || !team_id) {
           throw new Error('Missing required data for editTeam (amount, teamname, team_id)');
       }
       
       const result = await db.run(`
-        UPDATE teams
-        SET amount = ?,
+      UPDATE teams
+      SET 
+        amount = ?,
         teamname = ?,
         protected_id = ?,
         portrait = ?,
         sold_calendar = ?,
-        crowd = ?
-        WHERE team_id = ?
-        `, [
-          amount, 
-          teamname,
-          protected_id,
-          portrait,
-          sold_calendar,
-          crowd,
-          team_id
+        crowd = ?,
+        leader_firstname = ?,
+        leader_lastname = ?,
+        leader_email = ?,
+        leader_ssn = ?,
+        leader_mobile = ?,
+        leader_postalcode = ?,
+        leader_address = ?,
+        calendar_amount = ?,
+        leader_county = ?
+      WHERE team_id = ?
+      `, [
+        amount,
+        teamname,
+        protected_id,
+        portrait,
+        sold_calendar,
+        crowd,
+        leader_firstname,
+        leader_lastname,
+        leader_email,
+        leader_ssn,
+        leader_mobile,
+        leader_postalcode,
+        leader_address,
+        calendar_amount,
+        leader_county,
+        team_id
       ]);
           
       console.log(`Team data edited successfully`);
@@ -1070,6 +1138,7 @@ ipcMain.handle("editTeam", async (event, args) => {
       return { error: err.message };
   }
 });
+
 
 
 

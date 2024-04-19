@@ -42,6 +42,11 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                             <th>Amount</th>
                             <th>Portrait</th>
                             <th>Group photo</th>
+                            {projectType === "sport" ? (
+                                <th>Calendar</th>
+                            ) : (
+                                <></>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
@@ -52,6 +57,11 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                                     <td>{data.amount}st</td>
                                     <td>{data.portrait === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
                                     <td>{data.crowd === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
+                                    {projectType === "sport" ? (
+                                        <td>{data.sold_calendar === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </tr>
                             ))
                         ) : (
@@ -80,7 +90,7 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                             <div className="mt-4 d-flex">
                                 {/* <h6><span>Alert sale</span></h6> */}
                                 {projectForControlSheet.alert_sale && projectForControlSheet.alert_sale === 1
-                                    ? <h6><FontAwesomeIcon icon={faCheck} color="green" className="mx-1"/> <em>Sales alerted</em></h6> : <h6><em>Sales not alerted</em></h6>}
+                                    ? <h6><FontAwesomeIcon icon={faCheck} color="green" className="mx-1" /> <em>Sales alerted</em></h6> : <h6><em>Sales not alerted</em></h6>}
                             </div>
 
                         </div>

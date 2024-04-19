@@ -2,6 +2,7 @@
 
 
 /* SIDEMENU */
+
 .sidemenu-teamleader {
     position: fixed;
     top: 0;
@@ -38,6 +39,7 @@
 
 
 /* MINI MENU */
+
 .minimenu-teamleader {
     position: fixed;
     right: 0;
@@ -234,4 +236,12 @@
     border-radius: 5px;
     border: 1px solid #d8d8d8;
     padding: 0.2em;
+}
+
+
+
+/* EDIT TEAM */
+
+.editteam-teamleader-form label{
+    margin-bottom: 0px;
 }

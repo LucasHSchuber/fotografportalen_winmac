@@ -44,6 +44,11 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                             <th>Amount</th>
                             <th>Portrait</th>
                             <th>Group photo</th>
+                            {projectType === "sport" ? (
+                                <th>Calendar</th>
+                            ) : (
+                                <></>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
@@ -52,8 +57,13 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                                 <tr key={data.team_id}>
                                     <td>{data.teamname.length > 22 ? data.teamname.substring(0, 22) + "..." : data.teamname}</td>
                                     <td>{data.amount}st</td>
-                                    <td>{data.portrait === 1 ? <FontAwesomeIcon icon={faCheckCircle} />: ""}</td>
+                                    <td>{data.portrait === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
                                     <td>{data.crowd === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
+                                    {projectType === "sport" ? (
+                                        <td>{data.sold_calendar === 1 ? <FontAwesomeIcon icon={faCheckCircle} /> : ""}</td>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </tr>
                             ))
                         ) : (
