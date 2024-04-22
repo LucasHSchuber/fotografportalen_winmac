@@ -225,7 +225,7 @@ function Portal_teamleader() {
                                         </p>
                                         <div className="test">
                                             <div className="portal-analytics-number">
-                                                {teams.length > 0 ? teams.reduce((total, team) => total + team.amount, 0) : 0}
+                                                {teams && teams.length > 0 ? teams.reduce((total, team) => total + team.amount, 0) : 0}
                                             </div>
                                         </div>
                                     </div>
@@ -243,7 +243,7 @@ function Portal_teamleader() {
                                                 Sold calendars
                                             </p>
                                             <div className="portal-analytics-number">
-                                                {teams.length > 0 ? teams.reduce((total, calendars) => total + calendars.sold_calendar, 0) : 0}
+                                                {teams && teams.length > 0 ? teams.reduce((total, calendars) => total + calendars.sold_calendar, 0) : 0}
                                             </div>
                                         </div>
                                     )}

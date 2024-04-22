@@ -1133,7 +1133,6 @@ ipcMain.handle("editTeam", async (event, args) => {
         // Execute insertion SQL statement to copy current team data to teams_history table
         await db.run(historySQL, [team_id]);
 
-      
       const result = await db.run(`
       UPDATE teams
       SET 

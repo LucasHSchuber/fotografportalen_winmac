@@ -36,9 +36,9 @@ function Addleaderinfo_teamleader() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         let project_id = localStorage.getItem("project_id");
         console.log(project_id);
-
         try {
             const teamData = await window.api.createNewTeam({
                 ...formData,

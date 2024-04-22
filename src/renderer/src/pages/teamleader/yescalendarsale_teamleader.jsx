@@ -63,6 +63,7 @@ function Calendarsale_teamleader() {
     const confirmCalendar = async () => {
 
         let team_id = localStorage.getItem("team_id");
+        console.log(team_id);
         //method to add data to table
         try {
             const teamData = await window.api.addDataToTeam({

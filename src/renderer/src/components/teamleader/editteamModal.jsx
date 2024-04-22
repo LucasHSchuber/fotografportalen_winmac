@@ -54,7 +54,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
             setShowInputFields(false);
         }
         console.log("showInputFields:", showInputFields);
-    }, [teamData])
+    }, [showEditModal, teamData])
 
     console.log(teamData);
 
@@ -326,19 +326,40 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
 
                             <hr></hr>
 
-                            <h6><b>Calendar sales</b></h6>
+                            <h6><b>Calendar order</b></h6>
                             <div className="checkbox-container">
-                                <label>
-                                    <input
-                                        className="checkmark mr-2"
-                                        type="checkbox"
-                                        name="sold_calendar"
-                                        defaultChecked={teamData.sold_calendar === 1}
-                                        onChange={handleSoldCalendarChange}
-                                    />
-                                    {showInputFields ? "Yes" : "No"}
-                                </label>
+                            
+                                <label> {showInputFields ? "Yes" : "Status: no order made"}</label> 
+                                <input
+                                    className="checkmark mr-2"
+                                    type="checkbox"
+                                    name="sold_calendar"
+                                    defaultChecked={teamData.sold_calendar === 1}
+                                    onChange={handleSoldCalendarChange}
+                                />
                             </div>
+                            {/* <div>
+                                <label>Status: <em>{showInputFields ? "Yes" : "no order"}</em></label>
+                            </div>
+                            <div className="checkbox-container mb-5">
+                                <input
+                                    className="checkmark mr-2"
+                                    type="checkbox"
+                                    name="sold_calendar"
+                                    defaultChecked={teamData.sold_calendar === 1}
+                                    onChange={handleSoldCalendarChange}
+                                />
+                            </div> */}
+                          
+                            {/* <div className="checkbox-button-container mb-5">
+                            <label>Status: <em>{showInputFields ? "Yes" : "no order"}</em></label>
+                                <button
+                                    className={`checkmark-button${teamData.sold_calendar === 1 ? ' checked' : ''}`}
+                                    onClick={handleSoldCalendarChange}
+                                > Change status
+                                    {teamData.sold_calendar === 1 ? '✔' : ''}
+                                </button>
+                            </div> */}
 
                             {showInputFields && (
                                 <div className="mt-4">
