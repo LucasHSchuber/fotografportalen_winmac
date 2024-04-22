@@ -46,6 +46,31 @@ function Newteam_teamleader() {
         setFormData({ ...formData, [name]: newValue });
     };
 
+
+    useEffect(() => {
+
+        const fetchLatestTeam = async () => {
+            let project_id = localStorage.getItem("project_id");
+            console.log(project_id);
+
+            //get latest tuppel in teams-table
+            try {
+                console.log("getTeamsByProjectId method triggered");
+                const teamsData = await window.api.getTeamsByProjectId(project_id);
+                console.log('Teams:', teamsData.teams);
+                setTimeout(() => {
+                    const lastObject = teamsData.teams[teamsData.teams.length - 1];
+                    console.log('Last Object:', lastObject);
+                    localStorage.setItem("team_id", lastObject.team_id);
+                }, 1000);
+            } catch (error) {
+                console.error('Error fetching teams:', error);
+            }
+        }
+        fetchLatestTeam();
+    }, [])
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -72,6 +97,7 @@ function Newteam_teamleader() {
                     protected_id: protectedIdValue
                 });
                 console.log('Class response:', classData);
+
                 navigate(`/portal_teamleader/${project_id}`);
             } catch (error) {
                 console.error('Error adding class:', error);
@@ -100,6 +126,21 @@ function Newteam_teamleader() {
                 console.error('Error adding class:', error);
             }
 
+
+
+            //clear data in localstorage
+            localStorage.removeItem("newteam_teamname");
+            localStorage.removeItem("newteam_leaderfirstname");
+            localStorage.removeItem("newteam_leaderlastname");
+            localStorage.removeItem("newteam_leaderemail");
+            localStorage.removeItem("newteam_leadermobile");
+
+            console.log(localStorage.getItem("newteam_teamname"));
+            console.log(localStorage.getItem("newteam_leaderfirstname"));
+            console.log(localStorage.getItem("newteam_leaderlastname"));
+            console.log(localStorage.getItem("newteam_leaderemail"));
+            console.log(localStorage.getItem("newteam_leadermobile"));
+
             navigate(`/portal_teamleader/${project_id}`);
 
         } else {
@@ -117,7 +158,7 @@ function Newteam_teamleader() {
 
                 <div className="header mb-4">
                     {/* <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{projectType === "school" ? "Create a new class" : "Create a new team"}</h5> */}
-                    <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={alert_black} alt="alert" /> }{projectType === "school" ? "Create a new class" : "Filled out by photographer"}</h5>
+                    <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={alert_black} alt="alert" />}{projectType === "school" ? "Create a new class" : "Filled out by photographer"}</h5>
                 </div>
 
                 <form onSubmit={handleSubmit}>

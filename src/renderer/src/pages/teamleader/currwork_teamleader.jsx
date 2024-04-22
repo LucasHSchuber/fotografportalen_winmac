@@ -113,8 +113,8 @@ function Currwork_teamleader() {
                                 <div className="currwork-box-left d-flex"
                                     value={project.project_id}
                                     onClick={() => enterProject(project.project_id)}
-                                    title="Open job"
-                                >
+                                    title={`Open job: ${project.projectname}`}
+                                    >
                                     <p className="ml-2 mr-1 ">{project.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-currwork" src={running_black} alt="running"></img>}</p>
                                     <p className="mx-4">{project.projectname.length > 32 ? project.projectname.substring(0, 32) + "..." : project.projectname}</p>
                                     <p className="mx-4">{project.created.substring(0, 10)}</p>
@@ -122,7 +122,7 @@ function Currwork_teamleader() {
                                 <div className="currwork-box-right mx-2"
                                     value={project.project_id}
                                     onClick={() => sendProject(project.project_id)}
-                                    title="Send job"
+                                    title={`Send job: ${project.projectname}`}
                                 >
                                     <FontAwesomeIcon icon={faPaperPlane} />
                                 </div>

@@ -25,6 +25,9 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
         team_id: teamId
     });
 
+    console.log(teamData);
+
+
     const [isTeamnamemodified, setIsTeamnamemodified] = useState(false);
     const [isAmountmodified, setIsAmountmodified] = useState(false);
     const [isPortraitmodified, setIsPortraitmodified] = useState(false);
@@ -41,11 +44,8 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
     const [isLeaderCountymodified, setIsLeaderCountymodified] = useState(false);
     const [isCalendaramountmodified, setIsCalendaramountmodified] = useState(false);
 
-
     const [showInputFields, setShowInputFields] = useState(teamData.sold_calendar === 1);
 
-
-    console.log(showInputFields);
 
     useEffect(() => {
         if (teamData.sold_calendar === 1) {
@@ -56,16 +56,49 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
         console.log("showInputFields:", showInputFields);
     }, [showEditModal, teamData])
 
-    console.log(teamData);
-
-
-
-
     //cancel/close modal
     const handleCancel = () => {
+        resetModificationFlags(); // Reset modification flags
         setShowInputFields(false);
         handleCloseEditModal();
     };
+
+    console.log(showInputFields);
+
+    // Function to reset all modification flags to false
+    const resetModificationFlags = () => {
+        setIsTeamnamemodified(false);
+        setIsAmountmodified(false);
+        setIsPortraitmodified(false);
+        setIsCrowdmodified(false);
+        setIsProtectedidmodified(false);
+        setIsSoldCalendarmodified(false);
+        setIsLeaderFirstnamemodified(false);
+        setIsLeaderLastnamemodified(false);
+        setIsLeaderEmailmodified(false);
+        setIsLeaderMobilemodified(false);
+        setIsLeaderSsnmodified(false);
+        setIsLeaderAddressmodified(false);
+        setIsLeaderPostalcodemodified(false);
+        setIsLeaderCountymodified(false);
+        setIsCalendaramountmodified(false);
+    };
+
+
+    console.log(isAmountmodified);
+    console.log(isTeamnamemodified);
+    console.log(isCalendaramountmodified);
+    console.log(isCrowdmodified);
+    console.log(isPortraitmodified);
+    console.log(isProtectedidmodified);
+    console.log(isLeaderAddressmodified);
+    console.log(isLeaderCountymodified);
+    console.log(isLeaderEmailmodified);
+    console.log(isLeaderFirstnamemodified);
+    console.log(isLeaderLastnamemodified);
+    console.log(isLeaderMobilemodified);
+    console.log(isLeaderPostalcodemodified);
+
 
 
 
@@ -164,7 +197,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
             leader_postalcode: isLeaderPostalcodemodified ? parseInt(formData.leader_postalcode) : parseInt(teamData.leader_postalcode),
             leader_county: isLeaderCountymodified ? formData.leader_county : teamData.leader_county,
             calendar_amount: isCalendaramountmodified ? parseInt(formData.calendar_amount) : parseInt(teamData.calendar_amount),
-            amount: isAmountmodified ? formData.amount : teamData.amount,
+            amount: isAmountmodified ? parseInt(formData.amount) : parseInt(teamData.amount),
             portrait: isPortraitmodified ? formData.portrait : teamData.portrait,
             crowd: isCrowdmodified ? formData.crowd : teamData.crowd,
             protected_id: isProtectedidmodified ? formData.protected_id : teamData.protected_id,
@@ -173,9 +206,6 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
         };
 
 
-        console.log(showInputFields);
-        console.log("teamData.leader_ssn:", teamData.leader_ssn);
-        console.log("formData.leader_ssn:", formData.leader_ssn);
         if (showInputFields === true) {
             if (teamData.leader_ssn === null && formData.leader_ssn === "") {
                 console.log("missing required leader data");
@@ -187,8 +217,6 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
         const crowdValue = updatedFields.crowd ? 1 : 0;
         const protectedIdValue = updatedFields.protected_id ? 1 : 0;
         const calendarSalesValue = updatedFields.sold_calendar ? 1 : 0;
-
-        console.log(updatedFields);
 
         try {
             const Data = await window.api.editTeam({
@@ -211,11 +239,14 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                 team_id: teamId
             });
 
-            console.log('Editing team response:', Data);
+            console.log(updatedFields);
+            console.log(teamId);
+            refreshTeamData(); //running twice
+            resetModificationFlags(); // Reset modification flags
             setShowInputFields(false);
             handleCloseEditModal();
-            refreshTeamData();
-            console.log(Data);
+            refreshTeamData(); //running twice
+
         } catch (error) {
             console.error('Error editing team:', error);
             setShowInputFields(false);
@@ -272,7 +303,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                 <label style={{ textAlign: "left" }}>{projectType === "school" ? "Amount of photographed students:" : "Amount of photographed players:"}</label>
                                 <input
                                     className="form-input-field"
-                                    type="number"
+                                    type=""
                                     id="amount"
                                     name="amount"
                                     style={{ width: "20em" }}
@@ -328,8 +359,8 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
 
                             <h6><b>Calendar order</b></h6>
                             <div className="checkbox-container">
-                            
-                                <label> {showInputFields ? "Yes" : "Status: no order made"}</label> 
+
+                                <label> {showInputFields ? "Yes" : "Status: no order made"}</label>
                                 <input
                                     className="checkmark mr-2"
                                     type="checkbox"
@@ -350,7 +381,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     onChange={handleSoldCalendarChange}
                                 />
                             </div> */}
-                          
+
                             {/* <div className="checkbox-button-container mb-5">
                             <label>Status: <em>{showInputFields ? "Yes" : "no order"}</em></label>
                                 <button
@@ -366,7 +397,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     {/* <hr className="my-4"></hr> */}
                                     <h6 style={{ fontSize: "0.9em" }}><em>* Required information for calendar sales</em></h6>
                                     <div>
-                                        <label>* Leader firstname</label>
+                                        <label>Leader firstname: *</label>
                                         <input className="form-input-field" type="text" name="leader_firstname" placeholder="Leader First Name"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_firstname}
@@ -374,7 +405,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Leader lastname:</label>
+                                        <label>Leader lastname: * </label>
                                         <input className="form-input-field" type="text" name="leader_lastname" placeholder="Leader Last Name"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_lastname}
@@ -382,7 +413,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Leader email:</label>
+                                        <label>Leader email: *</label>
                                         <input className="form-input-field" type="email" name="leader_email" placeholder="Leader Email"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_email}
@@ -390,7 +421,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Leader mobile:</label>
+                                        <label>Leader mobile: *</label>
                                         <input className="form-input-field" type="text" name="leader_mobile" placeholder="Leader Mobile"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_mobile}
@@ -398,7 +429,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Leader social security number:</label>
+                                        <label>Leader social security number: *</label>
                                         <input className="form-input-field" type="number" name="leader_ssn" placeholder="Social security number"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_ssn}
@@ -406,7 +437,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Leader address:</label>
+                                        <label>Leader address: *</label>
                                         <input className="form-input-field" type="text" name="leader_address" placeholder="Leader Address"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_address}
@@ -414,7 +445,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Leader postalcode:</label>
+                                        <label>Leader postalcode: *</label>
                                         <input className="form-input-field" type="number" name="leader_postalcode" placeholder="Leader Postal Code"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_postalcode}
@@ -422,7 +453,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Leader county:</label>
+                                        <label>Leader county: *</label>
                                         <input className="form-input-field" type="text" name="leader_county" placeholder="Leader County"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_county}
@@ -430,8 +461,8 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                         />
                                     </div>
                                     <div>
-                                        <label>* Calendar amount:</label>
-                                        <input className="form-input-field" type="number" name="calendar_amount" placeholder="Total amount of players in team"
+                                        <label>Calendar amount: *</label>
+                                        <input className="form-input-field" type="" name="calendar_amount" placeholder="Total amount of players in team"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.calendar_amount}
                                             onChange={handleLeaderCalendarAmountChange}

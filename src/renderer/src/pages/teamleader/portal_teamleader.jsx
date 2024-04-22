@@ -68,20 +68,23 @@ function Portal_teamleader() {
 
     //load loading bar on load
     useEffect(() => {
+        let project_id = localStorage.getItem("project_id");
 
         const fetchProject = async () => {
             try {
                 const projectData = await window.api.getProjectById(project_id);
-                console.log('Project:', projectData.project);
-                setProject(projectData.project);
-
-                setProjectType(projectData.project.type);
-                setProjectName(projectData.project.projectname);
-                setProjectAnomaly(projectData.project.anomaly);
-                setProjectMergedTeams(projectData.project.merged_teams);
-                localStorage.setItem("project_type", projectData.project.type);
-
-                fetchTeamsByProjectId();
+                if (projectData && projectData.project) {
+                    console.log('Project:', projectData.project);
+                    setProject(projectData.project);
+                    setProjectType(projectData.project.type);
+                    setProjectName(projectData.project.projectname);
+                    setProjectAnomaly(projectData.project.anomaly);
+                    setProjectMergedTeams(projectData.project.merged_teams);
+                    localStorage.setItem("project_type", projectData.project.type);
+                    fetchTeamsByProjectId();
+                } else {
+                    console.error('Error: Project data is null or undefined');
+                }
             } catch (error) {
                 console.error('Error fetching project:', error);
             }
@@ -133,16 +136,19 @@ function Portal_teamleader() {
         }
     };
 
-    //triggered after deleting a team
+    //triggered after deleting or updating a team
     const refreshTeamData = async () => {
         try {
             const teamsData = await window.api.getTeamsByProjectId(project_id);
             console.log('Teams:', teamsData.teams);
+            console.log("Refreshing team data after edit");
             setTeams(teamsData.teams);
         } catch (error) {
             console.error('Error refreshing teams:', error);
         }
     };
+
+
 
 
     return (
@@ -234,7 +240,7 @@ function Portal_teamleader() {
                                             {projectType === "school" ? "Photographed classes" : "Photographed teams"}
                                         </p>
                                         <div className="portal-analytics-number">
-                                            {teams.length}
+                                            {teams && teams.length > 0 ? teams.length : 0}
                                         </div>
                                     </div>
                                     {projectType === "sport" && (

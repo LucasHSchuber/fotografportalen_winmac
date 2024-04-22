@@ -11,6 +11,7 @@ import '../../assets/css/teamleader/main_teamleader.css';
 function Calendarsale_teamleader() {
     // Define states
     const [project_id, setProject_id] = useState(false);
+    const [teamData, setTeamData] = useState({});
     const [showCalendarConfirmModal, setShowCalendarConfirmModal] = useState(false);
 
     const handleClose = () => { setShowCalendarConfirmModal(false) };
@@ -33,11 +34,52 @@ function Calendarsale_teamleader() {
     //if pressing no button
     const noCalendarSales = () => {
         localStorage.setItem("calendar_sale", 0);
+
+        let calendar_sale = localStorage.getItem("calendar_sale");
+        let newteam_teamname = localStorage.getItem("newteam_teamname");
+        let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname");
+        let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
+        let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
+        let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
+
+        const leaderData = {
+            calendar: calendar_sale,
+            teamname: newteam_teamname,
+            firstname: newteam_leaderfirstname,
+            lastname: newteam_leaderlastname,
+            email: newteam_leaderemail,
+            mobile: newteam_leadermobile
+        };
+        setTeamData(leaderData);
+
         setShowCalendarConfirmModal(true);
     }
 
-    const confirmCalendar = () => {
-        navigate("/newteam_teamleader");
+    const confirmCalendar = async () => {
+        let project_id = localStorage.getItem("project_id");
+        console.log(project_id);
+        let newteam_teamname = localStorage.getItem("newteam_teamname");
+        let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname");
+        let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
+        let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
+        let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
+
+        try {
+            const teamData = await window.api.createNewTeam({
+                teamname: newteam_teamname,
+                leader_firstname: newteam_leaderfirstname,
+                leader_lastname: newteam_leaderlastname,
+                leader_email: newteam_leaderemail,
+                leader_mobile: newteam_leadermobile,
+                project_id: project_id
+            });
+            console.log('Class:', teamData.teams);
+
+            navigate("/newteam_teamleader");
+
+        } catch (error) {
+            console.error('Error creating class:', error);
+        }
     }
 
 
@@ -76,7 +118,7 @@ function Calendarsale_teamleader() {
             </div>
 
             <Sidemenu_teamleader />
-            <CalendarConfirm showCalendarConfirmModal={showCalendarConfirmModal} handleClose={handleClose} confirmCalendar={confirmCalendar} />
+            <CalendarConfirm showCalendarConfirmModal={showCalendarConfirmModal} handleClose={handleClose} confirmCalendar={confirmCalendar} teamData={teamData} />
         </div>
     );
 }

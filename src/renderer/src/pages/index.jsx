@@ -6,6 +6,8 @@ import profile from "../assets/images/photographer.png";
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
 
+import gdprProtectionMethod from '../assets/js/gdprProtection';
+
 
 function Index() {
   //define states
@@ -19,8 +21,8 @@ function Index() {
 
   //assign the user_id localStorage (later login)
   useEffect(() => {
-    localStorage.setItem("user_id", 2);
-    localStorage.setItem("user_name", user.firstname + " " +user.lastname);
+    localStorage.setItem("user_id", 1);
+    localStorage.setItem("user_name", user.firstname + " " + user.lastname);
     console.log(localStorage.getItem("user_name"));
   }, []);
 
@@ -59,9 +61,27 @@ function Index() {
       }
     };
 
-    fetchUser();
 
-  }, []); 
+    //clear data - GDPR
+    const runGdprProtection = async () => {
+      try {
+        const response = await gdprProtectionMethod();
+        console.log('GDPR response:', response);
+
+        if (response && response.statusCode === 1) {
+          console.log('GDPR data cleared successfully');
+        } else {
+          console.error('Error clearing GDPR data:', response?.errorMessage || 'Unknown error');
+        }
+      } catch (error) {
+        console.error('Error clearing GDPR data:', error);
+      }
+    };
+
+    fetchUser();
+    runGdprProtection();
+
+  }, []);
 
 
 

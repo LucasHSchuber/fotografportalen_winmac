@@ -71,9 +71,11 @@ function Home_teamleader() {
     //get user data &
     //get all project and teams by user_id
     useEffect(() => {
+        const user_id = localStorage.getItem("user_id");
+
         const fetchUser = async () => {
             try {
-                const userData = await window.api.getUser(2);
+                const userData = await window.api.getUser(user_id);
                 console.log('Users Data:', userData);
 
                 if (userData && userData.user) {
@@ -81,17 +83,13 @@ function Home_teamleader() {
 
                     localStorage.setItem("user_lang", userData.user.lang);
                     localStorage.setItem("user_id", userData.user.user_id);
-
                 } else {
                     console.error('Invalid user data:', userData);
                 }
-
             } catch (error) {
                 console.error('Error fetching users data:', error);
             }
         };
-
-        const user_id = localStorage.getItem("user_id");
 
         const fetchProjectsAndTeams = async () => {
             try {
@@ -102,7 +100,6 @@ function Home_teamleader() {
                 console.error('Error fetching data:', error);
             }
         };
-
 
         const fetchAllCurrentProjects = async () => {
             try {
@@ -207,8 +204,8 @@ function Home_teamleader() {
 
 
 
-                    < SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length}/>
-                    < TeamsChart data={data} prevProjectsLength={prevProjectsArray.length}/>
+                    < SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length} />
+                    < TeamsChart data={data} prevProjectsLength={prevProjectsArray.length} />
 
 
                     <Sidemenu_teamleader />

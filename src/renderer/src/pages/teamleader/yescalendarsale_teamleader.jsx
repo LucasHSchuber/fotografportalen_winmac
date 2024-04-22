@@ -19,10 +19,9 @@ function Calendarsale_teamleader() {
         leader_ssn: "",
         terms: false
     });
-    const [project_id, setProject_id] = useState(false);
     const [showCalendarConfirmModal, setShowCalendarConfirmModal] = useState(false);
-
     const [showTermsAndConditionBox, setShowTermsAndConditionBox] = useState(false);
+    const [teamData, setTeamData] = useState({});
 
     const handleClose = () => { setShowCalendarConfirmModal(false) };
 
@@ -57,18 +56,55 @@ function Calendarsale_teamleader() {
             }
         }
 
+        let calendar_sale = localStorage.getItem("calendar_sale");
+        let newteam_teamname = localStorage.getItem("newteam_teamname");
+        let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname");
+        let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
+        let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
+        let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
+
+        const leaderData = {
+            calendar: calendar_sale,
+            teamname: newteam_teamname,
+            firstname: newteam_leaderfirstname,
+            lastname: newteam_leaderlastname,
+            email: newteam_leaderemail,
+            mobile: newteam_leadermobile,
+            calendaramount: formData.calendar_amount,
+            address: formData.leader_address,
+            postalcode: formData.leader_postalcode,
+            county: formData.leader_county,
+            ssn: formData.leader_ssn
+        };
+        setTeamData(leaderData);
+
         setShowCalendarConfirmModal(true);
     };
 
     const confirmCalendar = async () => {
 
-        let team_id = localStorage.getItem("team_id");
-        console.log(team_id);
+        // let team_id = localStorage.getItem("team_id");
+        // console.log(team_id);
         //method to add data to table
+
+        let project_id = localStorage.getItem("project_id");
+        console.log(project_id);
+        let newteam_teamname = localStorage.getItem("newteam_teamname");
+        let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname");
+        let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
+        let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
+        let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
+
         try {
-            const teamData = await window.api.addDataToTeam({
+            const teamData = await window.api.createNewTeam({
                 ...formData,
-                team_id: team_id
+                // team_id: team_id
+                teamname: newteam_teamname,
+                leader_firstname: newteam_leaderfirstname,
+                leader_lastname: newteam_leaderlastname,
+                leader_email: newteam_leaderemail,
+                leader_mobile: newteam_leadermobile,
+                project_id: project_id
             });
             console.log('Teams:', teamData.teams);
 
@@ -155,7 +191,7 @@ function Calendarsale_teamleader() {
                     </div>
 
                     <button className="button cancel fixed-width mr-1" onClick={handleBack}>Back</button>
-                    <button className="button standard fixed-width " type="submit">Save</button>
+                    <button className="button standard fixed-width " type="submit">Save and finish</button>
 
                 </form>
 
@@ -198,7 +234,7 @@ function Calendarsale_teamleader() {
             )}
 
             <Sidemenu_teamleader />
-            <CalendarConfirm showCalendarConfirmModal={showCalendarConfirmModal} handleClose={handleClose} confirmCalendar={confirmCalendar} />
+            <CalendarConfirm showCalendarConfirmModal={showCalendarConfirmModal} handleClose={handleClose} confirmCalendar={confirmCalendar} teamData={teamData} />
 
         </div>
     );

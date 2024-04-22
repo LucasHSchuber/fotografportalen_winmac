@@ -12,7 +12,6 @@ function Addleaderinfo_teamleader() {
     // Define states
     const [formData, setFormData] = useState({
         teamname: "",
-        // calendar_amount: "",
         leader_firstname: "",
         leader_lastname: "",
         leader_mobile: "",
@@ -20,6 +19,27 @@ function Addleaderinfo_teamleader() {
     });
 
     const navigate = useNavigate();
+
+
+
+    useEffect(() => {
+        let newteam_teamname = localStorage.getItem("newteam_teamname");
+        let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname");
+        let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
+        let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
+        let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
+        if (newteam_teamname != "" && newteam_leaderfirstname != "") {
+            setFormData({
+                teamname: newteam_teamname,
+                leader_firstname: newteam_leaderfirstname,
+                leader_lastname: newteam_leaderlastname,
+                leader_email: newteam_leaderemail,
+                leader_mobile: newteam_leadermobile
+            });
+        }
+
+    }, [])
+
 
 
     const handleCancel = () => {
@@ -36,36 +56,51 @@ function Addleaderinfo_teamleader() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        let project_id = localStorage.getItem("project_id");
-        console.log(project_id);
-        try {
-            const teamData = await window.api.createNewTeam({
-                ...formData,
-                // calendar_amount: amountNumber,
-                project_id: project_id
-            });
-            console.log('Team response:', teamData);
 
-            if (teamData && teamData.statusCode === 1) {
-                //get latest tuppel in teams-table
-                try {
-                    console.log("OK OK OK");
-                    const teamsData = await window.api.getTeamsByProjectId(project_id);
-                    console.log('Teams:', teamsData.teams);
-                    setTimeout(() => {
-                        const lastObject = teamsData.teams[teamsData.teams.length - 1];
-                        console.log('Last Object:', lastObject);
-                        localStorage.setItem("team_id", lastObject.team_id);
-                    }, 1000);
-                } catch (error) {
-                    console.error('Error fetching teams:', error);
-                }
-            }
+        // let project_id = localStorage.getItem("project_id");
+        // console.log(project_id);
+        // try {
+        //     const teamData = await window.api.createNewTeam({
+        //         ...formData,
+        //         // calendar_amount: amountNumber,
+        //         project_id: project_id
+        //     });
+        //     console.log('Team response:', teamData);
 
-        } catch (error) {
-            console.error('Error adding team:', error);
-        }
+        //     if (teamData && teamData.statusCode === 1) {
+        //         //get latest tuppel in teams-table
+        //         try {
+        //             console.log("OK OK OK");
+        //             const teamsData = await window.api.getTeamsByProjectId(project_id);
+        //             console.log('Teams:', teamsData.teams);
+        //             setTimeout(() => {
+        //                 const lastObject = teamsData.teams[teamsData.teams.length - 1];
+        //                 console.log('Last Object:', lastObject);
+        //                 localStorage.setItem("team_id", lastObject.team_id);
+        //             }, 1000);
+        //         } catch (error) {
+        //             console.error('Error fetching teams:', error);
+        //         }
+        //     }
+
+        // } catch (error) {
+        //     console.error('Error adding team:', error);
+        // }
+
+
+        //store data in localstorage
+        localStorage.setItem("newteam_teamname", formData.teamname);
+        localStorage.setItem("newteam_leaderfirstname", formData.leader_firstname);
+        localStorage.setItem("newteam_leaderlastname", formData.leader_lastname);
+        localStorage.setItem("newteam_leaderemail", formData.leader_email);
+        localStorage.setItem("newteam_leadermobile", formData.leader_mobile);
+
+        console.log(localStorage.getItem("newteam_teamname"));
+        console.log(localStorage.getItem("newteam_leaderfirstname"));
+        console.log(localStorage.getItem("newteam_leaderlastname"));
+        console.log(localStorage.getItem("newteam_leaderemail"));
+        console.log(localStorage.getItem("newteam_leadermobile"));
+
 
         setFormData({
             teamname: "",

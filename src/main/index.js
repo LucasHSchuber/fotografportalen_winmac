@@ -803,7 +803,7 @@ ipcMain.handle("createNewTeam", async (event, args) => {
           throw new Error('Invalid arguments received for createNewTeam');
       }
 
-      const { teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, project_id } = args;
+      const { teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, calendar_amount, leader_address, leader_postalcode, leader_county, leader_ssn, project_id } = args;
 
       if (!teamname || !leader_firstname || !leader_lastname || !leader_mobile || !leader_email || !project_id) {
           throw new Error('Missing required data for createNewTeam');
@@ -811,27 +811,30 @@ ipcMain.handle("createNewTeam", async (event, args) => {
       
       const result = await db.run(`
           INSERT INTO teams (
-              teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, project_id
+              teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, calendar_amount, leader_address, leader_postalcode, leader_county, leader_ssn, project_id
           )
-          VALUES (?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `, [
               teamname, 
               leader_firstname, 
               leader_lastname, 
               leader_mobile, 
               leader_email, 
+              calendar_amount,
+              leader_address,
+              leader_postalcode,
+              leader_county,
+              leader_ssn,
               project_id
           ]);
-          
+
       console.log(`Team added successfully`);
       
-      // Send success response to the frontend
       event.sender.send('createNewTeam-response', { success: true, statusCode: 1 });
       return { success: true, statusCode: 1 };
       
   } catch (err) {
       console.error('Error adding new team:', err.message);
-      // Send error response to the frontend
       event.sender.send('createNewTeam-response', { error: err.message });
       return { error: err.message };
   }
@@ -1377,6 +1380,37 @@ ipcMain.on('navigateBack', (event) => { // Corrected to match the IPC event name
       focusedWindow.webContents.goBack(); // Navigate back in the Electron window
   }
 });
+
+
+
+//GDPR protection 
+ipcMain.handle("gdprProtection", async (event) => {
+  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);"; 
+  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x'  WHERE created < DATETIME('now', '-1 hour');";
+
+  try {
+      const result = await new Promise((resolve, reject) => {
+          const db = new sqlite3.Database(dbPath);
+
+          db.run(updateQuery, function(error) {
+              if (error) {
+                  db.close();
+                  reject({ statusCode: 0, errorMessage: error });
+              } else {
+                  db.close();
+                  resolve({ rowsAffected: this.changes });
+              }
+          });
+      });
+
+      return { statusCode: 1, result };
+  } catch (error) {
+      console.error('Error clearing GDPR data:', error);
+      return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
 
 
 // const database = new sqlite.Database(
