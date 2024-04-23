@@ -203,11 +203,8 @@ function Home_teamleader() {
                     </div>
 
 
-
-                    < SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length} />
-                    < TeamsChart data={data} prevProjectsLength={prevProjectsArray.length} />
-
-
+                    <SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length} />
+                    <TeamsChart data={data} prevProjectsLength={prevProjectsArray.length} />
                     <Sidemenu_teamleader />
                 </>
             )}

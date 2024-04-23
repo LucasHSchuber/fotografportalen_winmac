@@ -181,6 +181,7 @@
     align-items: center !important;
     border-radius: 7px;
     font-size: 0.9em !important;
+    margin-top: 0.15em;
 }
 
 .currwork-box-left:hover,
@@ -193,6 +194,7 @@
 .type-img-currwork {
     width: 1.6em;
 }
+
 
 
 
@@ -322,6 +324,7 @@
     transition: 0.2s;
     cursor: pointer;
 }
+
 
 
 

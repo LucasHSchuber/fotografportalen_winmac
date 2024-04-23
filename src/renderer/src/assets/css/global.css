@@ -42,7 +42,6 @@ body {
 
 .form-input-field:focus {
     border-color: #00b3ff;
-    /* Change the outline color when input is focused */
 }
 
 .form-input-field::placeholder {

@@ -105,12 +105,17 @@ function Portal_teamleader() {
             let user_id = localStorage.getItem("user_id");
             try {
                 const userData = await window.api.getUser(user_id);
-                console.log('User:', userData.user);
-                setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
+                if (userData && userData.user) {
+                    console.log('User:', userData.user);
+                    setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
+                } else {
+                    console.error('Error: User data is null or undefined');
+                }
             } catch (error) {
                 console.error('Error fetching user:', error);
             }
-        }
+        };
+
 
         fetchUser();
         fetchProject();
@@ -219,7 +224,7 @@ function Portal_teamleader() {
 
                                     ) : (
                                         <>
-                                            <h6>{project.type === "school" ? "No classes yet" : "No teams yet"}</h6>
+                                            <h6>{project.type === "school" ? "No added classes" : "No added teams"}</h6>
                                         </>
                                     )}
                                 </div>

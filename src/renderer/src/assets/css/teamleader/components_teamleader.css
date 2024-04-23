@@ -21,9 +21,14 @@
     transition: 0.2s ease;
 }
 
+.sidemenu-teamleader .link-box a:focus {
+    outline-color: #00b3ff !important;
+}
+
+
+
 .logo img {
     animation: rotate 60s linear infinite;
-
 }
 
 @keyframes rotate {
@@ -80,6 +85,10 @@
     background-color: rgb(68, 68, 68);
 }
 
+.minimenu-button:focus {
+    outline-color: #00b3ff !important;
+}
+
 .minimenu-delete-button {
     /* margin-bottom: 10% !important; */
     margin-top: 0.5em;
@@ -99,6 +108,10 @@
 
 .minimenu-delete-button:hover {
     background-color: rgb(68, 68, 68);
+}
+
+.minimenu-delete-button:focus {
+    outline-color: #00b3ff !important;
 }
 
 .button-title {
@@ -206,12 +219,13 @@
 
 /* CHART */
 
-.chart-teamleader-wrapper{
+.chart-teamleader-wrapper {
     background-color: rgb(243, 243, 243);
     border-radius: 10px;
     padding: 2.5em 2em 1.5em 2em;
     width: fit-content;
 }
+
 .custom-tooltip {
     background-color: white;
     border: 1px solid #ccc;
@@ -225,13 +239,13 @@
     margin: 1px 0;
 }
 
-.chart-container h6{
+.chart-container h6 {
     text-decoration: underline;
 }
 
-.chart-container select{
+.chart-container select {
     /* background-color: rgb(255, 255, 255); */
-    background-color:inherit;
+    background-color: inherit;
     color: #333333;
     border-radius: 5px;
     border: 1px solid #d8d8d8;
@@ -242,6 +256,6 @@
 
 /* EDIT TEAM */
 
-.editteam-teamleader-form label{
+.editteam-teamleader-form label {
     margin-bottom: 0px;
 }

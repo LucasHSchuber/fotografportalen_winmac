@@ -1386,7 +1386,7 @@ ipcMain.on('navigateBack', (event) => { // Corrected to match the IPC event name
 //GDPR protection 
 ipcMain.handle("gdprProtection", async (event) => {
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);"; 
-  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x'  WHERE created < DATETIME('now', '-1 hour');";
+  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-12 hour');";
 
   try {
       const result = await new Promise((resolve, reject) => {

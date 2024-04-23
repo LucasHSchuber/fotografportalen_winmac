@@ -10,12 +10,18 @@ const SubjectsChart = ({ data, prevProjectsLength }) => {
     //     amount: job.teams.amount
     // }));
     const [chartData, setChartData] = useState([]);
-    const [userInputChartOne, setUserInputChartOne] = useState(10);
+    const [userInputChartOne, setUserInputChartOne] = useState(prevProjectsLength);
+
+
+    
+    useEffect(() => {
+        setUserInputChartOne(prevProjectsLength);
+    }, [prevProjectsLength]);
 
 
     useEffect(() => {
         const getLastTenProjectsData = () => {
-            // Extract the last 10 unique project_ids
+            // Extract unique project_ids
             const uniqueProjectIds = [...new Set(data.map(item => item.project_id))].slice(-userInputChartOne);
             // Sum up the amount for each project_id
             const projectData = uniqueProjectIds.map(projectId => {
@@ -35,6 +41,7 @@ const SubjectsChart = ({ data, prevProjectsLength }) => {
         getLastTenProjectsData();
     }, [data, userInputChartOne])
 
+    console.log(data);
 
 
     //custom tooltip
@@ -49,7 +56,6 @@ const SubjectsChart = ({ data, prevProjectsLength }) => {
                 </div>
             );
         }
-
         return null;
     };
 

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 
@@ -31,7 +32,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
     };
 
 
-    const logIn = () => {
+    const logIn = async () => {
         if (password === "" && username === "") {
             console.log("Enter username and password");
             setPasswordMessage("Enter password");
@@ -52,10 +53,38 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
         if (password !== "" && username !== "") {
             console.log("ok");
-            setPassword("");
-            setUsername("");
-            handleCloseProjectModal();
-            setShowConfirmationModal(true); // Show confirmation modal
+
+            try {
+                const response = await axios.post('https://backend.expressbild.org/index.php/rest/photographer_portal/login', {
+                    'email': username,
+                    'password': password
+                });
+
+                if (response && response.data) {
+                    console.log('User:', response.data);
+
+                    setPassword("");
+                    setUsername("");
+                    handleCloseProjectModal();
+                    setShowConfirmationModal(true); // Show confirmation modal
+
+                    return response.data;
+                } else {
+                    console.error('Empty response received');
+                    return null;
+                }
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    if (!error.response) {
+                        console.error('Network Error: Please check your internet connection');
+                    } else {
+                        console.error('Request failed with status code:', error.response.status);
+                    }
+                } else {
+                    console.error('Error fetching projects:', error.message);
+                }
+                return null;
+            }
         }
     };
 

@@ -24,21 +24,26 @@ const CalendarConfirmModal = ({ showCalendarConfirmModal, handleClose, confirmCa
                 {/* <h6 className="mb-4">Thank you for your time.</h6> */}
 
                 <div className="mt-4" style={{ textAlign: "left", width: "20em", margin: "0 auto" }}>
-                    <h6><b>Team name: </b> {teamData.teamname} </h6>
-                    <h6><b>Name: </b> {teamData.firstname} {teamData.lastname}</h6>
-                    <h6><b>Email: </b> {teamData.email}</h6>
-                    <h6><b>Mobile: </b> {teamData.mobile}</h6>
-
                     {teamData.calendar === "1" ? (
                         <>
                             <hr></hr>
-                            <h6><b>Social security number: </b> {teamData.ssn}</h6>
-                            <h6><b>Address </b> {teamData.address} </h6>
-                            <h6><b>Postalcode: </b> {teamData.postalcode} </h6>
-                            <h6><b>County: </b> {teamData.county}</h6>
+                            <h6 ><b>Team name: </b> {teamData.teamname} </h6>
+                            <h6><b>Leader name: </b> {teamData.firstname} {teamData.lastname}</h6>
+                            <h6><b>Leader email: </b> {teamData.email}</h6>
+                            <h6><b>Leader mobile: </b> {teamData.mobile}</h6>
+                            <h6><b>Leader social security number: </b> {teamData.ssn}</h6>
+                            <h6><b>Leader address </b> {teamData.address} </h6>
+                            <h6><b>Leader postalcode: </b> {teamData.postalcode} </h6>
+                            <h6><b>Leader county: </b> {teamData.county}</h6>
                         </>
                     ) : (
-                        <></>
+                        <>
+                            <hr></hr>
+                            <h6 ><b>Team name: </b> {teamData.teamname} </h6>
+                            <h6><b>Leader name: </b> {teamData.firstname} {teamData.lastname}</h6>
+                            <h6><b>Leader email: </b> {teamData.email}</h6>
+                            <h6><b>Leader mobile: </b> {teamData.mobile}</h6>
+                        </>
                     )}
                 </div>
 

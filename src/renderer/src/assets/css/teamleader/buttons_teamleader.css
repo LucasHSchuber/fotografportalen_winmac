@@ -2,12 +2,15 @@
 
 .button {
     font-weight: 700;
-    outline: none !important;
-    outline: 1px solid rgb(212, 212, 212);
+    /* outline: none !important; */
+    /* outline: 1px solid rgb(4, 0, 255) !important; */
     border: none;
     border-radius: 3px;
     padding: 0.5em 1em;
     cursor: pointer;
+}
+.button:focus {
+    outline-color: #00b3ff !important;
 }
 
 .cancel {
@@ -33,8 +36,8 @@
 .close {
     background-color: inherit;
     color: black !important;
-    outline: none !important;
-    border: none !important;
+    /* outline: none !important; */
+    /* border: none !important; */
 }
 
 .standard {

@@ -9,6 +9,12 @@ const TeamsChart = ({ data, prevProjectsLength }) => {
     const [chartData, setChartData] = useState([]);
     const [userInputChartOne, setUserInputChartOne] = useState(10);
 
+    
+
+    useEffect(() => {
+        setUserInputChartOne(prevProjectsLength);
+    }, [prevProjectsLength]);
+    
 
     useEffect(() => {
         const getLastTenProjectsData = () => {
