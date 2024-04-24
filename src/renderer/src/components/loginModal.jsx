@@ -6,12 +6,11 @@ import { useNavigate } from 'react-router-dom';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProjectModal, refreshProjects, alertSale }) => {
+const loginModal = ({ showLoginModal, handleCloseLoginModal, refreshProjects }) => {
 
     //define states
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [passwordMessage, setPasswordMessage] = useState("")
     const [usernameMessage, setUsernameMessage] = useState("")
 
@@ -20,13 +19,12 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
     const closeModal = () => {
         setPasswordMessage("");
         setUsernameMessage("");
-        handleCloseProjectModal();
+        handleCloseLoginModal();
     }
 
     const handleUsernameChange = (e) => {
         setUsername(e.target.value);
     };
-
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
     };
@@ -55,6 +53,10 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
             console.log("ok");
 
             try {
+
+                //first log in and see if there is a user stored on sqlite database,
+                //if not store user from big database
+
                 const response = await axios.post('https://backend.expressbild.org/index.php/rest/photographer_portal/login', {
                     'email': username,
                     'password': password
@@ -62,12 +64,18 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
                 if (response && response.data) {
                     console.log('User:', response.data);
+                    console.log('User result:', response.data.result);
 
                     setPassword("");
                     setUsername("");
-                    handleCloseProjectModal();
-                    setShowConfirmationModal(true); // Show confirmation modal
 
+                    try {
+                        const responseData = await window.api.createUser(response.data.result);
+                        console.log(responseData);
+                        handleCloseLoginModal();
+                    } catch (error) {
+
+                    }
                     return response.data;
                 } else {
                     console.error('Empty response received');
@@ -88,14 +96,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
         }
     };
 
-
-
-    const cancelConfirmation = () => {
-        setPassword("");
-        setUsername("");
-        handleCloseProjectModal();
-        setShowConfirmationModal(false); // Close confirmation modal
-    };
 
 
     //send job to database
@@ -120,11 +120,9 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     return (
         <>
-            <Modal className="mt-5" show={showSendProjectModal} onHide={handleCloseProjectModal}>
+            <Modal className="mt-5" show={showLoginModal} onHide={closeModal}>
                 <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h5 className="mb-2" ><b>Send in work</b></h5></Modal.Title>
-                    <h6 className="mb-3">You must log in to be able to send in this work</h6>
-
+                    <Modal.Title><h5 className="mb-3" ><b>Log in</b></h5></Modal.Title>
                     <div style={{ textAlign: "left", marginLeft: "3em" }}>
                         {usernameMessage || passwordMessage ? (
                             <ul className="error">
@@ -135,13 +133,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             <>
                             </>
                         )}
-                        {/* {passwordMessage && (
-                            <div className="error">
-                                <p>{passwordMessage}</p>
-                            </div>
-                        )} */}
                     </div>
-
                     <div>
                         <input
                             className="form-input-field"
@@ -169,29 +161,10 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             Log in
                         </Button>
                     </div>
-
-                </Modal.Body>
-            </Modal>
-
-
-            <Modal className="mt-5" show={showConfirmationModal} onHide={() => setShowConfirmationModal(false)}>
-                <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h5 className="mb-2" ><b>Are you sure you want to send in the work?</b></h5></Modal.Title>
-                    <h6 className="mb-3">This action can not be undone. <br></br> You will find this project under previous work</h6>
-
-                    <div className="mt-4">
-                        <Button className="button cancel fixed-width mr-1" onClick={cancelConfirmation}>
-                            Cancel
-                        </Button>
-                        <Button className="button standard fixed-width" onClick={sendJob}>
-                            Send in work
-                        </Button>
-                    </div>
-
                 </Modal.Body>
             </Modal>
         </>
     );
 };
 
-export default sendProjectModal;
+export default loginModal;

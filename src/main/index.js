@@ -180,8 +180,9 @@ function createTables() {
       email TEXT NOT NULL,
       firstname TEXT NOT NULL,
       lastname TEXT NOT NULL,
-      city TEXT NOT NULL,
+      city TEXT,
       lang STRING NOT NULL,
+      token STRING,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
   `, (err) => {
@@ -189,7 +190,7 @@ function createTables() {
       console.error('Error creating users table:', err.message);
     } else {
       console.log('Users table created successfully');
-      insertDataToTables();
+      // insertDataToTables();
     }
   });
 
@@ -308,8 +309,8 @@ function createTables() {
 function insertDataToTables(){
 
   db.run(`
-  INSERT INTO users (email, firstname, lastname, city, lang) 
-  VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE')
+  INSERT INTO users (email, firstname, lastname, city, lang, token) 
+  VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE', '123xyz')
 `, (err) => {
   if (err) {
     console.error('Error inserting user:', err.message);
@@ -319,8 +320,8 @@ function insertDataToTables(){
 });
 
   db.run(`
-  INSERT INTO users (email, firstname, lastname, city, lang) 
-  VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'Stockholm', 'SE')
+  INSERT INTO users (email, firstname, lastname, city, lang, token) 
+  VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'Stockholm', 'SE', 'abc098')
   `, (err) => {
   if (err) {
     console.error('Error inserting user:', err.message);
@@ -418,6 +419,37 @@ ipcMain.handle("getUser", async (event, id) => {
   } catch (error) {
       console.error('Error fetching user data:', error);
       return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+
+ipcMain.handle("createUser", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for createNewProject');
+      }
+
+      const { email, firstname, surname, language, token } = args;
+
+      if (!email || !firstname || !surname || !language || !token ) {
+          throw new Error('Missing required user data for createNewProject');
+      }
+      
+      await db.run(`
+          INSERT INTO users (email, firstname, lastname, lang, token)
+          VALUES (?, ?, ?, ?, ?)
+          `, [email, firstname, surname, language, token]);
+
+      console.log('User added successfully');
+
+      event.sender.send('createUser-response', { success: true });
+      return { success: true }; 
+      
+  } catch (err) {
+      console.error('Error adding new user data:', err.message);
+      event.sender.send('createUser-response', { error: err.message });
+      return { error: err.message };
   }
 });
 
@@ -1385,8 +1417,9 @@ ipcMain.on('navigateBack', (event) => { // Corrected to match the IPC event name
 
 //GDPR protection 
 ipcMain.handle("gdprProtection", async (event) => {
+  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH)";
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);"; 
-  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-12 hour');";
+  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-12 hour');";
 
   try {
       const result = await new Promise((resolve, reject) => {

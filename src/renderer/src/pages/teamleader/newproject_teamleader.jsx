@@ -223,6 +223,15 @@ function Newproject_teamleader() {
                     <p>Create a new school or sport photography</p>
                 </div>
 
+                {projectExistsMessage || missingProjectname || missingType ? (
+                    <ul className="error" style={{ marginLeft: "-1.5em" }}>
+                        {projectExistsMessage && <li>Project already exists</li>}
+                        {missingProjectname && <li>Select a project from the list</li>}
+                        {missingType && <li>Select either sport or school photography</li>}
+                    </ul>
+                ) : null}
+
+
                 <form className="newproject-form" onSubmit={handleSubmit}>
                     {/* <input
                         type="text"
@@ -266,14 +275,6 @@ function Newproject_teamleader() {
                             </p>
                         </button>
                     </div>
-
-                    {projectExistsMessage || missingProjectname || missingType ? (
-                        <ul className="error">
-                            {projectExistsMessage && <li>Project already exists</li>}
-                            {missingProjectname && <li>Project name is missing (choose a project in the list)</li>}
-                            {missingType && <li>Project type is missing (School or Sport photography)</li>}
-                        </ul>
-                    ) : null}
 
                     <button type="submit" className="button standard">Create new project</button>
                 </form>

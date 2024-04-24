@@ -3,6 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
 
 // import "../../assets/css/teamleader/newprojectModal.css";
+import '../../assets/css/global.css';
 
 
 const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
@@ -65,10 +66,9 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
                 />
 
                 <div style={{ textAlign: "left", marginLeft: "4.5em" }}>
-
                     {deleteMessage && (
                         <div className="error mb-3 mr-5">
-                            <h6>{deleteMessage}</h6>
+                            <p>{deleteMessage}</p>
                         </div>
                     )}
                 </div>

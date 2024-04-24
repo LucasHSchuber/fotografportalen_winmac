@@ -63,7 +63,7 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
 
                     {deleteMessage && (
                         <div className="error mb-3 mr-5">
-                            <h6>{deleteMessage}</h6>
+                            <p>{deleteMessage}</p>
                         </div>
                     )}
                 </div>

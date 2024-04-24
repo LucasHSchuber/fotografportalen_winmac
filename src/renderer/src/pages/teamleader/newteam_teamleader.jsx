@@ -20,10 +20,17 @@ function Newteam_teamleader() {
         portrait: false,
         crowd: false
     });
+    const [errorMessage, setErrorMessage] = useState({
+        teamname: false,
+        amount: false
+    });
+    const [errorMessageSport, setErrorMessageSport] = useState({
+        amount: false
+    });
     const [project_id, setProject_id] = useState("");
 
-
     const navigate = useNavigate();
+
 
 
     const handleCancel = () => {
@@ -44,11 +51,16 @@ function Newteam_teamleader() {
         const { name, value, checked, type } = e.target;
         const newValue = type === 'checkbox' ? checked : value;
         setFormData({ ...formData, [name]: newValue });
+
+        if (projectType === "school") {
+            setErrorMessage({ ...errorMessage, [name]: false });
+        } else {
+            setErrorMessageSport({ ...errorMessageSport, amount: false });
+        }
     };
 
 
     useEffect(() => {
-
         const fetchLatestTeam = async () => {
             let project_id = localStorage.getItem("project_id");
             console.log(project_id);
@@ -73,6 +85,26 @@ function Newteam_teamleader() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Set error messages
+        if (projectType === "sport") {
+            let errorsSport = {};
+            if (!formData.amount) errorsSport.amount = true;
+            setErrorMessageSport(errorsSport);
+            // Check if any errors exist
+            if (Object.keys(errorsSport).length > 0) {
+                return;
+            }
+        } else if (projectType === "school") {
+            let errors = {};
+            if (!formData.teamname) errors.teamname = true;
+            if (!formData.amount) errors.amount = true;
+            setErrorMessage(errors);
+            // Check if any errors exist
+            if (Object.keys(errors).length > 0) {
+                return;
+            }
+        }
 
         let project_id = localStorage.getItem("project_id");
         console.log(formData);
@@ -153,7 +185,6 @@ function Newteam_teamleader() {
 
     return (
         <div className="teamleader-wrapper">
-
             <div className="newteam-teamleader-content">
 
                 <div className="header mb-4">
@@ -166,14 +197,13 @@ function Newteam_teamleader() {
                         {projectType && projectType === "school" ? (
                             <div>
                                 <input
-                                    className="form-input-field"
+                                    className={`form-input-field ${projectType === "school" ? (errorMessage.teamname ? "error-border" : "") : (errorMessageSport.teamname ? "error-border" : "")}`}
                                     type="text"
                                     id="teamname"
                                     name="teamname"
                                     placeholder={projectType === "school" ? "Class name" : "Team name"}
                                     value={formData.teamname}
                                     onChange={handleChange}
-                                    required
                                 />
                             </div>
                         ) : (
@@ -182,14 +212,13 @@ function Newteam_teamleader() {
                         <div>
                             {/* <label htmlFor="amount">Amount:</label> */}
                             <input
-                                className="form-input-field"
+                                className={`form-input-field ${projectType === "school" ? (errorMessage.amount ? "error-border" : "") : (errorMessageSport.amount ? "error-border" : "")}`}
                                 type="number"
                                 id="amount"
                                 name="amount"
                                 placeholder={projectType === "school" ? "Amount of photographed students" : "Amount of photographed players"}
                                 value={formData.amount}
                                 onChange={handleChange}
-                                required
                             />
                         </div>
                     </div>
@@ -248,7 +277,6 @@ function Newteam_teamleader() {
                 </form>
 
             </div>
-
             <Sidemenu_teamleader />
         </div>
     );

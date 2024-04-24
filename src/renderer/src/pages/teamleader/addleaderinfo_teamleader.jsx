@@ -17,8 +17,16 @@ function Addleaderinfo_teamleader() {
         leader_mobile: "",
         leader_email: ""
     });
-
+    const [errorMessage, setErrorMessage] = useState({
+        teamname: false,
+        leader_firstname: false,
+        leader_lastname: false,
+        leader_mobile: false,
+        leader_email: false
+    });
     const navigate = useNavigate();
+
+
 
 
 
@@ -28,7 +36,7 @@ function Addleaderinfo_teamleader() {
         let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
         let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
         let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
-        if (newteam_teamname != "" && newteam_leaderfirstname != "") {
+        if (newteam_teamname != "" || newteam_leaderfirstname != "" || newteam_leaderlastname != "" || newteam_leadermobile != "" || newteam_leaderemail != "") {
             setFormData({
                 teamname: newteam_teamname,
                 leader_firstname: newteam_leaderfirstname,
@@ -41,18 +49,16 @@ function Addleaderinfo_teamleader() {
     }, [])
 
 
-
     const handleCancel = () => {
         let project_id = localStorage.getItem("project_id");
         navigate(`/portal_teamleader/${project_id}`);
     };
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+        setErrorMessage({ ...errorMessage, [name]: false }); //clear error-border if typing
     };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -87,6 +93,59 @@ function Addleaderinfo_teamleader() {
         //     console.error('Error adding team:', error);
         // }
 
+        // if (!formData.teamname && !formData.leader_firstname && !formData.leader_lastname && !formData.leader_email && !formData.leader_mobile) {
+        //     setErrorMessage(prevState => ({
+        //         ...prevState,
+        //         teamname: true,
+        //         leader_firstname: true,
+        //         leader_lastname: true,
+        //         leader_mobile: true,
+        //         leader_email: true
+        //     }));
+        //     return;
+        // } else if (!formData.teamname) {
+        //     setErrorMessage(prevState => ({ ...prevState, teamname: true }));
+        //     return;
+        // } else if (!formData.leader_firstname) {
+        //     setErrorMessage(prevState => ({ ...prevState, leader_firstname: true }));
+        //     return;
+        // } else if (!formData.leader_lastname) {
+        //     setErrorMessage(prevState => ({ ...prevState, leader_lastname: true }));
+        //     return;
+        // } else if (!formData.leader_mobile) {
+        //     setErrorMessage(prevState => ({ ...prevState, leader_mobile: true }));
+        //     return;
+        // } else if (!formData.leader_email) {
+        //     setErrorMessage(prevState => ({ ...prevState, leader_email: true }));
+        //     return;
+        // } else {
+        //     setErrorMessage(prevState => ({
+        //         ...prevState,
+        //         teamname: false,
+        //         leader_firstname: false,
+        //         leader_lastname: false,
+        //         leader_mobile: false,
+        //         leader_email: false
+        //     }));
+        // }
+
+
+        // Set error messages
+        let errors = {};
+        if (!formData.teamname) errors.teamname = true;
+        if (!formData.leader_firstname) errors.leader_firstname = true;
+        if (!formData.leader_lastname) errors.leader_lastname = true;
+        if (!formData.leader_mobile) errors.leader_mobile = true;
+        if (!formData.leader_email) errors.leader_email = true;
+
+        // Update error message state
+        setErrorMessage(errors);
+
+        // Check if any errors exist
+        if (Object.keys(errors).length > 0) {
+            return; // Exit the function if there are errors
+        }
+
 
         //store data in localstorage
         localStorage.setItem("newteam_teamname", formData.teamname);
@@ -95,16 +154,8 @@ function Addleaderinfo_teamleader() {
         localStorage.setItem("newteam_leaderemail", formData.leader_email);
         localStorage.setItem("newteam_leadermobile", formData.leader_mobile);
 
-        console.log(localStorage.getItem("newteam_teamname"));
-        console.log(localStorage.getItem("newteam_leaderfirstname"));
-        console.log(localStorage.getItem("newteam_leaderlastname"));
-        console.log(localStorage.getItem("newteam_leaderemail"));
-        console.log(localStorage.getItem("newteam_leadermobile"));
-
-
         setFormData({
             teamname: "",
-            // calendar_amount: "",
             leader_firstname: "",
             leader_lastname: "",
             leader_mobile: "",
@@ -129,11 +180,21 @@ function Addleaderinfo_teamleader() {
                 <h5><FontAwesomeIcon icon={faPlus} /> New team</h5>
             </div>
 
+            {/* {errorMessage && (
+                <ul className="error">
+                    {errorMessage.teamname && <li>Fill out team name</li>}
+                    {errorMessage.leader_firstname && <li>Fill out leader first name</li>}
+                    {errorMessage.leader_lastname && <li>Fill out leader last name</li>}
+                    {errorMessage.leader_email && <li>Fill out leader email</li>}
+                    {errorMessage.leader_mobile && <li>Fill out leader mobile</li>}
+                </ul>
+            )} */}
+
             <form onSubmit={handleSubmit}>
                 <div className="mt-4 mb-2">
                     <h6><b>Team info:</b></h6>
                     <div>
-                        <input className="form-input-field" type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" required />
+                        <input className={`form-input-field ${errorMessage.teamname ? "error-border" : ""}`} type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" />
                     </div>
                     {/* <div>
                         <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of calendars" required />
@@ -142,10 +203,10 @@ function Addleaderinfo_teamleader() {
                     <br></br>
                     <h6><b>Team leader info:</b></h6>
                     <div>
-                        <input className="form-input-field" type="text" name="leader_firstname" value={formData.leader_firstname} onChange={handleChange} placeholder="Leader First Name" required />
+                        <input className={`form-input-field ${errorMessage.leader_firstname ? "error-border" : ""}`} type="text" name="leader_firstname" value={formData.leader_firstname} onChange={handleChange} placeholder="Leader First Name" />
                     </div>
                     <div>
-                        <input className="form-input-field" type="text" name="leader_lastname" value={formData.leader_lastname} onChange={handleChange} placeholder="Leader Last Name" required />
+                        <input className={`form-input-field ${errorMessage.leader_lastname ? "error-border" : ""}`} type="text" name="leader_lastname" value={formData.leader_lastname} onChange={handleChange} placeholder="Leader Last Name" />
                     </div>
                     {/* <div>
                         <input className="form-input-field" type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" required />
@@ -157,13 +218,13 @@ function Addleaderinfo_teamleader() {
                         <input className="form-input-field" type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" required />
                     </div> */}
                     <div>
-                        <input className="form-input-field" type="email" name="leader_email" value={formData.leader_email} onChange={handleChange} placeholder="Leader Email" required />
+                        <input className={`form-input-field ${errorMessage.leader_email ? "error-border" : ""}`} type="email" name="leader_email" value={formData.leader_email} onChange={handleChange} placeholder="Leader Email" />
                     </div>
                     {/* <div>
                         <input className="form-input-field" type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Leader SSN" required />
                     </div> */}
                     <div>
-                        <input className="form-input-field" type="text" name="leader_mobile" value={formData.leader_mobile} onChange={handleChange} placeholder="Leader Mobile" required />
+                        <input className={`form-input-field ${errorMessage.leader_mobile ? "error-border" : ""}`} type="text" name="leader_mobile" value={formData.leader_mobile} onChange={handleChange} placeholder="Leader Mobile" />
                     </div>
                 </div>
 

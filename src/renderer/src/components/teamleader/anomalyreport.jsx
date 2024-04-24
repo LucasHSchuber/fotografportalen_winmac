@@ -80,7 +80,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
                         rows="4"
                         defaultValue={project_anomaly}
                         onChange={handleAnomalyChange}
-                        placeholder="Describe the anomaly here..."
+                        placeholder="Describe anomaly"
                     ></textarea>
                 </div>
                 <h6> <b>Merged teams</b></h6>

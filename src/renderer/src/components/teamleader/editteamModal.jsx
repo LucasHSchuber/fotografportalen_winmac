@@ -24,9 +24,23 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
         calendar_amount: "",
         team_id: teamId
     });
+    const [errorMessage, setErrorMessage] = useState({
+        teamname: false,
+        amount: false
+    });
+    const [errorMessageSport, setErrorMessageSport] = useState({
+        leader_firstname: false,
+        leader_lastname: false,
+        leader_email: false,
+        leader_mobile: false,
+        leader_address: false,
+        leader_county: false,
+        leader_postalcode: false,
+        leader_ssn: false,
+        calendar_amount: false
+    });
 
     console.log(teamData);
-
 
     const [isTeamnamemodified, setIsTeamnamemodified] = useState(false);
     const [isAmountmodified, setIsAmountmodified] = useState(false);
@@ -59,6 +73,15 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
     //cancel/close modal
     const handleCancel = () => {
         resetModificationFlags(); // Reset modification flags
+        setErrorMessage({
+            teamname: false,
+            amount: false,
+        });
+        setErrorMessageSport({
+            teamname: false,
+            amount: false,
+            leader_firstname: false
+        });
         setShowInputFields(false);
         handleCloseEditModal();
     };
@@ -84,13 +107,13 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
         setIsCalendaramountmodified(false);
     };
 
-
     console.log(isAmountmodified);
     console.log(isTeamnamemodified);
     console.log(isCalendaramountmodified);
     console.log(isCrowdmodified);
     console.log(isPortraitmodified);
     console.log(isProtectedidmodified);
+    console.log(isLeaderSsnmodified);
     console.log(isLeaderAddressmodified);
     console.log(isLeaderCountymodified);
     console.log(isLeaderEmailmodified);
@@ -101,16 +124,25 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
 
 
 
-
     // Handler for teamname change
     const handleTeamnameChange = (e) => {
         setFormData({ ...formData, teamname: e.target.value });
         setIsTeamnamemodified(true);
+        if (projectType === "school") {
+            setErrorMessage({ ...errorMessage, teamname: false });
+        } else {
+            setErrorMessageSport({ ...errorMessageSport, teamname: false });
+        }
     };
     // Handler for amount change
     const handleAmountChange = (e) => {
         setFormData({ ...formData, amount: e.target.value });
         setIsAmountmodified(true);
+        if (projectType === "school") {
+            setErrorMessage({ ...errorMessage, amount: false });
+        } else {
+            setErrorMessageSport({ ...errorMessageSport, amount: false });
+        }
     };
     const handlePortraitChange = (e) => {
         const newValue = e.target.checked ? 1 : 0;
@@ -138,48 +170,56 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
     const handleLeaderFirstnameChange = (e) => {
         setFormData({ ...formData, leader_firstname: e.target.value });
         setIsLeaderFirstnamemodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_firstname: false });
     };
 
     const handleLeaderLastnameChange = (e) => {
         setFormData({ ...formData, leader_lastname: e.target.value });
         setIsLeaderLastnamemodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_lastname: false });
     };
 
     const handleLeaderEmailChange = (e) => {
         setFormData({ ...formData, leader_email: e.target.value });
         setIsLeaderEmailmodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_email: false });
     };
 
     const handleLeaderMobileChange = (e) => {
         setFormData({ ...formData, leader_mobile: e.target.value });
         setIsLeaderMobilemodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_mobile: false });
     };
 
     const handleLeaderSsnChange = (e) => {
         setFormData({ ...formData, leader_ssn: e.target.value });
         setIsLeaderSsnmodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_ssn: false });
     };
 
     const handleLeaderAddressChange = (e) => {
         setFormData({ ...formData, leader_address: e.target.value });
         setIsLeaderAddressmodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_address: false });
     };
 
     const handleLeaderPostalcodeChange = (e) => {
         setFormData({ ...formData, leader_postalcode: e.target.value });
         setIsLeaderPostalcodemodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_postalcode: false });
     };
 
     const handleLeaderCountyChange = (e) => {
         setFormData({ ...formData, leader_county: e.target.value });
         setIsLeaderCountymodified(true);
+        setErrorMessageSport({ ...errorMessageSport, leader_county: false });
     };
 
     const handleLeaderCalendarAmountChange = (e) => {
         setFormData({ ...formData, calendar_amount: e.target.value });
         setIsCalendaramountmodified(true);
+        setErrorMessageSport({ ...errorMessageSport, calendar_amount: false });
     };
-
 
 
     //submit form 
@@ -204,6 +244,41 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
             sold_calendar: isSoldCalendaridmodified ? formData.sold_calendar : teamData.sold_calendar,
             team_id: teamId
         };
+
+        // Set error messages
+        if (projectType === "sport") {
+            let errorsSport = {};
+            if (!updatedFields.teamname) errorsSport.teamname = true;
+            if (!updatedFields.amount) errorsSport.amount = true;
+
+            if (showInputFields) {
+                if (!updatedFields.leader_firstname) errorsSport.leader_firstname = true;
+                if (!updatedFields.leader_lastname) errorsSport.leader_lastname = true;
+                if (!updatedFields.leader_email) errorsSport.leader_email = true;
+                if (!updatedFields.leader_mobile) errorsSport.leader_mobile = true;
+                if (!updatedFields.leader_address) errorsSport.leader_address = true;
+                if (!updatedFields.leader_county) errorsSport.leader_county = true;
+                if (!updatedFields.leader_postalcode) errorsSport.leader_postalcode = true;
+                if (!updatedFields.leader_ssn) errorsSport.leader_ssn = true;
+                if (!updatedFields.calendar_amount) errorsSport.calendar_amount = true;
+            }
+            setErrorMessageSport(errorsSport);
+            // Check if any errors exist
+            if (Object.keys(errorsSport).length > 0) {
+                return;
+            }
+        } else if (projectType === "school") {
+            let errors = {};
+            if (!updatedFields.teamname) errors.teamname = true;
+            if (!updatedFields.amount) errors.amount = true;
+            setErrorMessage(errors);
+            // Check if any errors exist
+            if (Object.keys(errors).length > 0) {
+                return;
+            }
+        }
+
+
 
 
         if (showInputFields === true) {
@@ -289,7 +364,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                             <div style={{ display: "flex", flexDirection: "column" }}>
                                 <label style={{ textAlign: "left" }}>{projectType === "school" ? "Class name:" : "Team name:"}</label>
                                 <input
-                                    className="form-input-field"
+                                    className={`form-input-field ${projectType === "school" ? (errorMessage.teamname ? "error-border" : "") : (errorMessageSport.teamname ? "error-border" : "")}`}
                                     type="text"
                                     id="teamname"
                                     name="teamname"
@@ -302,7 +377,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                             <div style={{ display: "flex", flexDirection: "column" }}>
                                 <label style={{ textAlign: "left" }}>{projectType === "school" ? "Amount of photographed students:" : "Amount of photographed players:"}</label>
                                 <input
-                                    className="form-input-field"
+                                    className={`form-input-field ${projectType === "school" ? (errorMessage.amount ? "error-border" : "") : (errorMessageSport.amount ? "error-border" : "")}`}
                                     type=""
                                     id="amount"
                                     name="amount"
@@ -359,7 +434,6 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
 
                             <h6><b>Calendar order</b></h6>
                             <div className="checkbox-container">
-
                                 <label> {showInputFields ? "Yes" : "Status: no order made"}</label>
                                 <input
                                     className="checkmark mr-2"
@@ -398,7 +472,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     <h6 style={{ fontSize: "0.9em" }}><em>* Required information for calendar sales</em></h6>
                                     <div>
                                         <label>Leader firstname: *</label>
-                                        <input className="form-input-field" type="text" name="leader_firstname" placeholder="Leader First Name"
+                                        <input className={`form-input-field ${errorMessageSport.leader_firstname ? "error-border" : ""}`} type="text" name="leader_firstname" placeholder="Leader First Name"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_firstname}
                                             onChange={handleLeaderFirstnameChange}
@@ -406,7 +480,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Leader lastname: * </label>
-                                        <input className="form-input-field" type="text" name="leader_lastname" placeholder="Leader Last Name"
+                                        <input className={`form-input-field ${errorMessageSport.leader_lastname ? "error-border" : ""}`} type="text" name="leader_lastname" placeholder="Leader Last Name"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_lastname}
                                             onChange={handleLeaderLastnameChange}
@@ -414,7 +488,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Leader email: *</label>
-                                        <input className="form-input-field" type="email" name="leader_email" placeholder="Leader Email"
+                                        <input className={`form-input-field ${errorMessageSport.leader_email ? "error-border" : ""}`} type="email" name="leader_email" placeholder="Leader Email"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_email}
                                             onChange={handleLeaderEmailChange}
@@ -422,7 +496,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Leader mobile: *</label>
-                                        <input className="form-input-field" type="text" name="leader_mobile" placeholder="Leader Mobile"
+                                        <input className={`form-input-field ${errorMessageSport.leader_mobile ? "error-border" : ""}`} type="text" name="leader_mobile" placeholder="Leader Mobile"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_mobile}
                                             onChange={handleLeaderMobileChange}
@@ -430,7 +504,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Leader social security number: *</label>
-                                        <input className="form-input-field" type="number" name="leader_ssn" placeholder="Social security number"
+                                        <input className={`form-input-field ${errorMessageSport.leader_ssn ? "error-border" : ""}`} type="number" name="leader_ssn" placeholder="Social security number"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_ssn}
                                             onChange={handleLeaderSsnChange}
@@ -438,7 +512,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Leader address: *</label>
-                                        <input className="form-input-field" type="text" name="leader_address" placeholder="Leader Address"
+                                        <input className={`form-input-field ${errorMessageSport.leader_address ? "error-border" : ""}`} type="text" name="leader_address" placeholder="Leader Address"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_address}
                                             onChange={handleLeaderAddressChange}
@@ -446,7 +520,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Leader postalcode: *</label>
-                                        <input className="form-input-field" type="number" name="leader_postalcode" placeholder="Leader Postal Code"
+                                        <input className={`form-input-field ${errorMessageSport.leader_postalcode ? "error-border" : ""}`} type="number" name="leader_postalcode" placeholder="Leader Postal Code"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_postalcode}
                                             onChange={handleLeaderPostalcodeChange}
@@ -454,7 +528,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Leader county: *</label>
-                                        <input className="form-input-field" type="text" name="leader_county" placeholder="Leader County"
+                                        <input className={`form-input-field ${errorMessageSport.leader_county ? "error-border" : ""}`} type="text" name="leader_county" placeholder="Leader County"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.leader_county}
                                             onChange={handleLeaderCountyChange}
@@ -462,7 +536,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                     </div>
                                     <div>
                                         <label>Calendar amount: *</label>
-                                        <input className="form-input-field" type="" name="calendar_amount" placeholder="Total amount of players in team"
+                                        <input className={`form-input-field ${errorMessageSport.calendar_amount ? "error-border" : ""}`} type="" name="calendar_amount" placeholder="Total amount of players in team"
                                             style={{ width: "20em" }}
                                             defaultValue={teamData.calendar_amount}
                                             onChange={handleLeaderCalendarAmountChange}

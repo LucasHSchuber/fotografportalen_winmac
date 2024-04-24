@@ -5,6 +5,7 @@ import profile from "../assets/images/photographer.png";
 
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
+import LoginModal from "../components/loginModal";
 
 import gdprProtectionMethod from '../assets/js/gdprProtection';
 
@@ -14,13 +15,24 @@ function Index() {
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState('');
   const [projectsArray, setProjectsArray] = useState([]);
+  const [showLoginModal, setShowLoginModal] = useState(false); 
 
+  const handleCloseLoginModal = () => {setShowLoginModal(false)};
 
   const Navigate = useNavigate();
 
 
+  const openLoginModal = () => {
+    setShowLoginModal(true);
+  };
+
   //assign the user_id localStorage (later login)
   useEffect(() => {
+
+    openLoginModal();
+    //showLoginModal
+    //Store response from database in sqlite user table
+
     localStorage.setItem("user_id", 1);
     localStorage.setItem("user_name", user.firstname + " " + user.lastname);
     console.log(localStorage.getItem("user_name"));
@@ -94,8 +106,8 @@ function Index() {
             <img className="profile-picture" src={profile} alt="profile picture"></img>
           </div>
           <div className="mt-2 ml-2">
-            <h5 style={{ fontWeight: "700" }}>{user.firstname} {user.lastname}</h5>
-            <h6><em>{user.city}</em></h6>
+            {/* <h5 style={{ fontWeight: "700" }}>{user.firstname} {user.lastname}</h5> */}
+            {/* <h6><em>{user.city}</em></h6> */}
           </div>
         </div>
 
@@ -143,9 +155,9 @@ function Index() {
 
       </div>
 
-
       <Sidemenu />
       <Sidemenu_small />
+      <LoginModal showLoginModal={showLoginModal} handleCloseLoginModal={handleCloseLoginModal} />
     </div>
   );
 }

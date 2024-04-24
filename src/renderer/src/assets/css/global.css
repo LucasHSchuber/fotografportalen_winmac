@@ -46,8 +46,14 @@ body {
 
 .form-input-field::placeholder {
     color: rgb(168, 168, 168);
+    font-size: 0.85em;
+}
+
+textarea::placeholder {
+    color: rgb(168, 168, 168);
     font-size: 0.9em;
 }
+
 
 
 
@@ -59,6 +65,11 @@ body {
 }
 
 .error {
-    color: rgb(255, 37, 37);
+    color: rgb(255, 37, 37) !important;
+    font-size: 0.9em !important;
+    font-weight: 600 !important;
+}
 
+.error-border {
+    border-color: rgb(255, 37, 37, 0.7) !important;
 }

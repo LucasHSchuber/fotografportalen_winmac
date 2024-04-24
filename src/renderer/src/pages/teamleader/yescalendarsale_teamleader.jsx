@@ -19,6 +19,13 @@ function Calendarsale_teamleader() {
         leader_ssn: "",
         terms: false
     });
+    const [errorMessage, setErrorMessage] = useState({
+        calendar_amount: false,
+        leader_address: false,
+        leader_postalcode: false,
+        leader_county: false,
+        leader_ssn: false
+    });
     const [showCalendarConfirmModal, setShowCalendarConfirmModal] = useState(false);
     const [showTermsAndConditionBox, setShowTermsAndConditionBox] = useState(false);
     const [teamData, setTeamData] = useState({});
@@ -39,13 +46,26 @@ function Calendarsale_teamleader() {
             ...prevState,
             [name]: name === 'terms' ? checked : value // Update terms separately
         }));
+        setErrorMessage({ ...errorMessage, [name]: false }); //clear error-border if typing
     };
-
-
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Set error messages
+        let errors = {};
+        if (!formData.calendar_amount) errors.calendar_amount = true;
+        if (!formData.leader_address) errors.leader_address = true;
+        if (!formData.leader_postalcode) errors.leader_postalcode = true;
+        if (!formData.leader_county) errors.leader_county = true;
+        if (!formData.leader_ssn) errors.leader_ssn = true;
+        // Update error message state
+        setErrorMessage(errors);
+        // Check if any errors exist
+        if (Object.keys(errors).length > 0) {
+            return; 
+        }
 
         if (!formData.terms) {
             const confirmResponse = window.confirm("You must accept the terms.");
@@ -161,20 +181,20 @@ function Calendarsale_teamleader() {
 
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Total amount of players in team" required />
+                        <input className={`form-input-field ${errorMessage.calendar_amount ? "error-border" : ""}`} type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Total amount of players in team" />
                         <h6 style={{ fontSize: "0.9em" }}>* All players recieve three calendars each</h6>
                     </div>
                     <div>
-                        <input className="form-input-field" type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Social security number" required />
+                        <input className={`form-input-field ${errorMessage.leader_ssn ? "error-border" : ""}`} type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Social security number" />
                     </div>
                     <div>
-                        <input className="form-input-field" type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" required />
+                        <input className={`form-input-field ${errorMessage.leader_address ? "error-border" : ""}`} type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" />
                     </div>
                     <div>
-                        <input className="form-input-field" type="number" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder="Leader Postal Code" required />
+                        <input className={`form-input-field ${errorMessage.leader_postalcode ? "error-border" : ""}`} type="number" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder="Leader Postal Code" />
                     </div>
                     <div>
-                        <input className="form-input-field" type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" required />
+                        <input className={`form-input-field ${errorMessage.leader_county ? "error-border" : ""}`} type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" />
                     </div>
                     <div className="checkbox-container my-3">
                         <label className="mr-2">
