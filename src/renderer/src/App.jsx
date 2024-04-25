@@ -8,6 +8,9 @@ import Sidemenu from "./components/sidemenu";
 import Sidemenu_small from "./components/sidemenu_small";
 
 //teamleader pages and components
+import Login_window from "./pages/login_window";
+import Register_window from "./pages/register_window";
+
 import Home_teamleader from "./pages/teamleader/home_teamleader";
 import Prevwork_teamleader from "./pages/teamleader/prevwork_teamleader";
 import Currwork_teamleader from "./pages/teamleader/currwork_teamleader";
@@ -27,6 +30,7 @@ import './assets/css/main.css';
 import './assets/css/sidemenu.css';
 import './assets/css/sidemenu_small.css';
 import './assets/css/teamleader/buttons_teamleader.css';
+import './assets/css/buttons.css';
 
 
 //teamleader css styles
@@ -49,6 +53,18 @@ function App() {
   // })
   return (
     <HashRouter >
+
+      <div className="">
+        <Routes>
+          <Route path="/login_window" element={<Login_window />} />
+        </Routes>
+      </div>
+
+      <div className="">
+        <Routes>
+          <Route path="/register_window" element={<Register_window />} />
+        </Routes>
+      </div>
 
       {/* <div className="sidemenu">
         <Sidemenu />

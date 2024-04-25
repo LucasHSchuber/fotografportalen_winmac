@@ -51,52 +51,55 @@ if (isDev) {
 }
 
 
-let mainWindow , CourseWindow;
-function createWindow() {
-  
+let loginWindow;
+let mainWindow;
+
+function createLoginWindow() {
   if(!is.dev){
     const exApp = express()
     exApp.use(express.static(path.join(__dirname, '../renderer/')));
     exApp.listen(5173)
   } 
-  
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 1150,
-    height: 750,
-    minWidth: 820,
-    minHeight: 550,
-    show: false,
-    // frame: false,
-    autoHideMenuBar: true,
-    // ...(process.platform === 'linux' ? { icon } : {}),
-    icon: iconPath, 
-    // icon: path.join(__dirname, '../../resources/icon2.png'),
-    webPreferences: {
-      preload : path.join(__dirname, '../preload/index.js') ,
-      sandbox: false,
-      contextIsolation: true,
-      nodeIntegration: true,
-      webSecurity: false
-    }
-  })
 
+  // Create the browser window.
+  loginWindow = new BrowserWindow({
+     // parent: mainWindow, // Set the parent window if needed
+          // modal: true, // Example: Open as a modal window
+          width: 350,
+          height: 460,
+          resizable: false, 
+          // frame: false,
+          // show: false,
+          autoHideMenuBar: true,
+          // ...(process.platform === 'linux' ? { icon } : {}),
+          icon: iconPath, 
+          // icon: path.join(__dirname, '../../resources/icon2.png'),
+          webPreferences: {
+            preload : path.join(__dirname, '../preload/index.js') ,
+            sandbox: false,
+            contextIsolation: true,
+            nodeIntegration: true,
+            webSecurity: false,
+            worldSafeExecuteJavaScript: true,
+          }
+  })
 
   // Hide the menu bar
   // mainWindow.setMenuBarVisibility(false);
-// Open DevTools in development mode
+
+  // Open DevTools in development mode
   if (isDev) {
-   mainWindow.webContents.openDevTools({ mode: 'detach' });
+    loginWindow.webContents.openDevTools({ mode: 'detach' });
   }
   // if (isDev) {
   //   mainWindow.webContents.openDevTools({});
   //  }
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+  loginWindow.on('ready-to-show', () => {
+    loginWindow.show()
   })
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
+  loginWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
@@ -104,11 +107,16 @@ function createWindow() {
   
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
-  }
+  loginWindow.loadURL(
+    isDev
+        ? "http://localhost:5173/#/login_window"
+        : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
+  );
+  // if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+  //   loginWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  // } else {
+  //   loginWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
+  // }
 }
 
 app.whenReady().then(() => {
@@ -119,10 +127,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  createWindow()
+  createLoginWindow()
 
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) createLoginWindow()
   })
 })
 
@@ -133,8 +141,8 @@ app.on('window-all-closed', () => {
 })
 
 app.on("activate", () => {
-  if (mainWindow.getAllWindows().length === 0) {
-    createWindow();
+  if (loginWindow.getAllWindows().length === 0) {
+    createLoginWindow();
   }
 });
 
@@ -180,6 +188,7 @@ function createTables() {
       email TEXT NOT NULL,
       firstname TEXT NOT NULL,
       lastname TEXT NOT NULL,
+      password TEXT NOT NULL,
       city TEXT,
       lang STRING NOT NULL,
       token STRING,
@@ -423,35 +432,133 @@ ipcMain.handle("getUser", async (event, id) => {
 });
 
 
-
+//create new user
 ipcMain.handle("createUser", async (event, args) => {
   try {
       if (!args || typeof args !== 'object') {
           throw new Error('Invalid arguments received for createNewProject');
       }
 
-      const { email, firstname, surname, language, token } = args;
+      const { email, firstname, surname, password, language, token } = args;
 
-      if (!email || !firstname || !surname || !language || !token ) {
+      if (!email || !firstname || !surname || !language || !token || !password ) {
           throw new Error('Missing required user data for createNewProject');
       }
-      
-      await db.run(`
-          INSERT INTO users (email, firstname, lastname, lang, token)
-          VALUES (?, ?, ?, ?, ?)
-          `, [email, firstname, surname, language, token]);
 
-      console.log('User added successfully');
+      const userExists = await checkUsernameInDatabase(email);
+      if (userExists) {
+        event.sender.send('createUser-response', { success: false, error: 'User already exists' });
+        return { success: false, error: 'User already exists' };
 
-      event.sender.send('createUser-response', { success: true });
-      return { success: true }; 
-      
+      } else {
+        // Insert the new user into the database
+        await db.run(`
+        INSERT INTO users (email, firstname, lastname, password, lang, token)
+        VALUES (?, ?, ?, ?, ?, ?)
+        `, [email, firstname, surname, password, language, token]);
+
+        console.log('User added successfully');
+        event.sender.send('loginUser-response', { success: true });
+        return { success: true };  
+      }
   } catch (err) {
       console.error('Error adding new user data:', err.message);
       event.sender.send('createUser-response', { error: err.message });
       return { error: err.message };
   }
 });
+const checkUsernameInDatabase = (email) => {
+  return new Promise((resolve, reject) => {
+      // Prepare the SQL query to check if the email and password match
+      const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
+
+      // Execute the SQL query
+      db.get(checkUserQuery, [email], (err, row) => {
+          if (err) {
+              // Reject with error if query execution fails
+              console.error('Error checking username in database:', err);
+              reject(err);
+              return;
+          }
+
+          // Resolve with the result of the query
+          resolve(row.count === 1);
+      });
+  });
+};
+
+
+//loginUser
+ipcMain.handle("loginUser", async (event, args) => {
+  try {
+    if (!args || typeof args !== 'object') {
+        throw new Error('Invalid arguments received for loginUser');
+    }
+
+    const { email, password } = args;
+
+    if (!email || !password ) {
+        throw new Error('Missing required user data for loginUser');
+    }
+
+    const userExists = await checkUserInDatabase(email, password);
+    
+    if (userExists) {
+        // If the user exists and the password matches, send success response
+        const user = await getUserDetails(email);
+        
+        event.sender.send('loginUser-response', { success: true, user });
+        return { success: true, user }; 
+    } else {
+        // If the user doesn't exist or password doesn't match, send error response
+        throw new Error('Invalid username or password');
+    }
+} catch (err) {
+    console.error('Error logging user:', err.message);
+    event.sender.send('loginUser-response', { error: err.message });
+    return { error: err.message };
+}
+});
+const checkUserInDatabase = (email, password) => {
+  return new Promise((resolve, reject) => {
+      // Prepare the SQL query to check if the email and password match
+      const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ? AND password = ?`;
+
+      // Execute the SQL query
+      db.get(checkUserQuery, [email, password], (err, row) => {
+          if (err) {
+              // Reject with error if query execution fails
+              console.error('Error checking user in database:', err);
+              reject(err);
+              return;
+          }
+
+          // Resolve with the result of the query
+          resolve(row.count === 1);
+      });
+  });
+};
+const getUserDetails = (email) => {
+  return new Promise((resolve, reject) => {
+      // Prepare the SQL query to fetch user details based on email
+      const getUserQuery = `SELECT * FROM users WHERE email = ?`;
+
+      // Execute the SQL query
+      db.get(getUserQuery, [email], (err, row) => {
+          if (err) {
+              // Reject with error if query execution fails
+              console.error('Error fetching user details from database:', err);
+              reject(err);
+              return;
+          }
+
+          // Resolve with the user details
+          resolve(row);
+      });
+  });
+};
+
+
 
 
 
@@ -1586,40 +1693,145 @@ ipcMain.handle("gdprProtection", async (event) => {
 // });
 
 
-// //crate new window
-// ipcMain.handle("createNewWindow", async (event, args) => {
+// //crate login window
+ipcMain.handle("createLoginWindow", async (event, args) => {
+  try {
+      const loginWindow = new BrowserWindow({
+          // parent: mainWindow, // Set the parent window if needed
+          // modal: true, // Example: Open as a modal window
+          width: 400,
+          height: 500,
+          resizable: false, 
+          // frame: false,
+          // show: false,
+          autoHideMenuBar: true,
+          // ...(process.platform === 'linux' ? { icon } : {}),
+          icon: iconPath, 
+          // icon: path.join(__dirname, '../../resources/icon2.png'),
+          webPreferences: {
+            preload : path.join(__dirname, '../preload/index.js') ,
+            sandbox: false,
+            contextIsolation: true,
+            nodeIntegration: true,
+            webSecurity: false,
+            worldSafeExecuteJavaScript: true,
+          }
+      });
+
+      // Open DevTools for the new window
+      if (isDev) {
+        loginWindow.webContents.openDevTools({ mode: 'detach' });
+       }
+    
+      // Load the URL for the new window if needed
+      loginWindow.loadURL(
+        isDev
+            ? "http://localhost:5173/#/login_window"
+            : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
+     );
+     
+      // Optionally return some data back to the renderer process
+      return { success: true, message: 'Login window created successfully' };
+  } catch (error) {
+      // Handle any errors that occur while creating the new window
+      console.error('Error creating login window:', error);
+      throw new Error('Failed to create login window');
+  }
+  
+});
+
+// //crate main window & close login window
+ipcMain.handle("createMainWindow", async (event, args) => {
+  loginWindow.close();
+  try {
+      // Create the MainWindow
+      const mainWindow = new BrowserWindow({
+          width: 1150,
+          height: 750,
+          minWidth: 820,
+          minHeight: 550,
+          show: false,
+          autoHideMenuBar: true,
+          icon: iconPath, 
+          webPreferences: {
+            preload : path.join(__dirname, '../preload/index.js') ,
+            sandbox: false,
+            contextIsolation: true,
+            nodeIntegration: true,
+            webSecurity: false
+          }
+      });
+
+      // Open DevTools for the new window
+      if (isDev) {
+        mainWindow.webContents.openDevTools({ mode: 'detach' });
+      }
+    
+      // Load the URL for the MainWindow
+      mainWindow.loadURL(
+        isDev
+            ? "http://localhost:5173/"
+            : `file://${path.join(__dirname, "../build/index.html")}`
+      );
+
+      // Show the MainWindow when it's ready
+      mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+      });
+
+      // Optionally return some data back to the renderer process
+      return { success: true, message: 'Main window created successfully' };
+  } catch (error) {
+      // Handle any errors that occur while creating the new window
+      console.error('Error creating main window:', error);
+      throw new Error('Failed to create main window');
+  }
+});
+
+// ipcMain.handle("createMainWindow", async (event, args) => {
 //   try {
-//       const CourseWindow = new BrowserWindow({
-//           parent: mainWindow, // Set the parent window if needed
-//           modal: true, // Example: Open as a modal window
-//           width: 900,
-//           height: 550,
-//           minWidth: 600,
-//           minHeight: 550,
-//           // show: false,
+//       const loginWindow = new BrowserWindow({
+//           // parent: mainWindow, // Set the parent window if needed
+//           // modal: true, // Example: Open as a modal window
+//           width: 400,
+//           height: 500,
+//           resizable: false, 
 //           // frame: false,
+//           // show: false,
 //           autoHideMenuBar: true,
+//           // ...(process.platform === 'linux' ? { icon } : {}),
+//           icon: iconPath, 
+//           // icon: path.join(__dirname, '../../resources/icon2.png'),
 //           webPreferences: {
-//               preload: path.join(__dirname, '../preload/index.html'),
-//               worldSafeExecuteJavaScript: true,
-//               contextIsolation: true,
-//           },
+//             preload : path.join(__dirname, '../preload/index.js') ,
+//             sandbox: false,
+//             contextIsolation: true,
+//             nodeIntegration: true,
+//             webSecurity: false,
+//             worldSafeExecuteJavaScript: true,
+//           }
 //       });
+
+//       // Open DevTools for the new window
+//       if (isDev) {
+//         loginWindow.webContents.openDevTools({ mode: 'detach' });
+//        }
+    
 //       // Load the URL for the new window if needed
-//       CourseWindow.loadURL(
+//       loginWindow.loadURL(
 //         isDev
-//             ? "http://localhost:5173/#/addgroup"
-//             : `file://${path.join(__dirname, "../build/index.html")}`
-//     );
+//             ? "http://localhost:5173/#/login_window"
+//             : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
+//      );
+     
 //       // Optionally return some data back to the renderer process
-//       return { success: true, message: 'New window created successfully' };
+//       return { success: true, message: 'Login window created successfully' };
 //   } catch (error) {
 //       // Handle any errors that occur while creating the new window
-//       console.error('Error creating new window:', error);
-//       throw new Error('Failed to create new window');
+//       console.error('Error creating login window:', error);
+//       throw new Error('Failed to create login window');
 //   }
 // });
-
 
 
 

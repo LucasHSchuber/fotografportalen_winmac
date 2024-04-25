@@ -12,37 +12,33 @@ import gdprProtectionMethod from '../assets/js/gdprProtection';
 
 function Index() {
   //define states
+
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState('');
   const [projectsArray, setProjectsArray] = useState([]);
-  const [showLoginModal, setShowLoginModal] = useState(false); 
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const handleCloseLoginModal = () => {setShowLoginModal(false)};
+  const handleCloseLoginModal = () => { setShowLoginModal(false) };
+  const navigate = useNavigate();
 
-  const Navigate = useNavigate();
 
 
-  const openLoginModal = () => {
-    setShowLoginModal(true);
-  };
+
+  // const openLoginModal = () => {
+  //   setShowLoginModal(true);
+  // };
 
   //assign the user_id localStorage (later login)
-  useEffect(() => {
+  // useEffect(() => {
 
-    openLoginModal();
-    //showLoginModal
-    //Store response from database in sqlite user table
-
-    localStorage.setItem("user_id", 1);
-    localStorage.setItem("user_name", user.firstname + " " + user.lastname);
-    console.log(localStorage.getItem("user_name"));
-  }, []);
+  //   localStorage.setItem("user_id", 1);
+  //   localStorage.setItem("user_name", user.firstname + " " + user.lastname);
+  // }, []);
 
 
 
   useEffect(() => {
     let user_id = localStorage.getItem("user_id");
-    console.log(user_id);
 
     const getAllProjects = async () => {
       try {
@@ -54,15 +50,9 @@ function Index() {
       }
     };
 
-    getAllProjects();
-  }, []);
 
-
-
-  //fetch user
-  useEffect(() => {
+    // fetch user data
     const fetchUser = async () => {
-      let user_id = localStorage.getItem("user_id");
       try {
         const usersData = await window.api.getUser(user_id); // Fetch users data from main process
         console.log('Users Data:', usersData); // Log the users data
@@ -91,9 +81,11 @@ function Index() {
     };
 
     fetchUser();
+    getAllProjects();
     runGdprProtection();
 
   }, []);
+
 
 
 
@@ -106,8 +98,8 @@ function Index() {
             <img className="profile-picture" src={profile} alt="profile picture"></img>
           </div>
           <div className="mt-2 ml-2">
-            {/* <h5 style={{ fontWeight: "700" }}>{user.firstname} {user.lastname}</h5> */}
-            {/* <h6><em>{user.city}</em></h6> */}
+            <h5 style={{ fontWeight: "700" }}>{user.firstname} {user.lastname}</h5>
+            <h6><em>{user.city}</em></h6>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,14 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     const navigate = useNavigate();
 
+
+    // get username and password from localstorage after mount
+    useEffect(() => {
+        setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
+        setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");
+    }, [])
+
+
     const closeModal = () => {
         setPasswordMessage("");
         setUsernameMessage("");
@@ -26,7 +34,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
     const handleUsernameChange = (e) => {
         setUsername(e.target.value);
     };
-
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
     };
@@ -96,7 +103,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
         handleCloseProjectModal();
         setShowConfirmationModal(false); // Close confirmation modal
     };
-
 
     //send job to database
     const sendJob = async () => {

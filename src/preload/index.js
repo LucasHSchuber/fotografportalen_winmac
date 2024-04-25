@@ -13,7 +13,8 @@ const api = {
 
 
   // TEAMLEADER
-  createUser: (id) => ipcRenderer.invoke('createUser', id),  // create user
+  createUser: args => ipcRenderer.invoke('createUser', args),  // create user
+  loginUser: args => ipcRenderer.invoke('loginUser', args),  // login user
   getUser: args => ipcRenderer.invoke('getUser', args), // Pass id to getUser handler in main process
 
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
@@ -44,18 +45,21 @@ const api = {
 
   gdprProtection: () => ipcRenderer.invoke('gdprProtection'), // gdpr protection - protecting data
 
+  createLoginWindow: (args) => ipcRenderer.invoke('createLoginWindow', args), // create login window
+  createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window
+
+
 
 
 
   // navigateBack: () => ipcRenderer.send('navigateBack'), // Send a message to Electron's main process to navigate back
-
 
   createUserToComp: args => ipcRenderer.invoke('createUserToComp', args), // Database Call For Create User
   createUser: args => ipcRenderer.invoke('createUser', args), // Database Call For Create User
   // getUsers: () => ipcRenderer.invoke('getUsers'),
   // getUser: (workname) => ipcRenderer.invoke('getUser', workname), // Pass workname to getUser handler in main process
   createGroup: args => ipcRenderer.invoke('createGroup', args), // Database Call For Create Group
-  createNewWindow: (args) => ipcRenderer.invoke('createNewWindow', args), // open new window
+  
 
 }
 

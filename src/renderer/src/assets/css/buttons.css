@@ -1,0 +1,23 @@
+/* buttons */
+
+
+.normal {
+  background-color: #313131;
+  color: white;
+  transition: 0.2s;
+}
+
+.normal:hover {
+  background-color: #181818;
+}
+
+
+.register-link-login {
+  cursor: pointer;
+  text-decoration: underline !important;
+  transition: 0.1s ease;
+}
+
+.register-link-login:hover {
+  color: gray !important;
+}

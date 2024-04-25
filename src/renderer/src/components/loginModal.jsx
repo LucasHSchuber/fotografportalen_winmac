@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,14 @@ const loginModal = ({ showLoginModal, handleCloseLoginModal, refreshProjects }) 
     const [usernameMessage, setUsernameMessage] = useState("")
 
     const navigate = useNavigate();
+
+
+    useEffect(() => {
+
+        setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
+        setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");
+
+    }, [])
 
     const closeModal = () => {
         setPasswordMessage("");
@@ -51,6 +59,8 @@ const loginModal = ({ showLoginModal, handleCloseLoginModal, refreshProjects }) 
 
         if (password !== "" && username !== "") {
             console.log("ok");
+            localStorage.setItem("username", username);
+            localStorage.setItem("password", password);
 
             try {
 
@@ -73,6 +83,7 @@ const loginModal = ({ showLoginModal, handleCloseLoginModal, refreshProjects }) 
                         const responseData = await window.api.createUser(response.data.result);
                         console.log(responseData);
                         handleCloseLoginModal();
+                        window.api.createLoginWindow();
                     } catch (error) {
 
                     }
@@ -96,26 +107,6 @@ const loginModal = ({ showLoginModal, handleCloseLoginModal, refreshProjects }) 
         }
     };
 
-
-
-    //send job to database
-    const sendJob = async () => {
-        console.log(alertSale);
-        alertSale === "true" ? 1 : 0;
-
-        try {
-            const sentProject = await window.api.sendProjectToDb(project_id, alertSale);
-            console.log('Sent:', sentProject);
-
-            setShowConfirmationModal(false);
-            navigate("/currwork_teamleader");
-            refreshProjects();
-
-        } catch (error) {
-            console.error('Error sending project:', error);
-            console.log("Job could not be sent");
-        }
-    }
 
 
     return (
