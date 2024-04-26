@@ -35,11 +35,13 @@ function Login_window() {
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
-    console.log("e.target.value")
+    console.log("e.target.value");
+    setUsernameMessage("");
   };
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    console.log("e.target.value")
+    console.log("e.target.value");
+    setPasswordMessage("");
   };
 
 
@@ -47,19 +49,19 @@ function Login_window() {
   const loginUser = async () => {
     if (password === "" && username === "") {
       console.log("Enter username and password");
-      setPasswordMessage("Enter password");
-      setUsernameMessage("Enter username");
+      setPasswordMessage(true);
+      setUsernameMessage(true);
       setErrorLogginginMessage("");
     }
     if (password === "") {
       console.log("Enter password");
-      setPasswordMessage("Enter password");
+      setPasswordMessage(true);
     } else {
       setPasswordMessage("");
     }
     if (username === "") {
       console.log("Enter username");
-      setUsernameMessage("Enter username");
+      setUsernameMessage(true);
     } else {
       setUsernameMessage("");
     }
@@ -82,8 +84,8 @@ function Login_window() {
           setIsLoadingConfirm(true);
           const timeout = setTimeout(() => {
             window.api.createMainWindow();
-            setIsLoadingConfirm(false);
-          }, 2500);
+            // setIsLoadingConfirm(false);
+          }, 2400);
 
         } else {
           console.log("Invalid username or/and password");
@@ -125,7 +127,8 @@ function Login_window() {
     return (
       <div >
         <div className="spinning-logo-login" style={{ marginTop: "6em" }}>
-          <p><b>Successfull!</b> <br></br><em>Signing in...</em></p>
+          {/* <p><b>Successfull!</b> <br></br><em>Signing in...</em></p> */}
+          <p><em>Signing in...</em></p>
         </div>
         <div className="loading-bar-container-login">
           <div className="loading-bar-login"></div>
@@ -138,23 +141,23 @@ function Login_window() {
     <div className="login_window-wrapper">
       <div className="login_window-content">
 
-        <h5 className="mb-3" ><b>Log in</b></h5>
-          <div style={{ textAlign: "left" }}>
-            {usernameMessage || passwordMessage || errorLogginginMessage ? (
-              <ul className="error">
-                {usernameMessage ? <li>{usernameMessage}</li> : ""}
-                {passwordMessage ? <li>{passwordMessage}</li> : ""}
-                {errorLogginginMessage ? <li>{errorLogginginMessage}</li> : ""}
-              </ul>
-            ) : (
-              <>
-              </>
-            )}
-          </div>
+        <h5 className="mb-3 mr-3" ><b>Log in</b></h5>
+        <div style={{ textAlign: "left", width: "110%", marginLeft: "-1.5em" }}>
+          {usernameMessage || passwordMessage || errorLogginginMessage ? (
+            <ul className="error">
+              {/* {usernameMessage ? <li>{usernameMessage}</li> : ""}
+                {passwordMessage ? <li>{passwordMessage}</li> : ""} */}
+              {errorLogginginMessage ? <li>{errorLogginginMessage}</li> : ""}
+            </ul>
+          ) : (
+            <>
+            </>
+          )}
+        </div>
         <div>
           <div>
             <input
-              className="form-input-field-login"
+              className={`form-input-field-login ${usernameMessage ? "error-border" : ""}`}
               placeholder="Username/Email"
               type="text"
               value={username}
@@ -163,7 +166,7 @@ function Login_window() {
           </div>
           <div>
             <input
-              className="form-input-field-login"
+              className={`form-input-field-login ${passwordMessage ? "error-border" : ""}`}
               placeholder="Password"
               type="password"
               value={password}

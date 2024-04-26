@@ -11,7 +11,9 @@ function Sidemenu() {
     return (
         <div className="sidemenu">
             <div className="logo">
-                <img src={fp} alt="Logo" />
+                <NavLink to="/" exact="true">
+                    <img src={fp} alt="Logo" />
+                </NavLink>
             </div>
             <ul className="menu">
                 <div className="link-box">

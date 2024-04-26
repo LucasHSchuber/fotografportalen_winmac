@@ -5,7 +5,7 @@ import profile from "../assets/images/photographer.png";
 
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
-import LoginModal from "../components/loginModal";
+// import LoginModal from "../components/loginModal";
 
 import gdprProtectionMethod from '../assets/js/gdprProtection';
 
@@ -16,7 +16,7 @@ function Index() {
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState('');
   const [projectsArray, setProjectsArray] = useState([]);
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  // const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleCloseLoginModal = () => { setShowLoginModal(false) };
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ function Index() {
             <img className="profile-picture" src={profile} alt="profile picture"></img>
           </div>
           <div className="mt-2 ml-2">
-            <h5 style={{ fontWeight: "700" }}>{user.firstname} {user.lastname}</h5>
+            <h5 style={{ fontWeight: "700" }}>{user ? user.firstname : ""} {user ? user.lastname : ""}</h5>
             <h6><em>{user.city}</em></h6>
           </div>
         </div>
@@ -149,7 +149,7 @@ function Index() {
 
       <Sidemenu />
       <Sidemenu_small />
-      <LoginModal showLoginModal={showLoginModal} handleCloseLoginModal={handleCloseLoginModal} />
+      {/* <LoginModal showLoginModal={showLoginModal} handleCloseLoginModal={handleCloseLoginModal} /> */}
     </div>
   );
 }

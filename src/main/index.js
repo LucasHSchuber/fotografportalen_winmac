@@ -562,6 +562,43 @@ const getUserDetails = (email) => {
 
 
 
+
+//edit user data
+ipcMain.handle("editUser", async (event, args) => {
+  try {
+      if (!args || typeof args !== 'object') {
+          throw new Error('Invalid arguments received for editTeam');
+      }
+
+      const { email, firstname, lastname, city, lang, user_id } = args;
+
+      if (!user_id || !email || !lang ) {
+          throw new Error('Missing required data (user_id) for editUser');
+      }
+
+      const result = await db.run(`
+      UPDATE users
+      SET 
+        email = ?, firstname = ?, lastname = ?, city = ?, lang = ? WHERE user_id = ?
+      `, [ email, firstname, lastname, city, lang, user_id ]);
+          
+      console.log(`User data edited successfully`);
+      // Send success response to the frontend
+      event.sender.send('editUser-response', { success: true });
+      return { success: true };
+      
+  } catch (err) {
+      console.error('Error editing user:', err.message);
+      // Send error response to the frontend
+      event.sender.send('editUser-response', { error: err.message });
+      return { error: err.message };
+  }
+});
+
+
+
+
+
 //get all current projects by user_id
 ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0 AND is_deleted = 0"; 

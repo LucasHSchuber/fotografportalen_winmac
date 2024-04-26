@@ -8,6 +8,8 @@ function Register_window() {
   const [password, setPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [usernameMessage, setUsernameMessage] = useState("");
+  const [errorLogginginMessage, setErrorLogginginMessage] = useState("");
+
 
 
   const navigate = useNavigate();
@@ -22,11 +24,13 @@ function Register_window() {
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
-    console.log("e.target.value")
+    console.log("e.target.value");
+    setUsernameMessage("");
   };
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    console.log("e.target.value")
+    console.log("e.target.value");
+    setPasswordMessage("");
   };
 
 
@@ -35,18 +39,19 @@ function Register_window() {
   const registerUser = async () => {
     if (password === "" && username === "") {
       console.log("Enter username and password");
-      setPasswordMessage("Enter password");
-      setUsernameMessage("Enter username");
+      setPasswordMessage(true);
+      setUsernameMessage(true);
+      setErrorLogginginMessage("");
     }
     if (password === "") {
       console.log("Enter password");
-      setPasswordMessage("Enter password");
+      setPasswordMessage(true);
     } else {
       setPasswordMessage("");
     }
     if (username === "") {
       console.log("Enter username");
-      setUsernameMessage("Enter username");
+      setUsernameMessage(true);
     } else {
       setUsernameMessage("");
     }
@@ -79,6 +84,7 @@ function Register_window() {
               setUsername("");
             } else {
               console.log("Error creating user");
+              setErrorLogginginMessage("User already exists");
             }
           } catch (error) {
             console.log("error:", error);
@@ -91,8 +97,10 @@ function Register_window() {
         if (axios.isAxiosError(error)) {
           if (!error.response) {
             console.error('Network Error: Please check your internet connection');
+            setErrorLogginginMessage("Network error connection");
           } else {
             console.error('Request failed with status code:', error.response.status);
+            setErrorLogginginMessage("Username and password doesn't exists in company database. Contact the office if problem is not resolved.");
           }
         } else {
           console.error('Error fetching projects:', error.message);
@@ -108,22 +116,23 @@ function Register_window() {
     <div className="login_window-wrapper">
       <div className="login_window-content">
 
-        <h5 className="mb-3" ><b>Register</b></h5>
-          <div style={{ textAlign: "left" }}>
-            {usernameMessage || passwordMessage ? (
-              <ul className="error">
-                {usernameMessage ? <li>{usernameMessage}</li> : ""}
-                {passwordMessage ? <li>{passwordMessage}</li> : ""}
-              </ul>
-            ) : (
-              <>
-              </>
-            )}
-          </div>
+        <h5 className="mb-3 mr-3" ><b>Register</b></h5>
+        <div style={{ textAlign: "left", width: "110%", marginLeft: "-1.5em" }}>
+          {usernameMessage || passwordMessage || errorLogginginMessage ? (
+            <ul className="error">
+              {/* {usernameMessage ? <li>{usernameMessage}</li> : ""}
+              {passwordMessage ? <li>{passwordMessage}</li> : ""} */}
+              {errorLogginginMessage ? <li>{errorLogginginMessage}</li> : ""}
+            </ul>
+          ) : (
+            <>
+            </>
+          )}
+        </div>
         <div>
           <div>
             <input
-              className="form-input-field-login"
+              className={`form-input-field-login ${usernameMessage ? "error-border" : ""}`}
               placeholder="Username/Email"
               type="text"
               value={username}
@@ -132,8 +141,8 @@ function Register_window() {
           </div>
           <div>
             <input
-              className="form-input-field-login"
-              placeholder="Password"
+            className={`form-input-field-login ${passwordMessage ? "error-border" : ""}`}
+            placeholder="Password"
               type="password"
               value={password}
               onChange={handlePasswordChange}

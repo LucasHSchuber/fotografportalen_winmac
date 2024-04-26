@@ -16,6 +16,7 @@ const api = {
   createUser: args => ipcRenderer.invoke('createUser', args),  // create user
   loginUser: args => ipcRenderer.invoke('loginUser', args),  // login user
   getUser: args => ipcRenderer.invoke('getUser', args), // Pass id to getUser handler in main process
+  editUser: args => ipcRenderer.invoke('editUser', args), // Edit user
 
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
   get_Projects: (user_lang) => ipcRenderer.invoke('get_Projects', user_lang), // Pass workname to getUser handler in main process

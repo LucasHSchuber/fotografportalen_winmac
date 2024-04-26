@@ -40,9 +40,7 @@ body {
     outline: none;
 }
 
-.form-input-field:focus {
-    border-color: #00b3ff;
-}
+
 
 .form-input-field::placeholder {
     color: rgb(168, 168, 168);

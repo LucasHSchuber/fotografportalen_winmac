@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 //importing pages and components
 import Index from "./pages/index";
+import Settings from "./pages/settings";
 import Sidemenu from "./components/sidemenu";
 import Sidemenu_small from "./components/sidemenu_small";
 
@@ -82,6 +83,12 @@ function App() {
           <div className="">
             <Routes>
               <Route path="/" element={<Index />} />
+            </Routes>
+          </div>
+
+          <div className="">
+            <Routes>
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </div>
 

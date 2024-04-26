@@ -30,6 +30,10 @@
     margin-top: -0.2em;
 }
 
+.form-input-field:focus {
+    border-color: #00b3ff;
+}
+
 
 
 /* HOME */
