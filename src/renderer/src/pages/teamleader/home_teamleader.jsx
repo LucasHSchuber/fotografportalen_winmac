@@ -85,6 +85,7 @@ function Home_teamleader() {
                     localStorage.setItem("user_id", userData.user.user_id);
                 } else {
                     console.error('Invalid user data:', userData);
+                    fetchUser();
                 }
             } catch (error) {
                 console.error('Error fetching users data:', error);

@@ -130,7 +130,10 @@ function Newteam_teamleader() {
                 });
                 console.log('Class response:', classData);
 
+                sessionStorage.setItem("feedbackMessage_newteam", "New class successfully created");
                 navigate(`/portal_teamleader/${project_id}`);
+                // navigate(`/portal_teamleader/${project_id}?message=Class created successfully!`);
+
             } catch (error) {
                 console.error('Error adding class:', error);
             }
@@ -153,12 +156,13 @@ function Newteam_teamleader() {
                 });
                 console.log('Team response:', teamData);
 
+                sessionStorage.setItem("feedbackMessage_newteam", "New team successfully created");
                 navigate(`/portal_teamleader/${project_id}`);
+                // navigate(`/portal_teamleader/${project_id}?message=Team created successfully!`);
+
             } catch (error) {
                 console.error('Error adding class:', error);
             }
-
-
 
             //clear data in localstorage
             localStorage.removeItem("newteam_teamname");

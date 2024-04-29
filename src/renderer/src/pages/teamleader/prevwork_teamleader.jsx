@@ -7,9 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faNewspaper, faLock } from '@fortawesome/free-solid-svg-icons';
 import { faEnvelope as farEnvelope, faPaperPlane } from '@fortawesome/free-regular-svg-icons';
 
-
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Controlsheet from "../../components/teamleader/controlsheetModal";
+import FeedbackMessage from "../../components/feedbackMessage";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -24,18 +24,49 @@ function Prevwork_teamleader() {
     const [projectId, setProjectId] = useState("");
     const [projectType, setProjectType] = useState("");
 
+    const [feedbackMessage, setFeedbackMessage] = useState('');
+
     const [loading, setLoading] = useState(true);
 
 
 
-
-
+    // Function to update feedback message
     useEffect(() => {
-        let user_id = localStorage.getItem("user_id");
+        const updateFeedbackMessage = () => {
+            let feedbackMessage_sentproject = sessionStorage.getItem("feedbackMessage_sentproject");
+            let feedbackMessage_deletedproject = sessionStorage.getItem("feedbackMessage_deletedproject");
+
+            if (feedbackMessage_sentproject) {
+                setTimeout(() => { // Adding a delay using setTimeout
+                    setFeedbackMessage(feedbackMessage_sentproject);
+                    setTimeout(() => {
+                        setFeedbackMessage('');
+                        sessionStorage.removeItem("feedbackMessage_sentproject");
+                    }, 3000);
+                }, 1300); // Adjust the delay time as needed
+            }
+            if (feedbackMessage_deletedproject) {
+                setTimeout(() => { // Adding a delay using setTimeout
+                    setFeedbackMessage(feedbackMessage_deletedproject);
+                    setTimeout(() => {
+                        setFeedbackMessage('');
+                        sessionStorage.removeItem("feedbackMessage_deletedproject");
+                    }, 3000);
+                }, 1300); // Adjust the delay time as needed
+            }
+        };
+        updateFeedbackMessage();
+        return () => {
+            sessionStorage.removeItem("feedbackMessage_sentproject"); // Remove the item from sessionStorage
+            sessionStorage.removeItem("feedbackMessage_deletedproject"); // Remove the item from sessionStorage
+        };
     }, []);
 
+
+
     useEffect(() => {
         let user_id = localStorage.getItem("user_id");
+        console.log(user_id);
 
         const getAllProjects = async () => {
             try {
@@ -56,6 +87,7 @@ function Prevwork_teamleader() {
         return () => clearTimeout(timer);
 
     }, []);
+
 
 
     //open contol sheet modal
@@ -89,8 +121,12 @@ function Prevwork_teamleader() {
         try {
             const userData = await window.api.getUser(user_id);
             console.log('User:', userData.user);
-            setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
-            console.log(userForControlSheet);
+            if (userData.user && userData.user.firstname && userData.user.lastname) {
+                setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
+                console.log(userForControlSheet);
+            } else {
+                console.error('User data is not in the expected format:', userData);
+            }
         } catch (error) {
             console.error('Error fetching user:', error);
         }
@@ -129,7 +165,7 @@ function Prevwork_teamleader() {
                                     <FontAwesomeIcon className="mt-1" icon={faLock} />
                                 </div>
 
-                                <div className="prevwork-box-mid mx-2"  title="Sent date">
+                                <div className="prevwork-box-mid mx-2" title="Sent date">
                                     <p className="ml-2"> <FontAwesomeIcon icon={faPaperPlane} /> {project.sent_date.substring(0, 10)}</p>
                                 </div>
                                 <div className="prevwork-box-right"
@@ -158,6 +194,7 @@ function Prevwork_teamleader() {
 
             <Sidemenu_teamleader />
             <Controlsheet showcControlSheetModal={showcControlSheetModal} handleClose={handleClose} project_id={projectId} projectType={projectType} teamsForControlSheet={teamsForControlSheet} projectForControlSheet={projectForControlSheet} userForControlSheet={userForControlSheet} />
+            <FeedbackMessage feedbackMessage={feedbackMessage} />
 
         </div>
     );

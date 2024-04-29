@@ -11,7 +11,7 @@ import ConfirmControlSheetModal from "../../components/teamleader/confirmcontrol
 
 import '../../assets/css/teamleader/components_teamleader.css'
 
-const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAnomalyReport, project, teams, userForControlSheet }) => {
+const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAnomalyReport, project, teams }) => {
 
     //define states
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -20,14 +20,13 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
     const [projectId, setProjectId] = useState(null);
     const [alertSale, setAlertSale] = useState(null);
 
-
     const handleClose = () => setShowDeleteModal(false);
     const handleCloseControlSheetModal = () => setShowConfirmControlSheetModal(false);
-
     const handleCloseProjectModal = () => setShowSendProjectModal(false);
     // const handleShow = () => setShowdeleteModal(true);
 
     const navigate = useNavigate();
+
 
 
 
@@ -71,7 +70,7 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
                     onClick={() => deleteProject()}
                 >
                     <span className="button-title button-title-delete">Delete project</span>
-                    <FontAwesomeIcon icon={faTrashAlt} /> 
+                    <FontAwesomeIcon icon={faTrashAlt} />
                 </button>
 
                 <button className="minimenu-button"
@@ -97,7 +96,7 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
 
             <DeleteProjectModal showDeleteModal={showDeleteModal} handleClose={handleClose} projectName={project_name} />
             <SendProjectModal showSendProjectModal={showSendProjectModal} handleCloseProjectModal={handleCloseProjectModal} project_id={projectId} alertSale={alertSale} />
-            <ConfirmControlSheetModal showConfirmControlSheetModal={showConfirmControlSheetModal} handleCloseControlSheetModal={handleCloseControlSheetModal} projectType={project_type} project={project} teams={teams} userForControlSheet={userForControlSheet} sendJob={sendJob} />
+            <ConfirmControlSheetModal showConfirmControlSheetModal={showConfirmControlSheetModal} handleCloseControlSheetModal={handleCloseControlSheetModal} projectType={project_type} project={project} teams={teams} sendJob={sendJob} />
 
         </div>
     );

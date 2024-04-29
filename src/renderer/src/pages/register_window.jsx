@@ -82,6 +82,7 @@ function Register_window() {
               console.log("User created successfully");
               setPassword("");
               setUsername("");
+              setErrorLogginginMessage("");
             } else {
               console.log("Error creating user");
               setErrorLogginginMessage("User already exists");

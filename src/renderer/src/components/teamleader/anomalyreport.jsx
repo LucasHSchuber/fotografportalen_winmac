@@ -7,16 +7,18 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, refreshAnomalyData }) => {
+const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, refreshAnomalyData, updateFeedbackMessage }) => {
 
     //define states
     const [anomaly, setAnomaly] = useState("");
     const [mergedTeams, setMergedTeams] = useState("");
     const [isAnomalyModified, setIsAnomalyModified] = useState(false);
-    const [isMergedTeamsModified, setIsMergedTeamsModified] = useState(false); 
+    const [isMergedTeamsModified, setIsMergedTeamsModified] = useState(false);
 
 
     console.log(project_anomaly);
+    const project_id = localStorage.getItem("project_id");
+    console.log(project_id);
 
     const closeAnomalyReport = () => {
         setAnomaly("");
@@ -52,12 +54,17 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
                 ...updatedFields,
                 project_id: project_id
             });
-            // console.log('Updated fields:', projectData);
+            console.log('Anomaly report updated');
+            //close anomaly report
+            toggleAnomalyReport();
+            //update feedback message
+            updateFeedbackMessage(`Anomaly report updated successfully`);
+            //referesh anomaly report in parent data
+            refreshAnomalyData();
+        } else {
+            console.log("Anomaly report saved but not updated");
         }
-        //close anomaly report
-        toggleAnomalyReport();
-        //referesh anomaly report in parent data
-        refreshAnomalyData();
+
     };
 
 
@@ -71,7 +78,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
                         className="close"
                         onClick={closeAnomalyReport}
                     >
-                       <FontAwesomeIcon icon={faTimes} className="fa-xs" />
+                        <FontAwesomeIcon icon={faTimes} className="fa-xs" />
                     </button>
                 </div>
                 <div className="form-group">

@@ -32,6 +32,7 @@ function Newproject_teamleader() {
     const [projectExistsMessage, setProjectExistsMessage] = useState(false);
     const [missingProjectname, setMissingProjectname] = useState(false);
     const [missingType, setMissingType] = useState(false);
+    const [errorCreatingProject, setErrorCreatingProject] = useState(false);
 
     const navigate = useNavigate();
 
@@ -152,25 +153,43 @@ function Newproject_teamleader() {
                 console.log('Project does not exist.');
 
                 let user_id = localStorage.getItem("user_id");
+                let photographername = localStorage.getItem("user_name");
+
+                console.log(user_id);
+                console.log(photographername);
                 const args = {
                     projectname: chosenProjectName,
                     type: type,
                     project_uuid: project_uuid,
+                    photographername: photographername,
                     user_id: user_id
                 };
-
                 const response = await window.api.createNewProject(args);
                 console.log('Create New Projects Response:', response);
 
-                if (response && response.success) {
+                if (response.success) {
                     console.log('Project created successfully');
 
                     //get latest tuppel in projects-table
                     const latestProjectResponse = await window.api.getLatestProject(project_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
 
+                    if (!latestProjectResponse.project_id) {
+                        console.error('Error: Project ID is not set.');
+                        setErrorCreatingProject(true);
+                        return;
+                    }
+
                     localStorage.setItem("project_id", latestProjectResponse.project_id)
                     console.log(localStorage.getItem("project_id"));
+
+                    // Check if project ID is set in local storage
+                    if (!localStorage.getItem("project_id")) {
+                        console.error('Error: Project ID is not set in local storage.');
+                        setErrorCreatingProject(true);
+                        return;
+                    }
+
                     navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
 
                 } else {
@@ -223,11 +242,12 @@ function Newproject_teamleader() {
                     <p>Create a new school or sport photography</p>
                 </div>
 
-                {projectExistsMessage || missingProjectname || missingType ? (
+                {projectExistsMessage || missingProjectname || missingType || errorCreatingProject ? (
                     <ul className="error" style={{ marginLeft: "-1.5em" }}>
                         {projectExistsMessage && <li>Project already exists</li>}
                         {missingProjectname && <li>Select a project from the list</li>}
                         {missingType && <li>Select either sport or school photography</li>}
+                        {errorCreatingProject && <li>Error loading project. Go to "current work" and enter your project from there</li>}
                     </ul>
                 ) : null}
 

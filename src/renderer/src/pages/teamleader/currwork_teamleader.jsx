@@ -34,6 +34,7 @@ function Currwork_teamleader() {
                     setProjectsArray(projects.projects);
                 } else {
                     console.error('Invalid projects data:', projects);
+                    getAllProjects();
                 }
 
             } catch (error) {

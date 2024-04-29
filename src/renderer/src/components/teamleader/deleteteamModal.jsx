@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamName, teamId, refreshTeamData }) => {
+const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamName, teamId, refreshTeamData, updateFeedbackMessage }) => {
 
     //define states
     const [deleteInputValue, setDeleteInputValue] = useState("");
@@ -31,6 +31,7 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
 
                 setDeleteMessage("");
                 handleCancel();
+                updateFeedbackMessage(`${projectType === "school" ? "Class deleted successfully" : "Team deleted successfully"}`);
                 refreshTeamData(); //refresh team data in parent
                 localStorage.removeItem("team_id");
             } catch (error) {

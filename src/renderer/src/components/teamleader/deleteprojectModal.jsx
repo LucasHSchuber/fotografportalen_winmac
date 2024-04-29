@@ -36,8 +36,9 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
 
                 setDeleteMessage("");
                 localStorage.removeItem("project_id");
+                sessionStorage.setItem("feedbackMessage_deletedproject", "Project successfully deleted");
 
-                navigate("/currwork_teamleader");
+                navigate("/prevwork_teamleader");
 
             } catch (error) {
                 console.error('Error deleting project:', error);

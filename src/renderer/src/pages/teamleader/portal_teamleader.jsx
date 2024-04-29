@@ -1,28 +1,25 @@
 import React, { useEffect, useState, } from "react";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faUser, faMinus, faPeopleGroup, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { faCalendarPlus, faCalendarMinus } from '@fortawesome/free-regular-svg-icons';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
-import flash_black from "../../assets/images/flash_black.png";
 import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
-import group from "../../assets/images/group.png";
-import portrait from "../../assets/images/portrait.png";
-import portrait2 from "../../assets/images/portrait2.png";
-
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import Minimenu_teamleader from "../../components/teamleader/minimenu_teamleader";
 import Anomalyreport from "../../components/teamleader/anomalyreport";
 import DeleteTeam from "../../components/teamleader/deleteteamModal";
 import EditTeam from "../../components/teamleader/editteamModal";
+import FeedbackMessage from "../../components/feedbackMessage";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
 
 function Portal_teamleader() {
+    const location = useLocation();
     // Define states
     const [project, setProject] = useState({});
     const [projectType, setProjectType] = useState({});
@@ -33,8 +30,6 @@ function Portal_teamleader() {
     const [teamName, setTeamName] = useState("");
     const [teamId, setTeamId] = useState("");
     const [editTeam, setEditTeam] = useState({});
-    const [userForControlSheet, setUserForControlSheet] = useState([]);
-
 
     const [loading, setLoading] = useState(true);
 
@@ -42,12 +37,46 @@ function Portal_teamleader() {
     const [showDeleteTeamModal, setShowDeleteTeamModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
+    const [feedbackMessage, setFeedbackMessage] = useState('');
+
     // Accessing the projectId from URL parameters
     const { project_id } = useParams();
+    // Accessing feedbackMessage from query parameters 
+    // const searchParams = new URLSearchParams(location.search);
 
+    //methods passed from components
     const handleClose = () => setShowDeleteTeamModal(false);
     const handleCloseEditModal = () => setShowEditModal(false);
 
+
+    // Function to update feedback message from new team
+    useEffect(() => {
+        const updateFeedbackMessage = () => {
+            let feedbackMessage_newteam = sessionStorage.getItem("feedbackMessage_newteam");
+
+            if (feedbackMessage_newteam) {
+                setTimeout(() => {
+                    setFeedbackMessage(feedbackMessage_newteam);
+                    setTimeout(() => {
+                        setFeedbackMessage('');
+                        sessionStorage.removeItem("feedbackMessage_newteam");
+                    }, 3000);
+                }, 1300);
+            }
+        };
+        updateFeedbackMessage();
+        return () => {
+            sessionStorage.removeItem("feedbackMessage_newteam");
+        };
+    }, []);
+
+    // Function to update feedback message 
+    const updateFeedbackMessage = (message) => {
+        setFeedbackMessage(message);
+        setTimeout(() => {
+            setFeedbackMessage('');
+        }, 3000);
+    };
 
     const toggleAnomalyReport = () => {
         setShowAnomalyReport(!showAnomalyReport);
@@ -69,6 +98,7 @@ function Portal_teamleader() {
     //load loading bar on load
     useEffect(() => {
         let project_id = localStorage.getItem("project_id");
+        console.log(project_id);
 
         const fetchProject = async () => {
             try {
@@ -84,9 +114,11 @@ function Portal_teamleader() {
                     fetchTeamsByProjectId();
                 } else {
                     console.error('Error: Project data is null or undefined');
+                    fetchProject();
                 }
             } catch (error) {
                 console.error('Error fetching project:', error);
+                fetchProject();
             }
         };
 
@@ -101,25 +133,23 @@ function Portal_teamleader() {
             }
         };
 
-        const fetchUser = async () => {
-            let user_id = localStorage.getItem("user_id");
-            try {
-                const userData = await window.api.getUser(user_id);
-                if (userData && userData.user) {
-                    console.log('User:', userData.user);
-                    setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
-                } else {
-                    console.error('Error: User data is null or undefined');
-                }
-            } catch (error) {
-                console.error('Error fetching user:', error);
-            }
-        };
+        // const fetchUser = async () => {
+        //     let user_id = localStorage.getItem("user_id");
+        //     try {
+        //         const userData = await window.api.getUser(user_id);
+        //         if (userData && userData.user) {
+        //             console.log('User:', userData.user);
+        //             setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
+        //         } else {
+        //             console.error('Error: User data is null or undefined');
+        //         }
+        //     } catch (error) {
+        //         console.error('Error fetching user:', error);
+        //     }
+        // };
 
-
-        fetchUser();
-        fetchProject();
-
+        // fetchUser();
+        fetchProject()
 
         const timer = setTimeout(() => {
             setLoading(false);
@@ -176,7 +206,17 @@ function Portal_teamleader() {
 
                             <>
                                 <div className="header mb-5">
-                                    <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created && project.created.length > 0 ? project.created.substring(0, 10) : ""})</em></h5>
+                                    {/* <h5>{project.type === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{project.projectname}  <em>({project.created && project.created.length > 0 ? project.created.substring(0, 10) : ""})</em></h5> */}
+                                    <h5>
+                                        {project.type === "school" ? (
+                                            <img className="portal-title-img mr-3" src={academic_black} alt="academic" />
+                                        ) : (
+                                            <img className="portal-title-img mr-3" src={running_black} alt="running" />
+                                        )}
+                                        {project.projectname || "Loading project name..."}{" "}
+                                        <em>({project.created && project.created.length > 0 ? project.created.substring(0, 10) : ""})</em>
+                                    </h5>
+
                                     {/* <h6 className=""><em>{project.created.substring(0, 10)}</em></h6> */}
                                 </div>
 
@@ -265,12 +305,12 @@ function Portal_teamleader() {
                         </div>
                     )}
 
-                    <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} project={project} teams={teams} userForControlSheet={userForControlSheet} />
+                    <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} project={project} teams={teams} />
                     <Sidemenu_teamleader />
-                    {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} merged_teams={projectMergedTeams} refreshAnomalyData={refreshAnomalyData} />}
-                    <DeleteTeam showDeleteTeamModal={showDeleteTeamModal} handleClose={handleClose} projectType={projectType} teamName={teamName} teamId={teamId} refreshTeamData={refreshTeamData} />
-                    <EditTeam showEditModal={showEditModal} handleCloseEditModal={handleCloseEditModal} projectType={projectType} teamData={editTeam} teamId={teamId} refreshTeamData={refreshTeamData} />
-
+                    {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} merged_teams={projectMergedTeams} refreshAnomalyData={refreshAnomalyData} updateFeedbackMessage={updateFeedbackMessage} />}
+                    <DeleteTeam showDeleteTeamModal={showDeleteTeamModal} handleClose={handleClose} projectType={projectType} teamName={teamName} teamId={teamId} refreshTeamData={refreshTeamData} updateFeedbackMessage={updateFeedbackMessage} />
+                    <EditTeam showEditModal={showEditModal} handleCloseEditModal={handleCloseEditModal} projectType={projectType} teamData={editTeam} teamId={teamId} refreshTeamData={refreshTeamData} updateFeedbackMessage={updateFeedbackMessage} />
+                    <FeedbackMessage feedbackMessage={feedbackMessage} />
                 </>
             )}
         </div>

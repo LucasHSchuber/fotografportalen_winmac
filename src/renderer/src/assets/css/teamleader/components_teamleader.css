@@ -83,6 +83,8 @@
 
 .minimenu-button:hover {
     background-color: rgb(68, 68, 68);
+    border: 2px solid #00b3ff;
+
 }
 
 .minimenu-button:focus {
@@ -107,7 +109,8 @@
 }
 
 .minimenu-delete-button:hover {
-    background-color: rgb(68, 68, 68);
+    background-color: rgb(68, 68, 68);;
+    border: 2px solid #ff6262;
 }
 
 .minimenu-delete-button:focus {

@@ -114,7 +114,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
             console.log('Sent:', sentProject);
 
             setShowConfirmationModal(false);
-            navigate("/currwork_teamleader");
+            sessionStorage.setItem("feedbackMessage_sentproject", "Job successfully sent");
+            navigate("/prevwork_teamleader");
             refreshProjects();
 
         } catch (error) {

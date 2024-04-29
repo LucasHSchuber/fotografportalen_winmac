@@ -8,7 +8,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, userForControlSheet, handleClose, project_id, projectType, teamsForControlSheet }) => {
+const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, handleClose, project_id, projectType, teamsForControlSheet }) => {
 
     //define states
     const [userName, setUserName] = useState("");
@@ -27,7 +27,7 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, use
                 {/* load project and user info */}
                 {projectForControlSheet && (
                     <div key={projectForControlSheet.project_id} className="controlsheet-modal-info-box" >
-                        <h6><span>Photographer:</span> {userForControlSheet}</h6>
+                        <h6><span>Photographer:</span> {projectForControlSheet.photographername}</h6>
                         <h6><span>Project name:</span> {projectForControlSheet.projectname}</h6>
                         <h6><span>Created:</span> {projectForControlSheet.created}</h6>
                         <h6><span>Sent:</span> {projectForControlSheet.sent_date}</h6>

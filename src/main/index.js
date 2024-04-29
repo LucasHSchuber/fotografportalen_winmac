@@ -209,6 +209,7 @@ function createTables() {
       project_id INTEGER PRIMARY KEY AUTOINCREMENT,
       project_uuid STRING NOT NULL,
       projectname TEXT NOT NULL,
+      photographername TEXT,
       type SRTING NOT NULL,
       anomaly TEXT,
       merged_teams TEXT,
@@ -436,13 +437,13 @@ ipcMain.handle("getUser", async (event, id) => {
 ipcMain.handle("createUser", async (event, args) => {
   try {
       if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for createNewProject');
+          throw new Error('Invalid arguments received for createUser');
       }
 
       const { email, firstname, surname, password, language, token } = args;
 
       if (!email || !firstname || !surname || !language || !token || !password ) {
-          throw new Error('Missing required user data for createNewProject');
+          throw new Error('Missing required user data for createUser');
       }
 
       const userExists = await checkUsernameInDatabase(email);
@@ -715,6 +716,7 @@ ipcMain.handle("getProjectById", async (event, project_id) => {
           project_id: row.project_id,
           project_uuid: row.project_uuid,
           projectname: row.projectname,
+          photographername: row.photographername,
           type: row.type,
           anomaly: row.anomaly,
           merged_teams: row.merged_teams,
@@ -820,16 +822,16 @@ ipcMain.handle("createNewProject", async (event, args) => {
           throw new Error('Invalid arguments received for createNewProject');
       }
 
-      const { projectname, type, user_id, project_uuid } = args;
+      const { projectname, type, user_id, project_uuid, photographername } = args;
 
-      if (!projectname || !type || !project_uuid || !user_id) {
+      if (!projectname || !type || !project_uuid || !user_id || !photographername ) {
           throw new Error('Missing required user data for createNewProject');
       }
       
       await db.run(`
-          INSERT INTO projects (projectname, type, user_id, project_uuid)
-          VALUES (?, ?, ?, ?)
-          `, [projectname.toLowerCase(), type.toLowerCase(), user_id, project_uuid]);
+          INSERT INTO projects (projectname, photographername, type, user_id, project_uuid)
+          VALUES (?, ?, ?, ?, ?)
+          `, [projectname.toLowerCase(), photographername, type.toLowerCase(), user_id, project_uuid]);
 
       console.log('Project added successfully');
       console.log('Fetching new project with UUID:', project_uuid);

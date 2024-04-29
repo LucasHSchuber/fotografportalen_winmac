@@ -12,7 +12,6 @@ import gdprProtectionMethod from '../assets/js/gdprProtection';
 
 function Index() {
   //define states
-
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState('');
   const [projectsArray, setProjectsArray] = useState([]);
@@ -21,19 +20,6 @@ function Index() {
   const handleCloseLoginModal = () => { setShowLoginModal(false) };
   const navigate = useNavigate();
 
-
-
-
-  // const openLoginModal = () => {
-  //   setShowLoginModal(true);
-  // };
-
-  //assign the user_id localStorage (later login)
-  // useEffect(() => {
-
-  //   localStorage.setItem("user_id", 1);
-  //   localStorage.setItem("user_name", user.firstname + " " + user.lastname);
-  // }, []);
 
 
 
@@ -58,6 +44,7 @@ function Index() {
         console.log('Users Data:', usersData); // Log the users data
         setUser(usersData.user);
         console.log(usersData.user);
+        localStorage.setItem("user_name", usersData.user.firstname + " " + usersData.user.lastname);
       } catch (error) {
         console.error('Error fetching users data:', error);
       }
@@ -92,14 +79,13 @@ function Index() {
   return (
     <div className="d-flex index-wrapper">
       <div className="index-box-left">
-
         <div className="index-box d-flex">
           <div className="avatar-container">
             <img className="profile-picture" src={profile} alt="profile picture"></img>
           </div>
           <div className="mt-2 ml-2">
-            <h5 style={{ fontWeight: "700" }}>{user ? user.firstname : ""} {user ? user.lastname : ""}</h5>
-            <h6><em>{user.city}</em></h6>
+            <h5 style={{ fontWeight: "700", fontSize: "1.5em" }}>{user ? user.firstname : ""} {user ? user.lastname : ""}</h5>
+            <h6 style={{ marginTop: "-0.25em" }}><em>{user ? user.city : ""}</em></h6>
           </div>
         </div>
 
@@ -130,7 +116,6 @@ function Index() {
       </div>
 
       <div className="index-box-right">
-
         <div className="index-box">
           <h1 className="index-title three">News & updates</h1>
           <h6><b>New updates for Fotografportalen</b></h6>
@@ -144,7 +129,6 @@ function Index() {
           <p>We welcome three new Swedish photographers to our company.
             Marcus, Sofia & Jakob, it's great to have you on board! </p>
         </div>
-
       </div>
 
       <Sidemenu />

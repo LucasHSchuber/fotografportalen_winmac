@@ -1,0 +1,21 @@
+/* Components */
+
+.feedback-message {
+  z-index: 40;
+  position: fixed;
+  bottom: 1em;
+  left: -50%; /* Start off-screen */
+  background-color: rgba(38, 38, 38, 0.9);
+  border-radius: 7px;
+  font-weight: 700;
+  font-size: 0.9em;
+  color: rgb(234, 234, 234) !important;
+  padding: 1em 2em 0.2em 2em;
+  transition: left 0.5s ease, opacity 1s ease; /* Slide and fade animation */
+  opacity: 0; /* Initially transparent */
+}
+
+.show-feedback-message {
+  left: 1em; /* Slide in from left */
+  opacity: 1; /* Fade in */
+}

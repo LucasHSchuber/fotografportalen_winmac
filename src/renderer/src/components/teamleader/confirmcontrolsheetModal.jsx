@@ -8,7 +8,7 @@ import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
 
 // import "../../assets/css/teamleader/newprojectModal.css";
 
-const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseControlSheetModal, projectType, project, teams, userForControlSheet, sendJob }) => {
+const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseControlSheetModal, projectType, project, teams, sendJob }) => {
 
     //define states
     const [alertSale, setAlertSale] = useState(false);
@@ -30,7 +30,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                 {/* load project and user info */}
                 {project && (
                     <div key={project.project_id} className="controlsheet-modal-info-box" >
-                        <h6><span>Photographer:</span> {userForControlSheet}</h6>
+                        <h6><span>Photographer:</span> {project.photographername}</h6>
                         <h6><span>Project name:</span> {project.projectname}</h6>
                         <h6><span>Created:</span> {project.created}</h6>
                     </div>

@@ -3,7 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
 
 
-const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamData, teamId, refreshTeamData }) => {
+const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamData, teamId, refreshTeamData, updateFeedbackMessage }) => {
 
     //define states
     const [formData, setFormData] = useState({
@@ -278,9 +278,6 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
             }
         }
 
-
-
-
         if (showInputFields === true) {
             if (teamData.leader_ssn === null && formData.leader_ssn === "") {
                 console.log("missing required leader data");
@@ -320,6 +317,7 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
             resetModificationFlags(); // Reset modification flags
             setShowInputFields(false);
             handleCloseEditModal();
+            updateFeedbackMessage(`${projectType === "school" ? "Class updated successfully" : "Team updated successfully"}`);
             refreshTeamData(); //running twice
 
         } catch (error) {
