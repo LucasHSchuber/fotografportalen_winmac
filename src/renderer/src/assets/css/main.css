@@ -204,6 +204,7 @@
 .settings-wrapper .header h5 {
   font-weight: 700;
 }
+
 .settings-content label {
   margin-bottom: 0;
 }
@@ -211,6 +212,46 @@
 
 
 
+
+/* ACCOUNT */
+
+.account-wrapper {
+  padding: 4em 0 6em 4em;
+}
+.account-content{
+
+}
+
+.account-user-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
+  margin-right: 6em;
+}
+
+.account-user-box h6 {}
+
+.account-user-box span {
+  font-weight: 700;
+}
+
+.avatar-container-account {
+  max-width: 75px;
+  max-height: 75px;
+  min-width: 75px;
+  min-height: 75px;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: #291919;
+  display: flex;
+  justify-content: center; /* Horizontally center the content */
+
+}
+
+.profile-picture-account {
+  width: 100%;
+  display: block;
+}
 
 /* HOME */
 /* 

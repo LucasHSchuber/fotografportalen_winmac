@@ -23,7 +23,7 @@ function Sidemenu_small() {
                 <div className="link-box-small" onClick={() => navigate('/settings')}>
                     <FontAwesomeIcon icon={faCog} className="icons" />
                 </div>
-                <div className="link-box-small">
+                <div className="link-box-small" onClick={() => navigate('/account')}>
                     <FontAwesomeIcon icon={faUser} className="icons" />
                 </div>
             </ul>

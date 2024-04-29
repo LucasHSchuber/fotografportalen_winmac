@@ -136,6 +136,7 @@ function Home_teamleader() {
         fetchProjectsAndTeams();
         fetchAllCurrentProjects();
         fetchAllPreviousProjects();
+        
     }, []);
 
 

@@ -5,6 +5,7 @@ import { useEffect } from "react";
 //importing pages and components
 import Index from "./pages/index";
 import Settings from "./pages/settings";
+import Account from "./pages/account";
 import Login_window from "./pages/login_window";
 import Register_window from "./pages/register_window";
 
@@ -56,6 +57,11 @@ function App() {
 
           <div className="">
             <Routes><Route path="/settings" element={<Settings />} /></Routes>
+          </div>
+
+
+          <div className="">
+            <Routes><Route path="/account" element={<Account />} /></Routes>
           </div>
 
         </div>
