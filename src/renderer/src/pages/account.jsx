@@ -62,6 +62,17 @@ function Account() {
   }, [])
 
 
+const openNewUserWindow = async () => {
+    console.log("open");
+    // try {
+    //     const response = await window.api.createNewuserWindow(); // Change to match the IPC handler name
+    //     console.log(response);
+    // } catch (error) {
+    //     console.error('Error opening new user window:', error);
+    // }
+};
+
+
   // const refreshUser = async () => {
   //   let user_id = localStorage.getItem("user_id");
 
@@ -122,9 +133,9 @@ function Account() {
             <h6><span>City:</span> {user ? user.city : ""} </h6>
           </div>
 
-          <div className="mt-3">
-            <button style={{ margin: "0" }} className="button normal mx-1 fixed-width">Switch user <FontAwesomeIcon icon={faArrowsRotate} />  </button>
-            <button style={{ margin: "0" }} className="button normal fixed-width">Add new user  <FontAwesomeIcon icon={faUserPlus} /> </button>
+          <div className="mt-4">
+            <button style={{ margin: "0", width: "15em" }} className="button normal mx-1 ">Switch photographer <FontAwesomeIcon icon={faArrowsRotate} />  </button>
+            <button style={{ margin: "0", width: "16em" }} className="button normal " onClick={openNewUserWindow}>Connect new photographer <FontAwesomeIcon icon={faUserPlus} /> </button>
           </div>
 
         </div>

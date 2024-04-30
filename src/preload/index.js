@@ -48,6 +48,7 @@ const api = {
 
   createLoginWindow: (args) => ipcRenderer.invoke('createLoginWindow', args), // create login window
   createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window
+  createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // create main window
 
 
 

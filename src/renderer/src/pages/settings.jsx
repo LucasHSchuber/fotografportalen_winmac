@@ -174,7 +174,7 @@ function Settings() {
           <div>
             <label>Email:</label>
             <div>
-              <input className={`form-input-field-fp ${errorMessage.email ? "error-border" : ""}`} type="email" defaultValue={email ? email : ""} placeholder="New email" onChange={(e) => { setNewEmail(e.target.value); handleEmailChange(e.target.value) }} onBlur={(e) => { if (e.target.value !== email) setIsEmailIsModified(true); }} />
+              <input disabled style={{ color: "gray", cursor: "not-allowed" }} className={`form-input-field-fp ${errorMessage.email ? "error-border" : ""}`} type="email" defaultValue={email ? email : ""} placeholder="New email" onChange={(e) => { setNewEmail(e.target.value); handleEmailChange(e.target.value) }} onBlur={(e) => { if (e.target.value !== email) setIsEmailIsModified(true); }} />
             </div>
           </div>
           <div>

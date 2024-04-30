@@ -1779,7 +1779,7 @@ ipcMain.handle("createLoginWindow", async (event, args) => {
   
 });
 
-// //crate main window & close login window
+//crate main window & close login window
 ipcMain.handle("createMainWindow", async (event, args) => {
   loginWindow.close();
   try {
@@ -1826,6 +1826,48 @@ ipcMain.handle("createMainWindow", async (event, args) => {
       throw new Error('Failed to create main window');
   }
 });
+
+
+// //crate login window & close login window
+// ipcMain.handle("createNewuserWindow", async (event) => {
+//   try {
+//     // Create the new user window
+//     const newuserWindow = new BrowserWindow({
+//       width: 350,
+//       height: 460,
+//       resizable: false,
+//       autoHideMenuBar: true,
+//       icon: iconPath,
+//       webPreferences: {
+//         preload: path.join(__dirname, '../preload/index.js'),
+//         sandbox: false,
+//         contextIsolation: true,
+//         nodeIntegration: true,
+//         webSecurity: false
+//       }
+//     });
+
+//     // Load the URL for the new user window
+//     newuserWindow.loadURL(
+//       isDev
+//         ? "http://localhost:5173/#/login_window"
+//         : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
+//     );
+
+//     // Show the new user window when it's ready
+//     newuserWindow.once('ready-to-show', () => {
+//       newuserWindow.show();
+//     });
+
+//     // Optionally return some data back to the renderer process
+//     return { success: true, message: 'New user window created successfully' };
+//   } catch (error) {
+//     console.error('Error creating new user window:', error);
+//     throw new Error('Failed to create new user window');
+//   }
+// });
+
+
 
 // ipcMain.handle("createMainWindow", async (event, args) => {
 //   try {
