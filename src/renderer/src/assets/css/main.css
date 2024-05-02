@@ -218,14 +218,12 @@
 .account-wrapper {
   padding: 4em 0 6em 4em;
 }
-.account-content{
-
-}
 
 .account-user-box {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center children horizontally */
+  align-items: center;
+  /* Center children horizontally */
   margin-right: 6em;
 }
 
@@ -244,7 +242,8 @@
   border-radius: 50%;
   background-color: #291919;
   display: flex;
-  justify-content: center; /* Horizontally center the content */
+  justify-content: center;
+  /* Horizontally center the content */
 
 }
 
@@ -252,6 +251,38 @@
   width: 100%;
   display: block;
 }
+
+.user-account-box {
+  border: 1px solid rgb(222, 222, 222);
+  padding: 1em 2em;
+  border-radius: 6px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.user-account-box:hover {
+  background-color: #f8f8f8;
+  border: 1px solid rgb(198, 198, 198);
+  padding: 1em 2em;
+  border-radius: 3px;
+}
+
+.selected-user-account {
+  background-color: #f2f2f2 !important;
+  box-shadow: 0 0 5px 5px rgba(179, 179, 179, 0.1) !important;
+  border: 1px solid rgb(176, 175, 175) !important;
+}
+
+.switchuser-button{
+  display: none;
+  transition: 0.2s;
+}
+.show-switchuser-button{
+  display: block;
+}
+
+
+
 
 /* HOME */
 /* 

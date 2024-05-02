@@ -433,6 +433,47 @@ ipcMain.handle("getUser", async (event, id) => {
 });
 
 
+
+//get all users
+ipcMain.handle("getAllUsers", async (event, args) => {
+  const retrieveQuery = "SELECT * FROM users"; 
+
+  try {
+    const users = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, (error, rows) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        const allUsers = rows.map(row => ({
+          user_id: row.user_id,
+          email: row.email,
+          firstname: row.firstname,
+          lastname: row.lastname,
+          city: row.city,
+          lang: row.lang,
+          created: row.created
+        }));
+
+        db.close(() => {
+          resolve({ statusCode: 1, users: allUsers });
+        });
+      });
+    });
+
+    return { statusCode: 1, users: users }; // Corrected to return 'users' instead of 'allUsers'
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+
+
 //create new user
 ipcMain.handle("createUser", async (event, args) => {
   try {
@@ -568,7 +609,7 @@ const getUserDetails = (email) => {
 ipcMain.handle("editUser", async (event, args) => {
   try {
       if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for editTeam');
+          throw new Error('Invalid arguments received for editUser');
       }
 
       const { email, firstname, lastname, city, lang, user_id } = args;

@@ -313,12 +313,14 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
 
             console.log(updatedFields);
             console.log(teamId);
-            refreshTeamData(); //running twice
             resetModificationFlags(); // Reset modification flags
             setShowInputFields(false);
             handleCloseEditModal();
-            updateFeedbackMessage(`${projectType === "school" ? "Class updated successfully" : "Team updated successfully"}`);
             refreshTeamData(); //running twice
+            updateFeedbackMessage(`${projectType === "school" ? "Class updated successfully" : "Team updated successfully"}`);
+            setTimeout(() => {
+                refreshTeamData(); //running twice
+            }, 300)
 
         } catch (error) {
             console.error('Error editing team:', error);

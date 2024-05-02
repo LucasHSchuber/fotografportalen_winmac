@@ -11,6 +11,17 @@
   background-color: #181818;
 }
 
+.cancel-fp {
+  background-color: rgb(239, 239, 239);
+  transition: 0.2s;
+  color: rgb(46, 46, 46);
+}
+
+.cancel-fp:hover {
+  background-color: rgb(229, 229, 229);
+  color: rgb(46, 46, 46);
+}
+
 .register-link-login {
   cursor: pointer;
   text-decoration: underline !important;

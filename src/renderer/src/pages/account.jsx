@@ -8,17 +8,24 @@ import profile from "../assets/images/photographer.png";
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
 import FeedbackMessage from "../components/feedbackMessage";
+import SwitchUserModal from "../components/switchUserModal";
+import ConnectUserModal from "../components/connectUserModal";
+
+
 
 
 function Account() {
   //define states
   const [user, setUser] = useState({});
+  const [allUsers, setAllUsers] = useState([]);
 
-  const [isEmailModified, setIsEmailIsModified] = useState(false);
-  const [isFirstnameIsModified, setIsFirstnameIsModified] = useState(false);
-  const [isLastnameIsModified, setIsLastnameIsModified] = useState(false);
+  const [chosenUser, setChosenUser] = useState({});
+  const [chosenUserId, setChosenUserId] = useState(parseInt(localStorage.getItem("user_id")));
 
-  // const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+
+  const [showSwitchUserModal, setShowSwitchUserModal] = useState(false);
+  const [showConnectUserModal, setShowConnectUserModal] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState({
     email: false,
@@ -26,27 +33,32 @@ function Account() {
     lastname: false
   });
 
+  const handleCloseSwitchUserModal = () => { setShowSwitchUserModal(false) };
+  const handleCloseConnectUserModal = () => { setShowConnectUserModal(false) };
 
-  // // Function to update feedback message
-  // const updateFeedbackMessage = (message) => {
-  //   setFeedbackMessage(message);
-  //   setTimeout(() => {
-  //     setFeedbackMessage('');
-  //   }, 3000);
-  // };
+
+
+
+  // Function to update feedback message
+  const updateFeedbackMessage = (message) => {
+    setFeedbackMessage(message);
+    setTimeout(() => {
+      setFeedbackMessage('');
+    }, 3000);
+  };
 
 
   //fethch user data
   useEffect(() => {
 
-    let user_id = localStorage.getItem("user_id");
+    let user_id = parseInt(localStorage.getItem("user_id"));
+
     // fetch user data
     const fetchUser = async () => {
       try {
-        const usersData = await window.api.getUser(user_id); // Fetch users data from main process
-        console.log('Users Data:', usersData); // Log the users data
+        const usersData = await window.api.getUser(user_id);
+        console.log('Users Data:', usersData);
         setUser(usersData.user);
-
         console.log(usersData.user);
 
         localStorage.setItem("user_lang", usersData.user.lang);
@@ -57,55 +69,67 @@ function Account() {
         fetchUser();
       }
     };
+
+    const fetchAllUsers = async () => {
+      try {
+        const allUsersData = await window.api.getAllUsers();
+        console.log('All users response:', allUsersData);
+        let allUsersExceptLoggedIn = allUsersData.users.users.filter(u => u.user_id !== chosenUserId);
+        setAllUsers(allUsersExceptLoggedIn);
+        console.log(allUsersExceptLoggedIn);
+      } catch (error) {
+        console.error('Error fetching all users data:', error);
+      }
+    };
+
     fetchUser();
+    fetchAllUsers();
+
 
   }, [])
 
 
-const openNewUserWindow = async () => {
-    console.log("open");
-    // try {
-    //     const response = await window.api.createNewuserWindow(); // Change to match the IPC handler name
-    //     console.log(response);
-    // } catch (error) {
-    //     console.error('Error opening new user window:', error);
-    // }
-};
+
+  //triggered after changed photographer success
+  const refreshUser = async () => {
+    let user_id = localStorage.getItem("user_id");
+
+    try {
+      const usersData = await window.api.getUser(user_id);
+      console.log('Users Data:', usersData);
+      setUser(usersData.user);
+      console.log(usersData.user);
+
+      localStorage.setItem("user_lang", usersData.user.lang);
+      console.log(usersData.user.lang);
+
+    } catch (error) {
+      console.error('Error fetching users data:', error);
+    }
+
+    try {
+      const allUsersData = await window.api.getAllUsers();
+      console.log('All users response:', allUsersData);
+      const allUsersExceptLoggedIn = allUsersData.users.users.filter(u => u.user_id !== chosenUserId);
+      setAllUsers("");
+      setAllUsers(allUsersExceptLoggedIn);
+      console.log(allUsersExceptLoggedIn);
+    } catch (error) {
+      console.error('Error fetching all users data:', error);
+    }
+
+  };
 
 
-  // const refreshUser = async () => {
-  //   let user_id = localStorage.getItem("user_id");
 
-  //   try {
-  //     const usersData = await window.api.getUser(user_id); // Fetch users data from main process
-  //     console.log('Users Data:', usersData); // Log the users data
-  //     setUser(usersData.user);
-  //     setEmail(usersData.user.email);
-  //     setFirstname(usersData.user.firstname);
-  //     setLastname(usersData.user.lastname);
-  //     setCity(usersData.user.city);
-  //     setLang(usersData.user.lang);
-  //     console.log(usersData.user);
-
-  //     localStorage.setItem("user_lang", usersData.user.lang);
-  //     console.log(usersData.user.lang);
-
-  //   } catch (error) {
-  //     console.error('Error fetching users data:', error);
-  //   }
-  // };
-
-
-  const handleEmailChange = () => {
-    setErrorMessage({ ...errorMessage, email: false });
-  }
-  const handleFirstnameChange = () => {
-    setErrorMessage({ ...errorMessage, firstname: false });
-  }
-  const handleLastnameChange = () => {
-    setErrorMessage({ ...errorMessage, lastname: false });
+  const switchUser = () => {
+    console.log(chosenUserId);
+    setShowSwitchUserModal(true); // Open switchUserModal
   }
 
+  const connectUser = () => {
+    setShowConnectUserModal(true); // Open connectUserModal
+  }
 
 
   return (
@@ -116,27 +140,58 @@ const openNewUserWindow = async () => {
         </div>
 
         <div className="account-user-box my-4">
-
           <div className="avatar-container-account my-4 ">
             <img className="profile-picture-account" src={profile} alt="profile picture"></img>
           </div>
-
           <div>
             <h6><span>Email:</span> {user ? user.email : ""}</h6>
           </div>
-
           <div>
             <h6><span>Name:</span> {user ? user.firstname : ""} {user ? user.lastname : ""}</h6>
           </div>
-
           <div>
-            <h6><span>City:</span> {user ? user.city : ""} </h6>
+            <h6><span>City:</span> {user && user.city !== null ? user.city : <em>None</em>} </h6>
           </div>
 
-          <div className="mt-4">
-            <button style={{ margin: "0", width: "15em" }} className="button normal mx-1 ">Switch photographer <FontAwesomeIcon icon={faArrowsRotate} />  </button>
-            <button style={{ margin: "0", width: "16em" }} className="button normal " onClick={openNewUserWindow}>Connect new photographer <FontAwesomeIcon icon={faUserPlus} /> </button>
+          <hr className="mt-5" style={{ width: "30em" }}></hr>
+
+
+          <div className="mt-4 mb-3">
+            <div>
+              <button style={{ margin: "0", width: "16em" }} className="button normal" onClick={connectUser}> Connect new photographer </button>
+            </div>
           </div>
+
+          <div className="my-4 d-flex justify-content-between">
+            {allUsers && allUsers.length > 0 ? (
+              allUsers.map(user => (
+                <div key={user.user_id}>
+                  <div className={`mx-2 d-flex justify-content-between user-account-box ${chosenUserId === user.user_id ? "selected-user-account" : ""}`} 
+                  onClick={() => { setChosenUserId(user.user_id), setChosenUser(user) }}
+                  >
+                    <div>
+                      <div className="avatar-container-account my-2 ">
+                        <img className="profile-picture-account" src={profile} alt="profile picture"></img>
+                      </div>
+                      <h6 style={{ textAlign: "center" }}>{user.firstname}</h6>
+                    </div>
+                  </div>
+
+                  <div className="ml-5">
+                    <button style={{ margin: "0", width: "3em", height: "2.5em", border: "1px solid #c9c9c9", borderRadius: "10px" }} className={`switchuser-button button  my-1 ${chosenUserId === user.user_id ? "show-switchuser-button" : ""}`} onClick={switchUser}> <FontAwesomeIcon icon={faArrowsRotate} />  </button>
+                  </div>
+
+                </div>
+              ))
+            ) : (
+              <>
+              </>
+            )}
+          </div>
+          {/* 
+          <div>
+            <button style={{ margin: "0", width: "8em" }} className={`switchuser-button button normal mb-3 ${chosenUserId !== user.user_id ? "show-switchuser-button" : ""}`} onClick={chosenUserId !== user.user_id ? switchUser : handleCloseSwitchUserModal}>Switch <FontAwesomeIcon icon={faArrowsRotate} />  </button>
+          </div> */}
 
         </div>
 
@@ -144,7 +199,11 @@ const openNewUserWindow = async () => {
 
       <Sidemenu />
       <Sidemenu_small />
-      {/* <FeedbackMessage feedbackMessage={feedbackMessage} /> */}
+      {chosenUserId !== user.user_id && (
+        <SwitchUserModal showSwitchUserModal={showSwitchUserModal} handleCloseSwitchUserModal={handleCloseSwitchUserModal} chosenUser={chosenUser} refreshUser={refreshUser} updateFeedbackMessage={updateFeedbackMessage} />
+      )}
+      <ConnectUserModal showConnectUserModal={showConnectUserModal} handleCloseConnectUserModal={handleCloseConnectUserModal} refreshUser={refreshUser} updateFeedbackMessage={updateFeedbackMessage} />
+      <FeedbackMessage feedbackMessage={feedbackMessage} />
 
     </div>
   );

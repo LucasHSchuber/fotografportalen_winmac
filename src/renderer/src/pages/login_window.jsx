@@ -30,7 +30,7 @@ function Login_window() {
 
   useEffect(() => {
     setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
-    setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");
+    // setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");
   }, [])
 
   const handleUsernameChange = (e) => {
@@ -69,7 +69,7 @@ function Login_window() {
     if (password !== "" && username !== "") {
       console.log("password and username entered");
       localStorage.setItem("username", username);
-      localStorage.setItem("password", password);
+      // localStorage.setItem("password", password);
 
       try {
         const data = { email: username, password: password };

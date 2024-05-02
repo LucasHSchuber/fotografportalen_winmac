@@ -199,10 +199,11 @@ function Settings() {
             <label>Language:</label>
             <div style={{ width: "20em" }}>
               <select className="form-input-field-fp" defaultValue={user && lang} onChange={(e) => setNewLang(e.target.value)}>
-                <option value="DK" selected={user.lang === "DN"}>Danish</option>
-                <option value="SE" selected={user.lang === "SE"}>Swedish</option>
-                <option value="NO" selected={user.lang === "NO"}>Norwegian</option>
+                <option value="DK" selected={user.lang === "DK"}>Danish</option>
                 <option value="FI" selected={user.lang === "FI"}>Finnish</option>
+                <option value="DE" selected={user.lang === "DE"}>German</option>
+                <option value="NO" selected={user.lang === "NO"}>Norwegian</option>
+                <option value="SE" selected={user.lang === "SE"}>Swedish</option>
               </select>
             </div>
           </div>

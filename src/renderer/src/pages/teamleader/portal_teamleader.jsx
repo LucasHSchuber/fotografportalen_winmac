@@ -180,6 +180,7 @@ function Portal_teamleader() {
             setTeams(teamsData.teams);
         } catch (error) {
             console.error('Error refreshing teams:', error);
+            refreshTeamData();
         }
     };
 
@@ -231,15 +232,15 @@ function Portal_teamleader() {
                                                     <p className="ml-2 mr-2">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
                                                     {data.protected_id === 1 ? (
                                                         <div className="d-flex">
-                                                            <p className="ml-4">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
-                                                            <p className="ml-1 mr-3 ">{data.protected_id === 1 ? <FontAwesomeIcon icon={faUserShield} /> : ""}</p>
+                                                            <p className="ml-4" title="portrait">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
+                                                            <p className="ml-1 mr-3" title="protected id">{data.protected_id === 1 ? <FontAwesomeIcon icon={faUserShield} /> : ""}</p>
                                                         </div>
                                                     ) : (
-                                                        <p className="mx-4 ">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
+                                                        <p className="mx-4" title="portrait">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     )}
 
 
-                                                    <p className="mx-4 ">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
+                                                    <p className="mx-4 " title="group">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     <p className="ml-4 mr-2">{data.amount}st</p>
                                                     {projectType === "sport" ? (
                                                         <p className="mx-4">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon icon={faCalendarPlus} /> : <FontAwesomeIcon icon={faCalendarMinus} /> : ""}</p>

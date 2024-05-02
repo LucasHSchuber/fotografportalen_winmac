@@ -11,11 +11,11 @@ const api = {
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
 
-
   // TEAMLEADER
   createUser: args => ipcRenderer.invoke('createUser', args),  // create user
   loginUser: args => ipcRenderer.invoke('loginUser', args),  // login user
-  getUser: args => ipcRenderer.invoke('getUser', args), // Pass id to getUser handler in main process
+  getUser: args => ipcRenderer.invoke('getUser', args), // Pass id to getUser 
+  getAllUsers: args => ipcRenderer.invoke('getAllUsers', args), // getAllUsers 
   editUser: args => ipcRenderer.invoke('editUser', args), // Edit user
 
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
