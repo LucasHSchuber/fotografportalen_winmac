@@ -22,6 +22,7 @@ function Newproject_teamleader() {
     const [projectName, setProjectName] = useState('');
     const [chosenProjectName, setChosenProjectName] = useState('');
     const [type, setType] = useState('');
+    const [projectDate, setProjectDate] = useState('');
     const [project_uuid, setProject_uuid] = useState('');
 
     const [showNewProjectModal, setShowNewProjectModal] = useState(false);
@@ -122,7 +123,8 @@ function Newproject_teamleader() {
         console.log(selectedProject);
 
         let _uuid = selectedProject.project_uuid;
-        setProject_uuid(_uuid);
+        setProject_uuid(_uuid); //set uuid
+        setProjectDate(selectedProject.start); //set project date
 
         console.log('Selected project:', projectName);
         console.log('Selected type:', type);
@@ -162,6 +164,7 @@ function Newproject_teamleader() {
                     type: type,
                     project_uuid: project_uuid,
                     photographername: photographername,
+                    project_date: projectDate,
                     user_id: user_id
                 };
                 const response = await window.api.createNewProject(args);
@@ -232,6 +235,7 @@ function Newproject_teamleader() {
             textAlign: 'center' // Optionally, center the message
         })
     };
+
 
     return (
         <div className="teamleader-wrapper">
@@ -310,4 +314,5 @@ function Newproject_teamleader() {
         </div>
     );
 }
+
 export default Newproject_teamleader;

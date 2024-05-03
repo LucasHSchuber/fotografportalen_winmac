@@ -210,6 +210,7 @@ function createTables() {
       project_uuid STRING NOT NULL,
       projectname TEXT NOT NULL,
       photographername TEXT,
+      project_date TEXT NOT NULL,
       type SRTING NOT NULL,
       anomaly TEXT,
       merged_teams TEXT,
@@ -669,6 +670,7 @@ ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
           is_sent: row.is_sent,
           sent_date: row.sent_date,
           user_id: row.user_id,
+          project_date: row.project_date,
           created: row.created
         }));
 
@@ -863,16 +865,16 @@ ipcMain.handle("createNewProject", async (event, args) => {
           throw new Error('Invalid arguments received for createNewProject');
       }
 
-      const { projectname, type, user_id, project_uuid, photographername } = args;
+      const { projectname, type, user_id, project_uuid, photographername, project_date } = args;
 
-      if (!projectname || !type || !project_uuid || !user_id || !photographername ) {
+      if (!projectname || !type || !project_uuid || !user_id || !photographername || !project_date ) {
           throw new Error('Missing required user data for createNewProject');
       }
       
       await db.run(`
-          INSERT INTO projects (projectname, photographername, type, user_id, project_uuid)
-          VALUES (?, ?, ?, ?, ?)
-          `, [projectname.toLowerCase(), photographername, type.toLowerCase(), user_id, project_uuid]);
+          INSERT INTO projects (projectname, photographername, type, project_date, user_id, project_uuid)
+          VALUES (?, ?, ?, ?, ?, ?)
+          `, [projectname.toLowerCase(), photographername, type.toLowerCase(), project_date, user_id, project_uuid]);
 
       console.log('Project added successfully');
       console.log('Fetching new project with UUID:', project_uuid);

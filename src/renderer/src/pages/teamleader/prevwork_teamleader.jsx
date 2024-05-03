@@ -159,9 +159,9 @@ function Prevwork_teamleader() {
                                 <div className="prevwork-box-left d-flex justify-content-between" title="Job">
                                     <div className="d-flex">
                                         <p className="ml-2">{project.type === "school" ? <img className="type-img-currwork" src={academic_gray} alt="academic"></img> : <img className="type-img-currwork" src={running_gray} alt="running"></img>}</p>
-                                        <p className="ml-3">{project.projectname.length > 25 ? project.projectname.substring(0, 25) + "..." : project.projectname}</p>
+                                        <p className="ml-3">{project.projectname.length > 75 ? project.projectname.substring(0, 75) + "..." : project.projectname}</p>
                                     </div>
-                                    <p className="ml-4 mr-5">{project.created.substring(0, 10)}</p>
+                                    {/* <p className="ml-4 mr-5">{project.created.substring(0, 10)}</p> */}
                                     <FontAwesomeIcon className="mt-1" icon={faLock} />
                                 </div>
 

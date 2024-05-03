@@ -117,8 +117,8 @@ function Currwork_teamleader() {
                                     title={`Open job: ${project.projectname}`}
                                     >
                                     <p className="ml-2 mr-1 ">{project.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-currwork" src={running_black} alt="running"></img>}</p>
-                                    <p className="mx-4">{project.projectname.length > 32 ? project.projectname.substring(0, 32) + "..." : project.projectname}</p>
-                                    <p className="mx-4">{project.created.substring(0, 10)}</p>
+                                    <p className="mx-4">{project.projectname.length > 70 ? project.projectname.substring(0, 70) + "..." : project.projectname}</p>
+                                    {/* <p className="mx-4">{project.project_date.substring(0, 10)}</p> */}
                                 </div>
                                 <div className="currwork-box-right mx-2"
                                     value={project.project_id}

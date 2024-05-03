@@ -215,7 +215,7 @@ function Portal_teamleader() {
                                             <img className="portal-title-img mr-3" src={running_black} alt="running" />
                                         )}
                                         {project.projectname || "Loading project name..."}{" "}
-                                        <em>({project.created && project.created.length > 0 ? project.created.substring(0, 10) : ""})</em>
+                                        {/* <em>({project.created && project.created.length > 0 ? project.created.substring(0, 10) : ""})</em> */}
                                     </h5>
 
                                     {/* <h6 className=""><em>{project.created.substring(0, 10)}</em></h6> */}

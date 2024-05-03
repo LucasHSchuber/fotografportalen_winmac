@@ -69,7 +69,7 @@ const TeamsChart = ({ data, prevProjectsLength }) => {
                     </select>
                 </div>
                 <h6 className="my-3"><b>Amount of photographed teams or classes - last {userInputChartOne} jobs</b></h6>
-                <BarChart width={560} height={240} data={chartData}>
+                <BarChart width={500} height={240} data={chartData}>
                     <CartesianGrid strokeDasharray="0 0" />
                     <XAxis dataKey="sentDate" tickFormatter={(tick) => tick.substring(5, 10)} label={{ value: 'Sent date', position: 'insideBottom', dy: 10, fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
                     <YAxis label={{ value: 'Amount', angle: -90, position: 'insideLeft', fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
