@@ -62,6 +62,12 @@ textarea::placeholder {
     margin-right: 14%;
 }
 
+.success {
+    color: rgb(0, 163, 52) !important;
+    font-size: 0.9em !important;
+    font-weight: 600 !important;
+}
+
 .error {
     color: rgb(255, 37, 37) !important;
     font-size: 0.9em !important;

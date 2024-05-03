@@ -9,6 +9,7 @@ function Register_window() {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [usernameMessage, setUsernameMessage] = useState("");
   const [errorLogginginMessage, setErrorLogginginMessage] = useState("");
+  const [successRegisterMessage, setSuccessRegisterMessage] = useState("");
 
 
 
@@ -80,6 +81,7 @@ function Register_window() {
 
             if (responseData.success === true) {
               console.log("User created successfully");
+              setSuccessRegisterMessage("Account registered successfully")
               setPassword("");
               setUsername("");
               setErrorLogginginMessage("");
@@ -130,11 +132,21 @@ function Register_window() {
             </>
           )}
         </div>
+        <div style={{ textAlign: "left", width: "110%", marginLeft: "-1.5em" }}>
+          {successRegisterMessage ? (
+            <ul className="success">
+              {successRegisterMessage ? <li>{successRegisterMessage}</li> : ""}
+            </ul>
+          ) : (
+            <>
+            </>
+          )}
+        </div>
         <div>
           <div>
             <input
               className={`form-input-field-login ${usernameMessage ? "error-border" : ""}`}
-              placeholder="Username/Email"
+              placeholder="Email"
               type="text"
               value={username}
               onChange={handleUsernameChange}
@@ -142,8 +154,8 @@ function Register_window() {
           </div>
           <div>
             <input
-            className={`form-input-field-login ${passwordMessage ? "error-border" : ""}`}
-            placeholder="Password"
+              className={`form-input-field-login ${passwordMessage ? "error-border" : ""}`}
+              placeholder="Password"
               type="password"
               value={password}
               onChange={handlePasswordChange}

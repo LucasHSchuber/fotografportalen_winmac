@@ -87,7 +87,7 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
                             closeModal();
                         } else {
                             console.log("Error creating user");
-                            setErrorLogginginMessage("User already exists");
+                            setErrorLogginginMessage("Photographer is already connected");
                         }
                     } catch (error) {
                         console.log("error:", error);
@@ -122,10 +122,10 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
         <>
             <Modal className="mt-5" show={showConnectUserModal} onHide={handleCloseConnectUserModal}>
                 <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h6 className="mb-4" ><b>Connect new photographer</b></h6></Modal.Title>
+                    <Modal.Title><h5 className="mb-4" ><b>Connect new photographer</b></h5></Modal.Title>
                     {/* <h6 className="mb-3">You must log in to be able to send in this work</h6> */}
 
-                    <div style={{ textAlign: "left", marginLeft: "3em" }}>
+                    <div style={{ textAlign: "left", marginLeft: "3em", width: "23em" }}>
                         {usernameMessage || passwordMessage || errorLogginginMessage ? (
                             <ul className="error">
                                 {/* {usernameMessage ? <li>{usernameMessage}</li> : ""}
@@ -140,7 +140,7 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
 
                     <div>
                         <input
-                            className={`form-input-field ${usernameMessage ? "error-border" : ""}`}
+                            className={`form-input-field-fp ${usernameMessage ? "error-border" : ""}`}
                             placeholder="Email"
                             type="text"
                             style={{ width: "20em" }}
@@ -148,7 +148,7 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
                             onChange={handleUsernameChange}
                         />
                         <input
-                            className={`form-input-field ${passwordMessage ? "error-border" : ""}`}
+                            className={`form-input-field-fp ${passwordMessage ? "error-border" : ""}`}
                             placeholder="Password"
                             type="password"
                             style={{ width: "20em" }}

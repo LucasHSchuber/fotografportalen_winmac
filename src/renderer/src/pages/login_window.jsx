@@ -80,6 +80,7 @@ function Login_window() {
         if (responseData.success === true) {
           console.log("Log in successful");
           localStorage.setItem("user_id", responseData.user.user_id);
+          localStorage.setItem("username", username);
           // close login window and open mainWindow
           setIsLoadingConfirm(true);
           const timeout = setTimeout(() => {
@@ -158,7 +159,7 @@ function Login_window() {
           <div>
             <input
               className={`form-input-field-login ${usernameMessage ? "error-border" : ""}`}
-              placeholder="Username/Email"
+              placeholder="Email"
               type="text"
               value={username}
               onChange={handleUsernameChange}

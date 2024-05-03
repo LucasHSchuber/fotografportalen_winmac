@@ -242,12 +242,16 @@ function Newproject_teamleader() {
                     <p>Create a new school or sport photography</p>
                 </div>
 
-                {projectExistsMessage || missingProjectname || missingType || errorCreatingProject ? (
+                {projectExistsMessage || missingProjectname || missingType ? (
                     <ul className="error" style={{ marginLeft: "-1.5em" }}>
                         {projectExistsMessage && <li>Project already exists</li>}
                         {missingProjectname && <li>Select a project from the list</li>}
                         {missingType && <li>Select either sport or school photography</li>}
-                        {errorCreatingProject && <li>Error loading project. Go to "current work" and enter your project from there</li>}
+                    </ul>
+                ) : null}
+                {errorCreatingProject ? (
+                    <ul style={{ marginLeft: "-1.5em" }}>
+                        {errorCreatingProject && <li><span className="success" >Project successfully created!</span> Enter your new project from <em>current work</em> in the left menu</li>}
                     </ul>
                 ) : null}
 

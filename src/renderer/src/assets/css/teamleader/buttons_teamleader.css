@@ -1,17 +1,6 @@
 /* button teamleader */
 
-.button {
-    font-weight: 700;
-    /* outline: none !important; */
-    /* outline: 1px solid rgb(4, 0, 255) !important; */
-    border: none;
-    border-radius: 3px;
-    padding: 0.5em 1em;
-    cursor: pointer;
-}
-.button:focus {
-    outline-color: #00b3ff !important;
-}
+
 
 .cancel {
     background-color: rgb(41, 41, 41);
@@ -23,6 +12,11 @@
     background-color: rgb(0, 0, 0);
 }
 
+.cancel:active {
+    background-color: #000000 !important;
+    outline-color: #2d2d2d !important;
+}
+
 .delete {
     background-color: red;
     transition: 0.2s;
@@ -31,6 +25,11 @@
 
 .delete:hover {
     background-color: rgb(206, 0, 0);
+}
+
+.normal:active {
+    background-color: rgb(206, 0, 0) !important;
+    outline-color: #2d2d2d !important;
 }
 
 .close {
@@ -48,6 +47,11 @@
 
 .standard:hover {
     background-color: #0196d5;
+}
+
+.normal:active {
+    background-color: #0196d5 !important;
+    outline-color: #2d2d2d !important;
 }
 
 .fixed-width {

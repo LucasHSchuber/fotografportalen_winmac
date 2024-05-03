@@ -47,7 +47,7 @@ function App() {
   return (
     <HashRouter >
 
-    {/* FOTOGRAFPORTALEN */}
+      {/* FOTOGRAFPORTALEN */}
       <div className="main-content">
         <div className="content">
 
@@ -76,10 +76,9 @@ function App() {
       </div>
 
 
-    {/* TEAMELADER */}
+      {/* TEAMELADER */}
       {/* .main-content for margin/padding left to make room for sidebar */}
       <div className="main-content">
-
         <div className="content">
 
           <div className="route-layout">
@@ -119,7 +118,6 @@ function App() {
           </div>
 
         </div>
-
       </div>
 
 

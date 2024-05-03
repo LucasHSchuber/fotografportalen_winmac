@@ -10,6 +10,7 @@ import Sidemenu_small from "../components/sidemenu_small";
 import FeedbackMessage from "../components/feedbackMessage";
 
 
+
 function Settings() {
   //define states
   const [user, setUser] = useState({});
@@ -128,14 +129,17 @@ function Settings() {
     // Check if email field is empty
     if (!newEmail && isEmailModified) {
       setErrorMessage(prevState => ({ ...prevState, email: true }));
+      console.log(newEmail); 
     }
     // Check if firstname field is empty
     if (!newFirstname && isFirstnameIsModified) {
       setErrorMessage(prevState => ({ ...prevState, firstname: true }));
+      console.log(newFirstname); 
     }
     // Check if lastname field is empty
     if (!newLastname && isLastnameIsModified) {
       setErrorMessage(prevState => ({ ...prevState, lastname: true }));
+      console.log(newLastname);
     }
 
     if (newEmail || newFirstname || newLastname || newCity || newLang) {

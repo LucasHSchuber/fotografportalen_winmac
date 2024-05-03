@@ -1,5 +1,17 @@
 /* buttons */
+.button {
+  font-weight: 700;
+  /* outline: none !important; */
+  /* outline: 1px solid rgb(4, 0, 255) !important; */
+  border: none;
+  border-radius: 3px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+}
 
+.button:focus {
+  outline-color: #00b3ff !important;
+}
 
 .normal {
   background-color: #313131;
@@ -9,6 +21,11 @@
 
 .normal:hover {
   background-color: #181818;
+}
+
+.normal:active {
+  background-color: #000000 !important;
+  outline-color: #2d2d2d !important;
 }
 
 .cancel-fp {

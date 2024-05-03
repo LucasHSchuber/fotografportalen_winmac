@@ -14,6 +14,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [passwordMessage, setPasswordMessage] = useState("")
     const [usernameMessage, setUsernameMessage] = useState("")
+    const [errorLogginginMessage, setErrorLogginginMessage] = useState("");
 
     const navigate = useNavigate();
 
@@ -21,7 +22,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
     // get username and password from localstorage after mount
     useEffect(() => {
         setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
-        setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");
     }, [])
 
 
@@ -86,6 +86,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                         console.error('Network Error: Please check your internet connection');
                     } else {
                         console.error('Request failed with status code:', error.response.status);
+                        setErrorLogginginMessage("Invalid username and/or password");
                     }
                 } else {
                     console.error('Error fetching projects:', error.message);
@@ -133,10 +134,11 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                     <h6 className="mb-3">You must log in to be able to send in this work</h6>
 
                     <div style={{ textAlign: "left", marginLeft: "3em" }}>
-                        {usernameMessage || passwordMessage ? (
+                        {usernameMessage || passwordMessage || errorLogginginMessage ? (
                             <ul className="error">
                                 {usernameMessage ? <li>{usernameMessage}</li> : ""}
                                 {passwordMessage ? <li>{passwordMessage}</li> : ""}
+                                {errorLogginginMessage ? <li>{errorLogginginMessage}</li> : ""}
                             </ul>
                         ) : (
                             <>
@@ -152,7 +154,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                     <div>
                         <input
                             className="form-input-field"
-                            placeholder="Username/Email"
+                            placeholder="Email"
                             type="text"
                             style={{ width: "20em" }}
                             value={username}
