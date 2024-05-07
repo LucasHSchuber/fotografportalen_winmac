@@ -100,7 +100,7 @@ function Index() {
 
         <div className="index-box">
           <h1 className="index-title two">Alerts</h1>
-          <h6><b>You have {projectsArray && projectsArray.length > 0 ? projectsArray.length : 0} unsent jobs</b></h6>
+          <h6><b>You have {projectsArray && projectsArray.length > 0 ? projectsArray.length : 0} unsent job{projectsArray.length > 1 ? "s" : ""}</b></h6>
           <ul>
             {projectsArray && projectsArray.length > 0 ? (
               projectsArray.map(project => (

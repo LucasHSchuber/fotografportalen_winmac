@@ -72,7 +72,7 @@ function createLoginWindow() {
           // show: false,
           autoHideMenuBar: true,
           // ...(process.platform === 'linux' ? { icon } : {}),
-          icon: iconPath, 
+          // icon: iconPath, 
           // icon: path.join(__dirname, '../../resources/icon2.png'),
           webPreferences: {
             preload : path.join(__dirname, '../preload/index.js') ,
@@ -107,21 +107,25 @@ function createLoginWindow() {
   
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
-  loginWindow.loadURL(
-    isDev
-        ? "http://localhost:5173/#/login_window"
-        : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
-  );
-  // if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-  //   loginWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  // } else {
-  //   loginWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
-  // }
+  // loginWindow.loadURL(
+  //   isDev
+  //       ? "http://localhost:5173/#/login_window"
+  //       : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
+  // );
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    // loginWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    // loginWindow.loadURL("http://localhost:5173/#/login_window")
+    loginWindow.loadURL("http://localhost:5173/#/login_window")
+  } else {
+    // loginWindow.loadFile(path.join(__dirname, '../renderer/index.html/#login_window"'))
+    // loginWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    loginWindow.loadURL(`file://${path.join(__dirname, '../renderer/index.html#/login_window')}`);
+  }
 }
 
 app.whenReady().then(() => {
   log.info("Ready")
-  electronApp.setAppUserModelId('ElectronReactApp')
+  electronApp.setAppUserModelId('ElectronReactApplication')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -140,11 +144,19 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on("activate", () => {
-  if (loginWindow.getAllWindows().length === 0) {
-    createLoginWindow();
-  }
-});
+// Create mainWindow when Electron has finished initialization
+// // app.on("activate", () => {
+// //   if (loginWindow.getAllWindows().length === 0) {
+// //     createLoginWindow();
+// //   }
+// // });
+// app.on('ready', () => {
+//   createMainWindow();
+//   // When the main window is ready, load the login_window route
+//   mainWindow.webContents.on('did-finish-load', () => {
+//     mainWindow.webContents.send('navigate-to', '/login_window');
+//   });
+// });
 
 process.on("uncaughtException", (error) => {
   log.info(`Exception: ${error}`);
@@ -1823,51 +1835,52 @@ ipcMain.handle("gdprProtection", async (event) => {
 
 
 // //crate login window
-ipcMain.handle("createLoginWindow", async (event, args) => {
-  try {
-      const loginWindow = new BrowserWindow({
-          // parent: mainWindow, // Set the parent window if needed
-          // modal: true, // Example: Open as a modal window
-          width: 400,
-          height: 500,
-          resizable: false, 
-          // frame: false,
-          // show: false,
-          autoHideMenuBar: true,
-          // ...(process.platform === 'linux' ? { icon } : {}),
-          icon: iconPath, 
-          // icon: path.join(__dirname, '../../resources/icon2.png'),
-          webPreferences: {
-            preload : path.join(__dirname, '../preload/index.js') ,
-            sandbox: false,
-            contextIsolation: true,
-            nodeIntegration: true,
-            webSecurity: false,
-            worldSafeExecuteJavaScript: true,
-          }
-      });
+// ipcMain.handle("createLoginWindow", async (event, args) => {
+//   try {
+//       const loginWindow = new BrowserWindow({
+//           // parent: mainWindow, // Set the parent window if needed
+//           // modal: true, // Example: Open as a modal window
+//           width: 400,
+//           height: 500,
+//           resizable: false, 
+//           // frame: false,
+//           // show: false,
+//           autoHideMenuBar: true,
+//           // ...(process.platform === 'linux' ? { icon } : {}),
+//           icon: iconPath, 
+//           // icon: path.join(__dirname, '../../resources/icon2.png'),
+//           webPreferences: {
+//             preload : path.join(__dirname, '../preload/index.js') ,
+//             sandbox: false,
+//             contextIsolation: true,
+//             nodeIntegration: true,
+//             webSecurity: false,
+//             worldSafeExecuteJavaScript: true,
+//           }
+//       });
 
-      // Open DevTools for the new window
-      if (isDev) {
-        loginWindow.webContents.openDevTools({ mode: 'detach' });
-       }
+//       // Open DevTools for the new window
+//       if (isDev) {
+//         loginWindow.webContents.openDevTools({ mode: 'detach' });
+//        }
     
-      // Load the URL for the new window if needed
-      loginWindow.loadURL(
-        isDev
-            ? "http://localhost:5173/#/login_window"
-            : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
-     );
+//       // Load the URL for the new window if needed
+//       loginWindow.loadURL(
+//         isDev
+//             ? "http://localhost:5173/#/login_window"
+//             : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
+//      );
      
-      // Optionally return some data back to the renderer process
-      return { success: true, message: 'Login window created successfully' };
-  } catch (error) {
-      // Handle any errors that occur while creating the new window
-      console.error('Error creating login window:', error);
-      throw new Error('Failed to create login window');
-  }
+//       // Optionally return some data back to the renderer process
+//       return { success: true, message: 'Login window created successfully' };
+//   } catch (error) {
+//       // Handle any errors that occur while creating the new window
+//       console.error('Error creating login window:', error);
+//       throw new Error('Failed to create login window');
+//   }
   
-});
+// });
+
 
 //crate main window & close login window
 ipcMain.handle("createMainWindow", async (event, args) => {
@@ -1897,11 +1910,17 @@ ipcMain.handle("createMainWindow", async (event, args) => {
       }
     
       // Load the URL for the MainWindow
-      mainWindow.loadURL(
-        isDev
-            ? "http://localhost:5173/"
-            : `file://${path.join(__dirname, "../build/index.html")}`
-      );
+      // mainWindow.loadURL(
+      //   isDev
+      //       ? "http://localhost:5173/"
+      //       : `file://${path.join(__dirname, "../build/index.html")}`
+      // );
+      if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+        mainWindow.loadURL("http://localhost:5173/")
+      } else {
+        mainWindow.loadURL(`file://${path.join(__dirname, '../renderer/index.html')}`);
+      }
+    
 
       // Show the MainWindow when it's ready
       mainWindow.once('ready-to-show', () => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import fp from "../../assets/images/diaphragm.png";
 import house from "../../assets/images/house.png";
@@ -17,14 +17,29 @@ const Sidemenu_teamleader = () => {
 
     //define states
     const [showModal, setShowModal] = useState(false);
+    const [internetAccess, setInternetAccess] = useState(false);
 
     const handleClose = () => setShowModal(false);
     // const handleShow = () => setShowModal(true);
 
+    useEffect(() => {
+        const checkInternetConnection = () => {
+            if (navigator.onLine) {
+                console.log("Internet access");
+                setInternetAccess(true);
+            } else {
+                console.log("No internet access");
+                setInternetAccess(false);
+            }
+        };
+        checkInternetConnection();
+    }, [])
+
+
 
     return (
         <div className="sidemenu-teamleader">
-            <div className="logo">
+            <div className={`logo ${internetAccess ? "logo-spin": ""}`}>
                 <NavLink to="/" exact="true">
                     <img src={fp} alt="Logo" />
                 </NavLink>

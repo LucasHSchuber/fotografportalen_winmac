@@ -27,7 +27,7 @@
 
 
 
-.logo img {
+.logo-spin img {
     animation: rotate 60s linear infinite;
 }
 
@@ -223,7 +223,8 @@
 /* CHART */
 
 .chart-teamleader-wrapper {
-    background-color: rgb(243, 243, 243);
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
     border-radius: 10px;
     padding: 2.5em 2em 1.5em 2em;
     width: fit-content;

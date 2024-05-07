@@ -60,7 +60,8 @@
 
 
 .home-analytics-box {
-    background-color: rgb(243, 243, 243);
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
     width: fit-content;
     border-radius: 10px;
     padding: 2.5em 1em;
@@ -91,7 +92,8 @@
 }
 
 .home-message-box {
-    background-color: rgb(243, 243, 243);
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
     width: fit-content;
     border-radius: 10px;
     padding: 0.5em 1em 0.1em 1em;

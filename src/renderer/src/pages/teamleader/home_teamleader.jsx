@@ -166,7 +166,7 @@ function Home_teamleader() {
                     {currProjectsArray && currProjectsArray.length > 0 ? (
                         <div className="home-message-box mb-3 mt-5 d-flex">
                             <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Message: </b> &nbsp; </h6>
-                            <h6> You have <b>{currProjectsArray.length > 0 ? currProjectsArray.length : "0"}</b> unsent job(s)</h6>
+                            <h6> You have <b>{currProjectsArray.length > 0 ? currProjectsArray.length : "0"}</b> unsent job{currProjectsArray.length > 1 ? "s":""}</h6>
                         </div>
                     ) : (
                         <>
@@ -176,7 +176,7 @@ function Home_teamleader() {
 
                     <div className="home-analytics-box d-flex">
                         <div className="home-analytics mx-2">
-                            <p>
+                            <p style={{ textDecoration: "underline" }}>
                                 Total completed jobs
                             </p>
                             <div className="home-analytics-number">
@@ -184,7 +184,7 @@ function Home_teamleader() {
                             </div>
                         </div>
                         <div className="home-analytics">
-                            <p>
+                            <p style={{ textDecoration: "underline" }}>
                                 Total photographed subjects
                             </p>
                             <div className="test">
@@ -194,7 +194,7 @@ function Home_teamleader() {
                             </div>
                         </div>
                         <div className="home-analytics">
-                            <p>
+                            <p style={{ textDecoration: "underline" }}>
                                 Total sold calendars
                             </p>
                             <div className="home-analytics-number">

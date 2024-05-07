@@ -75,6 +75,7 @@ function Prevwork_teamleader() {
                 setProjectsArray(projects.projects);
             } catch (error) {
                 console.error('Error fetching projects:', error);
+                getAllProjects();
             }
         };
         getAllProjects();

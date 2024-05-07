@@ -1,8 +1,7 @@
 ALL STORAGE VARIABLES:
-
+------------------------------------
 
 LOCAL STORAGE:
-
 user_id
 user_name
 lang
@@ -12,6 +11,8 @@ project_type
 team_id
 calendar_sale - (0/1)
 
-
+---------------------
 
 SESSION STORAGE:
+hasLoginLoadingBarShown
+hasHomeTeamleaderLoadingBarShown
