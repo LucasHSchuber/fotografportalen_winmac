@@ -273,14 +273,35 @@
   border: 1px solid rgb(176, 175, 175) !important;
 }
 
-.switchuser-button{
+.switchuser-button {
   display: none;
   transition: 0.2s;
+  margin: 0;
+  width: 3em;
+  height: 2.5em;
+  border: 1px solid #c9c9c9;
+  border-radius: 10px;
+  transition: 0.2s;
 }
-.show-switchuser-button{
+
+.switchuser-button:hover {
+background-color: rgb(227, 227, 227);
+}
+
+.show-switchuser-button {
   display: block;
 }
 
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.switchuser-button-container {
+  display: flex;
+  justify-content: center;
+}
 
 
 

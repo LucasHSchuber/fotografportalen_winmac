@@ -28,12 +28,12 @@ function Home_teamleader() {
     //load loading bar on load
     useEffect(() => {
         // Check if the loading bar has been shown before
-        const hasLoadingBarShownBefore = sessionStorage.getItem("hasLoadingBarShown");
+        const hasHomeTeamleaderLoadingBarShown = sessionStorage.getItem("hasHomeTeamleaderLoadingBarShown");
         // If it has not been shown before, show the loading bar
-        if (!hasLoadingBarShownBefore) {
+        if (!hasHomeTeamleaderLoadingBarShown) {
             const timer = setTimeout(() => {
                 setLoading(false);
-                sessionStorage.setItem("hasLoadingBarShown", "true");
+                sessionStorage.setItem("hasHomeTeamleaderLoadingBarShown", "true");
             }, 2000);
 
             return () => clearTimeout(timer);
@@ -189,7 +189,7 @@ function Home_teamleader() {
                             </p>
                             <div className="test">
                                 <div className="home-analytics-number">
-                                    {data.reduce((total, project) => total + project.teams.amount, 0)}
+                                    {data && data.reduce((total, project) => total + project.teams.amount, 0)}
                                 </div>
                             </div>
                         </div>
@@ -199,7 +199,7 @@ function Home_teamleader() {
                             </p>
                             <div className="home-analytics-number">
                                 {/* {teams.reduce((total, calendars) => total + calendars.sold_calendar, 0)} */}
-                                {data.reduce((total, calendar) => total + calendar.teams.sold_calendar, 0)}
+                                {data && data.reduce((total, calendar) => total + calendar.teams.sold_calendar, 0)}
                             </div>
                         </div>
                     </div>

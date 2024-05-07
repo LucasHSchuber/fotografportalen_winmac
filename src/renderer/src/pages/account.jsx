@@ -165,9 +165,9 @@ function Account() {
           <div className="my-4 d-flex justify-content-between">
             {allUsers && allUsers.length > 0 ? (
               allUsers.map(user => (
-                <div key={user.user_id}>
-                  <div className={`mx-2 d-flex justify-content-between user-account-box ${chosenUserId === user.user_id ? "selected-user-account" : ""}`} 
-                  onClick={() => { setChosenUserId(user.user_id), setChosenUser(user) }}
+                <div key={user.user_id} className="user-container">
+                  <div className={`mx-2 d-flex justify-content-between user-account-box ${chosenUserId === user.user_id ? "selected-user-account" : ""}`}
+                    onClick={() => { setChosenUserId(user.user_id), setChosenUser(user) }}
                   >
                     <div>
                       <div className="avatar-container-account my-2 ">
@@ -177,8 +177,8 @@ function Account() {
                     </div>
                   </div>
 
-                  <div className="ml-5">
-                    <button style={{ margin: "0", width: "3em", height: "2.5em", border: "1px solid #c9c9c9", borderRadius: "10px" }} className={`switchuser-button button  my-1 ${chosenUserId === user.user_id ? "show-switchuser-button" : ""}`} onClick={switchUser}> <FontAwesomeIcon icon={faArrowsRotate} />  </button>
+                  <div className="switchuser-button-container">
+                    <button className={`switchuser-button button my-1 ${chosenUserId === user.user_id ? "show-switchuser-button" : ""}`} onClick={switchUser}> <FontAwesomeIcon icon={faArrowsRotate} />  </button>
                   </div>
 
                 </div>

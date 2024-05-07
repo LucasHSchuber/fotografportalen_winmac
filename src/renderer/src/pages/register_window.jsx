@@ -20,7 +20,7 @@ function Register_window() {
 
   useEffect(() => {
     setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
-    setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");
+    // setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");         
   }, [])
 
   const handleUsernameChange = (e) => {
@@ -60,7 +60,7 @@ function Register_window() {
     if (password !== "" && username !== "") {
       console.log("password and username entered");
       localStorage.setItem("username", username);
-      localStorage.setItem("password", password);
+      // localStorage.setItem("password", password);
 
       try {
         console.log("Registring user.... ");
@@ -168,7 +168,7 @@ function Register_window() {
             Register
           </button>
         </div>
-        <a className="register-link-login" onClick={() => navigate('/login_window')}>Log in</a>
+        <a className="register-link-login" onClick={() => navigate('/login_window')}>Already have an account? Log in here!</a>
 
       </div>
     </div >

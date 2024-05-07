@@ -25,9 +25,9 @@ function Prevwork_teamleader() {
     const [projectType, setProjectType] = useState("");
 
     const [feedbackMessage, setFeedbackMessage] = useState('');
+    const [searchString, setSearchString] = useState("");
 
     const [loading, setLoading] = useState(true);
-
 
 
     // Function to update feedback message
@@ -64,29 +64,74 @@ function Prevwork_teamleader() {
 
 
 
+    //getting all projects while page loading
     useEffect(() => {
         let user_id = localStorage.getItem("user_id");
         console.log(user_id);
-
         const getAllProjects = async () => {
             try {
                 const projects = await window.api.getAllPreviousProjects(user_id);
                 console.log('Projects:', projects.projects);
                 setProjectsArray(projects.projects);
-
             } catch (error) {
                 console.error('Error fetching projects:', error);
             }
         };
         getAllProjects();
 
-
         const timer = setTimeout(() => {
             setLoading(false);
         }, 1000);
         return () => clearTimeout(timer);
-
     }, []);
+
+    //when. search input is done 
+    const handleSearchString = (e) => {
+        console.log(e);
+        setSearchString(e);
+
+    }
+    useEffect(() => {
+        let user_id = localStorage.getItem("user_id");
+        console.log(user_id);
+        //if search exists
+        if (searchString !== "") {
+            console.log("search entered...");
+            // const data = {
+            //     user_id: user_id,
+            //     search: searchString
+            // }
+            try {
+                window.api.getAllPreviousProjectsBySearch(user_id, searchString)
+                    .then(projects => {
+                        console.log('Projects:', projects.projects);
+                        setProjectsArray(projects.projects);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching projects:', error);
+                    });
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+
+        } else { //if search not exists
+            console.log("...");
+
+            try {
+                window.api.getAllPreviousProjects(user_id)
+                    .then(projects => {
+                        console.log('Projects:', projects.projects);
+                        setProjectsArray(projects.projects);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching projects:', error);
+                    });
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+        }
+
+    }, [searchString])
 
 
 
@@ -133,6 +178,11 @@ function Prevwork_teamleader() {
     };
 
 
+
+
+
+
+
     if (loading) {
         return <div>
             <div className="loading-bar-text">
@@ -152,7 +202,16 @@ function Prevwork_teamleader() {
                     <p>This is your prevoius work. All the projects are locked since they have been sent in. In case important information have been missed out in one of your previous projects, please send a message to our office by clicking the email-icon to corresponding project.</p>
                 </div>
 
-                <div className="my-5">
+                <div className="mt-4 mb-5">
+                    <div className="mb-3">
+                        <div>
+                            <h6>Search for previous work:</h6>
+                        </div>
+                        <div>
+                            <input className="form-input-field fixed" placeholder="Search for previous work" value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
+                        </div>
+                    </div>
+
                     {projectsArray && projectsArray.length > 0 ? (
                         projectsArray.sort((a, b) => new Date(b.sent_date) - new Date(a.sent_date)).map(project => (
                             <div key={project.project_id} className="prevwork-box d-flex mb-2">

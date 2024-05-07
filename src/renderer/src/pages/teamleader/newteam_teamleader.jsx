@@ -276,7 +276,7 @@ function Newteam_teamleader() {
                     </div> */}
                     <div className="mt-4">
                         <button className="button cancel fixed-width mr-1" onClick={handleCancel}>Cancel</button>
-                        <button className="button standard fixed-width " type="submit">Save</button>
+                        <button className="button standard fixed-width " type="submit">Create</button>
                     </div>
                 </form>
 

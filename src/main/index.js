@@ -304,6 +304,7 @@ function createTables() {
      project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
      project_uuid STRING NOT NULL,
      projectname STRING NOT NULL,
+     start TEXT NOT NULL,
      lang STRING NOT NULL
    )
  `, (err) => {
@@ -373,7 +374,7 @@ ipcMain.handle("create_Projects", async (event, projects) => {
      await db.run('DELETE FROM _projects');
 
     // Insert each project into the database
-    const stmt = db.prepare('INSERT INTO _projects (project_uuid, projectname, lang) VALUES (?, ?, ?)');
+    const stmt = db.prepare('INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)');
     for (const project of projects) {
       // Check if _project_uuid is provided and not null
       if (!project.project_uuid) {
@@ -381,7 +382,7 @@ ipcMain.handle("create_Projects", async (event, projects) => {
         continue; // Skip insertion for this project
       }
 
-      stmt.run(project.project_uuid, project.projectname, project.lang);
+      stmt.run(project.project_uuid, project.projectname, project.start, project.lang);
     }
     stmt.finalize();
 
@@ -728,6 +729,52 @@ ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
     return projects;
   } catch (error) {
     console.error('Error fetching projects:', error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+
+//get all previous projects by user_id
+ipcMain.handle("getAllPreviousProjectsBySearch", async (event, user_id, searchString) => {
+  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0 AND projectname LIKE ?";
+  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id, `%${searchString}%`]);
+
+  try {
+    const projects = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        const allProjects = rows.map(row => ({
+          project_id: row.project_id,
+          project_uuid: row.project_uuid,
+          projectname: row.projectname,
+          type: row.type,
+          anomaly: row.anomaly,
+          merged_teams: row.merged_teams,
+          unit: row.unit,
+          alert_sale: row.alert_sale,
+          is_deleted: row.is_deleted,
+          is_sent: row.is_sent,
+          sent_date: row.sent_date,
+          user_id: row.user_id,
+          created: row.created
+        }));
+
+        db.close(() => {
+          resolve({ statusCode: 1, projects: allProjects });
+        });
+      });
+    });
+
+    return projects;
+  } catch (error) {
+    console.error('Error fetching searched projects:', error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
@@ -1606,7 +1653,7 @@ ipcMain.on('navigateBack', (event) => { // Corrected to match the IPC event name
 
 //GDPR protection 
 ipcMain.handle("gdprProtection", async (event) => {
-  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH)";
+  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);"; 
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-12 hour');";
 

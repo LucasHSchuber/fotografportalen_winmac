@@ -5,7 +5,8 @@ LOCAL STORAGE:
 
 user_id
 user_name
-hasLoadingBarShownBefore
+lang
+hasHomeTeamleaderLoadingBarShown
 project_id
 project_type
 team_id

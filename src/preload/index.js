@@ -26,6 +26,7 @@ const api = {
   getLatestProject: (project_uuid) => ipcRenderer.invoke('getLatestProject', project_uuid), // Pass workname to getUser handler in main process
   getAllCurrentProjects: (user_id) => ipcRenderer.invoke('getAllCurrentProjects', user_id), // Pass user_id to get all projects by user
   getAllPreviousProjects: (user_id) => ipcRenderer.invoke('getAllPreviousProjects', user_id), // Pass user_id to get all projects by user
+  getAllPreviousProjectsBySearch: (user_id, searchString) => ipcRenderer.invoke('getAllPreviousProjectsBySearch', user_id, searchString), // Pass user_id and searchStringto get all projects by user and by search
   getProjectById: (project_id) => ipcRenderer.invoke('getProjectById', project_id), // Pass project_id to get projects by project_id
   deleteProject: (project_id) => ipcRenderer.invoke('deleteProject', project_id), // Pass project_id to delete projects by project_id
   sendProjectToDb: (project_id, alertSale) => ipcRenderer.invoke('sendProjectToDb', project_id, alertSale), // Pass project_id to sned project to DB

@@ -229,11 +229,10 @@ function Addleaderinfo_teamleader() {
                 </div>
 
                 <div>
-                    <button className="button cancel fixed-width fixed-height mr-1" onClick={handleCancel}>Cancel</button>
-                    <button className="button standard fixed-width fixed-height" type="submit">Next</button>
+                    <button className="button cancel fixed-width mr-1" onClick={handleCancel}>Cancel</button>
+                    <button className="button standard fixed-width" type="submit">Next</button>
                 </div>
             </form>
-
 
             <Sidemenu_teamleader />
         </div>

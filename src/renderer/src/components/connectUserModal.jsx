@@ -57,8 +57,8 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
 
         if (password !== "" && username !== "") {
             console.log("password and username entered");
-            localStorage.setItem("username", username);
-            localStorage.setItem("password", password);
+            // localStorage.setItem("username", username);
+            // localStorage.setItem("password", password);
 
             try {
                 console.log("Connecting user.... ");

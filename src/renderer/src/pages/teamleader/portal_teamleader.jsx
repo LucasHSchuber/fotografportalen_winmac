@@ -229,7 +229,7 @@ function Portal_teamleader() {
                                             <div key={data.team_id} className="d-flex">
                                                 <div className={`d-flex justify-content-between mb-2 ${projectType === "school" ? "portal-class-box" : "portal-team-box"}`}
                                                 >
-                                                    <p className="ml-2 mr-2">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
+                                                    <p style={{ cursor: "default" }} className="ml-2 mr-2">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
                                                     {data.protected_id === 1 ? (
                                                         <div className="d-flex">
                                                             <p className="ml-4" title="portrait">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
@@ -239,11 +239,10 @@ function Portal_teamleader() {
                                                         <p className="mx-4" title="portrait">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     )}
 
-
                                                     <p className="mx-4 " title="group">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
-                                                    <p className="ml-4 mr-2">{data.amount}st</p>
+                                                    <p style={{ cursor: "default" }} className="ml-4 mr-2">{data.amount}st</p>
                                                     {projectType === "sport" ? (
-                                                        <p className="mx-4">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon icon={faCalendarPlus} /> : <FontAwesomeIcon icon={faCalendarMinus} /> : ""}</p>
+                                                        <p className="mx-4" title="sold calendar">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon icon={faCalendarPlus} /> : <FontAwesomeIcon icon={faCalendarMinus} /> : ""}</p>
                                                     ) : (
                                                         <>
                                                         </>

@@ -17,12 +17,29 @@ function Login_window() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 2500);
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 2500);
 
-    return () => clearTimeout(timeout);
+  //   return () => clearTimeout(timeout);
+  // }, []);
+
+  //load loading bar on load
+  useEffect(() => {
+    // Check if the loading bar has been shown before
+    const hasLoginLoadingBarShown = sessionStorage.getItem("hasLoginLoadingBarShown");
+    // If it has not been shown before, show the loading bar
+    if (!hasLoginLoadingBarShown) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+        sessionStorage.setItem("hasLoginLoadingBarShown", "true");
+      }, 2500);
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
 
@@ -68,7 +85,7 @@ function Login_window() {
 
     if (password !== "" && username !== "") {
       console.log("password and username entered");
-      localStorage.setItem("username", username);
+      // localStorage.setItem("username", username);
       // localStorage.setItem("password", password);
 
       try {
@@ -81,6 +98,7 @@ function Login_window() {
           console.log("Log in successful");
           localStorage.setItem("user_id", responseData.user.user_id);
           localStorage.setItem("username", username);
+          localStorage.setItem("password", password);
           // close login window and open mainWindow
           setIsLoadingConfirm(true);
           const timeout = setTimeout(() => {
@@ -181,7 +199,7 @@ function Login_window() {
             Log in
           </button>
         </div>
-        <a className="register-link-login" onClick={() => navigate('/register_window')}>Register</a>
+        <a className="register-link-login" onClick={() => navigate('/register_window')}>Dont have an account? Register here!</a>
 
       </div>
     </div >
