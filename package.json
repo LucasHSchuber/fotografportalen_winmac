@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "An Electron application with React - Fotografportalen",
   "main": "./out/main/index.js",
-  "author": "Lucas Schuber",
+  "author": "Lucas Schuber / Fotografportalen",
   "homepage": "https://www.electronjs.org",
   "scripts": {
     "format": "prettier --write .",

@@ -21,13 +21,13 @@ const { autoUpdater } = require('electron-updater');
 let iconPath;
 if (isDev) {
   // Development mode path
-  let iconPath = path.join(__dirname, '..', '..', 'resources', 'icon2.png');
+  let iconPath = path.join(__dirname, '..', '..', 'resources', 'logo.png');
   if (process.platform === 'darwin') {
     iconPath = path.join(__dirname, '..', '..', 'resources', 'icon2.icns');
   }
 } else {
   // Production mode path
-  let iconPath = path.join(__dirname, '../../resources/icon2.png').replace("app.asar", "app.asar.unpacked");
+  let iconPath = path.join(__dirname, '../../resources/logo.png').replace("app.asar", "app.asar.unpacked");
   if (process.platform === 'darwin') {
     iconPath = path.join(__dirname, '../../resources/icon2.icns').replace("app.asar", "app.asar.unpacked");
   }
