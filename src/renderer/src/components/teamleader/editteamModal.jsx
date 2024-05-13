@@ -39,9 +39,6 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
         leader_ssn: false,
         calendar_amount: false
     });
-
-    console.log(teamData);
-
     const [isTeamnamemodified, setIsTeamnamemodified] = useState(false);
     const [isAmountmodified, setIsAmountmodified] = useState(false);
     const [isPortraitmodified, setIsPortraitmodified] = useState(false);
@@ -59,8 +56,19 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
     const [isCalendaramountmodified, setIsCalendaramountmodified] = useState(false);
 
     const [showInputFields, setShowInputFields] = useState(teamData.sold_calendar === 1);
+    const [user_lang, setUser_lang] = useState("");
+
+    console.log(teamData);
 
 
+    //get user_lang 
+    useEffect(() => {
+        let user_lang = localStorage.getItem("user_lang");
+        console.log(user_lang);
+        setUser_lang(user_lang);
+    }, [])
+
+    //showing/hiding soldcalendarform
     useEffect(() => {
         if (teamData.sold_calendar === 1) {
             setShowInputFields(true);
@@ -259,7 +267,9 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                 if (!updatedFields.leader_address) errorsSport.leader_address = true;
                 if (!updatedFields.leader_county) errorsSport.leader_county = true;
                 if (!updatedFields.leader_postalcode) errorsSport.leader_postalcode = true;
-                if (!updatedFields.leader_ssn) errorsSport.leader_ssn = true;
+                if (user_lang === "SE" || user_lang === "DE"){
+                    if (!updatedFields.leader_ssn) errorsSport.leader_ssn = true;
+                }
                 if (!updatedFields.calendar_amount) errorsSport.calendar_amount = true;
             }
             setErrorMessageSport(errorsSport);
@@ -278,12 +288,14 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
             }
         }
 
-        if (showInputFields === true) {
-            if (teamData.leader_ssn === null && formData.leader_ssn === "") {
-                console.log("missing required leader data");
-                return;
+        if (user_lang === "SE" || user_lang === "DE"){
+            if (showInputFields === true) {
+                if (teamData.leader_ssn === null && formData.leader_ssn === "") {
+                    console.log("missing required leader data");
+                    return;
+                }
             }
-        }
+         }
 
         const portraitValue = updatedFields.portrait ? 1 : 0;
         const crowdValue = updatedFields.crowd ? 1 : 0;
@@ -502,14 +514,16 @@ const EditTeamModal = ({ showEditModal, handleCloseEditModal, projectType, teamD
                                             onChange={handleLeaderMobileChange}
                                         />
                                     </div>
-                                    <div>
-                                        <label>Leader social security number: *</label>
-                                        <input className={`form-input-field ${errorMessageSport.leader_ssn ? "error-border" : ""}`} type="number" name="leader_ssn" placeholder="Social security number"
-                                            style={{ width: "20em" }}
-                                            defaultValue={teamData.leader_ssn}
-                                            onChange={handleLeaderSsnChange}
-                                        />
-                                    </div>
+                                    {user_lang && (user_lang === "SE" || user_lang === "DE") && (
+                                        <div>
+                                            <label>Leader social security number: *</label>
+                                            <input className={`form-input-field ${errorMessageSport.leader_ssn ? "error-border" : ""}`} type="number" name="leader_ssn" placeholder="Social security number"
+                                                style={{ width: "20em" }}
+                                                defaultValue={teamData.leader_ssn}
+                                                onChange={handleLeaderSsnChange}
+                                            />
+                                        </div>
+                                    )}
                                     <div>
                                         <label>Leader address: *</label>
                                         <input className={`form-input-field ${errorMessageSport.leader_address ? "error-border" : ""}`} type="text" name="leader_address" placeholder="Leader Address"
