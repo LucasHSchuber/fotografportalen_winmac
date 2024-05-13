@@ -51,5 +51,5 @@ If you dont have any valid log in credentials but still want to access the user 
 - Password: test1
 (Last updated: 8 of May, 2024)  
 
-Feel free to explore the software and discover its full range of features and capabilities!
+Feel free to explore the software and discover its full range of features and capabilities!!
 
