@@ -7,6 +7,13 @@ import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
+// Import language texts for each supported language
+import se from '../../assets/language/se.json'; // Swedish
+import dk from '../../assets/language/dk.json'; // Daninsh
+import fi from '../../assets/language/fi.json'; // Finnihs
+import no from '../../assets/language/no.json'; // Norweigan
+import de from '../../assets/language/de.json'; // German
+
 
 function Addleaderinfo_teamleader() {
     // Define states
@@ -25,9 +32,38 @@ function Addleaderinfo_teamleader() {
         leader_email: false
     });
     const navigate = useNavigate();
+    const [languageTexts, setLanguageTexts] = useState({});
 
 
 
+    useEffect(() => {
+        // Determine the language from sessionStorage
+        const user_lang = localStorage.getItem('user_lang');
+        console.log(user_lang);
+        let selectedLang;
+        // Set language texts based on the selected language
+        switch (user_lang) {
+            case 'SE':
+                selectedLang = se;
+                break;
+            case 'DK':
+                selectedLang = dk;
+                break;
+            case 'FI':
+                selectedLang = fi;
+                break;
+            case 'NO':
+                selectedLang = no;
+                break;
+            case 'DE':
+                selectedLang = de;
+                break;
+        }
+        setLanguageTexts(selectedLang);
+        console.log(selectedLang);
+        console.log(se);
+
+    }, []);
 
 
     useEffect(() => {
@@ -131,6 +167,7 @@ function Addleaderinfo_teamleader() {
 
 
         // Set error messages
+       
         let errors = {};
         if (!formData.teamname) errors.teamname = true;
         if (!formData.leader_firstname) errors.leader_firstname = true;
@@ -171,13 +208,13 @@ function Addleaderinfo_teamleader() {
         <div className="teamleader-wrapper">
 
             <div className="breadcrumbs d-flex mb-4">
-                <div className="breadcrumbs-box breadcrumbs-active">1. New team</div>
-                <div className="breadcrumbs-box">2. Calander</div>
-                <div className="breadcrumbs-box">3. Calendar information</div>
+                <div className="breadcrumbs-box breadcrumbs-active">{languageTexts?.breadcrumb1}</div>
+                <div className="breadcrumbs-box">{languageTexts?.breadcrumb2}</div>
+                <div className="breadcrumbs-box">{languageTexts?.breadcrumb3}</div>
             </div>
 
             <div className="header">
-                <h5><FontAwesomeIcon icon={faPlus} /> New team</h5>
+                <h5><FontAwesomeIcon icon={faPlus} /> {languageTexts?.header1}</h5>
             </div>
 
             {/* {errorMessage && (
@@ -192,45 +229,29 @@ function Addleaderinfo_teamleader() {
 
             <form onSubmit={handleSubmit}>
                 <div className="mt-4 mb-2">
-                    <h6><b>Team info:</b></h6>
+                    <h6><b>{languageTexts?.teaminfo}</b></h6>
                     <div>
-                        <input className={`form-input-field ${errorMessage.teamname ? "error-border" : ""}`} type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder="Team Name" />
+                        <input className={`form-input-field ${errorMessage.teamname ? "error-border" : ""}`} type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder={languageTexts?.teamname} />
                     </div>
-                    {/* <div>
-                        <input className="form-input-field" type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder="Amount of calendars" required />
-                        <h6>All</h6>
-                    </div> */}
                     <br></br>
                     <h6><b>Team leader info:</b></h6>
                     <div>
-                        <input className={`form-input-field ${errorMessage.leader_firstname ? "error-border" : ""}`} type="text" name="leader_firstname" value={formData.leader_firstname} onChange={handleChange} placeholder="Leader First Name" />
+                        <input className={`form-input-field ${errorMessage.leader_firstname ? "error-border" : ""}`} type="text" name="leader_firstname" value={formData.leader_firstname} onChange={handleChange} placeholder={languageTexts?.firstname} />
                     </div>
                     <div>
-                        <input className={`form-input-field ${errorMessage.leader_lastname ? "error-border" : ""}`} type="text" name="leader_lastname" value={formData.leader_lastname} onChange={handleChange} placeholder="Leader Last Name" />
-                    </div>
-                    {/* <div>
-                        <input className="form-input-field" type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder="Leader Address" required />
+                        <input className={`form-input-field ${errorMessage.leader_lastname ? "error-border" : ""}`} type="text" name="leader_lastname" value={formData.leader_lastname} onChange={handleChange} placeholder={languageTexts?.lastname} />
                     </div>
                     <div>
-                        <input className="form-input-field" type="number" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder="Leader Postal Code" required />
+                        <input className={`form-input-field ${errorMessage.leader_email ? "error-border" : ""}`} type="email" name="leader_email" value={formData.leader_email} onChange={handleChange} placeholder={languageTexts?.email} />
                     </div>
                     <div>
-                        <input className="form-input-field" type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder="Leader County" required />
-                    </div> */}
-                    <div>
-                        <input className={`form-input-field ${errorMessage.leader_email ? "error-border" : ""}`} type="email" name="leader_email" value={formData.leader_email} onChange={handleChange} placeholder="Leader Email" />
-                    </div>
-                    {/* <div>
-                        <input className="form-input-field" type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder="Leader SSN" required />
-                    </div> */}
-                    <div>
-                        <input className={`form-input-field ${errorMessage.leader_mobile ? "error-border" : ""}`} type="text" name="leader_mobile" value={formData.leader_mobile} onChange={handleChange} placeholder="Leader Mobile" />
+                        <input className={`form-input-field ${errorMessage.leader_mobile ? "error-border" : ""}`} type="text" name="leader_mobile" value={formData.leader_mobile} onChange={handleChange} placeholder={languageTexts?.mobile} />
                     </div>
                 </div>
 
                 <div>
-                    <button className="button cancel fixed-width mr-1" onClick={handleCancel}>Cancel</button>
-                    <button className="button standard fixed-width" type="submit">Next</button>
+                    <button className="button cancel fixed-width mr-1" onClick={handleCancel}>{languageTexts?.cancelButton}</button>
+                    <button className="button standard fixed-width" type="submit">{languageTexts?.nextButton}</button>
                 </div>
             </form>
 

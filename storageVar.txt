@@ -4,7 +4,7 @@ ALL STORAGE VARIABLES:
 LOCAL STORAGE:
 user_id
 user_name
-lang
+user_lang
 hasHomeTeamleaderLoadingBarShown
 project_id
 project_type
