@@ -45,6 +45,7 @@ function Index() {
         setUser(usersData.user);
         console.log(usersData.user);
         localStorage.setItem("user_name", usersData.user.firstname + " " + usersData.user.lastname);
+        localStorage.setItem("user_lang", usersData.user.lang);
       } catch (error) {
         console.error('Error fetching users data:', error);
       }
