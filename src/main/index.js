@@ -1,19 +1,19 @@
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 const electron = require("electron");
-const log = require('electron-log');
+const log = require("electron-log");
 const path = require("path");
 const fs = require("fs");
 const fsa = require("fs/promises");
-const util = require('util');
-const sqlite3 = require('sqlite3').verbose();
+const util = require("util");
+const sqlite3 = require("sqlite3").verbose();
 const fse = require("fs-extra");
 // const icon = path.join(__dirname, "../../resources/icon2.png");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
-const os = require('os'); // Import the os module
+const os = require("os"); // Import the os module
 const BrowserWindow = electron.BrowserWindow;
-const isDev = require('electron-is-dev');
-const { autoUpdater } = require('electron-updater');
+const isDev = require("electron-is-dev");
+const { autoUpdater, AppUpdater } = require("electron-updater");
 // const icon = path.join(__dirname, "../../resources/icon2.png");
 // const icon2 = path.join(__dirname, "../../resources/icon2.icns");
 
@@ -21,20 +21,21 @@ const { autoUpdater } = require('electron-updater');
 let iconPath;
 if (isDev) {
   // Development mode path
-  let iconPath = path.join(__dirname, '..', '..', 'resources', 'logo.png');
-  if (process.platform === 'darwin') {
-    iconPath = path.join(__dirname, '..', '..', 'resources', 'icon2.icns');
+  let iconPath = path.join(__dirname, "..", "..", "resources", "logo.png");
+  if (process.platform === "darwin") {
+    iconPath = path.join(__dirname, "..", "..", "resources", "icon2.icns");
   }
 } else {
   // Production mode path
-  let iconPath = path.join(__dirname, '../../resources/logo.png').replace("app.asar", "app.asar.unpacked");
-  if (process.platform === 'darwin') {
-    iconPath = path.join(__dirname, '../../resources/icon2.icns').replace("app.asar", "app.asar.unpacked");
+  let iconPath = path
+    .join(__dirname, "../../resources/logo.png")
+    .replace("app.asar", "app.asar.unpacked");
+  if (process.platform === "darwin") {
+    iconPath = path
+      .join(__dirname, "../../resources/icon2.icns")
+      .replace("app.asar", "app.asar.unpacked");
   }
 }
-
-
-
 
 // import updateQuestion from "./api/updateQuestion"
 // import deleteQuestion from "./api/deleteQuestion"
@@ -42,69 +43,69 @@ if (isDev) {
 // import getUnits from "./api/getUnits"
 // import getCourseOutcomes from "./api/getCourseOutcomes"
 // import updateCourseOutcomes from "./api/updateCourseOutcomes"
-import express from 'express';
+import express from "express";
 
 if (isDev) {
-  console.log('Running in development mode');
+  console.log("Running in development mode");
 } else {
-  console.log('Running in production mode');
+  console.log("Running in production mode");
 }
-
 
 let loginWindow;
 let mainWindow;
 
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+
 function createLoginWindow() {
-  if(!is.dev){
-    const exApp = express()
-    exApp.use(express.static(path.join(__dirname, '../renderer/')));
-    exApp.listen(5173)
-  } 
+  if (!is.dev) {
+    const exApp = express();
+    exApp.use(express.static(path.join(__dirname, "../renderer/")));
+    exApp.listen(5173);
+  }
 
   // Create the browser window.
   loginWindow = new BrowserWindow({
-     // parent: mainWindow, // Set the parent window if needed
-          // modal: true, // Example: Open as a modal window
-          width: 350,
-          height: 460,
-          resizable: false, 
-          // frame: false,
-          // show: false,
-          autoHideMenuBar: true,
-          // ...(process.platform === 'linux' ? { icon } : {}),
-          // icon: iconPath, 
-          // icon: path.join(__dirname, '../../resources/icon2.png'),
-          webPreferences: {
-            preload : path.join(__dirname, '../preload/index.js') ,
-            sandbox: false,
-            contextIsolation: true,
-            nodeIntegration: true,
-            webSecurity: false,
-            worldSafeExecuteJavaScript: true,
-          }
-  })
+    // parent: mainWindow, // Set the parent window if needed
+    // modal: true, // Example: Open as a modal window
+    width: 350,
+    height: 460,
+    resizable: false,
+    // frame: false,
+    // show: false,
+    autoHideMenuBar: true,
+    // ...(process.platform === 'linux' ? { icon } : {}),
+    // icon: iconPath,
+    // icon: path.join(__dirname, '../../resources/icon2.png'),
+    webPreferences: {
+      preload: path.join(__dirname, "../preload/index.js"),
+      sandbox: false,
+      contextIsolation: true,
+      nodeIntegration: true,
+      webSecurity: false,
+      worldSafeExecuteJavaScript: true,
+    },
+  });
 
   // Hide the menu bar
   // mainWindow.setMenuBarVisibility(false);
 
   // Open DevTools in development mode
   if (isDev) {
-    loginWindow.webContents.openDevTools({ mode: 'detach' });
+    loginWindow.webContents.openDevTools({ mode: "detach" });
   }
-  // if (isDev) {
-  //   mainWindow.webContents.openDevTools({});
-  //  }
 
-  loginWindow.on('ready-to-show', () => {
-    loginWindow.show()
-  })
+
+  loginWindow.on("ready-to-show", () => {
+    loginWindow.show();
+  });
 
   loginWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-  log.info(path.join(__dirname, '../preload/index.js'))
-  
+    shell.openExternal(details.url);
+    return { action: "deny" };
+  });
+  log.info(path.join(__dirname, "../preload/index.js"));
+
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   // loginWindow.loadURL(
@@ -112,37 +113,63 @@ function createLoginWindow() {
   //       ? "http://localhost:5173/#/login_window"
   //       : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
   // );
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    // loginWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-    // loginWindow.loadURL("http://localhost:5173/#/login_window")
-    loginWindow.loadURL("http://localhost:5173/#/login_window")
+
+  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+    loginWindow.loadURL("http://localhost:5173/#/login_window");
   } else {
-    // loginWindow.loadFile(path.join(__dirname, '../renderer/index.html/#login_window"'))
-    // loginWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
-    loginWindow.loadURL(`file://${path.join(__dirname, '../renderer/index.html#/login_window')}`);
+    loginWindow.loadURL(
+      `file://${path.join(__dirname, "../renderer/index.html#/login_window")}`,
+    );
   }
 }
 
 app.whenReady().then(() => {
-  log.info("Ready")
-  electronApp.setAppUserModelId('ElectronReactApplication')
+  log.info("Ready");
+  electronApp.setAppUserModelId("com.electron.app");
 
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
+  app.on("browser-window-created", (_, window) => {
+    optimizer.watchWindowShortcuts(window);
+  });
 
-  createLoginWindow()
+  createLoginWindow();
 
-  app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createLoginWindow()
-  })
-})
+  app.on("activate", function () {
+    if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
+  });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
+  checkForUpdates();
+  // autoUpdater.checkForUpdates();
+  // console.log("Checking for updates...");
+});
+
+function checkForUpdates() {
+  autoUpdater.checkForUpdatesAndNotify();
+}
+
+// To check for updates on macOS
+// app.on("ready", () => {
+//   if (process.platform === "darwin") {
+//     console.log("Checking for updates...");
+//     autoUpdater.checkForUpdates();
+//   }
+// });
+autoUpdater.on("update-available", () => {
+  console.log("Update available...");
+  // let pth = autoUpdater.downloadUpdate();
+  // console.log(pth);
+});
+autoUpdater.on("update-not-available", () => {
+  console.log("No update available!");
+});
+autoUpdater.on("update-downloaded", (info) => {
+  console.log("Update downloaded!");
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
   }
-})
+});
 
 // Create mainWindow when Electron has finished initialization
 // // app.on("activate", () => {
@@ -165,36 +192,36 @@ process.on("uncaughtException", (error) => {
   }
 });
 
-log.info(process.resourcesPath)
-
+log.info(process.resourcesPath);
 
 //Database Connection And Instance
 // Construct the absolute path to the SQLite database file
 let dbPath;
 if (isDev) {
   // Development mode path
-  dbPath = path.join(__dirname, '..', '..', 'resources', 'fp.db');
+  dbPath = path.join(__dirname, "..", "..", "resources", "fp.db");
 } else {
   // Production mode path
-  dbPath = path.join(__dirname, "../../resources/fp.db").replace("app.asar", "app.asar.unpacked")
+  dbPath = path
+    .join(__dirname, "../../resources/fp.db")
+    .replace("app.asar", "app.asar.unpacked");
 }
 
 // Create or open SQLite database
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
-    console.error('Error opening database:', err.message);
+    console.error("Error opening database:", err.message);
   } else {
-    console.log('Connected to SQLite database');
+    console.log("Connected to SQLite database");
     createTables(); // Call the function to create tables
   }
 });
 
-
-
 // Function to create tables
 function createTables() {
   // Create users table
-  db.run(`
+  db.run(
+    `
     CREATE TABLE IF NOT EXISTS users (
       user_id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT NOT NULL,
@@ -206,17 +233,20 @@ function createTables() {
       token STRING,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
-  `, (err) => {
-    if (err) {
-      console.error('Error creating users table:', err.message);
-    } else {
-      console.log('Users table created successfully');
-      // insertDataToTables();
-    }
-  });
+  `,
+    (err) => {
+      if (err) {
+        console.error("Error creating users table:", err.message);
+      } else {
+        console.log("Users table created successfully");
+        // insertDataToTables();
+      }
+    },
+  );
 
   // Create project table
-  db.run(`
+  db.run(
+    `
     CREATE TABLE IF NOT EXISTS projects (
       project_id INTEGER PRIMARY KEY AUTOINCREMENT,
       project_uuid STRING NOT NULL,
@@ -235,16 +265,19 @@ function createTables() {
       user_id INTEGER NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users(user_id)
     )
-  `, (err) => {
-    if (err) {
-      console.error('Error creating projects table:', err.message);
-    } else {
-      console.log('Projects table created successfully');
-    }
-  });
+  `,
+    (err) => {
+      if (err) {
+        console.error("Error creating projects table:", err.message);
+      } else {
+        console.log("Projects table created successfully");
+      }
+    },
+  );
 
-    // Create teams table
-    db.run(`
+  // Create teams table
+  db.run(
+    `
     CREATE TABLE IF NOT EXISTS teams (
       team_id INTEGER PRIMARY KEY AUTOINCREMENT,
       teamname TEXT NOT NULL,
@@ -268,17 +301,19 @@ function createTables() {
       project_id INTEGER NOT NULL,
       FOREIGN KEY (project_id) REFERENCES projects(project_id)
     )
-  `, (err) => {
-    if (err) {
-      console.error('Error creating teams table:', err.message);
-    } else {
-      console.log('Teams table created successfully');
-    }
-  });
+  `,
+    (err) => {
+      if (err) {
+        console.error("Error creating teams table:", err.message);
+      } else {
+        console.log("Teams table created successfully");
+      }
+    },
+  );
 
-  
-    // Create teams_history table
-    db.run(`
+  // Create teams_history table
+  db.run(
+    `
     CREATE TABLE IF NOT EXISTS teams_history (
       team_history_id INTEGER PRIMARY KEY AUTOINCREMENT,
       teamname TEXT,
@@ -302,16 +337,19 @@ function createTables() {
       team_id INTEGER NOT NULL,
       FOREIGN KEY (team_id) REFERENCES teams(team_id)
     )
-  `, (err) => {
-    if (err) {
-      console.error('Error creating teams_history table:', err.message);
-    } else {
-      console.log('Teams_history table created successfully');
-    }
-  });
+  `,
+    (err) => {
+      if (err) {
+        console.error("Error creating teams_history table:", err.message);
+      } else {
+        console.log("Teams_history table created successfully");
+      }
+    },
+  );
 
-   // Create _projects table
-   db.run(`
+  // Create _projects table
+  db.run(
+    `
    CREATE TABLE IF NOT EXISTS _projects (
      project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
      project_uuid STRING NOT NULL,
@@ -319,43 +357,47 @@ function createTables() {
      start TEXT NOT NULL,
      lang STRING NOT NULL
    )
- `, (err) => {
-   if (err) {
-     console.error('Error creating _projects table:', err.message);
-   } else {
-     console.log('_projects table created successfully');
-   }
- });
-
+ `,
+    (err) => {
+      if (err) {
+        console.error("Error creating _projects table:", err.message);
+      } else {
+        console.log("_projects table created successfully");
+      }
+    },
+  );
 }
 
 // Function to insert data into tables
-function insertDataToTables(){
-
-  db.run(`
+function insertDataToTables() {
+  db.run(
+    `
   INSERT INTO users (email, firstname, lastname, city, lang, token) 
   VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE', '123xyz')
-`, (err) => {
-  if (err) {
-    console.error('Error inserting user:', err.message);
-  } else {
-    console.log('User inserted successfully');
-  }
-});
+`,
+    (err) => {
+      if (err) {
+        console.error("Error inserting user:", err.message);
+      } else {
+        console.log("User inserted successfully");
+      }
+    },
+  );
 
-  db.run(`
+  db.run(
+    `
   INSERT INTO users (email, firstname, lastname, city, lang, token) 
   VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'Stockholm', 'SE', 'abc098')
-  `, (err) => {
-  if (err) {
-    console.error('Error inserting user:', err.message);
-  } else {
-    console.log('User inserted successfully');
-  }
-  });
-
+  `,
+    (err) => {
+      if (err) {
+        console.error("Error inserting user:", err.message);
+      } else {
+        console.log("User inserted successfully");
+      }
+    },
+  );
 }
-
 
 // Function To Minimize Window
 ipcMain.handle("minimize", () => {
@@ -371,86 +413,85 @@ ipcMain.handle("maximize", () => {
   }
 });
 
-
-
-
 ipcMain.handle("create_Projects", async (event, projects) => {
   try {
-    console.log('Received projects data:', projects); // Log received data for debugging
+    console.log("Received projects data:", projects); // Log received data for debugging
 
     if (!Array.isArray(projects)) {
-      throw new Error('Invalid data received for create_Projects');
+      throw new Error("Invalid data received for create_Projects");
     }
 
-     // Clear existing data from the _projects table
-     await db.run('DELETE FROM _projects');
+    // Clear existing data from the _projects table
+    await db.run("DELETE FROM _projects");
 
     // Insert each project into the database
-    const stmt = db.prepare('INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)');
+    const stmt = db.prepare(
+      "INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)",
+    );
     for (const project of projects) {
       // Check if _project_uuid is provided and not null
       if (!project.project_uuid) {
-        console.error('Error adding project:', 'Missing _project_uuid');
+        console.error("Error adding project:", "Missing _project_uuid");
         continue; // Skip insertion for this project
       }
 
-      stmt.run(project.project_uuid, project.projectname, project.start, project.lang);
+      stmt.run(
+        project.project_uuid,
+        project.projectname,
+        project.start,
+        project.lang,
+      );
     }
     stmt.finalize();
 
-    console.log('Projects added successfully');
-    event.sender.send('add-projects-response', { success: true }); // Send success response
+    console.log("Projects added successfully");
+    event.sender.send("add-projects-response", { success: true }); // Send success response
   } catch (err) {
-    console.error('Error adding projects:', err.message);
-    event.sender.send('add-projects-response', { error: err.message }); // Send error response
+    console.error("Error adding projects:", err.message);
+    event.sender.send("add-projects-response", { error: err.message }); // Send error response
   }
 });
-
-
-
 
 //get spcific user
 ipcMain.handle("getUser", async (event, id) => {
-  const retrieveQuery = "SELECT * FROM users WHERE user_id = ?"; 
+  const retrieveQuery = "SELECT * FROM users WHERE user_id = ?";
 
   try {
-      const user = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+    const user = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-          db.get(retrieveQuery, [id], (error, row) => {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error });
-              } else if (!row) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: 'User not found' });
-              } else {
-                  db.close();
-                  resolve({
-                      user_id: row.user_id,
-                      email: row.email,
-                      firstname: row.firstname,
-                      lastname: row.lastname,
-                      city: row.city,
-                      lang: row.lang,
-                      created: row.created
-                  });
-              }
+      db.get(retrieveQuery, [id], (error, row) => {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else if (!row) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: "User not found" });
+        } else {
+          db.close();
+          resolve({
+            user_id: row.user_id,
+            email: row.email,
+            firstname: row.firstname,
+            lastname: row.lastname,
+            city: row.city,
+            lang: row.lang,
+            created: row.created,
           });
+        }
       });
+    });
 
-      return { statusCode: 1, user: user };
+    return { statusCode: 1, user: user };
   } catch (error) {
-      console.error('Error fetching user data:', error);
-      return { statusCode: 0, errorMessage: error.message };
+    console.error("Error fetching user data:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
 
-
-
 //get all users
 ipcMain.handle("getAllUsers", async (event, args) => {
-  const retrieveQuery = "SELECT * FROM users"; 
+  const retrieveQuery = "SELECT * FROM users";
 
   try {
     const users = await new Promise((resolve, reject) => {
@@ -462,14 +503,14 @@ ipcMain.handle("getAllUsers", async (event, args) => {
           reject({ statusCode: 0, errorMessage: error });
         }
 
-        const allUsers = rows.map(row => ({
+        const allUsers = rows.map((row) => ({
           user_id: row.user_id,
           email: row.email,
           firstname: row.firstname,
           lastname: row.lastname,
           city: row.city,
           lang: row.lang,
-          created: row.created
+          created: row.created,
         }));
 
         db.close(() => {
@@ -480,185 +521,180 @@ ipcMain.handle("getAllUsers", async (event, args) => {
 
     return { statusCode: 1, users: users }; // Corrected to return 'users' instead of 'allUsers'
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error("Error fetching user data:", error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
 
-
-
-
 //create new user
 ipcMain.handle("createUser", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for createUser');
-      }
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for createUser");
+    }
 
-      const { email, firstname, surname, password, language, token } = args;
+    const { email, firstname, surname, password, language, token } = args;
 
-      if (!email || !firstname || !surname || !language || !token || !password ) {
-          throw new Error('Missing required user data for createUser');
-      }
+    if (!email || !firstname || !surname || !language || !token || !password) {
+      throw new Error("Missing required user data for createUser");
+    }
 
-      const userExists = await checkUsernameInDatabase(email);
-      if (userExists) {
-        event.sender.send('createUser-response', { success: false, error: 'User already exists' });
-        return { success: false, error: 'User already exists' };
-
-      } else {
-        // Insert the new user into the database
-        await db.run(`
+    const userExists = await checkUsernameInDatabase(email);
+    if (userExists) {
+      event.sender.send("createUser-response", {
+        success: false,
+        error: "User already exists",
+      });
+      return { success: false, error: "User already exists" };
+    } else {
+      // Insert the new user into the database
+      await db.run(
+        `
         INSERT INTO users (email, firstname, lastname, password, lang, token)
         VALUES (?, ?, ?, ?, ?, ?)
-        `, [email, firstname, surname, password, language, token]);
+        `,
+        [email, firstname, surname, password, language, token],
+      );
 
-        console.log('User added successfully');
-        event.sender.send('loginUser-response', { success: true });
-        return { success: true };  
-      }
+      console.log("User added successfully");
+      event.sender.send("loginUser-response", { success: true });
+      return { success: true };
+    }
   } catch (err) {
-      console.error('Error adding new user data:', err.message);
-      event.sender.send('createUser-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error adding new user data:", err.message);
+    event.sender.send("createUser-response", { error: err.message });
+    return { error: err.message };
   }
 });
 const checkUsernameInDatabase = (email) => {
   return new Promise((resolve, reject) => {
-      // Prepare the SQL query to check if the email and password match
-      const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
+    // Prepare the SQL query to check if the email and password match
+    const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
 
-      // Execute the SQL query
-      db.get(checkUserQuery, [email], (err, row) => {
-          if (err) {
-              // Reject with error if query execution fails
-              console.error('Error checking username in database:', err);
-              reject(err);
-              return;
-          }
+    // Execute the SQL query
+    db.get(checkUserQuery, [email], (err, row) => {
+      if (err) {
+        // Reject with error if query execution fails
+        console.error("Error checking username in database:", err);
+        reject(err);
+        return;
+      }
 
-          // Resolve with the result of the query
-          resolve(row.count === 1);
-      });
+      // Resolve with the result of the query
+      resolve(row.count === 1);
+    });
   });
 };
-
 
 //loginUser
 ipcMain.handle("loginUser", async (event, args) => {
   try {
-    if (!args || typeof args !== 'object') {
-        throw new Error('Invalid arguments received for loginUser');
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for loginUser");
     }
 
     const { email, password } = args;
 
-    if (!email || !password ) {
-        throw new Error('Missing required user data for loginUser');
+    if (!email || !password) {
+      throw new Error("Missing required user data for loginUser");
     }
 
     const userExists = await checkUserInDatabase(email, password);
-    
+
     if (userExists) {
-        // If the user exists and the password matches, send success response
-        const user = await getUserDetails(email);
-        
-        event.sender.send('loginUser-response', { success: true, user });
-        return { success: true, user }; 
+      // If the user exists and the password matches, send success response
+      const user = await getUserDetails(email);
+
+      event.sender.send("loginUser-response", { success: true, user });
+      return { success: true, user };
     } else {
-        // If the user doesn't exist or password doesn't match, send error response
-        throw new Error('Invalid username or password');
+      // If the user doesn't exist or password doesn't match, send error response
+      throw new Error("Invalid username or password");
     }
-} catch (err) {
-    console.error('Error logging user:', err.message);
-    event.sender.send('loginUser-response', { error: err.message });
+  } catch (err) {
+    console.error("Error logging user:", err.message);
+    event.sender.send("loginUser-response", { error: err.message });
     return { error: err.message };
-}
+  }
 });
 const checkUserInDatabase = (email, password) => {
   return new Promise((resolve, reject) => {
-      // Prepare the SQL query to check if the email and password match
-      const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ? AND password = ?`;
+    // Prepare the SQL query to check if the email and password match
+    const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ? AND password = ?`;
 
-      // Execute the SQL query
-      db.get(checkUserQuery, [email, password], (err, row) => {
-          if (err) {
-              // Reject with error if query execution fails
-              console.error('Error checking user in database:', err);
-              reject(err);
-              return;
-          }
+    // Execute the SQL query
+    db.get(checkUserQuery, [email, password], (err, row) => {
+      if (err) {
+        // Reject with error if query execution fails
+        console.error("Error checking user in database:", err);
+        reject(err);
+        return;
+      }
 
-          // Resolve with the result of the query
-          resolve(row.count === 1);
-      });
+      // Resolve with the result of the query
+      resolve(row.count === 1);
+    });
   });
 };
 const getUserDetails = (email) => {
   return new Promise((resolve, reject) => {
-      // Prepare the SQL query to fetch user details based on email
-      const getUserQuery = `SELECT * FROM users WHERE email = ?`;
+    // Prepare the SQL query to fetch user details based on email
+    const getUserQuery = `SELECT * FROM users WHERE email = ?`;
 
-      // Execute the SQL query
-      db.get(getUserQuery, [email], (err, row) => {
-          if (err) {
-              // Reject with error if query execution fails
-              console.error('Error fetching user details from database:', err);
-              reject(err);
-              return;
-          }
+    // Execute the SQL query
+    db.get(getUserQuery, [email], (err, row) => {
+      if (err) {
+        // Reject with error if query execution fails
+        console.error("Error fetching user details from database:", err);
+        reject(err);
+        return;
+      }
 
-          // Resolve with the user details
-          resolve(row);
-      });
+      // Resolve with the user details
+      resolve(row);
+    });
   });
 };
-
-
-
-
-
 
 //edit user data
 ipcMain.handle("editUser", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for editUser');
-      }
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for editUser");
+    }
 
-      const { email, firstname, lastname, city, lang, user_id } = args;
+    const { email, firstname, lastname, city, lang, user_id } = args;
 
-      if (!user_id || !email || !lang ) {
-          throw new Error('Missing required data (user_id) for editUser');
-      }
+    if (!user_id || !email || !lang) {
+      throw new Error("Missing required data (user_id) for editUser");
+    }
 
-      const result = await db.run(`
+    const result = await db.run(
+      `
       UPDATE users
       SET 
         email = ?, firstname = ?, lastname = ?, city = ?, lang = ? WHERE user_id = ?
-      `, [ email, firstname, lastname, city, lang, user_id ]);
-          
-      console.log(`User data edited successfully`);
-      // Send success response to the frontend
-      event.sender.send('editUser-response', { success: true });
-      return { success: true };
-      
+      `,
+      [email, firstname, lastname, city, lang, user_id],
+    );
+
+    console.log(`User data edited successfully`);
+    // Send success response to the frontend
+    event.sender.send("editUser-response", { success: true });
+    return { success: true };
   } catch (err) {
-      console.error('Error editing user:', err.message);
-      // Send error response to the frontend
-      event.sender.send('editUser-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error editing user:", err.message);
+    // Send error response to the frontend
+    event.sender.send("editUser-response", { error: err.message });
+    return { error: err.message };
   }
 });
 
-
-
-
-
 //get all current projects by user_id
 ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0 AND is_deleted = 0"; 
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
+  const retrieveQuery =
+    "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0 AND is_deleted = 0";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
   try {
     const projects = await new Promise((resolve, reject) => {
@@ -670,7 +706,7 @@ ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
           reject({ statusCode: 0, errorMessage: error });
         }
 
-        const allProjects = rows.map(row => ({
+        const allProjects = rows.map((row) => ({
           project_id: row.project_id,
           project_uuid: row.project_uuid,
           projectname: row.projectname,
@@ -684,7 +720,7 @@ ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
           sent_date: row.sent_date,
           user_id: row.user_id,
           project_date: row.project_date,
-          created: row.created
+          created: row.created,
         }));
 
         db.close(() => {
@@ -695,16 +731,16 @@ ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
 
     return projects;
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error("Error fetching projects:", error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
 
-
 //get all previous projects by user_id
 ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0"; 
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
+  const retrieveQuery =
+    "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
   try {
     const projects = await new Promise((resolve, reject) => {
@@ -716,7 +752,7 @@ ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
           reject({ statusCode: 0, errorMessage: error });
         }
 
-        const allProjects = rows.map(row => ({
+        const allProjects = rows.map((row) => ({
           project_id: row.project_id,
           project_uuid: row.project_uuid,
           projectname: row.projectname,
@@ -729,7 +765,7 @@ ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
           is_sent: row.is_sent,
           sent_date: row.sent_date,
           user_id: row.user_id,
-          created: row.created
+          created: row.created,
         }));
 
         db.close(() => {
@@ -740,62 +776,66 @@ ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
 
     return projects;
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error("Error fetching projects:", error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-
-
 
 //get all previous projects by user_id
-ipcMain.handle("getAllPreviousProjectsBySearch", async (event, user_id, searchString) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0 AND projectname LIKE ?";
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id, `%${searchString}%`]);
+ipcMain.handle(
+  "getAllPreviousProjectsBySearch",
+  async (event, user_id, searchString) => {
+    const retrieveQuery =
+      "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0 AND projectname LIKE ?";
+    console.log("SQL Query:", retrieveQuery, "Parameters:", [
+      user_id,
+      `%${searchString}%`,
+    ]);
 
-  try {
-    const projects = await new Promise((resolve, reject) => {
-      const db = new sqlite3.Database(dbPath);
+    try {
+      const projects = await new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(dbPath);
 
-      db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
-        if (error != null) {
-          db.close();
-          reject({ statusCode: 0, errorMessage: error });
-        }
+        db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
+          if (error != null) {
+            db.close();
+            reject({ statusCode: 0, errorMessage: error });
+          }
 
-        const allProjects = rows.map(row => ({
-          project_id: row.project_id,
-          project_uuid: row.project_uuid,
-          projectname: row.projectname,
-          type: row.type,
-          anomaly: row.anomaly,
-          merged_teams: row.merged_teams,
-          unit: row.unit,
-          alert_sale: row.alert_sale,
-          is_deleted: row.is_deleted,
-          is_sent: row.is_sent,
-          sent_date: row.sent_date,
-          user_id: row.user_id,
-          created: row.created
-        }));
+          const allProjects = rows.map((row) => ({
+            project_id: row.project_id,
+            project_uuid: row.project_uuid,
+            projectname: row.projectname,
+            type: row.type,
+            anomaly: row.anomaly,
+            merged_teams: row.merged_teams,
+            unit: row.unit,
+            alert_sale: row.alert_sale,
+            is_deleted: row.is_deleted,
+            is_sent: row.is_sent,
+            sent_date: row.sent_date,
+            user_id: row.user_id,
+            created: row.created,
+          }));
 
-        db.close(() => {
-          resolve({ statusCode: 1, projects: allProjects });
+          db.close(() => {
+            resolve({ statusCode: 1, projects: allProjects });
+          });
         });
       });
-    });
 
-    return projects;
-  } catch (error) {
-    console.error('Error fetching searched projects:', error);
-    return { statusCode: 0, errorMessage: error.message };
-  }
-});
-
+      return projects;
+    } catch (error) {
+      console.error("Error fetching searched projects:", error);
+      return { statusCode: 0, errorMessage: error.message };
+    }
+  },
+);
 
 //get project by porject_id
 ipcMain.handle("getProjectById", async (event, project_id) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE project_id = ?"; 
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [project_id]);
+  const retrieveQuery = "SELECT * FROM projects WHERE project_id = ?";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [project_id]);
 
   try {
     const project = await new Promise((resolve, reject) => {
@@ -828,7 +868,7 @@ ipcMain.handle("getProjectById", async (event, project_id) => {
           is_sent: row.is_sent,
           sent_date: row.sent_date,
           user_id: row.user_id,
-          created: row.created
+          created: row.created,
         };
 
         db.close(() => {
@@ -839,22 +879,17 @@ ipcMain.handle("getProjectById", async (event, project_id) => {
 
     return project;
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error("Error fetching projects:", error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-
-
-
-
 
 //get all projects
 ipcMain.handle("get_Projects", async (event, user_lang) => {
   const allProjects = [];
 
-  const retrieveQuery = "SELECT * FROM _projects WHERE lang = ?"; 
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_lang]);
-
+  const retrieveQuery = "SELECT * FROM _projects WHERE lang = ?";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_lang]);
 
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbPath);
@@ -878,179 +913,195 @@ ipcMain.handle("get_Projects", async (event, user_lang) => {
   });
 });
 
-
-
-
 //get spcific project and see if it exists
 ipcMain.handle("checkProjectExists", async (event, project_uuid) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE project_uuid = ? AND is_deleted = 0";
+  const retrieveQuery =
+    "SELECT * FROM projects WHERE project_uuid = ? AND is_deleted = 0";
 
   try {
-      const project = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+    const project = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-          db.get(retrieveQuery, [project_uuid], (error, row) => {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error.message });
-              } else if (!row) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: 'Project not found' });
-              } else {
-                  db.close();
-                  resolve({
-                      statusCode: 1,
-                      project_uuid: row.project_uuid,
-                      projectname: row.projectname,
-                      // Add other project details if needed
-                  });
-              }
+      db.get(retrieveQuery, [project_uuid], (error, row) => {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error.message });
+        } else if (!row) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: "Project not found" });
+        } else {
+          db.close();
+          resolve({
+            statusCode: 1,
+            project_uuid: row.project_uuid,
+            projectname: row.projectname,
+            // Add other project details if needed
           });
+        }
       });
+    });
 
-      return project;
+    return project;
   } catch (error) {
-      console.error('Error checking project existence:', error);
-      return { statusCode: 0, errorMessage: error.message };
+    console.error("Error checking project existence:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
-
-
 
 //create new project
 ipcMain.handle("createNewProject", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for createNewProject');
-      }
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for createNewProject");
+    }
 
-      const { projectname, type, user_id, project_uuid, photographername, project_date } = args;
+    const {
+      projectname,
+      type,
+      user_id,
+      project_uuid,
+      photographername,
+      project_date,
+    } = args;
 
-      if (!projectname || !type || !project_uuid || !user_id || !photographername || !project_date ) {
-          throw new Error('Missing required user data for createNewProject');
-      }
-      
-      await db.run(`
+    if (
+      !projectname ||
+      !type ||
+      !project_uuid ||
+      !user_id ||
+      !photographername ||
+      !project_date
+    ) {
+      throw new Error("Missing required user data for createNewProject");
+    }
+
+    await db.run(
+      `
           INSERT INTO projects (projectname, photographername, type, project_date, user_id, project_uuid)
           VALUES (?, ?, ?, ?, ?, ?)
-          `, [projectname.toLowerCase(), photographername, type.toLowerCase(), project_date, user_id, project_uuid]);
+          `,
+      [
+        projectname.toLowerCase(),
+        photographername,
+        type.toLowerCase(),
+        project_date,
+        user_id,
+        project_uuid,
+      ],
+    );
 
-      console.log('Project added successfully');
-      console.log('Fetching new project with UUID:', project_uuid);
+    console.log("Project added successfully");
+    console.log("Fetching new project with UUID:", project_uuid);
 
-      // Send the newProject object as a response to the frontend
-      event.sender.send('createNewProject-response', { success: true });
-      return { success: true }; // Optionally, also return the newProject object
-      
+    // Send the newProject object as a response to the frontend
+    event.sender.send("createNewProject-response", { success: true });
+    return { success: true }; // Optionally, also return the newProject object
   } catch (err) {
-      console.error('Error adding new project data:', err.message);
-      event.sender.send('createNewProject-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error adding new project data:", err.message);
+    event.sender.send("createNewProject-response", { error: err.message });
+    return { error: err.message };
   }
 });
-
-
 
 //get latest project
 ipcMain.handle("getLatestProject", async (event, project_uuid) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE project_uuid = ?"; 
+  const retrieveQuery = "SELECT * FROM projects WHERE project_uuid = ?";
 
   try {
-      const project = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+    const project = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-          db.get(retrieveQuery, [project_uuid], (error, row) => {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error });
-              } else if (!row) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: 'Project not found' });
-              } else {
-                  db.close();
-                  resolve({
-                      statusCode: 1,
-                      project_id: row.project_id,
-                      project_uuid: row.project_uuid,
-                      projectname: row.projectname,
-                      type: row.type,
-                      anomaly: row.anomaly,
-                      merged_teams: row.merged_teams,
-                      unit: row.unit,
-                      alert_sale: row.alert_sale,
-                      is_deleted: row.is_deleted,
-                      is_sent: row.is_sent,
-                      sent_date: row.sent_date,
-                      user_id: row.user_id,
-                      created: row.created
-                  });
-              }
+      db.get(retrieveQuery, [project_uuid], (error, row) => {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else if (!row) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: "Project not found" });
+        } else {
+          db.close();
+          resolve({
+            statusCode: 1,
+            project_id: row.project_id,
+            project_uuid: row.project_uuid,
+            projectname: row.projectname,
+            type: row.type,
+            anomaly: row.anomaly,
+            merged_teams: row.merged_teams,
+            unit: row.unit,
+            alert_sale: row.alert_sale,
+            is_deleted: row.is_deleted,
+            is_sent: row.is_sent,
+            sent_date: row.sent_date,
+            user_id: row.user_id,
+            created: row.created,
           });
+        }
       });
+    });
 
-      return project;
+    return project;
   } catch (error) {
-      console.error('Error fetching project data:', error);
-      return { statusCode: 0, errorMessage: error.message };
+    console.error("Error fetching project data:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
 
-
-//delete project 
+//delete project
 ipcMain.handle("deleteProject", async (event, project_id) => {
-  const updateQuery = "UPDATE projects SET is_deleted = 1 WHERE project_id = ?"; 
+  const updateQuery = "UPDATE projects SET is_deleted = 1 WHERE project_id = ?";
 
   try {
-      const result = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+    const result = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-          db.run(updateQuery, [project_id], function(error) {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error });
-              } else {
-                  db.close();
-                  resolve({ rowsAffected: this.changes });
-              }
-          });
+      db.run(updateQuery, [project_id], function (error) {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else {
+          db.close();
+          resolve({ rowsAffected: this.changes });
+        }
       });
+    });
 
-      return { statusCode: 1, result };
+    return { statusCode: 1, result };
   } catch (error) {
-      console.error('Error deleting project:', error);
-      return { statusCode: 0, errorMessage: error.message };
+    console.error("Error deleting project:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
-
 
 //send project to DB
 ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale) => {
-  const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ? WHERE project_id = ?"; 
+  const updateQuery =
+    "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ? WHERE project_id = ?";
 
   try {
-      const result = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+    const result = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-          db.run(updateQuery, [alertSale, project_id], function(error) {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error });
-              } else {
-                  db.close();
-                  resolve({ rowsAffected: this.changes });
-              }
-          });
+      db.run(updateQuery, [alertSale, project_id], function (error) {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else {
+          db.close();
+          resolve({ rowsAffected: this.changes });
+        }
       });
+    });
 
-      return { statusCode: 1, result };
+    return { statusCode: 1, result };
   } catch (error) {
-      console.error('Error sending project to db:', error);
-      return { statusCode: 0, errorMessage: error.message };
+    console.error("Error sending project to db:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
 
 // ipcMain.handle("sendProjectToDb", async (event, project_id) => {
-//   const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP WHERE project_id = ?"; 
+//   const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP WHERE project_id = ?";
 
 //   try {
 //       const result = await new Promise((resolve, reject) => {
@@ -1074,57 +1125,79 @@ ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale) => {
 //   }
 // });
 
-
-
 //create new team
 ipcMain.handle("createNewTeam", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for createNewTeam');
-      }
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for createNewTeam");
+    }
 
-      const { teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, calendar_amount, leader_address, leader_postalcode, leader_county, leader_ssn, project_id } = args;
+    const {
+      teamname,
+      leader_firstname,
+      leader_lastname,
+      leader_mobile,
+      leader_email,
+      calendar_amount,
+      leader_address,
+      leader_postalcode,
+      leader_county,
+      leader_ssn,
+      project_id,
+    } = args;
 
-      if (!teamname || !leader_firstname || !leader_lastname || !leader_mobile || !leader_email || !project_id) {
-          throw new Error('Missing required data for createNewTeam');
-      }
-      
-      const result = await db.run(`
+    if (
+      !teamname ||
+      !leader_firstname ||
+      !leader_lastname ||
+      !leader_mobile ||
+      !leader_email ||
+      !project_id
+    ) {
+      throw new Error("Missing required data for createNewTeam");
+    }
+
+    const result = await db.run(
+      `
           INSERT INTO teams (
               teamname, leader_firstname, leader_lastname, leader_mobile, leader_email, calendar_amount, leader_address, leader_postalcode, leader_county, leader_ssn, project_id
           )
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `, [
-              teamname, 
-              leader_firstname, 
-              leader_lastname, 
-              leader_mobile, 
-              leader_email, 
-              calendar_amount,
-              leader_address,
-              leader_postalcode,
-              leader_county,
-              leader_ssn,
-              project_id
-          ]);
+          `,
+      [
+        teamname,
+        leader_firstname,
+        leader_lastname,
+        leader_mobile,
+        leader_email,
+        calendar_amount,
+        leader_address,
+        leader_postalcode,
+        leader_county,
+        leader_ssn,
+        project_id,
+      ],
+    );
 
-      console.log(`Team added successfully`);
-      
-      event.sender.send('createNewTeam-response', { success: true, statusCode: 1 });
-      return { success: true, statusCode: 1 };
-      
+    console.log(`Team added successfully`);
+
+    event.sender.send("createNewTeam-response", {
+      success: true,
+      statusCode: 1,
+    });
+    return { success: true, statusCode: 1 };
   } catch (err) {
-      console.error('Error adding new team:', err.message);
-      event.sender.send('createNewTeam-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error adding new team:", err.message);
+    event.sender.send("createNewTeam-response", { error: err.message });
+    return { error: err.message };
   }
 });
 
-
 //get all teams by project_id
 ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
-  const retrieveQuery = "SELECT * FROM teams WHERE is_deleted = 0 AND project_id = ?"; 
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [project_id]);
+  const retrieveQuery =
+    "SELECT * FROM teams WHERE is_deleted = 0 AND project_id = ?";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [project_id]);
 
   try {
     const teams = await new Promise((resolve, reject) => {
@@ -1136,12 +1209,12 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
           reject({ statusCode: 0, errorMessage: error });
         }
 
-        const allTeams = rows.map(row => ({
+        const allTeams = rows.map((row) => ({
           team_id: row.team_id,
           teamname: row.teamname,
           amount: row.amount,
           leader_firstname: row.leader_firstname,
-          leader_lastname	: row.leader_lastname	,
+          leader_lastname: row.leader_lastname,
           leader_address: row.leader_address,
           leader_postalcode: row.leader_postalcode,
           leader_county: row.leader_county,
@@ -1155,7 +1228,7 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
           sold_calendar: row.sold_calendar,
           calendar_amount: row.calendar_amount,
           created: row.created,
-          project_id: row.project_id
+          project_id: row.project_id,
         }));
 
         db.close(() => {
@@ -1166,25 +1239,39 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
 
     return teams;
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error("Error fetching projects:", error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
 
-
 //Update team
 ipcMain.handle("addDataToTeam", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for addDataToTeam');
-      }
-      const { leader_address, leader_postalcode, leader_county, leader_ssn, calendar_amount, team_id } = args;
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for addDataToTeam");
+    }
+    const {
+      leader_address,
+      leader_postalcode,
+      leader_county,
+      leader_ssn,
+      calendar_amount,
+      team_id,
+    } = args;
 
-      if (!leader_address || !leader_postalcode || !leader_county || !leader_ssn || !calendar_amount || !team_id) {
-          throw new Error('Missing required data for addDataToTeam');
-      }
-      
-      const result = await db.run(`
+    if (
+      !leader_address ||
+      !leader_postalcode ||
+      !leader_county ||
+      !leader_ssn ||
+      !calendar_amount ||
+      !team_id
+    ) {
+      throw new Error("Missing required data for addDataToTeam");
+    }
+
+    const result = await db.run(
+      `
           UPDATE teams
           SET leader_address = ?,
               calendar_amount = ?,  
@@ -1192,43 +1279,44 @@ ipcMain.handle("addDataToTeam", async (event, args) => {
               leader_county = ?,
               leader_ssn = ?
           WHERE team_id = ?
-          `, [
-            leader_address, 
-            calendar_amount,
-            leader_postalcode, 
-            leader_county, 
-            leader_ssn,
-            team_id
-          ]);
-          
-      console.log(`Team updated successfully`);
-      
-      // Send success response to the frontend
-      event.sender.send('addDataToTeam-response', { success: true });
-      return { success: true };
-      
+          `,
+      [
+        leader_address,
+        calendar_amount,
+        leader_postalcode,
+        leader_county,
+        leader_ssn,
+        team_id,
+      ],
+    );
+
+    console.log(`Team updated successfully`);
+
+    // Send success response to the frontend
+    event.sender.send("addDataToTeam-response", { success: true });
+    return { success: true };
   } catch (err) {
-      console.error('Error updating team:', err.message);
-      // Send error response to the frontend
-      event.sender.send('addDataToTeam-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error updating team:", err.message);
+    // Send error response to the frontend
+    event.sender.send("addDataToTeam-response", { error: err.message });
+    return { error: err.message };
   }
 });
-
-
 
 //create new class
 ipcMain.handle("createNewClass", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for createNewClass');
-      }
-      const { teamname, amount, protected_id, portrait, project_id, crowd } = args;
-      if (!teamname || !amount || !project_id) {
-          throw new Error('Missing required data for createNewClass');
-      }
-      
-      const result = await db.run(`
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for createNewClass");
+    }
+    const { teamname, amount, protected_id, portrait, project_id, crowd } =
+      args;
+    if (!teamname || !amount || !project_id) {
+      throw new Error("Missing required data for createNewClass");
+    }
+
+    const result = await db.run(
+      `
           INSERT INTO teams (
               teamname, 
               amount, 
@@ -1238,47 +1326,46 @@ ipcMain.handle("createNewClass", async (event, args) => {
               project_id
           )
           VALUES (?, ?, ?, ?, ?, ?)
-          `, [
-              teamname, 
-              amount, 
-              protected_id ? 1 : 0, // Convert boolean to integer,
-              portrait ? 1 : 0, // Convert boolean to integer
-              crowd ? 1 : 0, // Convert boolean to integer
-              project_id
-          ]);
-          
-      console.log(`Class added successfully`);
-      
-      // Send success response to the frontend
-      event.sender.send('createNewClass-response', { success: true });
-      return { success: true };
-      
+          `,
+      [
+        teamname,
+        amount,
+        protected_id ? 1 : 0, // Convert boolean to integer,
+        portrait ? 1 : 0, // Convert boolean to integer
+        crowd ? 1 : 0, // Convert boolean to integer
+        project_id,
+      ],
+    );
+
+    console.log(`Class added successfully`);
+
+    // Send success response to the frontend
+    event.sender.send("createNewClass-response", { success: true });
+    return { success: true };
   } catch (err) {
-      console.error('Error adding new class:', err.message);
-      // Send error response to the frontend
-      event.sender.send('createNewClass-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error adding new class:", err.message);
+    // Send error response to the frontend
+    event.sender.send("createNewClass-response", { error: err.message });
+    return { error: err.message };
   }
 });
-
-
-
-
 
 //Add team data to team
 ipcMain.handle("addTeamDataToTeam", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for addTeamDataToTeam');
-      }
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for addTeamDataToTeam");
+    }
 
-      const { amount, protected_id, portrait, crowd, sold_calendar, team_id } = args;
+    const { amount, protected_id, portrait, crowd, sold_calendar, team_id } =
+      args;
 
-      if (!amount || !team_id) {
-          throw new Error('Missing required data for addTeamDataToTeam');
-      }
-      
-      const result = await db.run(`
+    if (!amount || !team_id) {
+      throw new Error("Missing required data for addTeamDataToTeam");
+    }
+
+    const result = await db.run(
+      `
         UPDATE teams
         SET amount = ?,
         protected_id = ?,
@@ -1286,61 +1373,55 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
         crowd = ?,
         sold_calendar = ?
         WHERE team_id = ?
-        `, [
-          amount, 
-          protected_id ? 1 : 0,
-          portrait ? 1 : 0,
-          crowd ? 1 : 0,
-          sold_calendar,
-          team_id
-      ]);
-          
-      console.log(`Team data added successfully`);
-      
-      // Send success response to the frontend
-      event.sender.send('addTeamDataToTeam-response', { success: true });
-      return { success: true };
-      
+        `,
+      [
+        amount,
+        protected_id ? 1 : 0,
+        portrait ? 1 : 0,
+        crowd ? 1 : 0,
+        sold_calendar,
+        team_id,
+      ],
+    );
+
+    console.log(`Team data added successfully`);
+
+    // Send success response to the frontend
+    event.sender.send("addTeamDataToTeam-response", { success: true });
+    return { success: true };
   } catch (err) {
-      console.error('Error adding data to team:', err.message);
-      // Send error response to the frontend
-      event.sender.send('addTeamDataToTeam-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error adding data to team:", err.message);
+    // Send error response to the frontend
+    event.sender.send("addTeamDataToTeam-response", { error: err.message });
+    return { error: err.message };
   }
 });
 
-
-
-
-//delete team 
+//delete team
 ipcMain.handle("deleteTeam", async (event, team_id) => {
-  const updateQuery = "UPDATE teams SET is_deleted = 1 WHERE team_id = ?"; 
+  const updateQuery = "UPDATE teams SET is_deleted = 1 WHERE team_id = ?";
 
   try {
-      const result = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+    const result = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-          db.run(updateQuery, [team_id], function(error) {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error });
-              } else {
-                  db.close();
-                  resolve({ rowsAffected: this.changes });
-              }
-          });
+      db.run(updateQuery, [team_id], function (error) {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else {
+          db.close();
+          resolve({ rowsAffected: this.changes });
+        }
       });
+    });
 
-      return { statusCode: 1, result };
+    return { statusCode: 1, result };
   } catch (error) {
-      console.error('Error deleting team:', error);
-      return { statusCode: 0, errorMessage: error.message };
+    console.error("Error deleting team:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
-
-
-
-
 
 // //edit team data
 // ipcMain.handle("editTeam", async (event, args) => {
@@ -1354,7 +1435,7 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
 //       if (!amount || !teamname || !team_id) {
 //           throw new Error('Missing required data for editTeam (amount, teamname, team_id)');
 //       }
-      
+
 //       const result = await db.run(`
 //         UPDATE teams
 //         SET amount = ?,
@@ -1365,7 +1446,7 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
 //         crowd = ?
 //         WHERE team_id = ?
 //         `, [
-//           amount, 
+//           amount,
 //           teamname,
 //           protected_id,
 //           portrait,
@@ -1373,13 +1454,13 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
 //           crowd,
 //           team_id
 //       ]);
-          
+
 //       console.log(`Team data edited successfully`);
-      
+
 //       // Send success response to the frontend
 //       event.sender.send('editTeam-response', { success: true });
 //       return { success: true };
-      
+
 //   } catch (err) {
 //       console.error('Error editing data:', err.message);
 //       // Send error response to the frontend
@@ -1388,35 +1469,52 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
 //   }
 // });
 
-
-
-
 //edit team data
 ipcMain.handle("editTeam", async (event, args) => {
   try {
-      if (!args || typeof args !== 'object') {
-          throw new Error('Invalid arguments received for editTeam');
-      }
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for editTeam");
+    }
 
-      const { amount, protected_id, portrait, crowd, teamname, team_id, sold_calendar, leader_firstname, leader_lastname, leader_email, leader_ssn, leader_mobile, leader_postalcode, leader_address, calendar_amount, leader_county} = args;
+    const {
+      amount,
+      protected_id,
+      portrait,
+      crowd,
+      teamname,
+      team_id,
+      sold_calendar,
+      leader_firstname,
+      leader_lastname,
+      leader_email,
+      leader_ssn,
+      leader_mobile,
+      leader_postalcode,
+      leader_address,
+      calendar_amount,
+      leader_county,
+    } = args;
 
-      if (!amount || !teamname || !team_id) {
-          throw new Error('Missing required data for editTeam (amount, teamname, team_id)');
-      }
+    if (!amount || !teamname || !team_id) {
+      throw new Error(
+        "Missing required data for editTeam (amount, teamname, team_id)",
+      );
+    }
 
-      // Adding data to teams_history table
-      // Define SQL statement to insert updated team data into teams_history table
-        const historySQL = `
+    // Adding data to teams_history table
+    // Define SQL statement to insert updated team data into teams_history table
+    const historySQL = `
             INSERT INTO teams_history (team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, crowd, protected_id, sold_calendar)
             SELECT team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, crowd, protected_id, sold_calendar
             FROM teams
             WHERE team_id = ?
         `;
 
-        // Execute insertion SQL statement to copy current team data to teams_history table
-        await db.run(historySQL, [team_id]);
+    // Execute insertion SQL statement to copy current team data to teams_history table
+    await db.run(historySQL, [team_id]);
 
-      const result = await db.run(`
+    const result = await db.run(
+      `
       UPDATE teams
       SET 
         amount = ?,
@@ -1435,7 +1533,8 @@ ipcMain.handle("editTeam", async (event, args) => {
         calendar_amount = ?,
         leader_county = ?
       WHERE team_id = ?
-      `, [
+      `,
+      [
         amount,
         teamname,
         protected_id,
@@ -1451,30 +1550,27 @@ ipcMain.handle("editTeam", async (event, args) => {
         leader_address,
         calendar_amount,
         leader_county,
-        team_id
-      ]);
-          
-      console.log(`Team data edited successfully`);
-      
-      // Send success response to the frontend
-      event.sender.send('editTeam-response', { success: true });
-      return { success: true };
-      
+        team_id,
+      ],
+    );
+
+    console.log(`Team data edited successfully`);
+
+    // Send success response to the frontend
+    event.sender.send("editTeam-response", { success: true });
+    return { success: true };
   } catch (err) {
-      console.error('Error editing data:', err.message);
-      // Send error response to the frontend
-      event.sender.send('editTeam-response', { error: err.message });
-      return { error: err.message };
+    console.error("Error editing data:", err.message);
+    // Send error response to the frontend
+    event.sender.send("editTeam-response", { error: err.message });
+    return { error: err.message };
   }
 });
 
-
-
-
 //get team by team id
 ipcMain.handle("getTeam", async (event, team_id) => {
-  const retrieveQuery = "SELECT * FROM teams WHERE team_id = ?"; 
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [team_id]);
+  const retrieveQuery = "SELECT * FROM teams WHERE team_id = ?";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [team_id]);
 
   try {
     const team = await new Promise((resolve, reject) => {
@@ -1486,12 +1582,12 @@ ipcMain.handle("getTeam", async (event, team_id) => {
           reject({ statusCode: 0, errorMessage: error });
         }
 
-        const teamData = rows.map(row => ({
+        const teamData = rows.map((row) => ({
           team_id: row.team_id,
           teamname: row.teamname,
           amount: row.amount,
           leader_firstname: row.leader_firstname,
-          leader_lastname	: row.leader_lastname	,
+          leader_lastname: row.leader_lastname,
           leader_address: row.leader_address,
           leader_postalcode: row.leader_postalcode,
           leader_county: row.leader_county,
@@ -1504,7 +1600,7 @@ ipcMain.handle("getTeam", async (event, team_id) => {
           named_photolink: row.named_photolink,
           sold_calendar: row.sold_calendar,
           created: row.created,
-          project_id: row.project_id
+          project_id: row.project_id,
         }));
 
         db.close(() => {
@@ -1515,42 +1611,40 @@ ipcMain.handle("getTeam", async (event, team_id) => {
 
     return team;
   } catch (error) {
-    console.error('Error fetching team:', error);
+    console.error("Error fetching team:", error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
 
-
-
 //Add team data to team
 ipcMain.handle("addAnomalyToProject", async (event, args) => {
   try {
-    if (!args || typeof args !== 'object') {
-      throw new Error('Invalid arguments received for addAnomalyToProject');
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for addAnomalyToProject");
     }
 
     const { anomaly, merged_teams, project_id } = args;
 
     if (!project_id) {
-      throw new Error('Missing required project_id for addAnomalyToProject');
+      throw new Error("Missing required project_id for addAnomalyToProject");
     }
 
-    let query = 'UPDATE projects SET';
+    let query = "UPDATE projects SET";
     const params = [];
 
     if (anomaly !== undefined) {
-      query += ' anomaly = ?,';
+      query += " anomaly = ?,";
       params.push(anomaly);
     }
     if (merged_teams !== undefined) {
-      query += ' merged_teams = ?,';
+      query += " merged_teams = ?,";
       params.push(merged_teams);
     }
 
     // Remove the trailing comma from query
     query = query.slice(0, -1);
 
-    query += ' WHERE project_id = ?';
+    query += " WHERE project_id = ?";
     params.push(project_id);
 
     // Execute the query
@@ -1559,24 +1653,19 @@ ipcMain.handle("addAnomalyToProject", async (event, args) => {
     console.log(`Data (anomaly and/or merged_teams) added successfully`);
 
     // Send success response to the frontend
-    event.sender.send('addAnomalyToProject-response', { success: true });
+    event.sender.send("addAnomalyToProject-response", { success: true });
     return { success: true };
-
   } catch (err) {
-    console.error('Error adding data to team:', err.message);
+    console.error("Error adding data to team:", err.message);
     // Send error response to the frontend
-    event.sender.send('addAnomalyToProject-response', { error: err.message });
+    event.sender.send("addAnomalyToProject-response", { error: err.message });
     return { error: err.message };
   }
 });
 
-
-
-
-
 //get all projects and teams by user_id
 ipcMain.handle("getProjectsAndTeamsByUserId", async (event, user_id) => {
-    const retrieveQuery = `
+  const retrieveQuery = `
       SELECT t.team_id, t.teamname, t.amount, t.leader_firstname, t.leader_lastname,
             t.leader_address, t.leader_postalcode, t.leader_county, t.leader_mobile,
             t.leader_email, t.leader_ssn, t.calendar_amount, t.portrait, t.crowd,
@@ -1588,7 +1677,7 @@ ipcMain.handle("getProjectsAndTeamsByUserId", async (event, user_id) => {
       JOIN projects AS p ON t.project_id = p.project_id
       WHERE p.user_id = ? AND t.is_deleted = 0 AND p.is_deleted = 0 AND p.is_sent = 1
     `;
-  console.log('SQL Query:', retrieveQuery, 'Parameters:', [user_id]);
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
   try {
     const data = await new Promise((resolve, reject) => {
@@ -1600,7 +1689,7 @@ ipcMain.handle("getProjectsAndTeamsByUserId", async (event, user_id) => {
           reject({ statusCode: 0, errorMessage: error });
         }
 
-        const allData = rows.map(row => ({
+        const allData = rows.map((row) => ({
           project_id: row.project_id,
           project_uuid: row.project_uuid,
           projectname: row.projectname,
@@ -1645,54 +1734,47 @@ ipcMain.handle("getProjectsAndTeamsByUserId", async (event, user_id) => {
 
     return data;
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error("Error fetching data:", error);
     return { statusCode: 0, errorMessage: error.message };
   }
 });
 
-
-
-
-
-ipcMain.on('navigateBack', (event) => { // Corrected to match the IPC event name
+ipcMain.on("navigateBack", (event) => {
+  // Corrected to match the IPC event name
   const focusedWindow = BrowserWindow.getFocusedWindow();
   if (focusedWindow) {
-      focusedWindow.webContents.goBack(); // Navigate back in the Electron window
+    focusedWindow.webContents.goBack(); // Navigate back in the Electron window
   }
 });
 
-
-
-//GDPR protection 
+//GDPR protection
 ipcMain.handle("gdprProtection", async (event) => {
-  const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
-  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);"; 
+  const updateQuery =
+    "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
+  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-12 hour');";
 
   try {
-      const result = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
+    const result = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-          db.run(updateQuery, function(error) {
-              if (error) {
-                  db.close();
-                  reject({ statusCode: 0, errorMessage: error });
-              } else {
-                  db.close();
-                  resolve({ rowsAffected: this.changes });
-              }
-          });
+      db.run(updateQuery, function (error) {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else {
+          db.close();
+          resolve({ rowsAffected: this.changes });
+        }
       });
+    });
 
-      return { statusCode: 1, result };
+    return { statusCode: 1, result };
   } catch (error) {
-      console.error('Error clearing GDPR data:', error);
-      return { statusCode: 0, errorMessage: error.message };
+    console.error("Error clearing GDPR data:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
-
-
-
 
 // const database = new sqlite.Database(
 //   is.dev
@@ -1704,12 +1786,11 @@ ipcMain.handle("gdprProtection", async (event) => {
 //   }
 // );
 
-
 // //get all users
 // ipcMain.handle("getUser", async () => {
 //   const user = [];
 
-//   const retrieveQuery = "SELECT * FROM users"; 
+//   const retrieveQuery = "SELECT * FROM users";
 
 //   return new Promise((resolve, reject) => {
 //     const db = new sqlite3.Database(dbPath);
@@ -1735,8 +1816,6 @@ ipcMain.handle("gdprProtection", async (event) => {
 //   });
 // });
 
-
-
 // //create new user
 // ipcMain.handle("createUser", async (event, args) => {
 //   try {
@@ -1757,14 +1836,12 @@ ipcMain.handle("gdprProtection", async (event) => {
 
 //       console.log('User data added successfully');
 //       event.sender.send('add-user-response', { success: true });
-      
+
 //   } catch (err) {
 //       console.error('Error adding user data:', err.message);
 //       event.sender.send('add-user-response', { error: err.message });
 //   }
 // });
-
-
 
 // //create new / add new file/data to local computer
 // ipcMain.handle("createUserToComp", async (event, args) => {
@@ -1773,7 +1850,7 @@ ipcMain.handle("gdprProtection", async (event) => {
 //   const filePath = path.join(dataFolderPath, 'userData.json'); // Specify the filename
 
 //   const { name, workname, county, anomaly } = args;
-  
+
 //   if (!name || !workname || !county) {
 //     throw new Error('Missing required user input to write to file');
 // }
@@ -1797,7 +1874,6 @@ ipcMain.handle("gdprProtection", async (event) => {
 //     }
 //   });
 // });
-
 
 // //create new group
 // ipcMain.handle("createGroup", async (event, args) => {
@@ -1823,16 +1899,14 @@ ipcMain.handle("gdprProtection", async (event) => {
 //           VALUES (?, ?, ?, ?, ?)
 //       `, [orgname.toLowerCase(), amount.toLowerCase(), portrait, unit, user_id]);
 
-
 //       console.log('Group data added successfully');
 //       event.sender.send('add-group-response', { success: true });
-      
+
 //   } catch (err) {
 //       console.error('Error adding user data:', err.message);
 //       event.sender.send('add-group-response', { error: err.message });
 //   }
 // });
-
 
 // //crate login window
 // ipcMain.handle("createLoginWindow", async (event, args) => {
@@ -1842,12 +1916,12 @@ ipcMain.handle("gdprProtection", async (event) => {
 //           // modal: true, // Example: Open as a modal window
 //           width: 400,
 //           height: 500,
-//           resizable: false, 
+//           resizable: false,
 //           // frame: false,
 //           // show: false,
 //           autoHideMenuBar: true,
 //           // ...(process.platform === 'linux' ? { icon } : {}),
-//           icon: iconPath, 
+//           icon: iconPath,
 //           // icon: path.join(__dirname, '../../resources/icon2.png'),
 //           webPreferences: {
 //             preload : path.join(__dirname, '../preload/index.js') ,
@@ -1863,14 +1937,14 @@ ipcMain.handle("gdprProtection", async (event) => {
 //       if (isDev) {
 //         loginWindow.webContents.openDevTools({ mode: 'detach' });
 //        }
-    
+
 //       // Load the URL for the new window if needed
 //       loginWindow.loadURL(
 //         isDev
 //             ? "http://localhost:5173/#/login_window"
 //             : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
 //      );
-     
+
 //       // Optionally return some data back to the renderer process
 //       return { success: true, message: 'Login window created successfully' };
 //   } catch (error) {
@@ -1878,64 +1952,63 @@ ipcMain.handle("gdprProtection", async (event) => {
 //       console.error('Error creating login window:', error);
 //       throw new Error('Failed to create login window');
 //   }
-  
-// });
 
+// });
 
 //crate main window & close login window
 ipcMain.handle("createMainWindow", async (event, args) => {
   loginWindow.close();
   try {
-      // Create the MainWindow
-      const mainWindow = new BrowserWindow({
-          width: 1150,
-          height: 750,
-          minWidth: 820,
-          minHeight: 550,
-          show: false,
-          autoHideMenuBar: true,
-          icon: iconPath, 
-          webPreferences: {
-            preload : path.join(__dirname, '../preload/index.js') ,
-            sandbox: false,
-            contextIsolation: true,
-            nodeIntegration: true,
-            webSecurity: false
-          }
-      });
+    // Create the MainWindow
+    const mainWindow = new BrowserWindow({
+      width: 1150,
+      height: 750,
+      minWidth: 820,
+      minHeight: 550,
+      show: false,
+      autoHideMenuBar: true,
+      icon: iconPath,
+      webPreferences: {
+        preload: path.join(__dirname, "../preload/index.js"),
+        sandbox: false,
+        contextIsolation: true,
+        nodeIntegration: true,
+        webSecurity: false,
+      },
+    });
 
-      // Open DevTools for the new window
-      if (isDev) {
-        mainWindow.webContents.openDevTools({ mode: 'detach' });
-      }
-    
-      // Load the URL for the MainWindow
-      // mainWindow.loadURL(
-      //   isDev
-      //       ? "http://localhost:5173/"
-      //       : `file://${path.join(__dirname, "../build/index.html")}`
-      // );
-      if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-        mainWindow.loadURL("http://localhost:5173/")
-      } else {
-        mainWindow.loadURL(`file://${path.join(__dirname, '../renderer/index.html')}`);
-      }
-    
+    // Open DevTools for the new window
+    if (isDev) {
+      mainWindow.webContents.openDevTools({ mode: "detach" });
+    }
 
-      // Show the MainWindow when it's ready
-      mainWindow.once('ready-to-show', () => {
-        mainWindow.show();
-      });
+    // Load the URL for the MainWindow
+    // mainWindow.loadURL(
+    //   isDev
+    //       ? "http://localhost:5173/"
+    //       : `file://${path.join(__dirname, "../build/index.html")}`
+    // );
+    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+      mainWindow.loadURL("http://localhost:5173/");
+    } else {
+      mainWindow.loadURL(
+        `file://${path.join(__dirname, "../renderer/index.html")}`,
+      );
+    }
 
-      // Optionally return some data back to the renderer process
-      return { success: true, message: 'Main window created successfully' };
+    // Show the MainWindow when it's ready
+    mainWindow.once("ready-to-show", () => {
+      mainWindow.show();
+    });
+
+    // Optionally return some data back to the renderer process
+    return { success: true, message: "Main window created successfully" };
   } catch (error) {
-      // Handle any errors that occur while creating the new window
-      console.error('Error creating main window:', error);
-      throw new Error('Failed to create main window');
+    // Handle any errors that occur while creating the new window
+    console.error("Error creating main window:", error);
+    throw new Error("Failed to create main window");
   }
 });
-
 
 // //crate login window & close login window
 // ipcMain.handle("createNewuserWindow", async (event) => {
@@ -1976,8 +2049,6 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //   }
 // });
 
-
-
 // ipcMain.handle("createMainWindow", async (event, args) => {
 //   try {
 //       const loginWindow = new BrowserWindow({
@@ -1985,12 +2056,12 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //           // modal: true, // Example: Open as a modal window
 //           width: 400,
 //           height: 500,
-//           resizable: false, 
+//           resizable: false,
 //           // frame: false,
 //           // show: false,
 //           autoHideMenuBar: true,
 //           // ...(process.platform === 'linux' ? { icon } : {}),
-//           icon: iconPath, 
+//           icon: iconPath,
 //           // icon: path.join(__dirname, '../../resources/icon2.png'),
 //           webPreferences: {
 //             preload : path.join(__dirname, '../preload/index.js') ,
@@ -2006,14 +2077,14 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //       if (isDev) {
 //         loginWindow.webContents.openDevTools({ mode: 'detach' });
 //        }
-    
+
 //       // Load the URL for the new window if needed
 //       loginWindow.loadURL(
 //         isDev
 //             ? "http://localhost:5173/#/login_window"
 //             : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
 //      );
-     
+
 //       // Optionally return some data back to the renderer process
 //       return { success: true, message: 'Login window created successfully' };
 //   } catch (error) {
@@ -2022,11 +2093,6 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //       throw new Error('Failed to create login window');
 //   }
 // });
-
-
-
-
-
 
 // ipcMain.handle("showDialog", async (event, args) => {
 //   let win = null;
@@ -2058,7 +2124,7 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //   let filename = await dialog.showOpenDialog(mainWindow, options);
 //   if (!filename.canceled) {
 //     var base64Data = args.replace(/^data:application\/pdf;base64,/, "");
-    
+
 //     const p = path.join(filename.filePaths[0], "/exampaper")
 //     if (!fs.existsSync(p)){
 //       fs.mkdirSync(p);
@@ -2069,9 +2135,8 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //       "base64"
 //     );
 
-
 //     fse.copySync("input", path.join(p,"input"))
-      
+
 //   }
 // });
 
@@ -2257,7 +2322,6 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 // });
 
 //Retrive units of perticuler course
-
 
 // ipcMain.handle("s", (event, args) => {
 //   const getUnitsQuery = `SELECT * FROM question WHERE course_id='${args}'`;
@@ -2466,7 +2530,7 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 // ipcMain.handle("getQuestions", async (_, args) => {
 //   const CourseID = args.course_id;
 
-//   let sql = `SELECT * FROM question INNER JOIN taxonomy ON taxonomy.taxonomy_id = question.taxonomy_id INNER JOIN unit 
+//   let sql = `SELECT * FROM question INNER JOIN taxonomy ON taxonomy.taxonomy_id = question.taxonomy_id INNER JOIN unit
 //   ON unit.unit_id = question.unit_id AND question.course_id = ${CourseID} INNER JOIN question_type ON question.question_type_id = question_type.question_type_id`;
 
 //   return new Promise((resolve, reject) => {
@@ -2477,7 +2541,7 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //       const Questions = await Promise.all(
 //         rows.map(async (row) => {
 //           sql =
-//             `SELECT course_outcomes_question.course_outcomes_id,course_outcomes.course_outcomes_description,course_outcomes.course_outcomes_number FROM course_outcomes_question INNER JOIN course_outcomes 
+//             `SELECT course_outcomes_question.course_outcomes_id,course_outcomes.course_outcomes_description,course_outcomes.course_outcomes_number FROM course_outcomes_question INNER JOIN course_outcomes
 //         ON course_outcomes_question.course_outcomes_id = course_outcomes.course_outcomes_id AND course_outcomes_question.question_id = ` +
 //             row.question_id;
 
@@ -2522,7 +2586,6 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //   return result;
 // });
 
-
 // ipcMain.handle("insertQuestion", async (_, args) => {
 //   const result = await insertQuestion(args, database);
 //   console.log(result)
@@ -2551,7 +2614,6 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 
 // ipcMain.handle("generatePaper", async (_,args) => {
 //   // const result = await generatePaper(args,path.join(app.getAppPath(), "/output/"));
-  
+
 //   // return result;
 // });
-
