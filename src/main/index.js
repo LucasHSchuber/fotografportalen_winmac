@@ -1,4 +1,5 @@
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
+require('dotenv').config();
 const electron = require("electron");
 const log = require("electron-log");
 const path = require("path");
@@ -18,44 +19,43 @@ const { autoUpdater, AppUpdater } = require("electron-updater");
 // const icon2 = path.join(__dirname, "../../resources/icon2.icns");
 
 // Set the icon path based on the build environment
-let iconPath;
-if (isDev) {
-  // Development mode path
-  let iconPath = path.join(__dirname, "..", "..", "resources", "logo.png");
-  if (process.platform === "darwin") {
-    iconPath = path.join(__dirname, "..", "..", "resources", "icon2.icns");
-  }
-} else {
-  // Production mode path
-  let iconPath = path
-    .join(__dirname, "../../resources/logo.png")
-    .replace("app.asar", "app.asar.unpacked");
-  if (process.platform === "darwin") {
-    iconPath = path
-      .join(__dirname, "../../resources/icon2.icns")
-      .replace("app.asar", "app.asar.unpacked");
-  }
-}
+// let iconPath;
+// if (isDev) {
+//   // Development mode path
+//   let iconPath = path.join(__dirname, "..", "..", "resources", "logo.png");
+//   if (process.platform === "darwin") {
+//     iconPath = path.join(__dirname, "..", "..", "resources", "icon2.icns");
+//   }
+// } else {
+//   // Production mode path
+//   let iconPath = path
+//     .join(__dirname, "../../resources/logo.png")
+//     .replace("app.asar", "app.asar.unpacked");
+//   if (process.platform === "darwin") {
+//     iconPath = path
+//       .join(__dirname, "../../resources/icon2.icns")
+//       .replace("app.asar", "app.asar.unpacked");
+//   }
+// }
 
-// import updateQuestion from "./api/updateQuestion"
-// import deleteQuestion from "./api/deleteQuestion"
-// import insertQuestion from "./api/insertQuestion"
-// import getUnits from "./api/getUnits"
-// import getCourseOutcomes from "./api/getCourseOutcomes"
-// import updateCourseOutcomes from "./api/updateCourseOutcomes"
 import express from "express";
 
 if (isDev) {
   console.log("Running in development mode");
+  console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
 } else {
   console.log("Running in production mode");
+  console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
 }
+
+autoUpdater.logger = require("electron-log");
+autoUpdater.logger.transports.file.level = "info";
 
 let loginWindow;
 let mainWindow;
 
+// Set autoDownload option to true to enable automatic downloading of updates
 autoUpdater.autoDownload = true;
-autoUpdater.autoInstallOnAppQuit = true;
 
 function createLoginWindow() {
   if (!is.dev) {
@@ -63,7 +63,6 @@ function createLoginWindow() {
     exApp.use(express.static(path.join(__dirname, "../renderer/")));
     exApp.listen(5173);
   }
-
   // Create the browser window.
   loginWindow = new BrowserWindow({
     // parent: mainWindow, // Set the parent window if needed
@@ -81,24 +80,27 @@ function createLoginWindow() {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
       contextIsolation: true,
-      nodeIntegration: true,
-      webSecurity: false,
+      // nodeIntegration: true,
+      // webSecurity: false,
       worldSafeExecuteJavaScript: true,
+      enableRemoteModule: false,
     },
   });
 
   // Hide the menu bar
   // mainWindow.setMenuBarVisibility(false);
 
+  loginWindow.on("ready-to-show", () => {
+    loginWindow.show();
+  });
+  loginWindow.on("closed", () => {
+    loginWindow = null; // Ensures that the loginWindow reference is cleaned up when the window is closed
+  });
+
   // Open DevTools in development mode
   if (isDev) {
     loginWindow.webContents.openDevTools({ mode: "detach" });
   }
-
-
-  loginWindow.on("ready-to-show", () => {
-    loginWindow.show();
-  });
 
   loginWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url);
@@ -125,44 +127,59 @@ function createLoginWindow() {
 
 app.whenReady().then(() => {
   log.info("Ready");
-  electronApp.setAppUserModelId("com.electron.app");
-
-  app.on("browser-window-created", (_, window) => {
-    optimizer.watchWindowShortcuts(window);
-  });
-
   createLoginWindow();
-
-  app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
-  });
-
-  checkForUpdates();
-  // autoUpdater.checkForUpdates();
-  // console.log("Checking for updates...");
+  autoUpdater.checkForUpdatesAndNotify();
 });
 
-function checkForUpdates() {
-  autoUpdater.checkForUpdatesAndNotify();
-}
+// app.whenReady().then(() => {
+//   log.info("Ready");
+//   electronApp.setAppUserModelId("com.electron.app");
 
-// To check for updates on macOS
-// app.on("ready", () => {
-//   if (process.platform === "darwin") {
-//     console.log("Checking for updates...");
-//     autoUpdater.checkForUpdates();
-//   }
+//   app.on("browser-window-created", (_, window) => {
+//     optimizer.watchWindowShortcuts(window);
+//   });
+
+//   createLoginWindow();
+
+//   app.on("activate", function () {
+//     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
+//   });
+
+//   autoUpdater.checkForUpdatesAndNotify();
 // });
 autoUpdater.on("update-available", () => {
-  console.log("Update available...");
-  // let pth = autoUpdater.downloadUpdate();
-  // console.log(pth);
+  console.log("Update available!");
+  dialog.showMessageBox(loginWindow, {
+    type: "info",
+    title: "Update Available",
+    message:
+      "A new version of the application is available. Downloading now...",
+  });
 });
-autoUpdater.on("update-not-available", () => {
-  console.log("No update available!");
-});
-autoUpdater.on("update-downloaded", (info) => {
+
+autoUpdater.on("update-downloaded", () => {
   console.log("Update downloaded!");
+  dialog
+    .showMessageBox(loginWindow, {
+      type: "info",
+      title: "Update Ready",
+      message:
+        "A new version is ready to install. Application will restart to apply the update.",
+      buttons: ["Restart", "Later"],
+    })
+    .then((result) => {
+      if (result.response === 0) {
+        // The user selected 'Restart'
+        autoUpdater.quitAndInstall();
+      }
+    });
+});
+
+autoUpdater.on("error", (error) => {
+  dialog.showErrorBox(
+    "Update Error",
+    `An error occurred while updating the application: ${error}`,
+  );
 });
 
 app.on("window-all-closed", () => {
@@ -171,19 +188,11 @@ app.on("window-all-closed", () => {
   }
 });
 
-// Create mainWindow when Electron has finished initialization
-// // app.on("activate", () => {
-// //   if (loginWindow.getAllWindows().length === 0) {
-// //     createLoginWindow();
-// //   }
-// // });
-// app.on('ready', () => {
-//   createMainWindow();
-//   // When the main window is ready, load the login_window route
-//   mainWindow.webContents.on('did-finish-load', () => {
-//     mainWindow.webContents.send('navigate-to', '/login_window');
-//   });
-// });
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createLoginWindow();
+  }
+});
 
 process.on("uncaughtException", (error) => {
   log.info(`Exception: ${error}`);
@@ -193,6 +202,8 @@ process.on("uncaughtException", (error) => {
 });
 
 log.info(process.resourcesPath);
+
+// DATABASE
 
 //Database Connection And Instance
 // Construct the absolute path to the SQLite database file
@@ -1967,7 +1978,7 @@ ipcMain.handle("createMainWindow", async (event, args) => {
       minHeight: 550,
       show: false,
       autoHideMenuBar: true,
-      icon: iconPath,
+      // icon: iconPath,
       webPreferences: {
         preload: path.join(__dirname, "../preload/index.js"),
         sandbox: false,
