@@ -1,5 +1,5 @@
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
-require('dotenv').config();
+// require('dotenv').config();
 const electron = require("electron");
 const log = require("electron-log");
 const path = require("path");
@@ -17,6 +17,13 @@ const isDev = require("electron-is-dev");
 const { autoUpdater, AppUpdater } = require("electron-updater");
 // const icon = path.join(__dirname, "../../resources/icon2.png");
 // const icon2 = path.join(__dirname, "../../resources/icon2.icns");
+
+// Override isPackaged property to simulate a packaged environment - DO NOT USE IN PRODUCTION MODE
+Object.defineProperty(app, "isPackaged", {
+  get() {
+    return true;
+  },
+});
 
 // Set the icon path based on the build environment
 // let iconPath;
@@ -42,13 +49,14 @@ import express from "express";
 
 if (isDev) {
   console.log("Running in development mode");
-  console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
+  // console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
+  // console.log('GitHub Token:', process.env.GH_TOKEN);
 } else {
   console.log("Running in production mode");
-  console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
+  // console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
 }
 
-autoUpdater.logger = require("electron-log");
+autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
 
 let loginWindow;
@@ -126,61 +134,57 @@ function createLoginWindow() {
 }
 
 app.whenReady().then(() => {
-  log.info("Ready");
+  log.info("Ready!!");
+  // electronApp.setAppUserModelId("com.electron.app");
+
+  // app.on("browser-window-created", (_, window) => {
+  //   optimizer.watchWindowShortcuts(window);
+  // });
+
   createLoginWindow();
-  autoUpdater.checkForUpdatesAndNotify();
-});
 
-// app.whenReady().then(() => {
-//   log.info("Ready");
-//   electronApp.setAppUserModelId("com.electron.app");
-
-//   app.on("browser-window-created", (_, window) => {
-//     optimizer.watchWindowShortcuts(window);
-//   });
-
-//   createLoginWindow();
-
-//   app.on("activate", function () {
-//     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
-//   });
-
-//   autoUpdater.checkForUpdatesAndNotify();
-// });
-autoUpdater.on("update-available", () => {
-  console.log("Update available!");
-  dialog.showMessageBox(loginWindow, {
-    type: "info",
-    title: "Update Available",
-    message:
-      "A new version of the application is available. Downloading now...",
+  app.on("activate", function () {
+    if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
   });
 });
 
-autoUpdater.on("update-downloaded", () => {
-  console.log("Update downloaded!");
-  dialog
-    .showMessageBox(loginWindow, {
-      type: "info",
-      title: "Update Ready",
-      message:
-        "A new version is ready to install. Application will restart to apply the update.",
-      buttons: ["Restart", "Later"],
-    })
-    .then((result) => {
-      if (result.response === 0) {
-        // The user selected 'Restart'
-        autoUpdater.quitAndInstall();
-      }
-    });
+
+// Perform the update check here CHECK
+ipcMain.handle("lookForUpdates", async (event) => {
+  // Configure autoUpdater
+  // autoUpdater.updateConfigPath = '../../electron-builder.yml';
+  log.info("Looking for updates for electron application..");
+
+  autoUpdater.autoDownload = true; // Disable auto downloading of updates
+  autoUpdater.autoInstallOnAppQuit = true; // Disable automatic installation of updates on app quit
+
+  // Listen for update available event
+  autoUpdater.on("update-available", () => {
+    console.log("Update available");
+    log.info("Update available");
+    event.returnValue = "A new update is available. Downloading now...";
+    console.log("Update available event response:", event.returnValue);
+  });
+
+  // Listen for update not available event
+  autoUpdater.on("update-not-available", () => {
+    console.log("Update not available");
+    log.info("Update not available");
+    event.returnValue = "You are already using the latest version.";
+    console.log("Update not available event response:", event.returnValue);
+  });
+  // Check for updates
+  try {
+    log.info("autoupdater.checkForUpdates triggered!");
+    await autoUpdater.checkForUpdates();
+  } catch (error) {
+    console.error("Error checking for updates:", error);
+    log.info("Error checking for updates:", error);
+    return "Error checking for updates.";
+  }
+  // return "Update check initiated";
 });
 
-autoUpdater.on("error", (error) => {
-  dialog.showErrorBox(
-    "Update Error",
-    `An error occurred while updating the application: ${error}`,
-  );
-});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -385,7 +389,7 @@ function insertDataToTables() {
     `
   INSERT INTO users (email, firstname, lastname, city, lang, token) 
   VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE', '123xyz')
-`,
+  `,
     (err) => {
       if (err) {
         console.error("Error inserting user:", err.message);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import fp from "../assets/images/diaphragm_black.png";
 
 function Login_window() {
@@ -13,22 +13,21 @@ function Login_window() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingConfirm, setIsLoadingConfirm] = useState(false);
 
-
-
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 2500);
-
-  //   return () => clearTimeout(timeout);
-  // }, []);
-
+  //lget localstorage variables
+  useEffect(() => {
+    setUsername(
+      localStorage.getItem("username") ? localStorage.getItem("username") : "",
+    );
+  }, []);
+  
   //load loading bar on load
   useEffect(() => {
     // Check if the loading bar has been shown before
-    const hasLoginLoadingBarShown = sessionStorage.getItem("hasLoginLoadingBarShown");
+    const hasLoginLoadingBarShown = sessionStorage.getItem(
+      "hasLoginLoadingBarShown",
+    );
     // If it has not been shown before, show the loading bar
     if (!hasLoginLoadingBarShown) {
       const timer = setTimeout(() => {
@@ -44,11 +43,21 @@ function Login_window() {
 
 
 
-
+  
   useEffect(() => {
-    setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
-    // setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");
-  }, [])
+    const fetchUpdates = async () => {
+      try {
+        const response = await window.api.lookForUpdates();
+        console.log(response);
+      } catch (error) {
+        console.log("error msg:", error);
+      }
+    };
+    fetchUpdates();
+  }, []);
+
+
+
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -60,8 +69,6 @@ function Login_window() {
     console.log("e.target.value");
     setPasswordMessage("");
   };
-
-
 
   const loginUser = async () => {
     if (password === "" && username === "") {
@@ -105,31 +112,29 @@ function Login_window() {
             window.api.createMainWindow();
             // setIsLoadingConfirm(false);
           }, 2400);
-
         } else {
           console.log("Invalid username or/and password");
           setErrorLogginginMessage("Invalid username and/or password");
         }
-
       } catch (error) {
         console.log("Error logging in");
         console.log("error:", error);
       }
-
     } else {
-      console.error('Password or Username is missing');
+      console.error("Password or Username is missing");
       return null;
     }
-  }
-
+  };
 
   if (isLoading) {
     // Render loading indicator while content is loading
     return (
-      <div >
+      <div>
         <div className="spinning-logo-login">
           <img src={fp} alt="fotografportalen" />
-          <p><em>Fotografportalen</em></p>
+          <p>
+            <em>Fotografportalen</em>
+          </p>
         </div>
         {/* <div className="loading-bar-text">
           <p><b>Loading..</b></p>
@@ -144,10 +149,12 @@ function Login_window() {
   if (isLoadingConfirm) {
     // Render loading indicator while content is loading
     return (
-      <div >
+      <div>
         <div className="spinning-logo-login" style={{ marginTop: "6em" }}>
           {/* <p><b>Successfull!</b> <br></br><em>Signing in...</em></p> */}
-          <p><em>Signing in...</em></p>
+          <p>
+            <em>Signing in...</em>
+          </p>
         </div>
         <div className="loading-bar-container-login">
           <div className="loading-bar-login"></div>
@@ -159,8 +166,9 @@ function Login_window() {
   return (
     <div className="login_window-wrapper">
       <div className="login_window-content">
-
-        <h5 className="mb-3 mr-3" ><b>Log in</b></h5>
+        <h5 className="mb-3 mr-3">
+          <b>Log in</b>
+        </h5>
         <div style={{ textAlign: "left", width: "110%", marginLeft: "-1.5em" }}>
           {usernameMessage || passwordMessage || errorLogginginMessage ? (
             <ul className="error">
@@ -169,8 +177,7 @@ function Login_window() {
               {errorLogginginMessage ? <li>{errorLogginginMessage}</li> : ""}
             </ul>
           ) : (
-            <>
-            </>
+            <></>
           )}
         </div>
         <div>
@@ -195,16 +202,22 @@ function Login_window() {
         </div>
 
         <div>
-          <button className="button normal fixed-width mt-3 mb-2" onClick={loginUser}>
+          <button
+            className="button normal fixed-width mt-3 mb-2"
+            onClick={loginUser}
+          >
             Log in
           </button>
         </div>
-        <a className="register-link-login" onClick={() => navigate('/register_window')}>Dont have an account? Register here!</a>
-
+        <a
+          className="register-link-login"
+          onClick={() => navigate("/register_window")}
+        >
+          Dont have an account? Register here!
+        </a>
       </div>
-    </div >
+    </div>
   );
-
-};
+}
 
 export default Login_window;
