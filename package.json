@@ -13,8 +13,9 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "postinstall": "electron-builder install-app-deps",
+    "tag": "git tag $(node -pe \"require('./package.json').version\") && git push --tags",
     "build:win": "npm run build && electron-builder --win --config",
-    "build:mac": "npm run build && electron-builder --mac --config",
+    "build:mac": "npm run build && electron-builder --mac --config electron-builder.yml -p always",
     "build:linux": "npm run build && electron-builder --linux --config"
   },
   "dependencies": {

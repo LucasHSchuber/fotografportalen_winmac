@@ -1,7 +1,7 @@
 
 ## Software - Express bild
 ## Fotografportal
-## Lucas Schuber
+## Programmer - Lucas Schuber
 ## Express Bild Software
 
 ## Introduction
