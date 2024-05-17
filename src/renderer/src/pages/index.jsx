@@ -33,7 +33,7 @@ function Index() {
     let env_file = env;
     console.log("ENV_FILE", env_file);
     console.log("api object:", window.api);
-    // const githubToken = "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";
+
     const githubToken = env_file.githubToken;
     console.log("github token:", githubToken);
     // let github_url = env_file.GITHUB_URL_RELEASE;
