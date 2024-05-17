@@ -11,10 +11,13 @@ const fse = require("fs-extra");
 // const icon = path.join(__dirname, "../../resources/icon2.png");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
+const shell = electron.shell;
 const os = require("os"); // Import the os module
 const BrowserWindow = electron.BrowserWindow;
 const isDev = require("electron-is-dev");
 const { autoUpdater, AppUpdater } = require("electron-updater");
+const { exec } = require("child_process");
+
 // const icon = path.join(__dirname, "../../resources/icon2.png");
 // const icon2 = path.join(__dirname, "../../resources/icon2.icns");
 
@@ -50,7 +53,6 @@ import express from "express";
 if (isDev) {
   console.log("Running in development mode");
   // console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
-  // console.log('GitHub Token:', process.env.GH_TOKEN);
 } else {
   console.log("Running in production mode");
   // console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
@@ -63,7 +65,7 @@ let loginWindow;
 let mainWindow;
 
 // Set autoDownload option to true to enable automatic downloading of updates
-autoUpdater.autoDownload = true;
+// autoUpdater.autoDownload = true;
 
 function createLoginWindow() {
   if (!is.dev) {
@@ -135,6 +137,13 @@ function createLoginWindow() {
 
 app.whenReady().then(() => {
   log.info("Ready!!");
+
+  const programsFolder = path.join(os.homedir(), "Applications");
+  console.log(programsFolder);
+  //get latest version
+  const version = app.getVersion();
+  log.info("Current App Version:", version);
+  // mainWindow.webContents.send("app-version", version); // Send the application version to the renderer process
   // electronApp.setAppUserModelId("com.electron.app");
 
   // app.on("browser-window-created", (_, window) => {
@@ -148,6 +157,108 @@ app.whenReady().then(() => {
   });
 });
 
+//send app version to front end
+ipcMain.handle("getCurrentAppVersion", async (event) => {
+  log.info("Getting current version to front end");
+  const version = app.getVersion();
+  // event.sender.send('app-version', version);
+  return version;
+});
+//download latest version
+// ipcMain.handle('downloadLatestVersion', async (event, github_url) => {
+//   log.info("Downloading latest version...");
+//   log.info(github_url);
+//   shell.openExternal(github_url);
+// });
+ipcMain.handle("installLatestVersion", async (event, dmgFilePath) => {
+  try {
+    log.info("Received download URL:", dmgFilePath);
+    // Mount the disk image
+    const volumePath = await mountDiskImage(dmgFilePath);
+    // Copy the application to the Applications folder
+    await copyApplication(dmgFilePath, volumePath);
+    // Unmount the disk image
+    await unmountDiskImage(volumePath);  
+    //apply any nessecary updates and restart
+    applyUpdateAndRestart();
+    log.info("Installation complete.");
+    return "Installation complete.";
+
+  } catch (error) {
+    throw new Error("Installation failed: " + error.message);
+  }
+});
+
+function mountDiskImage(dmgFilePath) {
+  return new Promise((resolve, reject) => {
+      exec(`hdiutil attach "${dmgFilePath}"`, (error, stdout, stderr) => {
+          if (error) {
+              log.error("Error mounting disk image:", stderr);
+              reject(error);
+          } else {
+              log.info("Disk image mounted successfully:", stdout);
+              // Extract the mounted volume name from stdout and log it
+              const lines = stdout.split('\n');
+              const mountedLine = lines.find(line => line.includes('/Volumes/'));
+              if (mountedLine) {
+                  const volumePath = mountedLine.split('\t').pop(); // Typically the last tab-separated value is the path
+                  log.info("Mounted Volume Path:", volumePath);
+                  resolve(volumePath.trim()); // Pass the exact path where it's mounted
+              } else {
+                  log.error("Failed to extract mounted volume path.");
+                  reject(new Error("Failed to extract mounted volume path."));
+              }
+          }
+      });
+  });
+}
+async function unmountDiskImage(volumePath) {
+  return new Promise((resolve, reject) => {
+    exec(`hdiutil detach "${volumePath}"`, (error, stdout, stderr) => {
+      if (error) {
+        log.error("Unmounting failed:", stderr);
+        reject(error);
+      } else {
+        log.info("Disk image unmounted:", stdout);
+        resolve(stdout);
+      }
+    });
+  });
+}
+async function copyApplication(dmgFilePath, volumePath) {
+  // const programsFolder = path.join(os.homedir(), "Applications");
+  // const sourcePath = `/Volumes/${getVolumeName(dmgFilePath)}/Fotografportalen.app`;
+  const programsFolder = "/Applications"; // Assuming you are copying to the global Applications folder
+  const sourcePath = `${volumePath}/Fotografportalen.app`;
+  const targetPath = path.join(programsFolder, "Fotografportalen.app");
+  log.info("Programs folder:", programsFolder);
+  log.info('Source path:', sourcePath);
+  log.info('Target path:', targetPath);
+  // await fs.copy(sourcePath, targetPath);
+  try {
+    await fse.copy(sourcePath, targetPath, { overwrite: true });
+    console.log('Application copied successfully.');
+  } catch (error) {
+    console.error('Failed to copy application:', error);
+    throw error; // rethrow the error to be caught by the caller
+  }
+}
+function getVolumeName(dmgFilePath) {
+  // Extract the volume name from the DMG file path
+  const volumeName = dmgFilePath.split("/").pop().replace(".dmg", "");
+  return volumeName;
+}
+function applyUpdateAndRestart() {
+  try {
+    // Logs the intent to restart for update application
+    log.info("Applying updates and restarting...");
+    app.relaunch(); // Schedules a relaunch of the application
+    app.exit(0); // Exits the current application to allow the relaunch to proceed
+  } catch (error) {
+    log.error("Failed to restart the application:", error);
+    throw new Error("Failed to apply update and restart: " + error.message);
+  }
+}
 
 // Perform the update check here CHECK
 ipcMain.handle("lookForUpdates", async (event) => {
@@ -155,36 +266,35 @@ ipcMain.handle("lookForUpdates", async (event) => {
   // autoUpdater.updateConfigPath = '../../electron-builder.yml';
   log.info("Looking for updates for electron application..");
 
-  autoUpdater.autoDownload = true; // Disable auto downloading of updates
-  autoUpdater.autoInstallOnAppQuit = true; // Disable automatic installation of updates on app quit
+  // autoUpdater.autoDownload = true; // Disable auto downloading of updates
+  // autoUpdater.autoInstallOnAppQuit = true; // Disable automatic installation of updates on app quit
 
-  // Listen for update available event
-  autoUpdater.on("update-available", () => {
-    console.log("Update available");
-    log.info("Update available");
-    event.returnValue = "A new update is available. Downloading now...";
-    console.log("Update available event response:", event.returnValue);
-  });
+  // // Listen for update available event
+  // autoUpdater.on("update-available", () => {
+  //   console.log("Update available");
+  //   log.info("Update available");
+  //   event.returnValue = "A new update is available. Downloading now...";
+  //   console.log("Update available event response:", event.returnValue);
+  // });
 
-  // Listen for update not available event
-  autoUpdater.on("update-not-available", () => {
-    console.log("Update not available");
-    log.info("Update not available");
-    event.returnValue = "You are already using the latest version.";
-    console.log("Update not available event response:", event.returnValue);
-  });
-  // Check for updates
-  try {
-    log.info("autoupdater.checkForUpdates triggered!");
-    await autoUpdater.checkForUpdates();
-  } catch (error) {
-    console.error("Error checking for updates:", error);
-    log.info("Error checking for updates:", error);
-    return "Error checking for updates.";
-  }
+  // // Listen for update not available event
+  // autoUpdater.on("update-not-available", () => {
+  //   console.log("Update not available");
+  //   log.info("Update not available");
+  //   event.returnValue = "You are already using the latest version.";
+  //   console.log("Update not available event response:", event.returnValue);
+  // });
+  // // Check for updates
+  // try {
+  //   log.info("autoupdater.checkForUpdates triggered!");
+  //   await autoUpdater.checkForUpdates();
+  // } catch (error) {
+  //   console.error("Error checking for updates:", error);
+  //   log.info("Error checking for updates:", error);
+  //   return "Error checking for updates.";
+  // }
   // return "Update check initiated";
 });
-
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

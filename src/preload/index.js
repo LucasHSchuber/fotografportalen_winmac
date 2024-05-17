@@ -1,12 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 const os = require("os");
+const electron = require("electron");
+const app = electron.app;
+const shell = electron.shell;
+
+
 
 
 // Custom APIs for renderer
 const api = {
 
   homeDir: () => os.homedir(),
+  shell: () => shell.shell(),
+  // app: () => app,
+  app: () => app.getVersion(),
+  getCurrentAppVersion: () => ipcRenderer.invoke('getCurrentAppVersion'), 
+  // downloadLatestVersion: (args) => ipcRenderer.invoke('downloadLatestVersion', args), 
+  installLatestVersion: (args) => ipcRenderer.invoke('installLatestVersion', args), 
 
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
@@ -53,6 +64,7 @@ const api = {
 
 
   lookForUpdates: () => ipcRenderer.invoke('lookForUpdates'), 
+
 
 
 
