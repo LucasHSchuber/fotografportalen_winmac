@@ -31,15 +31,12 @@ function Index() {
   // check if there is a new APP-release
   useEffect(() => {
     let env_file = env;
-    console.log("ENV_FILE", env_file);
-    console.log("api object:", window.api);
-
+    let github_url = env_file.githubUrl;
     const githubToken = env_file.githubToken;
+    console.log("api object:", window.api);
+    console.log("env file:", env_file);
     console.log("github token:", githubToken);
-    // let github_url = env_file.GITHUB_URL_RELEASE;
-    let github_url =
-      "https://api.github.com/repos/LucasHSchuber/fotografportalen_new2/releases";
-    console.log(github_url);
+    console.log("github url:", github_url);
     setGithubURL(github_url + "/latest");
 
     const checkForUpdates = async () => {
@@ -50,7 +47,6 @@ function Index() {
             Authorization: `token ${githubToken}`,
           },
         });
-
         // Extract the latest release version
         const latestReleaseVersion = response.data[0].tag_name;
         console.log("Latest release version:", latestReleaseVersion);
@@ -59,7 +55,7 @@ function Index() {
         console.error("Error fetching GitHub data:", error);
       }
 
-      // gtting latest current app-version
+      // getting latest current app-version
       try {
         const currentVersion = await window.api.getCurrentAppVersion();
         console.log("Current app version", currentVersion);

@@ -17,6 +17,8 @@ const BrowserWindow = electron.BrowserWindow;
 const isDev = require("electron-is-dev");
 const { autoUpdater, AppUpdater } = require("electron-updater");
 const { exec } = require("child_process");
+const axios = require('axios');
+
 
 // const icon = path.join(__dirname, "../../resources/icon2.png");
 // const icon2 = path.join(__dirname, "../../resources/icon2.icns");
@@ -137,9 +139,11 @@ function createLoginWindow() {
 
 app.whenReady().then(() => {
   log.info("Ready!!");
+  log.info("User Data Path:", app.getPath('userData'));
 
   const programsFolder = path.join(os.homedir(), "Applications");
   console.log(programsFolder);
+  log.info("Programs folder:", programsFolder);
   //get latest version
   const version = app.getVersion();
   log.info("Current App Version:", version);
@@ -188,22 +192,20 @@ ipcMain.handle("installLatestVersion", async (event, dmgFilePath) => {
     throw new Error("Installation failed: " + error.message);
   }
 });
-
-function mountDiskImage(dmgFilePath) {
+async function mountDiskImage(dmgFilePath) {
   return new Promise((resolve, reject) => {
-      exec(`hdiutil attach "${dmgFilePath}"`, (error, stdout, stderr) => {
+      exec(`hdiutil attach "${dmgFilePath}" -nobrowse`, (error, stdout, stderr) => {
           if (error) {
               log.error("Error mounting disk image:", stderr);
               reject(error);
           } else {
-              log.info("Disk image mounted successfully:", stdout);
-              // Extract the mounted volume name from stdout and log it
-              const lines = stdout.split('\n');
-              const mountedLine = lines.find(line => line.includes('/Volumes/'));
-              if (mountedLine) {
-                  const volumePath = mountedLine.split('\t').pop(); // Typically the last tab-separated value is the path
-                  log.info("Mounted Volume Path:", volumePath);
-                  resolve(volumePath.trim()); // Pass the exact path where it's mounted
+              log.info("Mount command output:", stdout);
+              // Match the volume path more reliably
+              const volumePathMatch = stdout.match(/\/Volumes\/[^ ]+ [^ ]+/); // This regex matches '/Volumes/' followed by words separated by a space (adjust based on your volume name structure)
+              if (volumePathMatch && volumePathMatch[0]) {
+                  const volumePath = volumePathMatch[0].trim(); // Ensure whitespace is trimmed
+                  log.info("Disk image mounted successfully at:", volumePath);
+                  resolve(volumePath);
               } else {
                   log.error("Failed to extract mounted volume path.");
                   reject(new Error("Failed to extract mounted volume path."));
@@ -212,6 +214,29 @@ function mountDiskImage(dmgFilePath) {
       });
   });
 }
+// function mountDiskImage(dmgFilePath) {
+//   return new Promise((resolve, reject) => {
+//       exec(`hdiutil attach "${dmgFilePath}"`, (error, stdout, stderr) => {
+//           if (error) {
+//               log.error("Error mounting disk image:", stderr);
+//               reject(error);
+//           } else {
+//               log.info("Disk image mounted successfully:", stdout);
+//               // Extract the mounted volume name from stdout and log it
+//               const lines = stdout.split('\n');
+//               const mountedLine = lines.find(line => line.includes('/Volumes/'));
+//               if (mountedLine) {
+//                   const volumePath = mountedLine.split('\t').pop(); // Typically the last tab-separated value is the path
+//                   log.info("Mounted Volume Path:", volumePath);
+//                   resolve(volumePath.trim()); // Pass the exact path where it's mounted
+//               } else {
+//                   log.error("Failed to extract mounted volume path.");
+//                   reject(new Error("Failed to extract mounted volume path."));
+//               }
+//           }
+//       });
+//   });
+// }
 async function unmountDiskImage(volumePath) {
   return new Promise((resolve, reject) => {
     exec(`hdiutil detach "${volumePath}"`, (error, stdout, stderr) => {
@@ -226,20 +251,28 @@ async function unmountDiskImage(volumePath) {
   });
 }
 async function copyApplication(dmgFilePath, volumePath) {
-  // const programsFolder = path.join(os.homedir(), "Applications");
-  // const sourcePath = `/Volumes/${getVolumeName(dmgFilePath)}/Fotografportalen.app`;
   const programsFolder = "/Applications"; // Assuming you are copying to the global Applications folder
   const sourcePath = `${volumePath}/Fotografportalen.app`;
   const targetPath = path.join(programsFolder, "Fotografportalen.app");
   log.info("Programs folder:", programsFolder);
   log.info('Source path:', sourcePath);
   log.info('Target path:', targetPath);
-  // await fs.copy(sourcePath, targetPath);
+
   try {
-    await fse.copy(sourcePath, targetPath, { overwrite: true });
-    console.log('Application copied successfully.');
+    await fse.copy(sourcePath, targetPath, {
+      overwrite: true,
+      filter: (src, dest) => {
+        // Exclude specific files or patterns here
+        if (src.includes('tables.drawio') || src.includes('storageVar.txt') || src.includes('skarp_jsonfil.tl')) {
+          log.info(`Skipping file: ${src}`); // Log skipped files for clarity
+          return false;
+        }
+        return true;
+      }
+    });
+    log.info('Application copied successfully, excluding specified files.');
   } catch (error) {
-    console.error('Failed to copy application:', error);
+    log.error('Failed to copy application:', error);
     throw error; // rethrow the error to be caught by the caller
   }
 }
@@ -327,14 +360,16 @@ if (isDev) {
   dbPath = path.join(__dirname, "..", "..", "resources", "fp.db");
 } else {
   // Production mode path
-  dbPath = path
-    .join(__dirname, "../../resources/fp.db")
-    .replace("app.asar", "app.asar.unpacked");
+  // dbPath = path
+  //   .join(__dirname, "../../resources/fp.db")
+  //   .replace("app.asar", "app.asar.unpacked");
+    dbPath = path.join(app.getPath('userData'), "fp.db");
 }
 
 // Create or open SQLite database
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
+    console.log("Database path:", dbPath);
     console.error("Error opening database:", err.message);
   } else {
     console.log("Connected to SQLite database");

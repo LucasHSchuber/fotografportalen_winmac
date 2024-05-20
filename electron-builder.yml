@@ -9,6 +9,7 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
 asarUnpack:
+  - "**/node_modules/sqlite3/**/*"
   - resources/**
 win:
   icon: resources/logo.png 
@@ -43,6 +44,6 @@ npmRebuild: false
 publish:
   provider: github
   owner: LucasHSchuber
-  repo: fotografportalen_new2
+  repo: fotografportalen_new3
   releaseType: release
-  token: tokenhere
+  token: token
