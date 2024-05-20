@@ -9,11 +9,17 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
 asarUnpack:
-  - "**/node_modules/sqlite3/**/*"
+  - "node_modules/sqlite3/build/Release/*.node"
   - resources/**
 win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
   icon: resources/logo.png 
   executableName: Fotografportalen
+  asarUnpack: ["**/*.node"]
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

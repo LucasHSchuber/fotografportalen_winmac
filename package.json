@@ -1,7 +1,7 @@
 {
   "name": "fotografportalen",
   "productName": "Fotografportalen",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "An Electron application with React - Fotografportalen",
   "main": "./out/main/index.js",
   "author": "Lucas Schuber / Fotografportalen",
@@ -28,6 +28,7 @@
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.2",
+    "core-js": "^3.37.1",
     "electron-is-dev": "^2.0.0",
     "electron-log": "^5.1.2",
     "electron-updater": "^6.1.8",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.1",
     "@electron-toolkit/eslint-config-prettier": "^1.0.1",
+    "@electron/rebuild": "^3.6.0",
     "@react-pdf-viewer/core": "3.7.0",
     "@react-pdf-viewer/page-navigation": "^3.7.0",
     "@vitejs/plugin-react": "^4.0.4",
@@ -51,7 +53,6 @@
     "dotenv": "^16.4.5",
     "electron": "^25.6.0",
     "electron-builder": "^24.13.3",
-    "electron-rebuild": "^3.2.9",
     "electron-vite": "^1.0.28",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.33.2",
