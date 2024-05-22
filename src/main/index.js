@@ -153,6 +153,7 @@ ipcMain.handle("applyUpdates", async (event, downloadUrl) => {
   }
 });
 
+
 async function applyUpdate(downloadUrl) {
   const localDmgPath = path.join(__dirname, "downloadedUpdate.dmg");
 
