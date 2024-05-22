@@ -201,18 +201,18 @@ function Index() {
         <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
-            <b>You have 2 new message</b>
+            <b>You have 3 new message</b>
           </h6>
           <p>
-            Hello John, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
+            Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
           <p>
-            Hello John, can you work 8/6 between 8:00-16:00 in Tullinge?{" "}
+            Hello Lucas, can you work 8/6 between 8:00-16:00 in Tullinge?{" "}
             <br></br> <em>Recieved: 14/5/2024</em>
           </p>
           <p>
-            Hello John, can you work 12/6 between 9:00-16:00 in Märsta?{" "}
+            Hello Lucas, can you work 12/6 between 9:00-16:00 in Märsta?{" "}
             <br></br> <em>Recieved: 15/5/2024</em>
           </p>
         </div>

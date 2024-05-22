@@ -52,4 +52,4 @@ publish:
   owner: LucasHSchuber
   repo: fotografportalen_new3
   releaseType: release
-  token: token
+  token: githubtoken

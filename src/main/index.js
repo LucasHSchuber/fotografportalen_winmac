@@ -20,9 +20,6 @@ const { exec } = require("child_process");
 const axios = require('axios');
 
 
-// const icon = path.join(__dirname, "../../resources/icon2.png");
-// const icon2 = path.join(__dirname, "../../resources/icon2.icns");
-
 // Override isPackaged property to simulate a packaged environment - DO NOT USE IN PRODUCTION MODE
 Object.defineProperty(app, "isPackaged", {
   get() {
@@ -30,25 +27,6 @@ Object.defineProperty(app, "isPackaged", {
   },
 });
 
-// Set the icon path based on the build environment
-// let iconPath;
-// if (isDev) {
-//   // Development mode path
-//   let iconPath = path.join(__dirname, "..", "..", "resources", "logo.png");
-//   if (process.platform === "darwin") {
-//     iconPath = path.join(__dirname, "..", "..", "resources", "icon2.icns");
-//   }
-// } else {
-//   // Production mode path
-//   let iconPath = path
-//     .join(__dirname, "../../resources/logo.png")
-//     .replace("app.asar", "app.asar.unpacked");
-//   if (process.platform === "darwin") {
-//     iconPath = path
-//       .join(__dirname, "../../resources/icon2.icns")
-//       .replace("app.asar", "app.asar.unpacked");
-//   }
-// }
 
 import express from "express";
 
@@ -120,20 +98,11 @@ function createLoginWindow() {
   });
   log.info(path.join(__dirname, "../preload/index.js"));
 
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
-  // loginWindow.loadURL(
-  //   isDev
-  //       ? "http://localhost:5173/#/login_window"
-  //       : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
-  // );
 
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     loginWindow.loadURL("http://localhost:5173/#/login_window");
   } else {
-    loginWindow.loadURL(
-      `file://${path.join(__dirname, "../renderer/index.html#/login_window")}`,
-    );
+    loginWindow.loadURL(`file://${path.join(__dirname, '../renderer/index.html')}#/login_window`);
   }
 }
 
