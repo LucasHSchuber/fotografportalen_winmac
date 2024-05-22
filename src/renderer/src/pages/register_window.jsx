@@ -2,6 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 
+import { getBaseUrl } from '../assets/js/utils';
+// Determine the base URL based on the environment
+const apiBaseUrl = process.env.NODE_ENV === 'development'
+  ? '/index.php'
+  : 'https://backend.expressbild.org/index.php';
+
+
 function Register_window() {
   //define states
   const [username, setUsername] = useState("");
@@ -11,16 +18,14 @@ function Register_window() {
   const [errorLogginginMessage, setErrorLogginginMessage] = useState("");
   const [successRegisterMessage, setSuccessRegisterMessage] = useState("");
 
-
-
   const navigate = useNavigate();
-
-
 
 
   useEffect(() => {
     setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
-    // setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");         
+    // setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");     
+    console.log(getBaseUrl());
+    
   }, [])
 
   const handleUsernameChange = (e) => {
@@ -64,9 +69,13 @@ function Register_window() {
 
       try {
         console.log("Registring user.... ");
+        const url = getBaseUrl().url;
+        console.log(url);
 
-        const response = await axios.post('/index.php/rest/photographer_portal/login', {
-          'email': username,
+        // const response = await axios.post(url, {
+          // const response = await axios.post("/index.php/rest/photographer_portal/login", {
+          const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, {
+            'email': username,
           'password': password
         });
         if (response && response.data) {

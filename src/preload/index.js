@@ -10,7 +10,8 @@ const shell = electron.shell;
 
 // Custom APIs for renderer
 const api = {
-
+  
+  getPlatform: () => os.platform(),
   homeDir: () => os.homedir(),
   shell: () => shell.shell(),
   // app: () => app,
@@ -22,7 +23,7 @@ const api = {
   // downloadLatestVersion: (args) => ipcRenderer.invoke('downloadLatestVersion', args), 
   installLatestVersion: (args) => ipcRenderer.invoke('installLatestVersion', args), 
 
-  
+
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
 

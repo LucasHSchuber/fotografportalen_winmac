@@ -237,7 +237,7 @@ function Index() {
       </div>
 
       <div className="index-box-right">
-        {currentVersion === latestVersion.substring(1, 6) ? (
+        {currentVersion !== latestVersion.substring(1, 6) ? (
           <div className="index-box">
             <h1 className="index-title three">News & updates</h1>
             <h6>

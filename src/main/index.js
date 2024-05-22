@@ -12,11 +12,13 @@ const fse = require("fs-extra");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
 const shell = electron.shell;
-const os = require("os"); // Import the os module
+const os = require("os"); 
 const BrowserWindow = electron.BrowserWindow;
 const isDev = require("electron-is-dev");
 const { autoUpdater, AppUpdater } = require("electron-updater");
 const { exec } = require("child_process");
+
+import express from "express";
 
 // Override isPackaged property to simulate a packaged environment - DO NOT USE IN PRODUCTION MODE
 Object.defineProperty(app, "isPackaged", {
