@@ -78,12 +78,6 @@ function Index() {
   //donwload latest version method
   const downloadLatestVersion = async () => {
     console.log("downloading latest version");
-    // try {
-    //   await window.api.installLatestVersion(githubURL);
-    //   console.log("Installation initiated.");
-    // } catch (error) {
-    //   console.error("Error initiating installation:", error);
-    // }
     try {
       const githubResponse = await axios.get(githubURL);
       const latestRelease = githubResponse.data;
@@ -95,33 +89,27 @@ function Index() {
         throw new Error("No .dmg file found in the latest release");
       }
       console.log(downloadUrl);
-      // Send the download URL to the main process
-      await window.api.installLatestVersion(downloadUrl);
+      console.log("Update available, preparing to download...");
+      const userConfirmed = await promptUserToCloseApp();
+      if (userConfirmed) {
+          console.log("User confirmed, proceeding with update...");
+          localStorage.setItem('pendingUpdateUrl', downloadUrl);
+
+          await window.api.applyUpdates(downloadUrl);
+          // Send the download URL to the main process
+          // await window.api.quit();
+          // await window.api.installLatestVersion(downloadUrl);
+      } else {
+          console.log("User canceled the update.");
+      }
     } catch (error) {
       console.error(error);
     }
-    // try {
-    //   const githubResponse = await axios.get(githubURL);
-    //   const latestRelease = githubResponse.data;
-    //   const downloadUrl = latestRelease.assets.find((asset) =>
-    //     asset.name.endsWith(".dmg"),
-    //   )?.browser_download_url;
-
-    //   if (!downloadUrl) {
-    //     throw new Error("No .dmg file found in the latest release");
-    //   }
-
-    //   window.location.href = downloadUrl; // Initiates the download
-    // } catch (error) {
-    //   console.log(error);
-    // }
-    // try {
-    //   const donwloadResponse = await window.api.downloadLatestVersion(githubURL);
-    //   console.log(donwloadResponse);
-    // } catch (error) {
-    //   console.log(error);
-    // }
   };
+
+  const promptUserToCloseApp = () => {
+    return window.confirm("The application will close to update. Make sure to save all your work. Do you want to continue?");
+};
 
   //get all current projects with user_id
   useEffect(() => {
@@ -197,17 +185,17 @@ function Index() {
             </h6>
           </div>
         </div>
-        
+
         <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
-            <b>You have 3 new message</b>
+            <b>You have 1 new message</b>
           </h6>
           <p>
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
-          <p>
+          {/* <p>
             Hello Lucas, can you work 8/6 between 8:00-16:00 in Tullinge?{" "}
             <br></br> <em>Recieved: 14/5/2024</em>
           </p>
@@ -215,6 +203,10 @@ function Index() {
             Hello Lucas, can you work 12/6 between 9:00-16:00 in Märsta?{" "}
             <br></br> <em>Recieved: 15/5/2024</em>
           </p>
+          <p>
+            Hello Lucas, can you work 16/6 between 9:00-16:00 in Solna?{" "}
+            <br></br> <em>Recieved: 18/5/2024</em>
+          </p> */}
         </div>
 
         <hr style={{ width: "75%" }} className="hr"></hr>
@@ -245,7 +237,7 @@ function Index() {
       </div>
 
       <div className="index-box-right">
-        {currentVersion !== latestVersion.substring(1, 6) ? (
+        {currentVersion === latestVersion.substring(1, 6) ? (
           <div className="index-box">
             <h1 className="index-title three">News & updates</h1>
             <h6>

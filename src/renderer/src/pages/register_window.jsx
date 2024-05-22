@@ -65,7 +65,7 @@ function Register_window() {
       try {
         console.log("Registring user.... ");
 
-        const response = await axios.post('https://backend.expressbild.org/index.php/rest/photographer_portal/login', {
+        const response = await axios.post('/index.php/rest/photographer_portal/login', {
           'email': username,
           'password': password
         });

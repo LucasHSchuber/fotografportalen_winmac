@@ -15,10 +15,14 @@ const api = {
   shell: () => shell.shell(),
   // app: () => app,
   app: () => app.getVersion(),
+  quit: () => ipcRenderer.invoke("quit"),
+  applyUpdates: (downloadUrl) => ipcRenderer.invoke("applyUpdates", downloadUrl),
+
   getCurrentAppVersion: () => ipcRenderer.invoke('getCurrentAppVersion'), 
   // downloadLatestVersion: (args) => ipcRenderer.invoke('downloadLatestVersion', args), 
   installLatestVersion: (args) => ipcRenderer.invoke('installLatestVersion', args), 
 
+  
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
 

@@ -132,20 +132,22 @@
 /* INDEX */
 
 .index-wrapper {
-  padding: 0 0 0 0;
+  margin: 0 0 0 0;
 }
 
 .index-box-left {
   background-color: #F1F1F1;
   width: 43% !important;
-  height: 100vh;
+  min-height: 100vh;
+  padding-bottom: 3em;
 }
 
 .index-box-right {
   background-color: white;
   width: 50% !important;
-  height: 100vh;
+  min-height: 100vh;
   padding-top: 1em;
+  padding-bottom: 3em;
 }
 
 .avatar-container {
@@ -226,8 +228,6 @@
   /* Center children horizontally */
   margin-right: 6em;
 }
-
-.account-user-box h6 {}
 
 .account-user-box span {
   font-weight: 700;

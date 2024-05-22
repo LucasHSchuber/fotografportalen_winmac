@@ -17,8 +17,6 @@ const BrowserWindow = electron.BrowserWindow;
 const isDev = require("electron-is-dev");
 const { autoUpdater, AppUpdater } = require("electron-updater");
 const { exec } = require("child_process");
-const axios = require('axios');
-
 
 // Override isPackaged property to simulate a packaged environment - DO NOT USE IN PRODUCTION MODE
 Object.defineProperty(app, "isPackaged", {
@@ -26,9 +24,6 @@ Object.defineProperty(app, "isPackaged", {
     return true;
   },
 });
-
-
-import express from "express";
 
 if (isDev) {
   console.log("Running in development mode");
@@ -98,36 +93,37 @@ function createLoginWindow() {
   });
   log.info(path.join(__dirname, "../preload/index.js"));
 
-
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     loginWindow.loadURL("http://localhost:5173/#/login_window");
   } else {
-    loginWindow.loadURL(`file://${path.join(__dirname, '../renderer/index.html')}#/login_window`);
+    loginWindow.loadURL(
+      `file://${path.join(__dirname, "../renderer/index.html")}#/login_window`,
+    );
   }
 }
 
 app.whenReady().then(() => {
   log.info("Ready!!");
-  log.info("User Data Path:", app.getPath('userData'));
+  log.info("User Data Path:", app.getPath("userData"));
 
   const programsFolder = path.join(os.homedir(), "Applications");
-  console.log(programsFolder);
   log.info("Programs folder:", programsFolder);
   //get latest version
   const version = app.getVersion();
   log.info("Current App Version:", version);
-  // mainWindow.webContents.send("app-version", version); // Send the application version to the renderer process
-  // electronApp.setAppUserModelId("com.electron.app");
-
-  // app.on("browser-window-created", (_, window) => {
-  //   optimizer.watchWindowShortcuts(window);
-  // });
 
   createLoginWindow();
 
   app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
   });
+
+  // mainWindow.webContents.send("app-version", version); // Send the application version to the renderer process
+  // electronApp.setAppUserModelId("com.electron.app");
+
+  // app.on("browser-window-created", (_, window) => {
+  //   optimizer.watchWindowShortcuts(window);
+  // });
 });
 
 //send app version to front end
@@ -137,166 +133,130 @@ ipcMain.handle("getCurrentAppVersion", async (event) => {
   // event.sender.send('app-version', version);
   return version;
 });
-//download latest version
-// ipcMain.handle('downloadLatestVersion', async (event, github_url) => {
-//   log.info("Downloading latest version...");
-//   log.info(github_url);
-//   shell.openExternal(github_url);
-// });
-ipcMain.handle("installLatestVersion", async (event, dmgFilePath) => {
+// Apply updates handler
+ipcMain.handle("applyUpdates", async (event, downloadUrl) => {
   try {
-    log.info("Received download URL:", dmgFilePath);
-    // Mount the disk image
-    const volumePath = await mountDiskImage(dmgFilePath);
-    // Copy the application to the Applications folder
-    await copyApplication(dmgFilePath, volumePath);
-    // Unmount the disk image
-    await unmountDiskImage(volumePath);  
-    //apply any nessecary updates and restart
-    applyUpdateAndRestart();
-    log.info("Installation complete.");
-    return "Installation complete.";
-
+    console.log("Received update request with URL:", downloadUrl);
+    const updateSuccessful = await applyUpdate(downloadUrl);
+    if (updateSuccessful) {
+      console.log("Update applied successfully, relaunching application...");
+      app.relaunch();
+    } else {
+      console.log("Update failed, not relaunching.");
+    }
   } catch (error) {
-    throw new Error("Installation failed: " + error.message);
+    console.error("Error during update process:", error);
+  } finally {
+    app.exit(0); // Ensures the app quits after attempting to update
   }
 });
-async function mountDiskImage(dmgFilePath) {
+
+async function applyUpdate(downloadUrl) {
+  const localDmgPath = path.join(__dirname, "downloadedUpdate.dmg");
+
+  try {
+    console.log(`Downloading DMG from: ${downloadUrl}`);
+    await downloadFile(downloadUrl, localDmgPath);
+    console.log(`Download complete, saved to: ${localDmgPath}`);
+
+    // Verify file exists
+    if (!fs.existsSync(localDmgPath)) {
+      throw new Error("Downloaded file does not exist.");
+    }
+
+    // Mount the DMG file
+    const mountPoint = "/Volumes/YourAppMount";
+    console.log(`Mounting DMG at: ${mountPoint}`);
+    await execPromise(
+      `hdiutil attach "${localDmgPath}" -nobrowse -mountpoint "${mountPoint}"`,
+    );
+
+    console.log("DMG mounted, copying files...");
+
+    // Define paths
+    const sourcePath = path.join(mountPoint, "Fotografportalen.app");
+    const targetPath = "/Applications/Fotografportalen.app";
+
+    // Copy files while skipping app.asar
+    await fse.copy(sourcePath, targetPath, {
+      overwrite: true,
+      filter: (src) => {
+        const shouldSkip = src.includes("app.asar");
+        if (shouldSkip) {
+          console.log(`Skipping file: ${src}`);
+        }
+        return !shouldSkip;
+      },
+    });
+
+    console.log("Files copied successfully, unmounting DMG...");
+    await execPromise(`hdiutil detach "${mountPoint}"`);
+
+    console.log("Cleanup, deleting DMG...");
+    await fse.remove(localDmgPath);
+
+    console.log("Update applied successfully.");
+    return true;
+  } catch (error) {
+    console.error("Failed to apply update:", error);
+    return false;
+  }
+}
+
+function downloadFile(fileUrl, dest) {
   return new Promise((resolve, reject) => {
-      exec(`hdiutil attach "${dmgFilePath}" -nobrowse`, (error, stdout, stderr) => {
-          if (error) {
-              log.error("Error mounting disk image:", stderr);
-              reject(error);
-          } else {
-              log.info("Mount command output:", stdout);
-              // Match the volume path more reliably
-              const volumePathMatch = stdout.match(/\/Volumes\/[^ ]+ [^ ]+/); // This regex matches '/Volumes/' followed by words separated by a space (adjust based on your volume name structure)
-              if (volumePathMatch && volumePathMatch[0]) {
-                  const volumePath = volumePathMatch[0].trim(); // Ensure whitespace is trimmed
-                  log.info("Disk image mounted successfully at:", volumePath);
-                  resolve(volumePath);
-              } else {
-                  log.error("Failed to extract mounted volume path.");
-                  reject(new Error("Failed to extract mounted volume path."));
-              }
-          }
+    const file = fs.createWriteStream(dest);
+
+    function handleRedirect(response) {
+      if (response.statusCode === 302 || response.statusCode === 301) {
+        // Follow the redirect
+        const newLocation = response.headers.location;
+        console.log(`Redirecting to: ${newLocation}`);
+        downloadFile(newLocation, dest).then(resolve).catch(reject);
+        return;
+      }
+
+      if (response.statusCode !== 200) {
+        reject(
+          new Error(
+            `Failed to download file: Status code ${response.statusCode}`,
+          ),
+        );
+        return response.resume(); // Consume response data to free up memory
+      }
+
+      response.pipe(file);
+      file.on("finish", () => {
+        file.close(() => resolve(dest)); // close() is async, call resolve after close completes.
       });
+    }
+
+    const options = url.parse(fileUrl);
+    options.headers = { "User-Agent": "Mozilla/5.0" }; // GitHub might require a user-agent
+
+    https.get(options, handleRedirect).on("error", (err) => {
+      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
+    });
+
+    file.on("error", (err) => {
+      // Handle errors on file write.
+      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
+    });
   });
 }
-// function mountDiskImage(dmgFilePath) {
-//   return new Promise((resolve, reject) => {
-//       exec(`hdiutil attach "${dmgFilePath}"`, (error, stdout, stderr) => {
-//           if (error) {
-//               log.error("Error mounting disk image:", stderr);
-//               reject(error);
-//           } else {
-//               log.info("Disk image mounted successfully:", stdout);
-//               // Extract the mounted volume name from stdout and log it
-//               const lines = stdout.split('\n');
-//               const mountedLine = lines.find(line => line.includes('/Volumes/'));
-//               if (mountedLine) {
-//                   const volumePath = mountedLine.split('\t').pop(); // Typically the last tab-separated value is the path
-//                   log.info("Mounted Volume Path:", volumePath);
-//                   resolve(volumePath.trim()); // Pass the exact path where it's mounted
-//               } else {
-//                   log.error("Failed to extract mounted volume path.");
-//                   reject(new Error("Failed to extract mounted volume path."));
-//               }
-//           }
-//       });
-//   });
-// }
-async function unmountDiskImage(volumePath) {
+
+function execPromise(command) {
   return new Promise((resolve, reject) => {
-    exec(`hdiutil detach "${volumePath}"`, (error, stdout, stderr) => {
+    exec(command, (error, stdout, stderr) => {
       if (error) {
-        log.error("Unmounting failed:", stderr);
+        console.error(`Execution error: ${stderr}`);
         reject(error);
       } else {
-        log.info("Disk image unmounted:", stdout);
         resolve(stdout);
       }
     });
   });
 }
-async function copyApplication(dmgFilePath, volumePath) {
-  const programsFolder = "/Applications"; // Assuming you are copying to the global Applications folder
-  const sourcePath = `${volumePath}/Fotografportalen.app`;
-  const targetPath = path.join(programsFolder, "Fotografportalen.app");
-  log.info("Programs folder:", programsFolder);
-  log.info('Source path:', sourcePath);
-  log.info('Target path:', targetPath);
-
-  try {
-    await fse.copy(sourcePath, targetPath, {
-      overwrite: true,
-      filter: (src, dest) => {
-        // Exclude specific files or patterns here
-        if (src.includes('tables.drawio') || src.includes('storageVar.txt') || src.includes('skarp_jsonfil.tl')) {
-          log.info(`Skipping file: ${src}`); // Log skipped files for clarity
-          return false;
-        }
-        return true;
-      }
-    });
-    log.info('Application copied successfully, excluding specified files.');
-  } catch (error) {
-    log.error('Failed to copy application:', error);
-    throw error; // rethrow the error to be caught by the caller
-  }
-}
-function getVolumeName(dmgFilePath) {
-  // Extract the volume name from the DMG file path
-  const volumeName = dmgFilePath.split("/").pop().replace(".dmg", "");
-  return volumeName;
-}
-function applyUpdateAndRestart() {
-  try {
-    // Logs the intent to restart for update application
-    log.info("Applying updates and restarting...");
-    app.relaunch(); // Schedules a relaunch of the application
-    app.exit(0); // Exits the current application to allow the relaunch to proceed
-  } catch (error) {
-    log.error("Failed to restart the application:", error);
-    throw new Error("Failed to apply update and restart: " + error.message);
-  }
-}
-
-// Perform the update check here CHECK
-ipcMain.handle("lookForUpdates", async (event) => {
-  // Configure autoUpdater
-  // autoUpdater.updateConfigPath = '../../electron-builder.yml';
-  log.info("Looking for updates for electron application..");
-
-  // autoUpdater.autoDownload = true; // Disable auto downloading of updates
-  // autoUpdater.autoInstallOnAppQuit = true; // Disable automatic installation of updates on app quit
-
-  // // Listen for update available event
-  // autoUpdater.on("update-available", () => {
-  //   console.log("Update available");
-  //   log.info("Update available");
-  //   event.returnValue = "A new update is available. Downloading now...";
-  //   console.log("Update available event response:", event.returnValue);
-  // });
-
-  // // Listen for update not available event
-  // autoUpdater.on("update-not-available", () => {
-  //   console.log("Update not available");
-  //   log.info("Update not available");
-  //   event.returnValue = "You are already using the latest version.";
-  //   console.log("Update not available event response:", event.returnValue);
-  // });
-  // // Check for updates
-  // try {
-  //   log.info("autoupdater.checkForUpdates triggered!");
-  //   await autoUpdater.checkForUpdates();
-  // } catch (error) {
-  //   console.error("Error checking for updates:", error);
-  //   log.info("Error checking for updates:", error);
-  //   return "Error checking for updates.";
-  // }
-  // return "Update check initiated";
-});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -332,7 +292,7 @@ if (isDev) {
   // dbPath = path
   //   .join(__dirname, "../../resources/fp.db")
   //   .replace("app.asar", "app.asar.unpacked");
-    dbPath = path.join(app.getPath('userData'), "fp.db");
+  dbPath = path.join(app.getPath("userData"), "fp.db");
 }
 
 // Create or open SQLite database

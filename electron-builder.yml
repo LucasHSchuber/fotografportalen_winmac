@@ -50,6 +50,6 @@ npmRebuild: false
 publish:
   provider: github
   owner: LucasHSchuber
-  repo: fotografportalen_new3
+  repo: fotografportalen_winmac
   releaseType: release
-  token: githubtoken
+  token: token
