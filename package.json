@@ -1,7 +1,7 @@
 {
   "name": "fotografportalen",
   "productName": "Fotografportalen",
-  "version": "1.0.10",
+  "version": "1.0.5",
   "description": "An Electron application with React - Fotografportalen",
   "main": "./out/main/index.js",
   "author": "Lucas Schuber / Fotografportalen",
@@ -41,6 +41,7 @@
     "react-select2": "^4.0.3",
     "recharts": "^2.12.5",
     "select2": "^4.1.0-rc.0",
+    "semver": "^7.6.2",
     "sqlite3": "^5.1.7",
     "vite-plugin-env-compatible": "^2.0.1"
   },

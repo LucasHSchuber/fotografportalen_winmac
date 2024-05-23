@@ -30,7 +30,7 @@
     "header3": "Kontanter!",
     "calendaramount": "Antal spillere på holdet",
     "calendaramounttext": "* Hver spiller får tre kalendere",
-    "ssn": "CPR-nummer",
+    "ssn": "CPR-nummer (YYYYMMDD-XXXX)",
     "address": "Adresse",
     "postalcode": "Postnummer",
     "county": "By",
@@ -46,6 +46,15 @@
     "tacHeader2": "Persondatabehandling (GDPR):",
     "tacP1": "Express-Bild er dataansvarlig for behandlingen af dine personoplysninger. Kunden accepterer, at Express-Bild indsamler og lagrer personoplysninger. De indsamlede personoplysninger omfatter (fornavn, efternavn, CPR-nummer, adresse, postnummer, by, telefonnummer, forenings- og holdtilhørighed) samt tidspunktet for registreringen. Hvis kunden ønsker det, vil vi også sende kalendere hjem til kunden til gennemsyn med henblik på køb af kalendere.",
     "tacP2": "Formålet med Express Bilds behandling af personoplysninger er at kunne tilbyde kunden muligheden for at sælge kalendere. Den juridiske grundlag for Express Bilds behandling er samtykke. Hvis personoplysninger ikke gives til Express Bild eller hvis samtykke ikke gives, er der ingen mulighed for at sælge holdkalendere. Kunden, der har givet samtykke, har ret til til enhver tid at tilbagekalde sit samtykke ved at sende en e-mail eller ringe til vores kundeservice. Hvis kunden ønsker kalendere til gennemsyn, vil personoplysningerne blive behandlet for at gennemføre leveringen. Hvis kunden vælger at bestille kalendere, vil personoplysningerne blive brugt til kontraktmæssige forpligtelser samt til at opfylde vores lovmæssige forpligtelser vedrørende regnskab og bogføring og om nødvendigt for at opfylde lovmæssige forpligtelser over for kunden som forbruger. Hvis kunden vælger at bestille kalendere, bliver den juridiske grundlag for behandlingen af personoplysninger aftale. Personoplysningerne opbevares kun i den periode, der er nødvendig for at opfylde behandlingens formål, dvs. i den periode, hvor kunden kan forventes at købe kalendere fra fotografering, eller så længe Express-Bild er forpligtet til at opbevare oplysningerne i henhold til loven. Personoplysningerne kan blive overført til systemleverandøren til lagring af data samt ved manglende betaling til inkassofirmaet.",
-    "tacP3": "Personoplysninger, der opbevares om dig, begrænsning, rettelse eller sletning af dine personoplysninger, ret til at gøre indsigelse mod behandlingen eller anmode om dataportabilitet. Ved spørgsmål om behandlingen af personoplysninger bedes du kontakte kundecenter@expressbild.se eller ringe til 021-418900. Hvis du mener, at Express-Bild behandler personoplysninger om dig i strid med databeskyttelsesforordningen, har du ret til at indgive en klage til Datatilsynet."
+    "tacP3": "Personoplysninger, der opbevares om dig, begrænsning, rettelse eller sletning af dine personoplysninger, ret til at gøre indsigelse mod behandlingen eller anmode om dataportabilitet. Ved spørgsmål om behandlingen af personoplysninger bedes du kontakte kundecenter@expressbild.se eller ringe til 021-418900. Hvis du mener, at Express-Bild behandler personoplysninger om dig i strid med databeskyttelsesforordningen, har du ret til at indgive en klage til Datatilsynet.",
+
+    "confirm_teamname": "Holdnavn:",
+    "confirm_name": "Navn:",
+    "confirm_email": "E-mail:",
+    "confirm_mobile": "Telefonnummer:",
+    "confirm_ssn": "CPR-nummer:",
+    "confirm_address": "Adresse:",
+    "confirm_postalcode": "Postnummer:",
+    "confirm_county": "By:"
   }
   

@@ -223,6 +223,13 @@ function Newteam_teamleader() {
                                 placeholder={projectType === "school" ? "Amount of photographed students" : "Amount of photographed players"}
                                 value={formData.amount}
                                 onChange={handleChange}
+                                onWheel={(event) => event.target.blur()}
+                                onKeyDown={(event) => {
+                                    // Prevents changing value by arrow keys
+                                    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                                        event.preventDefault();
+                                    }
+                                }}
                             />
                         </div>
                     </div>
@@ -262,18 +269,6 @@ function Newteam_teamleader() {
                             {projectType === "school" ? "There were students with protected ID" : "There were players with protected ID"}
                         </label>
                     </div>
-                    {/* <div className="checkbox-container">
-                        <label>
-                            <input
-                                className="checkmark mr-2"
-                                type="checkbox"
-                                name="named_photolink"
-                                checked={formData.named_photolink}
-                                onChange={handleChange}
-                            />
-                            All people are named in photolink
-                        </label>
-                    </div> */}
                     <div className="mt-4">
                         <button className="button cancel fixed-width mr-1" onClick={handleCancel}>Cancel</button>
                         <button className="button standard fixed-width " type="submit">Create</button>

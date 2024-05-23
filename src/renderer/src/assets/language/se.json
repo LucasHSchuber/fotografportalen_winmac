@@ -30,10 +30,10 @@
   "header3": "Cashing!",
   "calendaramount": "Antal spelare i laget",
   "calendaramounttext": "* Varje spelar får tre kalendrar",
-  "ssn": "Personnummer",
+  "ssn": "Personnummer (YYYYMMDD-XXXX)",
   "address": "Adress",
   "postalcode": "Postnummer",
-  "county": "Ort",
+  "county": "Stad",
   "acceptTermsAndConditions": "Jag accepterar villkoren -",
   "finishButton": "Spara och avsluta",
   "termsAndConditions": "Läs villkoren här",
@@ -46,6 +46,14 @@
   "tacHeader2": "Personuppgiftsbehandling(GDPR):",
   "tacP1": "Express-Bild är personuppgiftsansvarigt för behandlingen av dina personuppgifter. Kund samtycker att Express-Bild samlar in och lagrar personuppgifter. Personuppgifter som samlas in är (förnamn, efternamn, personnummer, adress, postnr, ort, telefonnummer, förenings & lagtillhörighet) samt tidpunkt för registrering. Om kund väljer det kommer vi även att skicka hem kalendrar till kunden för påseende i syfte att erbjuda köp av kalendrar.",
   "tacP2": "Syftet med Express Bilds behandling av personuppgifter är att kunna erbjuda kunden möjlighet att sälja kalendrar. Den rättsliga grunden för Express Bilds behandling är samtycke. Om personuppgifter inte lämnas till Express Bild eller om samtycke inte lämnas finns det ingen möjlighet att sälja lagkalendrar. Kund som har lämnat samtycke har rätt att när som helst återkalla sitt samtycke genom att maila eller ringa till vår kundtjänst. Om kund önskar kalendrar för påseende kommer personuppgifterna att behandlas för att fullgöra leveransen. Väljer kunden att beställa kalendrar kommer personuppgifterna användas för kontraktuella åtaganden samt för att fullgöra våra rättsliga förpliktelser avseende redovisning och bokföring samt i förekommande fall för att kunna fullgöra rättsliga skyldigheter mot kund i egenskap av konsument. Väljer kunden att beställa kalendrar blir den rättsliga grunden för behandling av personuppgifter avtal. Personuppgifterna lagras endast under den period som är nödvändig för att uppfylla ändamålen med behandlingen, d v s under den period som kund kan förväntas köpa kalendrar från fotografering, eller så länge Express-Bild är skyldig att lagra uppgifterna enligt lag. Personuppgifterna kan komma att föras vidare till systemleverantör för lagring av data samt vid utebliven betalning till inkassobolag.",
-  "tacP3": "Personuppgifter som lagras om dig, begränsning, rättelse eller radering av dina personuppgifter, rätt till att göra invändningar mot behandlingen eller begära dataportabilitet. Vid frågor angående hanteringen av personuppgifter kontakta kundcenter@expressbild.se eller 021-418900. Anser du att Express-Bild behandlar personuppgifter om dig i strid med dataskyddsförordningen har du rätt att lämna in ett klagomål till Datainspektionen."
+  "tacP3": "Personuppgifter som lagras om dig, begränsning, rättelse eller radering av dina personuppgifter, rätt till att göra invändningar mot behandlingen eller begära dataportabilitet. Vid frågor angående hanteringen av personuppgifter kontakta kundcenter@expressbild.se eller 021-418900. Anser du att Express-Bild behandlar personuppgifter om dig i strid med dataskyddsförordningen har du rätt att lämna in ett klagomål till Datainspektionen.",
 
+  "confirm_teamname": "Lagnamn:",
+  "confirm_name": "Namn:",
+  "confirm_email": "Email:",
+  "confirm_mobile": "Telefonnummer:",
+  "confirm_ssn": "Personnummer:",
+  "confirm_address": "Adress:",
+  "confirm_postalcode": "Postnummer:",
+  "confirm_county": "Stad:"
 }

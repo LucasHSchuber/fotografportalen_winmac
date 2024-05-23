@@ -591,10 +591,17 @@ const EditTeamModal = ({
                         className={`form-input-field ${errorMessageSport.leader_ssn ? "error-border" : ""}`}
                         type="number"
                         name="leader_ssn"
-                        placeholder="Social security number"
+                        placeholder="Social security number (YYYYMMDD-XXXX)"
                         style={{ width: "20em" }}
                         defaultValue={teamData.leader_ssn}
                         onChange={handleLeaderSsnChange}
+                        onWheel={(event) => event.target.blur()}
+                        onKeyDown={(event) => {
+                            // Prevents changing value by arrow keys
+                            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                                event.preventDefault();
+                            }
+                        }}
                       />
                     </div>
                   )}
@@ -620,15 +627,22 @@ const EditTeamModal = ({
                       style={{ width: "20em" }}
                       defaultValue={teamData.leader_postalcode}
                       onChange={handleLeaderPostalcodeChange}
+                      onWheel={(event) => event.target.blur()}
+                      onKeyDown={(event) => {
+                          // Prevents changing value by arrow keys
+                          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                              event.preventDefault();
+                          }
+                      }}
                     />
                   </div>
                   <div>
-                    <label>Leader county: *</label>
+                    <label>Leader city: *</label>
                     <input
                       className={`form-input-field ${errorMessageSport.leader_county ? "error-border" : ""}`}
                       type="text"
                       name="leader_county"
-                      placeholder="Leader County"
+                      placeholder="Leader City"
                       style={{ width: "20em" }}
                       defaultValue={teamData.leader_county}
                       onChange={handleLeaderCountyChange}

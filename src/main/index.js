@@ -17,6 +17,9 @@ const BrowserWindow = electron.BrowserWindow;
 const isDev = require("electron-is-dev");
 const { autoUpdater, AppUpdater } = require("electron-updater");
 const { exec } = require("child_process");
+const https = require('https'); 
+const url = require('url'); 
+
 
 import express from "express";
 
@@ -135,16 +138,16 @@ ipcMain.handle("getCurrentAppVersion", async (event) => {
   // event.sender.send('app-version', version);
   return version;
 });
+
 // Apply updates handler
 ipcMain.handle("applyUpdates", async (event, downloadUrl) => {
   try {
     console.log("Received update request with URL:", downloadUrl);
     const updateSuccessful = await applyUpdate(downloadUrl);
     if (updateSuccessful) {
-      console.log("Update applied successfully, relaunching application...");
-      app.relaunch();
+      console.log("Update applied successfully.");
     } else {
-      console.log("Update failed, not relaunching.");
+      console.log("Update failed.");
     }
   } catch (error) {
     console.error("Error during update process:", error);
@@ -153,9 +156,8 @@ ipcMain.handle("applyUpdates", async (event, downloadUrl) => {
   }
 });
 
-
 async function applyUpdate(downloadUrl) {
-  const localDmgPath = path.join(__dirname, "downloadedUpdate.dmg");
+  const localDmgPath = path.join(os.homedir(), 'Desktop', 'downloadedUpdate.dmg');
 
   try {
     console.log(`Downloading DMG from: ${downloadUrl}`);
@@ -168,84 +170,23 @@ async function applyUpdate(downloadUrl) {
     }
 
     // Mount the DMG file
-    const mountPoint = "/Volumes/YourAppMount";
+    const mountPoint = path.join(os.homedir(), 'Desktop', 'Fotografportalen 1.0.2');
     console.log(`Mounting DMG at: ${mountPoint}`);
-    await execPromise(
-      `hdiutil attach "${localDmgPath}" -nobrowse -mountpoint "${mountPoint}"`,
-    );
+    await execPromise(`hdiutil attach "${localDmgPath}" -nobrowse -mountpoint "${mountPoint}"`);
 
-    console.log("DMG mounted, copying files...");
+    console.log("DMG mounted");
+    
+    // Open the mounted DMG location
+    console.log("Opening mounted DMG location...");
+    await execPromise(`open "${mountPoint}"`);
 
-    // Define paths
-    const sourcePath = path.join(mountPoint, "Fotografportalen.app");
-    const targetPath = "/Applications/Fotografportalen.app";
-
-    // Copy files while skipping app.asar
-    await fse.copy(sourcePath, targetPath, {
-      overwrite: true,
-      filter: (src) => {
-        const shouldSkip = src.includes("app.asar");
-        if (shouldSkip) {
-          console.log(`Skipping file: ${src}`);
-        }
-        return !shouldSkip;
-      },
-    });
-
-    console.log("Files copied successfully, unmounting DMG...");
-    await execPromise(`hdiutil detach "${mountPoint}"`);
-
-    console.log("Cleanup, deleting DMG...");
-    await fse.remove(localDmgPath);
-
-    console.log("Update applied successfully.");
+    // No need to unmount or delete the DMG in this case
+    console.log("DMG mounted successfully, please replace the application manually.");
     return true;
   } catch (error) {
     console.error("Failed to apply update:", error);
     return false;
   }
-}
-
-function downloadFile(fileUrl, dest) {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(dest);
-
-    function handleRedirect(response) {
-      if (response.statusCode === 302 || response.statusCode === 301) {
-        // Follow the redirect
-        const newLocation = response.headers.location;
-        console.log(`Redirecting to: ${newLocation}`);
-        downloadFile(newLocation, dest).then(resolve).catch(reject);
-        return;
-      }
-
-      if (response.statusCode !== 200) {
-        reject(
-          new Error(
-            `Failed to download file: Status code ${response.statusCode}`,
-          ),
-        );
-        return response.resume(); // Consume response data to free up memory
-      }
-
-      response.pipe(file);
-      file.on("finish", () => {
-        file.close(() => resolve(dest)); // close() is async, call resolve after close completes.
-      });
-    }
-
-    const options = url.parse(fileUrl);
-    options.headers = { "User-Agent": "Mozilla/5.0" }; // GitHub might require a user-agent
-
-    https.get(options, handleRedirect).on("error", (err) => {
-      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
-    });
-
-    file.on("error", (err) => {
-      // Handle errors on file write.
-      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
-    });
-  });
 }
 
 function execPromise(command) {
@@ -257,6 +198,42 @@ function execPromise(command) {
       } else {
         resolve(stdout);
       }
+    });
+  });
+}
+
+function downloadFile(fileUrl, dest) {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(dest);
+
+    function handleRedirect(response) {
+      if (response.statusCode === 302 || response.statusCode === 301) {
+        const newLocation = response.headers.location;
+        console.log(`Redirecting to: ${newLocation}`);
+        downloadFile(newLocation, dest).then(resolve).catch(reject);
+        return;
+      }
+
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to download file: Status code ${response.statusCode}`));
+        return response.resume(); // Consume response data to free up memory
+      }
+
+      response.pipe(file);
+      file.on('finish', () => {
+        file.close(() => resolve(dest)); // close() is async, call resolve after close completes.
+      });
+    }
+
+    const options = url.parse(fileUrl);
+    options.headers = { 'User-Agent': 'Mozilla/5.0' };
+
+    https.get(options, handleRedirect).on('error', err => {
+      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
+    });
+
+    file.on('error', err => { // Handle errors on file write.
+      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
     });
   });
 }
@@ -321,6 +298,7 @@ function createTables() {
       lastname TEXT NOT NULL,
       password TEXT NOT NULL,
       city TEXT,
+      mobile TEXT,
       lang STRING NOT NULL,
       token STRING,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -567,6 +545,7 @@ ipcMain.handle("getUser", async (event, id) => {
             firstname: row.firstname,
             lastname: row.lastname,
             city: row.city,
+            mobile: row.mobile,
             lang: row.lang,
             created: row.created,
           });
@@ -755,7 +734,7 @@ ipcMain.handle("editUser", async (event, args) => {
       throw new Error("Invalid arguments received for editUser");
     }
 
-    const { email, firstname, lastname, city, lang, user_id } = args;
+    const { email, firstname, lastname, city, mobile, lang, user_id } = args;
 
     if (!user_id || !email || !lang) {
       throw new Error("Missing required data (user_id) for editUser");
@@ -765,9 +744,9 @@ ipcMain.handle("editUser", async (event, args) => {
       `
       UPDATE users
       SET 
-        email = ?, firstname = ?, lastname = ?, city = ?, lang = ? WHERE user_id = ?
+        email = ?, firstname = ?, lastname = ?, city = ?, mobile = ?, lang = ? WHERE user_id = ?
       `,
-      [email, firstname, lastname, city, lang, user_id],
+      [email, firstname, lastname, city, mobile, lang, user_id],
     );
 
     console.log(`User data edited successfully`);

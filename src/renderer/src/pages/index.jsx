@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import profile from "../assets/images/photographer.png";
+import semver from 'semver';
 
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
@@ -22,6 +23,7 @@ function Index() {
   const [githubURL, setGithubURL] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
   const [latestVersion, setLatestVersion] = useState("");
+  const [normalizedLatestVersion, setNormalizedLatestVersion] = useState("");
 
   const handleCloseLoginModal = () => {
     setShowLoginModal(false);
@@ -51,6 +53,8 @@ function Index() {
         const latestReleaseVersion = response.data[0].tag_name;
         console.log("Latest release version:", latestReleaseVersion);
         setLatestVersion(latestReleaseVersion);
+        const normalizedLatestReleaseVersion = latestVersion.startsWith('v') ? latestVersion.slice(1) : latestVersion;
+        setNormalizedLatestVersion(normalizedLatestReleaseVersion);
       } catch (error) {
         console.error("Error fetching GitHub data:", error);
       }
@@ -92,15 +96,11 @@ function Index() {
       console.log("Update available, preparing to download...");
       const userConfirmed = await promptUserToCloseApp();
       if (userConfirmed) {
-          console.log("User confirmed, proceeding with update...");
-          localStorage.setItem('pendingUpdateUrl', downloadUrl);
-
-          await window.api.applyUpdates(downloadUrl);
-          // Send the download URL to the main process
-          // await window.api.quit();
-          // await window.api.installLatestVersion(downloadUrl);
+        console.log("User confirmed, proceeding with update...");
+        localStorage.setItem("pendingUpdateUrl", downloadUrl);
+        await window.api.applyUpdates(downloadUrl);
       } else {
-          console.log("User canceled the update.");
+        console.log("User canceled the update.");
       }
     } catch (error) {
       console.error(error);
@@ -108,8 +108,10 @@ function Index() {
   };
 
   const promptUserToCloseApp = () => {
-    return window.confirm("The application will close to update. Make sure to save all your work. Do you want to continue?");
-};
+    return window.confirm(
+      "The application will close to update. Make sure to save all your work. Do you want to continue?",
+    );
+  };
 
   //get all current projects with user_id
   useEffect(() => {
@@ -164,6 +166,7 @@ function Index() {
     getAllProjects();
     runGdprProtection();
   }, []);
+  console.log(`Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`);
 
   return (
     <div className="d-flex index-wrapper">
@@ -211,33 +214,36 @@ function Index() {
 
         <hr style={{ width: "75%" }} className="hr"></hr>
 
-        <div className="index-box">
-          <h1 className="index-title two">Alerts</h1>
-          <h6>
-            <b>
-              You have{" "}
-              {projectsArray && projectsArray.length > 0
-                ? projectsArray.length
-                : 0}{" "}
-              unsent job{projectsArray.length > 1 ? "s" : ""}
-            </b>
-          </h6>
-          <ul>
-            {projectsArray && projectsArray.length > 0 ? (
-              projectsArray.map((project) => (
-                <div key={project.project_id}>
-                  <li>{project.projectname}</li>
-                </div>
-              ))
-            ) : (
-              <h6> </h6>
-            )}
-          </ul>
-        </div>
+        {projectsArray && projectsArray.length > 0 && (
+          <div className="index-box">
+            <h1 className="index-title two">Alerts</h1>
+            <h6>
+              <b>
+                You have{" "}
+                {projectsArray && projectsArray.length > 0
+                  ? projectsArray.length
+                  : 0}{" "}
+                unsent job{projectsArray.length > 1 ? "s" : ""}
+              </b>
+            </h6>
+            <ul>
+              {projectsArray && projectsArray.length > 0 ? (
+                projectsArray.map((project) => (
+                  <div key={project.project_id}>
+                    <li>{project.projectname}</li>
+                  </div>
+                ))
+              ) : (
+                <h6> </h6>
+              )}
+            </ul>
+          </div>
+        )}
       </div>
 
       <div className="index-box-right">
-        {currentVersion !== latestVersion.substring(1, 6) ? (
+        {/* {currentVersion !== latestVersion.substring(1, 6) ? ( */}
+        {latestVersion && currentVersion && semver.gt(latestVersion, currentVersion) ? (
           <div className="index-box">
             <h1 className="index-title three">News & updates</h1>
             <h6>

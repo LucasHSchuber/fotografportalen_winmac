@@ -19,12 +19,14 @@ function Settings() {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [city, setCity] = useState("");
+  const [mobile, setMobile] = useState("");
   const [lang, setLang] = useState("");
 
   const [newEmail, setNewEmail] = useState("");
   const [newFirstname, setNewFirstname] = useState("");
   const [newLastname, setNewLastname] = useState("");
   const [newCity, setNewCity] = useState("");
+  const [newMobile, setNewMobile] = useState("");
   const [newLang, setNewLang] = useState("");
 
   const [isEmailModified, setIsEmailIsModified] = useState(false);
@@ -64,6 +66,7 @@ function Settings() {
         setFirstname(usersData.user.firstname);
         setLastname(usersData.user.lastname);
         setCity(usersData.user.city);
+        setMobile(usersData.user.mobile);
         setLang(usersData.user.lang);
         console.log(usersData.user);
 
@@ -91,6 +94,7 @@ function Settings() {
       setFirstname(usersData.user.firstname);
       setLastname(usersData.user.lastname);
       setCity(usersData.user.city);
+      setMobile(usersData.user.mobile);
       setLang(usersData.user.lang);
       console.log(usersData.user);
 
@@ -119,6 +123,7 @@ function Settings() {
 
     const updatedFields = {};
     updatedFields.city = newCity !== "" ? newCity : user.city;
+    updatedFields.mobile = newMobile !== "" ? newMobile : user.mobile;
     updatedFields.email = newEmail !== "" ? newEmail : user.email;
     updatedFields.firstname = newFirstname !== "" ? newFirstname : user.firstname;
     updatedFields.lastname = newLastname !== "" ? newLastname : user.lastname;
@@ -142,12 +147,13 @@ function Settings() {
       console.log(newLastname);
     }
 
-    if (newEmail || newFirstname || newLastname || newCity || newLang) {
+    if (newEmail || newFirstname || newLastname || newCity || newMobile || newLang) {
       try {
         const response = await window.api.editUser(updatedFields);
         console.log(response);
         updateFeedbackMessage("User updated succesfully")
         setNewCity("");
+        setNewMobile("");
         setNewLang("");
         setNewFirstname("");
         setNewLastname("");
@@ -197,6 +203,12 @@ function Settings() {
             <label>City:</label>
             <div>
               <input className="form-input-field-fp" type="text" defaultValue={city ? city : ""} placeholder="New city" onChange={(e) => setNewCity(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <label>Mobile:</label>
+            <div>
+              <input className="form-input-field-fp" type="number" defaultValue={mobile ? mobile : ""} placeholder="New Mobile" onChange={(e) => setNewMobile(e.target.value)} />
             </div>
           </div>
           <div>

@@ -48,16 +48,19 @@ function Register_window() {
       setPasswordMessage(true);
       setUsernameMessage(true);
       setErrorLogginginMessage("");
+      setSuccessRegisterMessage("");
     }
     if (password === "") {
       console.log("Enter password");
       setPasswordMessage(true);
+      setSuccessRegisterMessage("");
     } else {
       setPasswordMessage("");
     }
     if (username === "") {
       console.log("Enter username");
       setUsernameMessage(true);
+      setSuccessRegisterMessage("");
     } else {
       setUsernameMessage("");
     }
@@ -97,6 +100,7 @@ function Register_window() {
             } else {
               console.log("Error creating user");
               setErrorLogginginMessage("User already exists");
+              setSuccessRegisterMessage("");
             }
           } catch (error) {
             console.log("error:", error);

@@ -86,7 +86,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
 
                             <div className="mt-4">
                                 <h6><span>{projectType === "school" ? "Merged classes" : "Merged teams"}</span></h6>
-                                {project.anomaly && project.merged_teams !== "NULL"
+                                {project.merged_teams && project.merged_teams !== "NULL"
                                     ? <h6>{project.merged_teams}</h6>
                                     : <em>{projectType === "school" ? "No merged classes" : "No merged teams"}</em>}
                             </div>

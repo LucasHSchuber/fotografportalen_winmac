@@ -152,6 +152,9 @@ function Account() {
           <div>
             <h6><span>City:</span> {user && user.city !== null ? user.city : <em>None</em>} </h6>
           </div>
+          <div>
+            <h6><span>Mobile:</span> {user && user.mobile !== null ? user.mobile : <em>None</em>} </h6>
+          </div>
 
           <hr className="mt-5" style={{ width: "30em" }}></hr>
 

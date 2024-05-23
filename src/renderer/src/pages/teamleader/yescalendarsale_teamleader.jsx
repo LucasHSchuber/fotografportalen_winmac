@@ -222,20 +222,44 @@ function Calendarsale_teamleader() {
 
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <input className={`form-input-field ${errorMessage.calendar_amount ? "error-border" : ""}`} type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder={languageTexts?.calendaramount} />
+                        <input className={`form-input-field ${errorMessage.calendar_amount ? "error-border" : ""}`} type="number" name="calendar_amount" value={formData.calendar_amount} onChange={handleChange} placeholder={languageTexts?.calendaramount} 
+                         onWheel={(event) => event.target.blur()}
+                         onKeyDown={(event) => {
+                             // Prevents changing value by arrow keys
+                             if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                                 event.preventDefault();
+                             }
+                         }}
+                        />
                         <h6 style={{ fontSize: "0.9em" }}>{languageTexts?.calendaramounttext}</h6>
                     </div>
                     {/* only show SSN input if SWEDISH OR GERMAN */}
                     {user_lang && (user_lang === "SE" || user_lang === "DE") && (
                         <div style={{}}>
-                            <input className={`form-input-field ${errorMessage.leader_ssn ? "error-border" : ""}`} type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder={languageTexts?.ssn} />
+                            <input className={`form-input-field ${errorMessage.leader_ssn ? "error-border" : ""}`} type="number" name="leader_ssn" value={formData.leader_ssn} onChange={handleChange} placeholder={languageTexts?.ssn} 
+                             onWheel={(event) => event.target.blur()}
+                             onKeyDown={(event) => {
+                                 // Prevents changing value by arrow keys
+                                 if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                                     event.preventDefault();
+                                 }
+                             }}
+                            />
                         </div>
                     )}
                     <div>
                         <input className={`form-input-field ${errorMessage.leader_address ? "error-border" : ""}`} type="text" name="leader_address" value={formData.leader_address} onChange={handleChange} placeholder={languageTexts?.address} />
                     </div>
                     <div>
-                        <input className={`form-input-field ${errorMessage.leader_postalcode ? "error-border" : ""}`} type="number" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder={languageTexts?.postalcode} />
+                        <input className={`form-input-field ${errorMessage.leader_postalcode ? "error-border" : ""}`} type="number" name="leader_postalcode" value={formData.leader_postalcode} onChange={handleChange} placeholder={languageTexts?.postalcode} 
+                         onWheel={(event) => event.target.blur()}
+                         onKeyDown={(event) => {
+                             // Prevents changing value by arrow keys
+                             if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                                 event.preventDefault();
+                             }
+                         }}
+                        />
                     </div>
                     <div>
                         <input className={`form-input-field ${errorMessage.leader_county ? "error-border" : ""}`} type="text" name="leader_county" value={formData.leader_county} onChange={handleChange} placeholder={languageTexts?.county} />

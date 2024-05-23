@@ -83,7 +83,7 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, han
                             </div>
                             <div className="mt-4">
                                 <h6><span>{projectType === "school" ? "Merged classes" : "Merged teams"}</span></h6>
-                                {projectForControlSheet.anomaly && projectForControlSheet.merged_teams !== "NULL"
+                                {projectForControlSheet.merged_teams && projectForControlSheet.merged_teams !== "NULL"
                                     ? <h6>{projectForControlSheet.merged_teams}</h6>
                                     : <em>{projectType === "school" ? "No merged classes" : " No merged teams"}</em>}
                             </div>
@@ -92,7 +92,6 @@ const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, han
                                 {projectForControlSheet.alert_sale && projectForControlSheet.alert_sale === 1
                                     ? <h6><FontAwesomeIcon icon={faCheck} color="green" className="mx-1" /> <em>Sales alerted</em></h6> : <h6><em>Sales not alerted</em></h6>}
                             </div>
-
                         </div>
                     )}
                 </div>
