@@ -261,24 +261,6 @@ function Newproject_teamleader() {
 
 
                 <form className="newproject-form" onSubmit={handleSubmit}>
-                    {/* <input
-                        type="text"
-                        list="projects"
-                        value={projectName}
-                        onChange={(e) => handleProjectChange(e.target.value)}
-                        placeholder="Search projects..."
-                        style={{ maxWidth: '100%', overflowX: 'auto' }}
-                        className="datalist-input"
-                    />
-             
-                    <datalist
-                        id="projects"
-                    >
-                        {_projects.map(project => (
-                            <option className="datalist-option" key={project.project_uuid} value={project.projectname} />
-                        ))}
-                        <option value="search_for_more">Search for more...</option>
-                    </datalist> */}
                     <Select
                         value={projectName}
                         onChange={handleProjectChange}

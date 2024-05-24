@@ -8,19 +8,34 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const ControlSheetModal = ({ showcControlSheetModal, projectForControlSheet, handleClose, project_id, projectType, teamsForControlSheet }) => {
+const ControlSheetModal = ({ showControlSheetModal, projectForControlSheet, handleClose, project_id, projectType, teamsForControlSheet }) => {
 
     //define states
     const [userName, setUserName] = useState("");
 
+    
     useEffect(() => {
         const user_name = localStorage.getItem("user_name");
         setUserName(user_name);
     }, [])
 
+     //press enter to trigger handleClose method
+     useEffect(() => {
+        function handleKeyDown(event) {
+            if (event.key === "Enter" && showControlSheetModal) {
+                handleClose();
+                event.preventDefault();  
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [showControlSheetModal]); 
+
 
     return (
-        <Modal className="controlsheet-teamleader mt-1" show={showcControlSheetModal} onHide={handleClose}>
+        <Modal className="controlsheet-teamleader mt-1" show={showControlSheetModal} onHide={handleClose}>
             <Modal.Body className="controlsheet-teamleader-modalbody">
                 <Modal.Title className="mb-4"><h5><b>Control sheet</b></h5></Modal.Title>
 

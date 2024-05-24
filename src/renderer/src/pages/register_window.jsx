@@ -132,7 +132,7 @@ function Register_window() {
     <div className="login_window-wrapper">
       <div className="login_window-content">
 
-        <h5 className="mb-3 mr-3" ><b>Register</b></h5>
+        <h5 className="mb-3 mr-3" ><b>Activate account</b></h5>
         <div style={{ textAlign: "left", width: "110%", marginLeft: "-1.5em" }}>
           {usernameMessage || passwordMessage || errorLogginginMessage ? (
             <ul className="error">
@@ -163,6 +163,11 @@ function Register_window() {
               type="text"
               value={username}
               onChange={handleUsernameChange}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  registerUser();
+                }
+              }}
             />
           </div>
           <div>
@@ -172,16 +177,31 @@ function Register_window() {
               type="password"
               value={password}
               onChange={handlePasswordChange}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  registerUser();
+                }
+              }}
             />
           </div>
         </div>
 
         <div>
           <button className="button normal fixed-width mt-3 mb-2" onClick={registerUser}>
-            Register
+            Activate
           </button>
         </div>
-        <a className="register-link-login" onClick={() => navigate('/login_window')}>Already have an account? Log in here!</a>
+        <a 
+          href="#"
+          role="button"
+          className="register-link-login" 
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/login_window');
+          }}
+          style={{ color: "black" }}
+        >
+          Already have an account? Log in here!</a>
 
       </div>
     </div >

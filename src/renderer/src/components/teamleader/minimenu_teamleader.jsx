@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -28,7 +28,19 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
     const navigate = useNavigate();
 
 
-
+    //press enter to trigger handleClose method
+    useEffect(() => {
+        function handleKeyDown(event) {
+            if (event.key === "n" && (event.ctrlKey || event.metaKey)) {
+                createNewTeam();
+                event.preventDefault();  
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []); 
 
     //create new team
     const createNewTeam = () => {

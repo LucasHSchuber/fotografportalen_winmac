@@ -51,32 +51,33 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
                 <Modal.Title><h5 className="mb-2 error" ><b>{projectType === "school" ? "Delete class" : "Delete team"}</b></h5></Modal.Title>
                 <h6 className="mb-3"><em>Type in "{teamName}" to delete the {projectType === "school" ? "class" : "team"} </em></h6>
                 {/* <h6 className="mb-4" style={{ color: "red", textDecoration: "underline" }}>This action can not be undone</h6> */}
+                <form>
+                    <input
+                        className="form-input-field"
+                        placeholder={projectType === "school" ? "Class name" : "Team name"}
+                        style={{ border: "1px solid red", width: "20em" }}
+                        value={deleteInputValue}
+                        onChange={handleInputChange}
+                    />
 
-                <input
-                    className="form-input-field"
-                    placeholder={projectType === "school" ? "Class name" : "Team name"}
-                    style={{ border: "1px solid red", width: "20em" }}
-                    value={deleteInputValue}
-                    onChange={handleInputChange}
-                />
+                    <div style={{ textAlign: "left", marginLeft: "4.5em" }}>
 
-                <div style={{ textAlign: "left", marginLeft: "4.5em" }}>
+                        {deleteMessage && (
+                            <div className="error mb-3 mr-5">
+                                <p>{deleteMessage}</p>
+                            </div>
+                        )}
+                    </div>
 
-                    {deleteMessage && (
-                        <div className="error mb-3 mr-5">
-                            <p>{deleteMessage}</p>
-                        </div>
-                    )}
-                </div>
-
-                <div className="mt-2">
-                    <Button className="button cancel fixed-width mr-1" onClick={handleCancel}>
-                        Cancel
-                    </Button>
-                    <Button className="button delete fixed-width " onClick={handleDelete}>
-                        Delete {projectType === "school" ? "class" : "team"}
-                    </Button>
-                </div>
+                    <div className="mt-2">
+                        <Button className="button cancel fixed-width mr-1" type="button" onClick={handleCancel}>
+                            Cancel
+                        </Button>
+                        <Button className="button delete fixed-width" type="submit" onClick={handleDelete}>
+                            Delete {projectType === "school" ? "class" : "team"}
+                        </Button>
+                    </div>
+                </form>
 
             </Modal.Body>
         </Modal>

@@ -17,7 +17,7 @@ import '../../assets/css/teamleader/main_teamleader.css';
 function Prevwork_teamleader() {
     // Define states
     const [projectsArray, setProjectsArray] = useState([]);
-    const [showcControlSheetModal, setShowcControlSheetModal] = useState(false);
+    const [showControlSheetModal, setShowControlSheetModal] = useState(false);
     const [teamsForControlSheet, setTeamsForControlSheet] = useState([]);
     const [projectForControlSheet, setProjectForControlSheet] = useState([]);
     const [userForControlSheet, setUserForControlSheet] = useState([]);
@@ -137,14 +137,14 @@ function Prevwork_teamleader() {
 
 
     //open contol sheet modal
-    const handleClose = () => { setShowcControlSheetModal(false); }
+    const handleClose = () => { setShowControlSheetModal(false); }
     const viewControlSheet = (project_id, project_type) => {
 
         setProjectId(project_id);
         setProjectType(project_type);
 
         fetchTeamsForControlSheet(project_id);
-        setShowcControlSheetModal(true);
+        setShowControlSheetModal(true);
     }
 
 
@@ -253,7 +253,7 @@ function Prevwork_teamleader() {
             </div>
 
             <Sidemenu_teamleader />
-            <Controlsheet showcControlSheetModal={showcControlSheetModal} handleClose={handleClose} project_id={projectId} projectType={projectType} teamsForControlSheet={teamsForControlSheet} projectForControlSheet={projectForControlSheet} userForControlSheet={userForControlSheet} />
+            <Controlsheet showControlSheetModal={showControlSheetModal} handleClose={handleClose} project_id={projectId} projectType={projectType} teamsForControlSheet={teamsForControlSheet} projectForControlSheet={projectForControlSheet} userForControlSheet={userForControlSheet} />
             <FeedbackMessage feedbackMessage={feedbackMessage} />
 
         </div>

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faUser, faMinus, faPeopleGroup, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { faCalendarPlus, faCalendarMinus } from '@fortawesome/free-regular-svg-icons';
-import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faPlus } from '@fortawesome/free-solid-svg-icons';
 import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
 
@@ -48,6 +48,7 @@ function Portal_teamleader() {
     const handleClose = () => setShowDeleteTeamModal(false);
     const handleCloseEditModal = () => setShowEditModal(false);
 
+    const navigate = useNavigate();
 
     // Function to update feedback message from new team
     useEffect(() => {
@@ -94,6 +95,16 @@ function Portal_teamleader() {
         setEditTeam(data);
         setShowEditModal(true);
     };
+
+    //navigate user to newteam_teamleader page
+    const createNewTeam = () => {
+        console.log("new team");
+        if (projectType === "sport") {
+            navigate("/addleaderinfo_teamleader");
+        } else {
+            navigate("/newteam_teamleader");
+        }
+    }
 
     //load loading bar on load
     useEffect(() => {
@@ -268,6 +279,11 @@ function Portal_teamleader() {
                                         </>
                                     )}
                                 </div>
+
+                                <button className="button standard mt-2"
+                                    onClick={() => createNewTeam()}>
+                                        <FontAwesomeIcon icon={faPlus} 
+                                    /></button>
 
                                 <div className="d-flex mt-5">
                                     <div className="portal-analytics">

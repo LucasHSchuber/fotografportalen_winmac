@@ -24,6 +24,20 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
         setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
     }, [])
 
+    //press enter to trigger sendJob method
+    useEffect(() => {
+        function handleKeyDown(event) {
+            if (event.key === "Enter" && showConfirmationModal) {
+                sendJob();
+                event.preventDefault();  
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [showConfirmationModal]);  
+
 
     const closeModal = () => {
         setPasswordMessage("");
@@ -144,11 +158,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             <>
                             </>
                         )}
-                        {/* {passwordMessage && (
-                            <div className="error">
-                                <p>{passwordMessage}</p>
-                            </div>
-                        )} */}
                     </div>
 
                     <div>
@@ -167,6 +176,11 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             style={{ width: "20em" }}
                             value={password}
                             onChange={handlePasswordChange}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                    logIn();
+                                }
+                            }}
                         />
                     </div>
 

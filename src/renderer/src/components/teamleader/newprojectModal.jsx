@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -8,6 +8,20 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const NewProjectModal = ({ projectName, projectType, showNewProjectModal, handleClose, CreateNewProject }) => {
 
     //define states
+
+    //press enter to trigger confirmNewProject method
+    useEffect(() => {
+    function handleKeyDown(event) {
+        if (event.key === "Enter" && showNewProjectModal) {
+            confirmNewProject();
+            event.preventDefault();  
+        }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+    };
+    }, [showNewProjectModal]); 
 
 
     const confirmNewProject = () => {

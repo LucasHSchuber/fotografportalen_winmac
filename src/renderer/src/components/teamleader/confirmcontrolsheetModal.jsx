@@ -12,7 +12,21 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
 
     //define states
     const [alertSale, setAlertSale] = useState(false);
-    // const [namedPhotolink, setNamedPhotolink] = useState(false);
+
+
+    //press enter to trigger confirmJob method
+    useEffect(() => {
+        function handleKeyDown(event) {
+            if (event.key === "Enter" && showConfirmControlSheetModal) {
+                confirmJob();
+                event.preventDefault();  
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [showConfirmControlSheetModal]); 
 
     const confirmJob = () => {
         handleCloseControlSheetModal();

@@ -21,7 +21,7 @@ function Login_window() {
       localStorage.getItem("username") ? localStorage.getItem("username") : "",
     );
   }, []);
-  
+
   //load loading bar on load
   useEffect(() => {
     // Check if the loading bar has been shown before
@@ -41,9 +41,6 @@ function Login_window() {
     }
   }, []);
 
-
-
-  
   useEffect(() => {
     const fetchUpdates = async () => {
       try {
@@ -55,9 +52,6 @@ function Login_window() {
     };
     fetchUpdates();
   }, []);
-
-
-
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
@@ -188,6 +182,11 @@ function Login_window() {
               type="text"
               value={username}
               onChange={handleUsernameChange}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  loginUser();
+                }
+              }}
             />
           </div>
           <div>
@@ -197,6 +196,11 @@ function Login_window() {
               type="password"
               value={password}
               onChange={handlePasswordChange}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  loginUser();
+                }
+              }}
             />
           </div>
         </div>
@@ -208,13 +212,28 @@ function Login_window() {
           >
             Log in
           </button>
+          <button
+            className="button cancel-fp fixed-width mb-2"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/register_window");
+            }}
+          >
+            Activate account
+          </button>
         </div>
-        <a
+        {/* <a
+          href="#"
+          role="button"
           className="register-link-login"
-          onClick={() => navigate("/register_window")}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/register_window");
+          }}
+          style={{ color: "black" }}
         >
           Dont have an account? Register here!
-        </a>
+        </a> */}
       </div>
     </div>
   );
