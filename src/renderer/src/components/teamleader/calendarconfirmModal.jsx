@@ -40,6 +40,20 @@ const CalendarConfirmModal = ({ showCalendarConfirmModal, handleClose, confirmCa
         }
         setLanguageTexts(selectedLang);
     }, []);
+
+     //press enter to trigger confirm method
+     useEffect(() => {
+        function handleKeyDown(event) {
+            if (event.key === "Enter" && showCalendarConfirmModal) {
+                confirm();
+                event.preventDefault();  
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [showCalendarConfirmModal])
     
     const confirm = () => {
         console.log("Finish");

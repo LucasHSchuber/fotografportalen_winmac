@@ -75,7 +75,7 @@ const TeamsChart = ({ data, prevProjectsLength }) => {
                     <YAxis label={{ value: 'Amount', angle: -90, position: 'insideLeft', fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend payload={[{ value: '', type: 'line', id: 'ID01' }]} />
-                    <Bar dataKey="sumAmount" fill="#00b3ff" name="Amount" />
+                    <Bar dataKey="sumAmount" fill="#5B5B5B" name="Amount" />
                 </BarChart>
             </div>
         </div>

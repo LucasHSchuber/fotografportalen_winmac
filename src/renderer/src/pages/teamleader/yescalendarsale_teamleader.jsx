@@ -278,9 +278,8 @@ function Calendarsale_teamleader() {
                         <a style={{ textDecoration: "underline" }} onClick={() => setShowTermsAndConditionBox(!showTermsAndConditionBox)}>{languageTexts?.termsAndConditions}</a>
                     </div>
 
-                    <button className="button cancel fixed-width mr-1" onClick={handleBack}>{languageTexts?.backButton}</button>
-                    <button className="button standard fixed-width " type="submit">{languageTexts?.finishButton}</button>
-
+                    <button className="button cancel fixed-width mr-1" type="button" onClick={handleBack}>{languageTexts?.backButton}</button>
+                    <button className="button standard fixed-width" type="submit" >{languageTexts?.finishButton}</button>
                 </form>
 
             </div>

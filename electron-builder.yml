@@ -52,4 +52,4 @@ publish:
   owner: LucasHSchuber
   repo: fotografportalen_winmac
   releaseType: release
-  token: tttoken
+  token: token

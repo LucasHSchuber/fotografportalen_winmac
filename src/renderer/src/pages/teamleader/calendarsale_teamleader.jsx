@@ -148,7 +148,7 @@ function Calendarsale_teamleader() {
                     <p>{languageTexts?.salestextsend}</p>
 
                 </div>
-
+                
                 <div>
                     <button className="button cancel fixed-width mr-1" onClick={handleBack}>{languageTexts?.backButton}</button>
                     <button className="button standard fixed-width" onClick={yesCalendarSales}>{languageTexts?.yessalesButton}</button>

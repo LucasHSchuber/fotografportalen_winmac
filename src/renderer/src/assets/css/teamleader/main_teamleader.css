@@ -78,7 +78,8 @@
 }
 
 .home-analytics-number {
-    background-color: #1d1d1d;
+    /* background-color: #1d1d1d; */
+    background-color: #009c4a;
     border-radius: 50%;
     color: white;
     width: 5em;
