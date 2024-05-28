@@ -22,7 +22,7 @@ const SubjectsChart = ({ data, prevProjectsLength }) => {
     useEffect(() => {
         const getLastTenProjectsData = () => {
             // Extract unique project_ids
-            const uniqueProjectIds = [...new Set(data.map(item => item.project_id))].slice(-userInputChartOne);
+            const uniqueProjectIds = data && [...new Set(data.map(item => item.project_id))].slice(-userInputChartOne);
             // Sum up the amount for each project_id
             const projectData = uniqueProjectIds.map(projectId => {
                 const projectItems = data.filter(item => item.project_id === projectId);
@@ -80,7 +80,7 @@ const SubjectsChart = ({ data, prevProjectsLength }) => {
                     <YAxis label={{ value: 'Amount', angle: -90, position: 'insideLeft', fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend payload={[{ value: '', type: 'line', id: 'ID01' }]} />
-                    <Bar dataKey="sumAmount" fill="#009c4a" name="Amount" />
+                    <Bar dataKey="sumAmount" fill="#5B5B5B" name="Amount" />
                 </BarChart>
             </div>
         </div>

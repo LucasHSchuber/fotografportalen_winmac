@@ -111,8 +111,7 @@ function Settings() {
     updatedFields.city = newCity !== "" ? newCity : user.city;
     updatedFields.mobile = newMobile !== "" ? newMobile : user.mobile;
     updatedFields.email = newEmail !== "" ? newEmail : user.email;
-    updatedFields.firstname =
-      newFirstname !== "" ? newFirstname : user.firstname;
+    updatedFields.firstname = newFirstname !== "" ? newFirstname : user.firstname;
     updatedFields.lastname = newLastname !== "" ? newLastname : user.lastname;
     updatedFields.lang = newLang !== "" ? newLang : user.lang;
     updatedFields.user_id = user.user_id;
@@ -247,7 +246,7 @@ function Settings() {
               <div>
                 <input
                   className="form-input-field-fp"
-                  type="number"
+                  type="text"
                   defaultValue={mobile ? mobile : ""}
                   placeholder="New Mobile"
                   onChange={(e) => setNewMobile(e.target.value)}
@@ -259,7 +258,7 @@ function Settings() {
               <div style={{ width: "20em" }}>
                 <select
                   className="form-input-field-fp"
-                  defaultValue={user && lang}
+                  value={user && lang}
                   onChange={(e) => setNewLang(e.target.value)}
                 >
                   <option value="DK" selected={user.lang === "DK"}>

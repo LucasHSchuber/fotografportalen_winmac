@@ -298,7 +298,7 @@ function createTables() {
       lastname TEXT NOT NULL,
       password TEXT NOT NULL,
       city TEXT,
-      mobile TEXT,
+      mobile VARCHAR,
       lang STRING NOT NULL,
       token STRING,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
