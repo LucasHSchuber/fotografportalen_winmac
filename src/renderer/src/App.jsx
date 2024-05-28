@@ -19,6 +19,8 @@ import Newteam_teamleader from "./pages/teamleader/newteam_teamleader";
 import Calendarsale_teamleader from "./pages/teamleader/calendarsale_teamleader";
 import Yescalendarsale_teamleader from "./pages/teamleader/yescalendarsale_teamleader";
 
+import Home_filetransfer from "./pages/filetransfer/home_filetransfer";
+
 //importing css styles
 import "./App.css";
 import './assets/css/global.css';
@@ -120,6 +122,17 @@ function App() {
         </div>
       </div>
 
+      {/* FILETRANSFER */}
+        {/* .main-content for margin/padding left to make room for sidebar */}
+        <div className="main-content">
+          <div className="content">
+
+            <div className="route-layout">
+              <Routes> <Route path="/home_filetransfer" element={<Home_filetransfer />} /></Routes>
+            </div>
+
+          </div>
+        </div>
 
 
     </HashRouter >
