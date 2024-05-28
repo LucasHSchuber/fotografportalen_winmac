@@ -78,7 +78,7 @@ function Register_window() {
         // const response = await axios.post(url, {
           // const response = await axios.post("/index.php/rest/photographer_portal/login", {
           const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, {
-            'email': username,
+          'email': username,
           'password': password
         });
         if (response && response.data) {
@@ -97,6 +97,7 @@ function Register_window() {
               setPassword("");
               setUsername("");
               setErrorLogginginMessage("");
+              navigate("/login_window");
             } else {
               console.log("Error creating user");
               setErrorLogginginMessage("User already exists");

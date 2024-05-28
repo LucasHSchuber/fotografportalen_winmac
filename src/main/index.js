@@ -19,6 +19,9 @@ const { autoUpdater, AppUpdater } = require("electron-updater");
 const { exec } = require("child_process");
 const https = require('https'); 
 const url = require('url'); 
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 
 
 import express from "express";
@@ -618,17 +621,20 @@ ipcMain.handle("createUser", async (event, args) => {
       });
       return { success: false, error: "User already exists" };
     } else {
+      //hashing password
+      const hashedPassword = await hashPassword(password);
+
       // Insert the new user into the database
       await db.run(
         `
         INSERT INTO users (email, firstname, lastname, password, lang, token)
         VALUES (?, ?, ?, ?, ?, ?)
         `,
-        [email, firstname, surname, password, language, token],
+        [email, firstname, surname, hashedPassword, language, token],
       );
 
       console.log("User added successfully");
-      event.sender.send("loginUser-response", { success: true });
+      event.sender.send("createUser-response", { success: true });
       return { success: true };
     }
   } catch (err) {
@@ -641,7 +647,6 @@ const checkUsernameInDatabase = (email) => {
   return new Promise((resolve, reject) => {
     // Prepare the SQL query to check if the email and password match
     const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
-
     // Execute the SQL query
     db.get(checkUserQuery, [email], (err, row) => {
       if (err) {
@@ -650,12 +655,20 @@ const checkUsernameInDatabase = (email) => {
         reject(err);
         return;
       }
-
       // Resolve with the result of the query
       resolve(row.count === 1);
     });
   });
 };
+async function hashPassword(password) {
+  try {
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
+  } catch (error) {
+    log.info('Hashing password error:', error);
+  }
+}
 
 //loginUser
 ipcMain.handle("loginUser", async (event, args) => {
@@ -669,12 +682,16 @@ ipcMain.handle("loginUser", async (event, args) => {
     if (!email || !password) {
       throw new Error("Missing required user data for loginUser");
     }
+    const hashedPassword = await getUserHashedPassword(email);
+    // const cp = await comparePassword(password, hashedPassword);
+    // const userExists = await checkUserInDatabase(email, password);
+    log.info(hashedPassword);
+    // log.info(userExists);
 
-    const userExists = await checkUserInDatabase(email, password);
-
-    if (userExists) {
+    if (hashedPassword && await comparePassword(password, hashedPassword)) {
       // If the user exists and the password matches, send success response
       const user = await getUserDetails(email);
+      log.info(user);
 
       event.sender.send("loginUser-response", { success: true, user });
       return { success: true, user };
@@ -688,44 +705,65 @@ ipcMain.handle("loginUser", async (event, args) => {
     return { error: err.message };
   }
 });
-const checkUserInDatabase = (email, password) => {
+const getUserHashedPassword = (email) => {
   return new Promise((resolve, reject) => {
-    // Prepare the SQL query to check if the email and password match
-    const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ? AND password = ?`;
-
-    // Execute the SQL query
-    db.get(checkUserQuery, [email, password], (err, row) => {
+    // Query to get the user's hashed password based on email
+    const query = `SELECT password FROM users WHERE email = ?`;
+    db.get(query, [email], (err, row) => {
       if (err) {
-        // Reject with error if query execution fails
-        console.error("Error checking user in database:", err);
+        console.error("Error fetching user password from database:", err);
         reject(err);
-        return;
+      } else if (row) {
+        resolve(row.password); 
+      } else {
+        resolve(null);  // No user found
       }
-
-      // Resolve with the result of the query
-      resolve(row.count === 1);
     });
   });
 };
 const getUserDetails = (email) => {
   return new Promise((resolve, reject) => {
-    // Prepare the SQL query to fetch user details based on email
-    const getUserQuery = `SELECT * FROM users WHERE email = ?`;
-
-    // Execute the SQL query
-    db.get(getUserQuery, [email], (err, row) => {
+    const query = `SELECT user_id, email, firstname, lastname, lang, mobile, city, created, token FROM users WHERE email = ?`; 
+    db.get(query, [email], (err, row) => {
       if (err) {
-        // Reject with error if query execution fails
         console.error("Error fetching user details from database:", err);
         reject(err);
-        return;
+      } else if (row) {
+        resolve(row);
+      } else {
+        resolve(null); // No user found
       }
-
-      // Resolve with the user details
-      resolve(row);
     });
   });
 };
+
+const comparePassword = (password, hash) => {
+  try {
+    return bcrypt.compare(password, hash);
+  } catch (error) {
+    console.error('Comparison error:', error);
+    return false;
+  }
+}
+// const checkUserInDatabase = (email, password) => {
+//   return new Promise((resolve, reject) => {
+//     // Prepare the SQL query to check if the email and password match
+//     const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ? AND password = ?`;
+
+//     // Execute the SQL query
+//     db.get(checkUserQuery, [email, password], (err, row) => {
+//       if (err) {
+//         // Reject with error if query execution fails
+//         console.error("Error checking user in database:", err);
+//         reject(err);
+//         return;
+//       }
+
+//       // Resolve with the result of the query
+//       resolve(row.count === 1);
+//     });
+//   });
+// };
 
 //edit user data
 ipcMain.handle("editUser", async (event, args) => {
@@ -1821,9 +1859,9 @@ ipcMain.on("navigateBack", (event) => {
 //GDPR protection
 ipcMain.handle("gdprProtection", async (event) => {
   const updateQuery =
-    "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
+    // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
-  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-12 hour');";
+  "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-1 hour');";
 
   try {
     const result = await new Promise((resolve, reject) => {
@@ -1846,6 +1884,35 @@ ipcMain.handle("gdprProtection", async (event) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
+//GDPR protection teams_history
+ipcMain.handle("gdprProtection_teamshistory", async (event) => {
+  const updateQuery =
+    // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
+  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
+  "UPDATE teams_history SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-1 hour');";
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.run(updateQuery, function (error) {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else {
+          db.close();
+          resolve({ rowsAffected: this.changes });
+        }
+      });
+    });
+
+    return { statusCode: 1, result };
+  } catch (error) {
+    console.error("Error clearing GDPR data in teams_history:", error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
 
 // const database = new sqlite.Database(
 //   is.dev

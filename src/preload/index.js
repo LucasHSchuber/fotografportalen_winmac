@@ -62,6 +62,7 @@ const api = {
   getProjectsAndTeamsByUserId: (user_id) => ipcRenderer.invoke('getProjectsAndTeamsByUserId', user_id), // Pass user_id to get all projects and teams by user
 
   gdprProtection: () => ipcRenderer.invoke('gdprProtection'), // gdpr protection - protecting data
+  gdprProtection_teamshistory: () => ipcRenderer.invoke('gdprProtection_teamshistory'), // gdpr protection - protecting data in teams_history table
 
   createLoginWindow: (args) => ipcRenderer.invoke('createLoginWindow', args), // create login window
   createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window

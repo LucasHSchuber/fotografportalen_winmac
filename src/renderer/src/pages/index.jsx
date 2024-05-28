@@ -8,7 +8,8 @@ import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
 // import LoginModal from "../components/loginModal";
 
-import gdprProtectionMethod from "../assets/js/gdprProtection";
+// import gdprProtectionMethod from "../assets/js/gdprProtection";
+import { gdprProtectionMethod, gdprProtectionMethod_teamshistory } from '../assets/js/gdprProtection';
 
 import env from "../assets/js/env";
 
@@ -159,6 +160,22 @@ function Index() {
         }
       } catch (error) {
         console.error("Error clearing GDPR data:", error);
+      }
+
+      try {
+        const response = await gdprProtectionMethod_teamshistory();
+        console.log("GDPR response:", response);
+
+        if (response && response.statusCode === 1) {
+          console.log("GDPR data cleared successfully in teams_history");
+        } else {
+          console.error(
+            "Error clearing GDPR data in teams_history:",
+            response?.errorMessage || "Unknown error",
+          );
+        }
+      } catch (error) {
+        console.error("Error clearing GDPR data in teams_history:", error);
       }
     };
 

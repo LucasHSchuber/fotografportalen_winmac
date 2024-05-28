@@ -1,6 +1,7 @@
 //GDPR protection method
 
-const gdprProtectionMethod = async () => {
+//clear data in teams table
+export const gdprProtectionMethod = async () => {
   try {
     let response = await window.api.gdprProtection();
 
@@ -16,4 +17,19 @@ const gdprProtectionMethod = async () => {
   }
 };
 
-export default gdprProtectionMethod;
+//clear data in teams_history table
+export const gdprProtectionMethod_teamshistory = async () => {
+  try {
+    let response = await window.api.gdprProtection_teamshistory();
+
+    if (response) {
+      console.log('Clearing gdpr data for teams history:', response);
+      return response;
+    } else {
+      console.error('Empty response received for teams history');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error clearing gdpr data for teams history:', error.message);
+  }
+};
