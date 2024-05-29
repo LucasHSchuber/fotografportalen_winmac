@@ -142,7 +142,6 @@ function Currwork_teamleader() {
             <Sidemenu_teamleader />
             <SendProjectModal showSendProjectModal={showSendProjectModal} project_id={projectId} handleCloseProjectModal={handleCloseProjectModal} refreshProjects={refreshProjects} />
 
-
         </div>
     );
 }

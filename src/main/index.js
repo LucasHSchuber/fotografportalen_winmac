@@ -334,6 +334,7 @@ function createTables() {
       alert_sale BOOLEAN,
       is_deleted BOOLEAN DEFAULT 0,
       is_sent BOOLEAN DEFAULT 0,
+      files_uploaded BOOLEAN DEFAULT 0,
       sent_date TEXT,
       user_id INTEGER NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users(user_id)
@@ -796,6 +797,52 @@ ipcMain.handle("editUser", async (event, args) => {
     // Send error response to the frontend
     event.sender.send("editUser-response", { error: err.message });
     return { error: err.message };
+  }
+});
+
+//get all current projects by user_id
+ipcMain.handle("getAllProjects", async (event, user_id) => {
+  const retrieveQuery =
+    "SELECT * FROM projects WHERE user_id = ? AND files_uploaded = 0 AND is_deleted = 0";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
+
+  try {
+    const projects = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, [user_id], (error, rows) => {
+        if (error != null) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        }
+
+        const allProjects = rows.map((row) => ({
+          project_id: row.project_id,
+          project_uuid: row.project_uuid,
+          projectname: row.projectname,
+          type: row.type,
+          anomaly: row.anomaly,
+          merged_teams: row.merged_teams,
+          unit: row.unit,
+          alert_sale: row.alert_sale,
+          is_deleted: row.is_deleted,
+          is_sent: row.is_sent,
+          sent_date: row.sent_date,
+          user_id: row.user_id,
+          project_date: row.project_date,
+          created: row.created,
+        }));
+
+        db.close(() => {
+          resolve({ statusCode: 1, projects: allProjects });
+        });
+      });
+    });
+
+    return projects;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return { statusCode: 0, errorMessage: error.message };
   }
 });
 

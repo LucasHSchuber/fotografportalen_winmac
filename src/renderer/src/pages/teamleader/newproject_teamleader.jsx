@@ -10,7 +10,6 @@ import Select from 'react-select';
 import NewProjectModal from "../../components/teamleader/newprojectModal";
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
-
 import fetchProjectsByLang from '../../assets/js/fetchProjectsByLang';
 
 import '../../assets/css/teamleader/main_teamleader.css';
@@ -76,11 +75,6 @@ function Newproject_teamleader() {
         fetchData();
     }, []);
 
-
-    // const handleProjectChange = (value) => {
-    //     setProjectName(value);
-    //     console.log(projectName);
-    // };
 
     const handleProjectChange = (selectedOption) => {
         // setChosenProjectName(selectedOption.label);

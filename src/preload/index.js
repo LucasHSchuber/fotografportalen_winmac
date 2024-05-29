@@ -40,6 +40,7 @@ const api = {
   checkProjectExists: (project_uuid) => ipcRenderer.invoke('checkProjectExists', project_uuid), // Database Call For Checking if Project Exists
   createNewProject: args => ipcRenderer.invoke('createNewProject', args), // Database Call For Create new Project
   getLatestProject: (project_uuid) => ipcRenderer.invoke('getLatestProject', project_uuid), // Pass workname to getUser handler in main process
+  getAllProjects: (user_id) => ipcRenderer.invoke('getAllProjects', user_id), // Pass user_id to get all projects by user
   getAllCurrentProjects: (user_id) => ipcRenderer.invoke('getAllCurrentProjects', user_id), // Pass user_id to get all projects by user
   getAllPreviousProjects: (user_id) => ipcRenderer.invoke('getAllPreviousProjects', user_id), // Pass user_id to get all projects by user
   getAllPreviousProjectsBySearch: (user_id, searchString) => ipcRenderer.invoke('getAllPreviousProjectsBySearch', user_id, searchString), // Pass user_id and searchStringto get all projects by user and by search
