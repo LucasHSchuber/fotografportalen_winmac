@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProjectModal, refreshProjects, alertSale }) => {
+const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProjectModal, alertSale, project, teams }) => {
 
     //define states
     const [username, setUsername] = useState("")
@@ -89,6 +89,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                     handleCloseProjectModal();
                     setShowConfirmationModal(true); // Show confirmation modal
 
+                    localStorage.setItem("token", response.data.result.token);
+                    console.log(response.data.result.token);
                     return response.data;
                 } else {
                     console.error('Empty response received');
@@ -119,24 +121,68 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
         setShowConfirmationModal(false); // Close confirmation modal
     };
 
+
     //send job to database
     const sendJob = async () => {
+        const token = localStorage.getItem("token");
+        console.log("token", token);
         console.log(alertSale);
         alertSale === "true" ? 1 : 0;
 
-        try {
-            const sentProject = await window.api.sendProjectToDb(project_id, alertSale);
-            console.log('Sent:', sentProject);
-
-            setShowConfirmationModal(false);
-            sessionStorage.setItem("feedbackMessage_sentproject", "Job successfully sent");
-            navigate("/prevwork_teamleader");
-            refreshProjects();
-
-        } catch (error) {
-            console.error('Error sending project:', error);
-            console.log("Job could not be sent");
+        const data = {
+            project: {
+                "project_uuid": project.project_uuid,
+                "merged_teams": project.merged_teams,
+                "anomaly": project.anomaly,
+                "alert_sale": alertSale
+            },
+            teams: []
         }
+        teams.forEach(team => {
+            data.teams.push({
+                "teamname": team.teamname,
+                "sold_calendar": team.sold_calendar,
+                "leader_firstname": team.leader_firstname,
+                "leader_lastname": team.leader_lastname,
+                "leader_address": team.leader_address,
+                "leader_postalcode": team.leader_postalcode,
+                "leader_county": team.leader_county,
+                "leader_mobile": team.leader_mobile,
+                "leader_email": team.leader_email,
+                "leader_ssn": team.leader_ssn,
+                "amount": team.amount,
+                "calendar_amount": team.calendar_amount,
+                "portrait": team.portrait,
+                "crowd": team.crowd,
+                "protected_id": team.protected_id
+            });
+        });
+        console.log("data", data);
+
+        try {
+            const response = await axios.post("https://backend.expressbild.org/index.php/rest/teamleader/Upload", data, {
+                headers: {
+                    Authorization: `Token ${token}`
+                }
+            })         
+            console.log("Response:", response.data);
+
+            try {
+                const sentProject = await window.api.sendProjectToDb(project_id, alertSale);
+                console.log('Sent:', sentProject);
+
+                setShowConfirmationModal(false);
+                sessionStorage.setItem("feedbackMessage_sentproject", "Job successfully sent");
+                navigate("/prevwork_teamleader");
+            } catch (error) {
+                console.error('Error sending project:', error);
+                console.log("Job could not be sent");
+            }
+
+        }catch(error){
+            console.log("error when sending data to company database");
+            console.log("error:", error);
+        }   
     }
 
 

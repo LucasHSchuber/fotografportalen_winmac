@@ -19,7 +19,7 @@ const TeamsChart = ({ data, prevProjectsLength }) => {
     useEffect(() => {
         const getLastTenProjectsData = () => {
             // Step 1: Extract the last 10 unique project_ids
-            const uniqueProjectIds = [...new Set(data.map(item => item.project_id))].slice(-userInputChartOne);
+            const uniqueProjectIds = data && [...new Set(data.map(item => item.project_id))].slice(-userInputChartOne);
             // Step 2 and 3: Sum up the amount for each project_id
             const projectData = uniqueProjectIds.map(projectId => {
                 const projectItems = data.filter(item => item.project_id === projectId);

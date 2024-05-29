@@ -139,6 +139,7 @@ function Index() {
           usersData.user.firstname + " " + usersData.user.lastname,
         );
         localStorage.setItem("user_lang", usersData.user.lang);
+        localStorage.setItem("token", usersData.user.token);
       } catch (error) {
         console.error("Error fetching users data:", error);
       }

@@ -105,9 +105,8 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
                 </button>
             </div>
 
-
             <DeleteProjectModal showDeleteModal={showDeleteModal} handleClose={handleClose} projectName={project_name} />
-            <SendProjectModal showSendProjectModal={showSendProjectModal} handleCloseProjectModal={handleCloseProjectModal} project_id={projectId} alertSale={alertSale} />
+            <SendProjectModal showSendProjectModal={showSendProjectModal} handleCloseProjectModal={handleCloseProjectModal} project_id={projectId} alertSale={alertSale} project={project} teams={teams} />
             <ConfirmControlSheetModal showConfirmControlSheetModal={showConfirmControlSheetModal} handleCloseControlSheetModal={handleCloseControlSheetModal} projectType={project_type} project={project} teams={teams} sendJob={sendJob} />
 
         </div>

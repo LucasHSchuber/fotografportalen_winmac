@@ -100,6 +100,7 @@ function Login_window() {
           localStorage.setItem("user_id", responseData.user.user_id);
           localStorage.setItem("username", username);
           localStorage.setItem("password", password);
+          localStorage.setItem("token", responseData.user.token);
           // close login window and open mainWindow
           setIsLoadingConfirm(true);
           const timeout = setTimeout(() => {

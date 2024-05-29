@@ -551,6 +551,7 @@ ipcMain.handle("getUser", async (event, id) => {
             city: row.city,
             mobile: row.mobile,
             lang: row.lang,
+            token: row.token,
             created: row.created,
           });
         }
@@ -684,10 +685,8 @@ ipcMain.handle("loginUser", async (event, args) => {
       throw new Error("Missing required user data for loginUser");
     }
     const hashedPassword = await getUserHashedPassword(email);
-    // const cp = await comparePassword(password, hashedPassword);
-    // const userExists = await checkUserInDatabase(email, password);
     log.info(hashedPassword);
-    // log.info(userExists);
+
 
     if (hashedPassword && await comparePassword(password, hashedPassword)) {
       // If the user exists and the password matches, send success response

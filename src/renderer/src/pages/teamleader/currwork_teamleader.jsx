@@ -26,6 +26,7 @@ function Currwork_teamleader() {
     //get all projects after page mount
     useEffect(() => {
         let user_id = localStorage.getItem("user_id");
+        console.log(user_id);
         const getAllProjects = async (retryCount = 3) => {
             try {
                 const projects = await window.api.getAllCurrentProjects(user_id);
