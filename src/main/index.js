@@ -334,6 +334,7 @@ function createTables() {
       alert_sale BOOLEAN,
       is_deleted BOOLEAN DEFAULT 0,
       is_sent BOOLEAN DEFAULT 0,
+      is_sent_id INT,
       files_uploaded BOOLEAN DEFAULT 0,
       sent_date TEXT,
       user_id INTEGER NOT NULL,
@@ -1229,15 +1230,15 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
 });
 
 //send project to DB
-ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale) => {
+ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale, responseId) => {
   const updateQuery =
-    "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ? WHERE project_id = ?";
+    "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ?, is_sent_id = ? WHERE project_id = ?";
 
   try {
     const result = await new Promise((resolve, reject) => {
       const db = new sqlite3.Database(dbPath);
 
-      db.run(updateQuery, [alertSale, project_id], function (error) {
+      db.run(updateQuery, [alertSale, responseId, project_id], function (error) {
         if (error) {
           db.close();
           reject({ statusCode: 0, errorMessage: error });
@@ -1907,7 +1908,7 @@ ipcMain.handle("gdprProtection", async (event) => {
   const updateQuery =
     // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
-  "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-1 hour');";
+  "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
 
   try {
     const result = await new Promise((resolve, reject) => {
@@ -1935,7 +1936,7 @@ ipcMain.handle("gdprProtection_teamshistory", async (event) => {
   const updateQuery =
     // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
   // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
-  "UPDATE teams_history SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATETIME('now', '-1 hour');";
+  "UPDATE teams_history SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
 
   try {
     const result = await new Promise((resolve, reject) => {

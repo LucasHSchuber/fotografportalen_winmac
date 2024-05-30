@@ -141,7 +141,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
         teams.forEach(team => {
             data.teams.push({
                 "teamname": team.teamname,
-                "sold_calendar": team.sold_calendar,
+                "sold_calendar": team.sold_calendar === null ? 0 : team.sold_calendar,
                 "leader_firstname": team.leader_firstname,
                 "leader_lastname": team.leader_lastname,
                 "leader_address": team.leader_address,
@@ -151,7 +151,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                 "leader_email": team.leader_email,
                 "leader_ssn": team.leader_ssn,
                 "amount": team.amount,
-                "calendar_amount": team.calendar_amount,
+                "calendar_amount": team.calendar_amount === null ? 0 : team.calendar_amount,
                 "portrait": team.portrait,
                 "crowd": team.crowd,
                 "protected_id": team.protected_id
@@ -166,9 +166,11 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                 }
             })         
             console.log("Response:", response.data);
-
+            console.log(response.data.project_id);
+            const responseId = response.data.project_id;
+            
             try {
-                const sentProject = await window.api.sendProjectToDb(project_id, alertSale);
+                const sentProject = await window.api.sendProjectToDb(project_id, alertSale, responseId);
                 console.log('Sent:', sentProject);
 
                 setShowConfirmationModal(false);

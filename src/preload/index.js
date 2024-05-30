@@ -46,7 +46,7 @@ const api = {
   getAllPreviousProjectsBySearch: (user_id, searchString) => ipcRenderer.invoke('getAllPreviousProjectsBySearch', user_id, searchString), // Pass user_id and searchStringto get all projects by user and by search
   getProjectById: (project_id) => ipcRenderer.invoke('getProjectById', project_id), // Pass project_id to get projects by project_id
   deleteProject: (project_id) => ipcRenderer.invoke('deleteProject', project_id), // Pass project_id to delete projects by project_id
-  sendProjectToDb: (project_id, alertSale) => ipcRenderer.invoke('sendProjectToDb', project_id, alertSale), // Pass project_id to sned project to DB
+  sendProjectToDb: (project_id, alertSale, responseId) => ipcRenderer.invoke('sendProjectToDb', project_id, alertSale, responseId), // Pass project_id to sned project to DB
 
   createNewClass: args => ipcRenderer.invoke('createNewClass', args), // Database Call For Create new Class
 
