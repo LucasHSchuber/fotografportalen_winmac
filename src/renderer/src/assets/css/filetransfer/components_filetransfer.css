@@ -43,3 +43,24 @@
 
 
 
+/* LOADING BAR */
+.loadingbar-filetransfer{
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 10em;
+    height: 10em;
+    border-top-left-radius: 10px;
+    padding: 0.3em 1.3em ;
+    background-color: #eaeaead8 !important;
+    color: rgb(43, 43, 43);
+    /* box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); */
+    z-index: 5;
+    overflow-y: auto;
+}
+.tailspin{
+    color: rgb(114, 81, 81);
+    margin: 0.6em 0 0 2.2em;;
+  }
+  

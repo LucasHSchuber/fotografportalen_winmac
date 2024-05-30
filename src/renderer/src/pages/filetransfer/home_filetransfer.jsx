@@ -5,8 +5,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faRepeat } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
+import { TailSpin } from "react-loader-spinner";
 
 import Sidemenu_filetransfer from "../../components/filetransfer/sidemenu_filetransfer";
+import Loadingbar_teamleader from "../../components/filetransfer/loadingbar_filetransfer";
 
 import "../../assets/css/filetransfer/main_filetransfer.css";
 import "../../assets/css/filetransfer/buttons_filetransfer.css";
@@ -19,7 +21,13 @@ function Home_filetransfer() {
   const [projectName, setProjectName] = useState("");
   const [chosenProjectName, setChosenProjectName] = useState("");
   const [chosenProjectUuid, setChosenProjectUuid] = useState("");
+  const [chosenProjectLang, setChosenProjectLang] = useState("");
   const [projects, setProjects] = useState([]);
+
+  const [progress, setProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
+
 
   console.log("File:", files);
 
@@ -64,10 +72,16 @@ function Home_filetransfer() {
 
   const handleDrop = (event) => {
     event.preventDefault();
-    setFiles((prevFiles) => [
-      ...prevFiles,
-      ...Array.from(event.dataTransfer.files),
-    ]);
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    const zipFiles = droppedFiles.filter((file) => file.name.endsWith(".zip"));
+    if (zipFiles.length > 0) {
+      setFiles((prevFiles) => [
+        ...prevFiles,
+        ...Array.from(event.dataTransfer.files),
+      ]);
+    } else {
+      alert("The only valid file format is .zip-files");
+    }
   };
 
   const handleDragOver = (event) => {
@@ -87,6 +101,54 @@ function Home_filetransfer() {
       files: files,
     };
     console.log("data:", data);
+
+    // if (files.length > 0) {
+    //   console.log("zip check confirmation");
+    //   files.forEach((file) => {
+    //     console.log("file path", file.path);
+    //     const response = await window.api.uploadFile(file.path, chosenProjectLang);
+    //   });
+    // }
+    if (files.length > 0) {
+      setIsUploading(true);
+      setUploadProgress({ uploaded: 0, total: files.length });
+
+      console.log("zip check confirmation");
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const response = await window.api.uploadFile(
+            file.path,
+            chosenProjectLang,
+          );
+          console.log(response);
+          if (response.status === "success") {
+            setProgress(((i + 1) / files.length) * 100);
+            console.log(`File uploaded successfully: ${file.name}`);
+            setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
+
+            // setFiles("");
+            // setChooseNewProjectName("");
+            // setProjectName("");
+            // alert(`File uploaded successfully: ${file.name}`);
+          } else {
+            alert(
+              `Failed to upload file: ${file.name}. Error: ${response.message}`,
+            );
+            setIsUploading(false);
+            return;
+          }
+        } catch (error) {
+          alert(`Error during file upload: ${error.message}`);
+          setIsUploading(false);
+          return;
+        }
+      }
+      alert("All files uploaded successfully!");
+      setIsUploading(false);
+      // setFiles([]);
+    }
+
     // if (file) {
     //   const formData = new FormData();
     //   formData.append("file", file);
@@ -118,9 +180,11 @@ function Home_filetransfer() {
     if (selectedOption) {
       setChosenProjectName(selectedOption.label);
       setChosenProjectUuid(selectedOption.value);
+      setChosenProjectLang(selectedOption.lang);
       setProjectName(selectedOption);
       console.log(selectedOption);
       console.log(selectedOption.label);
+      console.log(selectedOption.lang);
     } else {
       setChosenProjectName("");
       setProjectName("");
@@ -142,15 +206,15 @@ function Home_filetransfer() {
   const customStyles = {
     control: (styles) => ({
       ...styles,
-      width: "30em",
+      width: "35em",
     }),
     menu: (base) => ({
       ...base,
-      width: "30em", // Set the width of the dropdown menu
+      width: "35em", // Set the width of the dropdown menu
     }),
     noOptionsMessage: (base) => ({
       ...base,
-      width: "30em", // Set the width of the no options message
+      width: "35em", // Set the width of the no options message
       textAlign: "center", // Optionally, center the message
     }),
   };
@@ -165,7 +229,7 @@ function Home_filetransfer() {
             </p>
           </div>
           <div className="loading-bar-container">
-            <div className="loading-bar"></div>
+            <div className="loading-bar-ft"></div>
           </div>
         </div>
       ) : (
@@ -177,14 +241,18 @@ function Home_filetransfer() {
             </div>
 
             <div className="d-flex mb-3">
-              <div style={{ display: chooseNewProjectName ? "none" : "block" }}>
+              <div style={{  display: chooseNewProjectName ? "none" : "block" }}>
                 <Select
                   value={projectName}
                   onChange={handleProjectChange}
-                  options={projects && projects.map((project) => ({
-                    value: project.project_uuid,
-                    label: project.projectname,
-                  }))}
+                  options={
+                    projects &&
+                    projects.map((project) => ({
+                      value: project.project_uuid,
+                      label: project.projectname,
+                      lang: project.lang,
+                    }))
+                  }
                   isClearable
                   placeholder="Choose project from list"
                   styles={customStyles}
@@ -193,7 +261,7 @@ function Home_filetransfer() {
               <input
                 style={{
                   display: chooseNewProjectName ? "block" : "none",
-                  width: "30em",
+                  width: "35em",
                   height: "2.38em",
                   borderRadius: "5px",
                   border: "1px solid #CACACA",
@@ -202,7 +270,15 @@ function Home_filetransfer() {
                 placeholder="Create your own project name for upload"
                 onChange={(e) => handleProjectChangeNew(e.target.value)}
               />
-              <button style={{ border: "none", backgroundColor: "inherit", cursor: "pointer" }} className="ml-2" onClick={newProjectName}>
+              <button
+                style={{
+                  border: "none",
+                  backgroundColor: "inherit",
+                  cursor: "pointer",
+                }}
+                className="ml-2"
+                onClick={newProjectName}
+              >
                 <FontAwesomeIcon icon={faRepeat} />
               </button>
             </div>
@@ -238,11 +314,13 @@ function Home_filetransfer() {
                 )}
               </div>
               <input
+                disabled={isUploading}
                 className="mt-3"
                 type="file"
                 onChange={handleFileChange}
                 multiple
                 placeholder="sdfsdf"
+                accept=".zip"
                 style={{ color: "white" }}
               />
               <div
@@ -279,6 +357,7 @@ function Home_filetransfer() {
               {files.length > 0 && chosenProjectName && (
                 <div className="mt-4">
                   <button
+                    disabled={isUploading}
                     className="button upload-ft px-5"
                     onClick={handleSubmit}
                   >
@@ -292,6 +371,10 @@ function Home_filetransfer() {
       )}
 
       <Sidemenu_filetransfer />
+      {isUploading && (
+      <Loadingbar_teamleader uploadProgress={uploadProgress} />
+      )}
+
     </div>
   );
 }

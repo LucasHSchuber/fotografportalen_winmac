@@ -12,19 +12,26 @@ const fse = require("fs-extra");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
 const shell = electron.shell;
-const os = require("os"); 
+const os = require("os");
 const BrowserWindow = electron.BrowserWindow;
 const isDev = require("electron-is-dev");
 const { autoUpdater, AppUpdater } = require("electron-updater");
 const { exec } = require("child_process");
-const https = require('https'); 
-const url = require('url'); 
-const bcrypt = require('bcrypt');
+const https = require("https");
+const url = require("url");
+const ftp = require("basic-ftp");
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-
-
 import express from "express";
+
+const ftpConfig = {
+  host: "ftp.expressbild.org",
+  Port: 21,
+  user: "FileTransfer2",
+  password: "J%sxdnNXT3YW",
+  secure: false,
+};
 
 // Override isPackaged property to simulate a packaged environment - DO NOT USE IN PRODUCTION MODE
 Object.defineProperty(app, "isPackaged", {
@@ -160,7 +167,11 @@ ipcMain.handle("applyUpdates", async (event, downloadUrl) => {
 });
 
 async function applyUpdate(downloadUrl) {
-  const localDmgPath = path.join(os.homedir(), 'Desktop', 'downloadedUpdate.dmg');
+  const localDmgPath = path.join(
+    os.homedir(),
+    "Desktop",
+    "downloadedUpdate.dmg",
+  );
 
   try {
     console.log(`Downloading DMG from: ${downloadUrl}`);
@@ -173,18 +184,26 @@ async function applyUpdate(downloadUrl) {
     }
 
     // Mount the DMG file
-    const mountPoint = path.join(os.homedir(), 'Desktop', 'Fotografportalen 1.0.2');
+    const mountPoint = path.join(
+      os.homedir(),
+      "Desktop",
+      "Fotografportalen 1.0.2",
+    );
     console.log(`Mounting DMG at: ${mountPoint}`);
-    await execPromise(`hdiutil attach "${localDmgPath}" -nobrowse -mountpoint "${mountPoint}"`);
+    await execPromise(
+      `hdiutil attach "${localDmgPath}" -nobrowse -mountpoint "${mountPoint}"`,
+    );
 
     console.log("DMG mounted");
-    
+
     // Open the mounted DMG location
     console.log("Opening mounted DMG location...");
     await execPromise(`open "${mountPoint}"`);
 
     // No need to unmount or delete the DMG in this case
-    console.log("DMG mounted successfully, please replace the application manually.");
+    console.log(
+      "DMG mounted successfully, please replace the application manually.",
+    );
     return true;
   } catch (error) {
     console.error("Failed to apply update:", error);
@@ -218,24 +237,29 @@ function downloadFile(fileUrl, dest) {
       }
 
       if (response.statusCode !== 200) {
-        reject(new Error(`Failed to download file: Status code ${response.statusCode}`));
+        reject(
+          new Error(
+            `Failed to download file: Status code ${response.statusCode}`,
+          ),
+        );
         return response.resume(); // Consume response data to free up memory
       }
 
       response.pipe(file);
-      file.on('finish', () => {
+      file.on("finish", () => {
         file.close(() => resolve(dest)); // close() is async, call resolve after close completes.
       });
     }
 
     const options = url.parse(fileUrl);
-    options.headers = { 'User-Agent': 'Mozilla/5.0' };
+    options.headers = { "User-Agent": "Mozilla/5.0" };
 
-    https.get(options, handleRedirect).on('error', err => {
+    https.get(options, handleRedirect).on("error", (err) => {
       fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
     });
 
-    file.on('error', err => { // Handle errors on file write.
+    file.on("error", (err) => {
+      // Handle errors on file write.
       fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
     });
   });
@@ -330,6 +354,7 @@ function createTables() {
       anomaly TEXT,
       merged_teams TEXT,
       unit BOOLEAN,
+      lang STRING,
       created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       alert_sale BOOLEAN,
       is_deleted BOOLEAN DEFAULT 0,
@@ -669,7 +694,7 @@ async function hashPassword(password) {
     const hash = await bcrypt.hash(password, salt);
     return hash;
   } catch (error) {
-    log.info('Hashing password error:', error);
+    log.info("Hashing password error:", error);
   }
 }
 
@@ -688,8 +713,7 @@ ipcMain.handle("loginUser", async (event, args) => {
     const hashedPassword = await getUserHashedPassword(email);
     log.info(hashedPassword);
 
-
-    if (hashedPassword && await comparePassword(password, hashedPassword)) {
+    if (hashedPassword && (await comparePassword(password, hashedPassword))) {
       // If the user exists and the password matches, send success response
       const user = await getUserDetails(email);
       log.info(user);
@@ -715,16 +739,16 @@ const getUserHashedPassword = (email) => {
         console.error("Error fetching user password from database:", err);
         reject(err);
       } else if (row) {
-        resolve(row.password); 
+        resolve(row.password);
       } else {
-        resolve(null);  // No user found
+        resolve(null); // No user found
       }
     });
   });
 };
 const getUserDetails = (email) => {
   return new Promise((resolve, reject) => {
-    const query = `SELECT user_id, email, firstname, lastname, lang, mobile, city, created, token FROM users WHERE email = ?`; 
+    const query = `SELECT user_id, email, firstname, lastname, lang, mobile, city, created, token FROM users WHERE email = ?`;
     db.get(query, [email], (err, row) => {
       if (err) {
         console.error("Error fetching user details from database:", err);
@@ -742,10 +766,10 @@ const comparePassword = (password, hash) => {
   try {
     return bcrypt.compare(password, hash);
   } catch (error) {
-    console.error('Comparison error:', error);
+    console.error("Comparison error:", error);
     return false;
   }
-}
+};
 // const checkUserInDatabase = (email, password) => {
 //   return new Promise((resolve, reject) => {
 //     // Prepare the SQL query to check if the email and password match
@@ -824,6 +848,7 @@ ipcMain.handle("getAllProjects", async (event, user_id) => {
           anomaly: row.anomaly,
           merged_teams: row.merged_teams,
           unit: row.unit,
+          lang: row.lang,
           alert_sale: row.alert_sale,
           is_deleted: row.is_deleted,
           is_sent: row.is_sent,
@@ -1118,6 +1143,7 @@ ipcMain.handle("createNewProject", async (event, args) => {
       project_uuid,
       photographername,
       project_date,
+      lang,
     } = args;
 
     if (
@@ -1126,15 +1152,16 @@ ipcMain.handle("createNewProject", async (event, args) => {
       !project_uuid ||
       !user_id ||
       !photographername ||
-      !project_date
+      !project_date ||
+      !lang
     ) {
       throw new Error("Missing required user data for createNewProject");
     }
 
     await db.run(
       `
-          INSERT INTO projects (projectname, photographername, type, project_date, user_id, project_uuid)
-          VALUES (?, ?, ?, ?, ?, ?)
+          INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
           `,
       [
         projectname.toLowerCase(),
@@ -1142,13 +1169,13 @@ ipcMain.handle("createNewProject", async (event, args) => {
         type.toLowerCase(),
         project_date,
         user_id,
+        lang,
         project_uuid,
       ],
     );
 
-    console.log("Project added successfully");
-    console.log("Fetching new project with UUID:", project_uuid);
-
+    log.info("Project added successfully");
+    log.info("Fetching new project with UUID:", project_uuid);
     // Send the newProject object as a response to the frontend
     event.sender.send("createNewProject-response", { success: true });
     return { success: true }; // Optionally, also return the newProject object
@@ -1230,56 +1257,38 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
 });
 
 //send project to DB
-ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale, responseId) => {
-  const updateQuery =
-    "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ?, is_sent_id = ? WHERE project_id = ?";
+ipcMain.handle(
+  "sendProjectToDb",
+  async (event, project_id, alertSale, responseId) => {
+    const updateQuery =
+      "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ?, is_sent_id = ? WHERE project_id = ?";
 
-  try {
-    const result = await new Promise((resolve, reject) => {
-      const db = new sqlite3.Database(dbPath);
+    try {
+      const result = await new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(dbPath);
 
-      db.run(updateQuery, [alertSale, responseId, project_id], function (error) {
-        if (error) {
-          db.close();
-          reject({ statusCode: 0, errorMessage: error });
-        } else {
-          db.close();
-          resolve({ rowsAffected: this.changes });
-        }
+        db.run(
+          updateQuery,
+          [alertSale, responseId, project_id],
+          function (error) {
+            if (error) {
+              db.close();
+              reject({ statusCode: 0, errorMessage: error });
+            } else {
+              db.close();
+              resolve({ rowsAffected: this.changes });
+            }
+          },
+        );
       });
-    });
 
-    return { statusCode: 1, result };
-  } catch (error) {
-    console.error("Error sending project to db:", error);
-    return { statusCode: 0, errorMessage: error.message };
-  }
-});
-
-// ipcMain.handle("sendProjectToDb", async (event, project_id) => {
-//   const updateQuery = "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP WHERE project_id = ?";
-
-//   try {
-//       const result = await new Promise((resolve, reject) => {
-//           const db = new sqlite3.Database(dbPath);
-
-//           db.run(updateQuery, [project_id], function(error) {
-//               if (error) {
-//                   db.close();
-//                   reject({ statusCode: 0, errorMessage: error });
-//               } else {
-//                   db.close();
-//                   resolve({ rowsAffected: this.changes });
-//               }
-//           });
-//       });
-
-//       return { statusCode: 1, result };
-//   } catch (error) {
-//       console.error('Error sending project to db:', error);
-//       return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
+      return { statusCode: 1, result };
+    } catch (error) {
+      console.error("Error sending project to db:", error);
+      return { statusCode: 0, errorMessage: error.message };
+    }
+  },
+);
 
 //create new team
 ipcMain.handle("createNewTeam", async (event, args) => {
@@ -1579,52 +1588,6 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
   }
 });
 
-// //edit team data
-// ipcMain.handle("editTeam", async (event, args) => {
-//   try {
-//       if (!args || typeof args !== 'object') {
-//           throw new Error('Invalid arguments received for editTeam');
-//       }
-
-//       const { amount, protected_id, portrait, crowd, teamname, team_id, sold_calendar } = args;
-
-//       if (!amount || !teamname || !team_id) {
-//           throw new Error('Missing required data for editTeam (amount, teamname, team_id)');
-//       }
-
-//       const result = await db.run(`
-//         UPDATE teams
-//         SET amount = ?,
-//         teamname = ?,
-//         protected_id = ?,
-//         portrait = ?,
-//         sold_calendar = ?,
-//         crowd = ?
-//         WHERE team_id = ?
-//         `, [
-//           amount,
-//           teamname,
-//           protected_id,
-//           portrait,
-//           sold_calendar,
-//           crowd,
-//           team_id
-//       ]);
-
-//       console.log(`Team data edited successfully`);
-
-//       // Send success response to the frontend
-//       event.sender.send('editTeam-response', { success: true });
-//       return { success: true };
-
-//   } catch (err) {
-//       console.error('Error editing data:', err.message);
-//       // Send error response to the frontend
-//       event.sender.send('editTeam-response', { error: err.message });
-//       return { error: err.message };
-//   }
-// });
-
 //edit team data
 ipcMain.handle("editTeam", async (event, args) => {
   try {
@@ -1907,8 +1870,8 @@ ipcMain.on("navigateBack", (event) => {
 ipcMain.handle("gdprProtection", async (event) => {
   const updateQuery =
     // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
-  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
-  "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
+    // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
+    "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
 
   try {
     const result = await new Promise((resolve, reject) => {
@@ -1935,8 +1898,8 @@ ipcMain.handle("gdprProtection", async (event) => {
 ipcMain.handle("gdprProtection_teamshistory", async (event) => {
   const updateQuery =
     // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
-  // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
-  "UPDATE teams_history SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
+    // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
+    "UPDATE teams_history SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
 
   try {
     const result = await new Promise((resolve, reject) => {
@@ -1959,186 +1922,6 @@ ipcMain.handle("gdprProtection_teamshistory", async (event) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-
-
-// const database = new sqlite.Database(
-//   is.dev
-//     ? path.join(path.join(app.getAppPath(), "resources/database.db"))
-//     : path.join(__dirname, "../../resources/database.db").replace("app.asar", "app.asar.unpacked"),
-//   (err) => {
-//     if (err) log.log("Database Error" + app.getAppPath());
-//     else log.log("Database Loaded");
-//   }
-// );
-
-// //get all users
-// ipcMain.handle("getUser", async () => {
-//   const user = [];
-
-//   const retrieveQuery = "SELECT * FROM users";
-
-//   return new Promise((resolve, reject) => {
-//     const db = new sqlite3.Database(dbPath);
-
-//     db.each(retrieveQuery, (error, row) => {
-//       if (error != null) {
-//         db.close();
-//         reject({ statusCode: 0, errorMessage: error });
-//       }
-
-//       user.push({
-//         id: row.id,
-//         name: row.name,
-//         workname: row.workname,
-//         county: row.county,
-//         date: row.date,
-//       });
-//     });
-
-//     db.close(() => {
-//       resolve({ statusCode: 1, users: user });
-//     });
-//   });
-// });
-
-// //create new user
-// ipcMain.handle("createUser", async (event, args) => {
-//   try {
-//       if (!args || typeof args !== 'object') {
-//           throw new Error('Invalid arguments received for createUser');
-//       }
-
-//       const { name, workname, county, anomaly } = args;
-
-//       if (!name || !workname || !county) {
-//           throw new Error('Missing required user data for createUser');
-//       }
-//       const anomalyValue = anomaly || ''; // Set anomalyValue to empty string if anomaly is empty
-//       await db.run(`
-//           INSERT INTO users (name, workname, county, anomaly)
-//           VALUES (?, ?, ?, ?)
-//           `, [name.toLowerCase(), workname.toLowerCase(), county.toLowerCase(), anomalyValue.toLowerCase()]);
-
-//       console.log('User data added successfully');
-//       event.sender.send('add-user-response', { success: true });
-
-//   } catch (err) {
-//       console.error('Error adding user data:', err.message);
-//       event.sender.send('add-user-response', { error: err.message });
-//   }
-// });
-
-// //create new / add new file/data to local computer
-// ipcMain.handle("createUserToComp", async (event, args) => {
-//   const desktopPath = path.join(os.homedir(), 'Desktop'); // Get the desktop path
-//   const dataFolderPath = path.join(desktopPath, 'data'); // Create a folder path named "data"
-//   const filePath = path.join(dataFolderPath, 'userData.json'); // Specify the filename
-
-//   const { name, workname, county, anomaly } = args;
-
-//   if (!name || !workname || !county) {
-//     throw new Error('Missing required user input to write to file');
-// }
-
-//   // Check if the file exists
-//   fs.access(filePath, fs.constants.F_OK, async (err) => {
-//     if (err) {
-//       // File doesn't exist, create a new file and write the data
-//       const data = JSON.stringify(args, null, 2); // Convert args to JSON string
-//       await fs.promises.mkdir(dataFolderPath, { recursive: true }); // Create the data folder if it doesn't exist
-//       await fs.promises.writeFile(filePath, data + '\n');
-//       console.log('New file created and data written successfully');
-//       event.sender.send('createUserToComp-response', { success: true }); // Send success response
-//     } else {
-//       // File exists, append the data
-//       const existingData = await fs.promises.readFile(filePath, 'utf8'); // Read existing data from file
-//       const newData = existingData + '\n' + JSON.stringify(args, null, 2); // Append new data
-//       await fs.promises.writeFile(filePath, newData); // Write the updated data back to the file
-//       console.log('Data appended to existing file');
-//       event.sender.send('createUserToComp-response', { success: true }); // Send success response
-//     }
-//   });
-// });
-
-// //create new group
-// ipcMain.handle("createGroup", async (event, args) => {
-//   try {
-//       if (!args || typeof args !== 'object') {
-//           throw new Error('Invalid arguments received for createGroup');
-//       }
-
-//       const { orgname, amount, portrait, unit, user_id } = args;
-
-//       if (!orgname || !amount || user_id === undefined || user_id === null) {
-//         throw new Error('Missing required data for createGroup');
-//     }
-
-//       // Assuming you have a 'users' table with 'id' column
-//       const userExists = await db.get("SELECT id FROM users WHERE id = ?", user_id);
-//       if (!userExists) {
-//           throw new Error('Invalid user ID');
-//       }
-
-//       await db.run(`
-//           INSERT INTO org (orgname, amount, portrait, unit, user_id)
-//           VALUES (?, ?, ?, ?, ?)
-//       `, [orgname.toLowerCase(), amount.toLowerCase(), portrait, unit, user_id]);
-
-//       console.log('Group data added successfully');
-//       event.sender.send('add-group-response', { success: true });
-
-//   } catch (err) {
-//       console.error('Error adding user data:', err.message);
-//       event.sender.send('add-group-response', { error: err.message });
-//   }
-// });
-
-// //crate login window
-// ipcMain.handle("createLoginWindow", async (event, args) => {
-//   try {
-//       const loginWindow = new BrowserWindow({
-//           // parent: mainWindow, // Set the parent window if needed
-//           // modal: true, // Example: Open as a modal window
-//           width: 400,
-//           height: 500,
-//           resizable: false,
-//           // frame: false,
-//           // show: false,
-//           autoHideMenuBar: true,
-//           // ...(process.platform === 'linux' ? { icon } : {}),
-//           icon: iconPath,
-//           // icon: path.join(__dirname, '../../resources/icon2.png'),
-//           webPreferences: {
-//             preload : path.join(__dirname, '../preload/index.js') ,
-//             sandbox: false,
-//             contextIsolation: true,
-//             nodeIntegration: true,
-//             webSecurity: false,
-//             worldSafeExecuteJavaScript: true,
-//           }
-//       });
-
-//       // Open DevTools for the new window
-//       if (isDev) {
-//         loginWindow.webContents.openDevTools({ mode: 'detach' });
-//        }
-
-//       // Load the URL for the new window if needed
-//       loginWindow.loadURL(
-//         isDev
-//             ? "http://localhost:5173/#/login_window"
-//             : `file://${path.join(__dirname, "../build/index.html#/login_window")}`
-//      );
-
-//       // Optionally return some data back to the renderer process
-//       return { success: true, message: 'Login window created successfully' };
-//   } catch (error) {
-//       // Handle any errors that occur while creating the new window
-//       console.error('Error creating login window:', error);
-//       throw new Error('Failed to create login window');
-//   }
-
-// });
 
 //crate main window & close login window
 ipcMain.handle("createMainWindow", async (event, args) => {
@@ -2194,6 +1977,61 @@ ipcMain.handle("createMainWindow", async (event, args) => {
     throw new Error("Failed to create main window");
   }
 });
+
+  //upload file in filetransfer
+  ipcMain.handle("uploadFile", async (event, filePath, lang) => {
+    log.info("initiating file upload");
+
+    let country = "";
+    if (lang === "SE") {
+      country = "Sweden";
+    } else if (lang === "NO") {
+      country = "Norway";
+    } else if (lang === "FI") {
+      country = "Finland";
+    } else if (lang === "DE") {
+      country = "Germany";
+    } else if (lang === "DK") {
+      country = "Denmark";
+    }
+
+    try {
+      log.info("starting file upload");
+      const result = await uploadFileToFTP(filePath, ftpConfig, country);
+      log.info(result);
+      return { status: "success", message: result };
+    } catch (error) {
+      log.info("error file upload");
+      log.info(error.message);
+      return { status: "failure", message: error.message };
+    }
+  });
+  //uploadfiletoFTP method
+  async function uploadFileToFTP(filePath, ftpConfig, country) {
+    const client = new ftp.Client();
+    client.ftp.verbose = true;
+    try {
+      await client.access(ftpConfig);
+      log.info(`Uploading ${filePath} to FTP server...`);
+      log.info(`Connected to FTP server: ${ftpConfig.host}`);
+
+      const remoteDirectory = `FileTransfer/${country}/`;
+      log.info("remote directory:", remoteDirectory);
+
+      const remotePath = path.posix.join(remoteDirectory, path.basename(filePath));
+      log.info(`Uploading ${filePath} to FTP server as ${remotePath}...`);
+
+      await client.uploadFrom(filePath, remotePath);
+      log.info("Upload successful!");
+      return "Upload successful!";
+    } catch (err) {
+      log.info("Error uploading file:", err);
+      throw new Error(`Error uploading file: ${err.message}`);
+    } finally {
+      client.close();
+    }
+  }
+
 
 // //crate login window & close login window
 // ipcMain.handle("createNewuserWindow", async (event) => {
@@ -2580,32 +2418,6 @@ ipcMain.handle("createMainWindow", async (event, args) => {
   VALUES ('Remember','R'),('Understand','U'),('Apply','A'),('Analyze','N'),('Evaluate','E'),('Create','C')
   
  */
-//get Taxonomy
-// ipcMain.handle("getTaxonomy", () => {
-//   const getTaxonomyQuery = `SELECT * FROM taxonomy`;
-//   const taxonomy = [];
-//   const count = "SELECT count(*) FROM taxonomy";
-
-//   return new Promise((resolve, reject) => {
-//     database.get(count, (error, row) => {
-//       if (error) reject({ statusCode: 0, errorMessage: error });
-
-//       if (row["count(*)"] === 0)
-//         reject({ statusCode: 0, errorMessage: "No Rows" });
-//     });
-
-//     database.each(getTaxonomyQuery, (error, row) => {
-//       if (error) reject({ statusCode: 0, errorMessage: error });
-
-//       taxonomy.push({
-//         taxonomy_id: row.taxonomy_id,
-//         taxonomy_name: row.taxonomy_name,
-//         taxonomy_letter: row.taxonomy_letter,
-//       });
-//       resolve({ statusCode: 1, taxonomy: taxonomy });
-//     });
-//   });
-// });
 
 // ipcMain.handle("openNewCourse", () => {
 //   CourseWindow = new BrowserWindow({

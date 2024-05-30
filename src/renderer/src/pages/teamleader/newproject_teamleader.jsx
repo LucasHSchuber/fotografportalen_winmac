@@ -20,6 +20,7 @@ function Newproject_teamleader() {
     const [_projects, set_Projects] = useState([]);
     const [projectName, setProjectName] = useState('');
     const [chosenProjectName, setChosenProjectName] = useState('');
+    const [projectLang, setProjectLang] = useState('');
     const [type, setType] = useState('');
     const [projectDate, setProjectDate] = useState('');
     const [project_uuid, setProject_uuid] = useState('');
@@ -40,7 +41,6 @@ function Newproject_teamleader() {
 
 
 
-
     //fetch all projects from big(express-bild) database - if not working, fetch from  sqlite table 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,7 +56,7 @@ function Newproject_teamleader() {
                 console.error('Error fetching projects by language from big database:', error);
 
                 const response = await window.api.get_Projects(user_lang);
-                console.log('Create Projects Response:', response);
+                console.log('Projects from SQLite:', response);
 
                 if (response.statusCode === 1) {
                     if (response.projects.length > 0) {
@@ -82,8 +82,10 @@ function Newproject_teamleader() {
         if (selectedOption) {
             setChosenProjectName(selectedOption.label);
             setProjectName(selectedOption);
+            setProjectLang(selectedOption.lang);
             console.log(selectedOption);
             console.log(selectedOption.label);
+            console.log('Selected project language:', selectedOption.lang);
         } else {
             setChosenProjectName('');
             setProjectName('');
@@ -159,7 +161,8 @@ function Newproject_teamleader() {
                     project_uuid: project_uuid,
                     photographername: photographername,
                     project_date: projectDate,
-                    user_id: user_id
+                    user_id: user_id,
+                    lang: projectLang
                 };
                 const response = await window.api.createNewProject(args);
                 console.log('Create New Projects Response:', response);
@@ -258,7 +261,7 @@ function Newproject_teamleader() {
                     <Select
                         value={projectName}
                         onChange={handleProjectChange}
-                        options={_projects.map(project => ({ value: project.project_uuid, label: project.projectname }))}
+                        options={_projects.map(project => ({ value: project.project_uuid, label: project.projectname, lang: project.lang }))}
                         isClearable
                         placeholder="Search projects..."
                         styles={customStyles}

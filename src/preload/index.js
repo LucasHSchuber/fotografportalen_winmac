@@ -14,7 +14,6 @@ const api = {
   getPlatform: () => os.platform(),
   homeDir: () => os.homedir(),
   shell: () => shell.shell(),
-  // app: () => app,
   app: () => app.getVersion(),
   quit: () => ipcRenderer.invoke("quit"),
   applyUpdates: (downloadUrl) => ipcRenderer.invoke("applyUpdates", downloadUrl),
@@ -22,7 +21,6 @@ const api = {
   getCurrentAppVersion: () => ipcRenderer.invoke('getCurrentAppVersion'), 
   // downloadLatestVersion: (args) => ipcRenderer.invoke('downloadLatestVersion', args), 
   installLatestVersion: (args) => ipcRenderer.invoke('installLatestVersion', args), 
-
 
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
   maximize: () => ipcRenderer.invoke('maximize'), // Maximize The Window
@@ -69,8 +67,11 @@ const api = {
   createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window
   createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // create main window
 
-
   lookForUpdates: () => ipcRenderer.invoke('lookForUpdates'), 
+
+
+  // FILETRANSFER
+  uploadFile: (filePath, lang) => ipcRenderer.invoke('uploadFile', filePath, lang)
 
 
 
