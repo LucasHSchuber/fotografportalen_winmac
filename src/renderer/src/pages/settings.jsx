@@ -258,7 +258,7 @@ function Settings() {
               <div style={{ width: "20em" }}>
                 <select
                   className="form-input-field-fp"
-                  value={user && lang}
+                  defaultValue={user && lang}
                   onChange={(e) => setNewLang(e.target.value)}
                 >
                   <option value="DK" selected={user.lang === "DK"}>

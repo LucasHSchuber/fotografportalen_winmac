@@ -54,6 +54,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
 
     const logIn = async () => {
+        let user_id = localStorage.getItem("user_id");
+        console.log(user_id);
         if (password === "" && username === "") {
             console.log("Enter username and password");
             setPasswordMessage("Enter password");
@@ -89,6 +91,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                     handleCloseProjectModal();
                     setShowConfirmationModal(true); // Show confirmation modal
 
+                    const tokenResponse = await window.api.updateUserToken(response.data.result.token, user_id);
+                    console.log(tokenResponse);
                     localStorage.setItem("token", response.data.result.token);
                     console.log(response.data.result.token);
                     return response.data;

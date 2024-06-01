@@ -20,6 +20,7 @@ import Calendarsale_teamleader from "./pages/teamleader/calendarsale_teamleader"
 import Yescalendarsale_teamleader from "./pages/teamleader/yescalendarsale_teamleader";
 
 import Home_filetransfer from "./pages/filetransfer/home_filetransfer";
+import History_filetransfer from "./pages/filetransfer/history_filetransfer";
 
 //importing css styles
 import "./App.css";
@@ -129,6 +130,10 @@ function App() {
 
             <div className="route-layout">
               <Routes> <Route path="/home_filetransfer" element={<Home_filetransfer />} /></Routes>
+            </div>
+
+            <div className="route-layout">
+              <Routes> <Route path="/history_filetransfer" element={<History_filetransfer />} /></Routes>
             </div>
 
           </div>

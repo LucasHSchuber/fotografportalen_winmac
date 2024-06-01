@@ -260,6 +260,38 @@
     width: 2em;
 }
 
+.sport-type-button {
+    padding: 1.2em 1.5em 0.5em 1.5em;
+    margin: 0.5em 0.2em 0.5em 0;
+    background-color: rgb(54, 54, 54);
+    border: 1px solid rgb(189, 189, 189, 0);
+    border-radius: 1px;
+    transition: 0.2s;
+    /* border: none; */
+    cursor: pointer;
+    color: white;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.sport-type-button:hover {
+    border: 1px solid rgb(189, 189, 189, 0);
+    background-color: #000000;
+    /* border-radius: 7px; */
+    color: white;
+}
+
+.selected-sporttype {
+    border: 1px solid rgb(189, 189, 189);
+    background-color: #00b3ff !important;
+    color: white;
+    border-radius: 12px;
+}
+
+.sporttype-img {
+    width: 1.3em;
+}
+
 
 
 

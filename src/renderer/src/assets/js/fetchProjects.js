@@ -27,7 +27,4 @@ const fetchProjects = async () => {
     return null;
   }
 };
-
-
-
 export default fetchProjects;

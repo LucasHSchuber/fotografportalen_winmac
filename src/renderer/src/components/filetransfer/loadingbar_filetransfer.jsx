@@ -11,20 +11,12 @@ const Loadingbar_teamleader = ({ uploadProgress }) => {
   return (
     <div className="loadingbar-filetransfer">
       <div className="mt-3">
-        <b>{uploadProgress && uploadProgress.uploaded}/{uploadProgress && uploadProgress.total} files uploaded</b>
+        Files uploaded: <br></br><b>{uploadProgress && uploadProgress.uploaded}/{uploadProgress && uploadProgress.total}</b>
       </div>
       <div className="tailspin">
-        {/* <TailSpin
-          height="30"
-          width="30"
-          color="red"
-          ariaLabel="tail-spin-loading"
-          radius="1"
-          visible={true}
-        /> */}
         <Bars
-          height="50"
-          width="50"
+          height="30"
+          width="40"
           color="red"
           ariaLabel="bars-loading"
           visible={true}

@@ -8,6 +8,7 @@ import academic from "../../assets/images/academic.png";
 import Select from 'react-select';
 
 import NewProjectModal from "../../components/teamleader/newprojectModal";
+import ChooseSportTypeModal from "../../components/teamleader/choosesporttypeModal";
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 
 import fetchProjectsByLang from '../../assets/js/fetchProjectsByLang';
@@ -22,10 +23,12 @@ function Newproject_teamleader() {
     const [chosenProjectName, setChosenProjectName] = useState('');
     const [projectLang, setProjectLang] = useState('');
     const [type, setType] = useState('');
+    const [sportType, setSportType] = useState('');
     const [projectDate, setProjectDate] = useState('');
     const [project_uuid, setProject_uuid] = useState('');
 
     const [showNewProjectModal, setShowNewProjectModal] = useState(false);
+    const [showChooseSportTypeModal, setShowChooseSportTypeModal] = useState(false);
 
     const [isSelectedType1, setIsSelectedType1] = useState(false);
     const [isSelectedType2, setIsSelectedType2] = useState(false);
@@ -38,7 +41,8 @@ function Newproject_teamleader() {
     const navigate = useNavigate();
 
     const handleClose = () => { setShowNewProjectModal(false) };
-
+    const handleCloseChooseSportTypeModal = () => { setShowChooseSportTypeModal(false) };
+    
 
 
     //fetch all projects from big(express-bild) database - if not working, fetch from  sqlite table 
@@ -76,6 +80,19 @@ function Newproject_teamleader() {
     }, []);
 
 
+    const handleProjectType = (projectType) => {
+        setType(projectType);
+        if (projectType === "Sport") {
+            setIsSelectedType1(true);
+            setIsSelectedType2(false);
+        } else {
+            setIsSelectedType1(false);
+            setIsSelectedType2(true);
+        }
+        console.log(projectType);
+    };
+
+    
     const handleProjectChange = (selectedOption) => {
         // setChosenProjectName(selectedOption.label);
         // setProjectName(selectedOption);
@@ -126,22 +143,32 @@ function Newproject_teamleader() {
         console.log('Selected type:', type);
         console.log('Selected project uuid:', _uuid);
 
-        setShowNewProjectModal(true);
+        if (type === "School"){
+            setShowNewProjectModal(true);
+        }else if (type === "Sport"){
+            setShowChooseSportTypeModal(true);
+        }
     };
 
+    const confirmChooseSportType = (sport_type) => {
+        console.log("sport type:", sport_type);
+        setSportType(sport_type);
+        CreateNewProject(sport_type);
+    }
 
-
-    const CreateNewProject = async () => {
+    const CreateNewProject = async (sport_type) => {
         console.log("creating a new project....");
-        console.log(project_uuid);
+        console.log("project_uuid:", project_uuid);
+        let user_id = localStorage.getItem("user_id");
 
         try {
             if (!chosenProjectName || !type || !project_uuid) {
                 throw new Error('Project name, type, and project_uuid are required.');
             }
 
-            const response = await window.api.checkProjectExists(project_uuid);
+            const response = await window.api.checkProjectExists(project_uuid, user_id);
             console.log('Project already exists - response:', response);
+
 
             if (response && response.statusCode === 1) {
                 console.log('Project exists:', response.projectname);
@@ -150,28 +177,32 @@ function Newproject_teamleader() {
             } else {
                 console.log('Project does not exist.');
 
+                
+                console.log('sport_type:', sport_type);
+                console.log('TYPE:', type);
+                console.log('SPORT TYPE:', sportType);
+                
                 let user_id = localStorage.getItem("user_id");
                 let photographername = localStorage.getItem("user_name");
-
                 console.log(user_id);
                 console.log(photographername);
                 const args = {
                     projectname: chosenProjectName,
-                    type: type,
+                    type: sport_type ? sport_type : type,
                     project_uuid: project_uuid,
                     photographername: photographername,
                     project_date: projectDate,
                     user_id: user_id,
                     lang: projectLang
                 };
+                console.log(args);
                 const response = await window.api.createNewProject(args);
                 console.log('Create New Projects Response:', response);
 
                 if (response.success) {
                     console.log('Project created successfully');
-
                     //get latest tuppel in projects-table
-                    const latestProjectResponse = await window.api.getLatestProject(project_uuid);
+                    const latestProjectResponse = await window.api.getLatestProject(user_id, project_uuid);
                     console.log('Check Latest Project Response:', latestProjectResponse);
 
                     if (!latestProjectResponse.project_id) {
@@ -201,19 +232,6 @@ function Newproject_teamleader() {
             return false;
         }
     }
-
-
-    const handleProjectType = (projectType) => {
-        setType(projectType);
-        if (projectType === "Sport") {
-            setIsSelectedType1(true);
-            setIsSelectedType2(false);
-        } else {
-            setIsSelectedType1(false);
-            setIsSelectedType2(true);
-        }
-        console.log(projectType);
-    };
 
 
     // Custom styles for the Select component
@@ -290,6 +308,7 @@ function Newproject_teamleader() {
 
             <Sidemenu_teamleader />
             <NewProjectModal projectName={chosenProjectName} projectType={type} showNewProjectModal={showNewProjectModal} handleClose={handleClose} CreateNewProject={CreateNewProject} />
+            <ChooseSportTypeModal projectName={chosenProjectName} projectType={type} showChooseSportTypeModal={showChooseSportTypeModal} handleCloseChooseSportTypeModal={handleCloseChooseSportTypeModal} confirmChooseSportType={confirmChooseSportType} />
         </div>
     );
 }

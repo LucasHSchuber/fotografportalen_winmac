@@ -127,9 +127,9 @@ function Home_filetransfer() {
             console.log(`File uploaded successfully: ${file.name}`);
             setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
 
-            // setFiles("");
-            // setChooseNewProjectName("");
-            // setProjectName("");
+            setChooseNewProjectName("");
+            setProjectName("");
+            setFiles([]);
             // alert(`File uploaded successfully: ${file.name}`);
           } else {
             alert(
@@ -146,7 +146,9 @@ function Home_filetransfer() {
       }
       alert("All files uploaded successfully!");
       setIsUploading(false);
-      // setFiles([]);
+      setChooseNewProjectName("");
+      setProjectName("");
+      setFiles([]);
     }
 
     // if (file) {

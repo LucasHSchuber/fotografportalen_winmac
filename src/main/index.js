@@ -499,6 +499,30 @@ function insertDataToTables() {
   );
 }
 
+//Get user token
+ipcMain.handle("updateUserToken", async (event, token, user_id) => {
+  try {
+    if (!user_id || !token ) {
+      throw new Error("Missing required data (token, user_id) for updateUserToken");
+    }
+
+    const result = await db.run(
+      `
+      UPDATE users
+      SET 
+        token = ? WHERE user_id = ?
+      `,
+      [token, user_id],
+    );
+
+    log.info(`Token updated successfully`);
+    return { success: true };
+  } catch (err) {
+    log.error("Error updating token:", err.message);
+    return { error: err.message };
+  }
+});
+
 // Function To Minimize Window
 ipcMain.handle("minimize", () => {
   mainWindow.minimize();
@@ -1095,15 +1119,15 @@ ipcMain.handle("get_Projects", async (event, user_lang) => {
 });
 
 //get spcific project and see if it exists
-ipcMain.handle("checkProjectExists", async (event, project_uuid) => {
+ipcMain.handle("checkProjectExists", async (event, project_uuid, user_id) => {
   const retrieveQuery =
-    "SELECT * FROM projects WHERE project_uuid = ? AND is_deleted = 0";
+    "SELECT * FROM projects WHERE project_uuid = ? AND user_id = ? AND is_deleted = 0";
 
   try {
     const project = await new Promise((resolve, reject) => {
       const db = new sqlite3.Database(dbPath);
 
-      db.get(retrieveQuery, [project_uuid], (error, row) => {
+      db.get(retrieveQuery, [project_uuid, user_id], (error, row) => {
         if (error) {
           db.close();
           reject({ statusCode: 0, errorMessage: error.message });
@@ -1187,14 +1211,14 @@ ipcMain.handle("createNewProject", async (event, args) => {
 });
 
 //get latest project
-ipcMain.handle("getLatestProject", async (event, project_uuid) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE project_uuid = ?";
+ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
+  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND project_uuid = ?";
 
   try {
     const project = await new Promise((resolve, reject) => {
       const db = new sqlite3.Database(dbPath);
 
-      db.get(retrieveQuery, [project_uuid], (error, row) => {
+      db.get(retrieveQuery, [user_id, project_uuid], (error, row) => {
         if (error) {
           db.close();
           reject({ statusCode: 0, errorMessage: error });

@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import fp from "../../assets/images/diaphragm.png";
 import house from "../../assets/images/house.png";
-import flash from "../../assets/images/flash.png";
-import more from "../../assets/images/more.png";
-import plus from "../../assets/images/plus.png";
-import suitcase from "../../assets/images/suitcase.png";
-
+import uploadedfile from "../../assets/images/uploadedfile.png";
 
 import '../../assets/css/filetransfer/components_filetransfer.css'
 
@@ -45,6 +41,12 @@ const Sidemenu_teamleader = () => {
                     <NavLink exact="true" to="/home_filetransfer">
                         <img className="link-img" src={house} alt="house img" />
                         <p>Home</p>
+                    </NavLink>
+                </div>
+                <div className="link-box">
+                    <NavLink exact="true" to="/history_filetransfer">
+                        <img className="link-img" src={uploadedfile} alt="uploaded files img" style={{ marginLeft: "42px" }} />
+                        <p>History</p>
                     </NavLink>
                 </div>
             </ul>

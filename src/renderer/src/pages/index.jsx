@@ -10,6 +10,7 @@ import Sidemenu_small from "../components/sidemenu_small";
 
 // import gdprProtectionMethod from "../assets/js/gdprProtection";
 import { gdprProtectionMethod, gdprProtectionMethod_teamshistory } from '../assets/js/gdprProtection';
+import fetchNews from '../assets/js/fetchNews';
 
 import env from "../assets/js/env";
 
@@ -25,6 +26,9 @@ function Index() {
   const [currentVersion, setCurrentVersion] = useState("");
   const [latestVersion, setLatestVersion] = useState("");
   const [normalizedLatestVersion, setNormalizedLatestVersion] = useState("");
+
+  const [allNews, setAllNews] = useState([]);
+
 
   const handleCloseLoginModal = () => {
     setShowLoginModal(false);
@@ -79,6 +83,16 @@ function Index() {
     };
     checkForUpdates();
   }, []);
+
+  //fetch all news from company database
+  useEffect(() => {
+    const fetchAllNews = async () => {
+      const news = await fetchNews();
+      console.log('News:', news.result);
+      setAllNews(news.result);
+    };
+    fetchAllNews();
+  }, [])
 
   //donwload latest version method
   const downloadLatestVersion = async () => {
@@ -297,19 +311,17 @@ function Index() {
         <hr style={{ width: "80%" }} className="hr"></hr>
 
         <div className="index-box">
-          <h6>
-            <b>We welcome three new Swedish photographers</b>
-          </h6>
-          <p>
-            We welcome three new Swedish photographers to our company. Marcus,
-            Sofia & Jakob, it's great to have you on board!{" "}
-          </p>
+          {allNews.map(news => (
+            <div key={news.id} className="mb-4">
+              <h6><b>{news.title}</b></h6>
+              <p>{news.content}</p>
+            </div>
+          ))}
         </div>
       </div>
 
       <Sidemenu />
       <Sidemenu_small />
-      {/* <LoginModal showLoginModal={showLoginModal} handleCloseLoginModal={handleCloseLoginModal} /> */}
     </div>
   );
 }

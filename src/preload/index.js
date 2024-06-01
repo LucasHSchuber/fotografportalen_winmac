@@ -11,13 +11,19 @@ const shell = electron.shell;
 // Custom APIs for renderer
 const api = {
   
-  getPlatform: () => os.platform(),
+
+  //TOKEN 
+  updateUserToken: (token, user_id) => ipcRenderer.invoke('updateUserToken', token, user_id), 
+
+  //PLTTFORM
+  getPlatform: () => os.platform(), //NOT EXIST??
   homeDir: () => os.homedir(),
   shell: () => shell.shell(),
   app: () => app.getVersion(),
   quit: () => ipcRenderer.invoke("quit"),
-  applyUpdates: (downloadUrl) => ipcRenderer.invoke("applyUpdates", downloadUrl),
 
+  //UPDATES TEAMLEADER
+  applyUpdates: (downloadUrl) => ipcRenderer.invoke("applyUpdates", downloadUrl),
   getCurrentAppVersion: () => ipcRenderer.invoke('getCurrentAppVersion'), 
   // downloadLatestVersion: (args) => ipcRenderer.invoke('downloadLatestVersion', args), 
   installLatestVersion: (args) => ipcRenderer.invoke('installLatestVersion', args), 
@@ -35,9 +41,9 @@ const api = {
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
   get_Projects: (user_lang) => ipcRenderer.invoke('get_Projects', user_lang), // Pass workname to getUser handler in main process
 
-  checkProjectExists: (project_uuid) => ipcRenderer.invoke('checkProjectExists', project_uuid), // Database Call For Checking if Project Exists
+  checkProjectExists: (project_uuid, user_id) => ipcRenderer.invoke('checkProjectExists', project_uuid, user_id), // Database Call For Checking if Project Exists
   createNewProject: args => ipcRenderer.invoke('createNewProject', args), // Database Call For Create new Project
-  getLatestProject: (project_uuid) => ipcRenderer.invoke('getLatestProject', project_uuid), // Pass workname to getUser handler in main process
+  getLatestProject: (user_id, project_uuid) => ipcRenderer.invoke('getLatestProject', user_id, project_uuid), // Pass workname to getUser handler in main process
   getAllProjects: (user_id) => ipcRenderer.invoke('getAllProjects', user_id), // Pass user_id to get all projects by user
   getAllCurrentProjects: (user_id) => ipcRenderer.invoke('getAllCurrentProjects', user_id), // Pass user_id to get all projects by user
   getAllPreviousProjects: (user_id) => ipcRenderer.invoke('getAllPreviousProjects', user_id), // Pass user_id to get all projects by user
@@ -65,9 +71,10 @@ const api = {
 
   createLoginWindow: (args) => ipcRenderer.invoke('createLoginWindow', args), // create login window
   createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window
-  createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // create main window
+  createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // NOT EXISTS??? create main window
 
-  lookForUpdates: () => ipcRenderer.invoke('lookForUpdates'), 
+  lookForUpdates: () => ipcRenderer.invoke('lookForUpdates'), //NOT EXIST???
+
 
 
   // FILETRANSFER

@@ -95,7 +95,7 @@ function Newteam_teamleader() {
             if (Object.keys(errorsSport).length > 0) {
                 return;
             }
-        } else if (projectType === "school") {
+        } else if (projectType === "school" || projectType === "sport_portrait" ) {
             let errors = {};
             if (!formData.teamname) errors.teamname = true;
             if (!formData.amount) errors.amount = true;
@@ -118,7 +118,7 @@ function Newteam_teamleader() {
         const protectedIdValue = formData.protected_id ? 1 : 0;
 
         //if class (school)
-        if (projectType === "school") {
+        if (projectType === "school" || projectType === "sport_portrait") {
             try {
                 const classData = await window.api.createNewClass({
                     ...formData,
@@ -129,11 +129,12 @@ function Newteam_teamleader() {
                     protected_id: protectedIdValue
                 });
                 console.log('Class response:', classData);
-
-                sessionStorage.setItem("feedbackMessage_newteam", "New class successfully created");
+                if (projectType === "school"){
+                    sessionStorage.setItem("feedbackMessage_newteam", "New class successfully created");
+                } else if (projectType === "sport_portrait"){
+                    sessionStorage.setItem("feedbackMessage_newteam", "New team successfully created");
+                }
                 navigate(`/portal_teamleader/${project_id}`);
-                // navigate(`/portal_teamleader/${project_id}?message=Class created successfully!`);
-
             } catch (error) {
                 console.error('Error adding class:', error);
             }
@@ -193,12 +194,12 @@ function Newteam_teamleader() {
 
                 <div className="header mb-4">
                     {/* <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={running_black} alt="running" />}{projectType === "school" ? "Create a new class" : "Create a new team"}</h5> */}
-                    <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : <img className="portal-title-img mr-3" src={alert_black} alt="alert" />}{projectType === "school" ? "Create a new class" : "Filled out by photographer"}</h5>
+                    <h5>{projectType === "school" ? <img className="portal-title-img mr-3" src={academic_black} alt="academic" /> : projectType === "sport_portrait" ? <img className="portal-title-img mr-3" src={running_black} alt="running" /> : <img className="portal-title-img mr-3" src={alert_black} alt="alert" />}{projectType === "school" ? "Create a new class" : projectType === "sport_portrait" ? "Create a new team" : "Filled out by photographer"}</h5>
                 </div>
 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        {projectType && projectType === "school" ? (
+                        {projectType && projectType === "school" || projectType === "sport_portrait" ? (
                             <div>
                                 <input
                                     className={`form-input-field ${projectType === "school" ? (errorMessage.teamname ? "error-border" : "") : (errorMessageSport.teamname ? "error-border" : "")}`}
