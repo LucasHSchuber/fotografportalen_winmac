@@ -11,10 +11,66 @@ import "../../assets/css/filetransfer/buttons_filetransfer.css";
 
 function History_filetransfer() {
   // Define states
+    const [allFTData, setAllFTData] = useState([]);
+    const [searchString, setSearchString] = useState("");
+
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            const user_id = localStorage.getItem("user_id");
+            console.log(user_id);
+            try {
+                const allFTdata = await window.api.getAllFTData(user_id);
+                console.log("FT data:", allFTdata);
+                // setAllFTData(allFTdata);
+                const sortedData = allFTdata.sort((a, b) => new Date(b.created) - new Date(a.created));
+                setAllFTData(sortedData);
+                console.log('Project data:', sortedData);
+            } catch (error) {
+                console.log("error getting FT projects and files:", error);
+            }
+        }
+        fetchInitialData();
+    }, []);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+        let user_id = localStorage.getItem("user_id");
+        console.log(user_id);
+
+        if (searchString !== "") {
+            console.log("search entered...");
+            try {
+            const allFTdata = await window.api.getAllFTDataBySearch(user_id, searchString);
+            console.log("FT search data:", allFTdata);
+
+            if (allFTdata.statusCode === 1) {
+                const sortedData = allFTdata.projects.sort((a, b) => new Date(b.created) - new Date(a.created));
+                setAllFTData(sortedData);
+                console.log('Project data:', sortedData);
+            } else {
+                console.error('Error fetching projects:', allFTdata.errorMessage);
+            }
+            } catch (error) {
+            console.log("error getting FT projects and files:", error);
+            }
+        } else {
+            fetchInitialData();
+        }
+        };
+
+        fetchData();
+    }, [searchString]);
+
+    //when. search input is done 
+    const handleSearchString = (e) => {
+        console.log(e);
+        setSearchString(e);
+    }
 
   return (
     <div className="filetransfer-wrapper">
-      <div className="header">
+      <div className="header mb-5">
         <h4>
           <img
             className="title-img"
@@ -25,6 +81,34 @@ function History_filetransfer() {
         </h4>
         <p>This is your history of uploaded files and projects</p>
       </div>
+    
+      <div className="mb-3">
+            <div>
+                <h6>Search for uploaded projects:</h6>
+            </div>
+            <div>
+                <input className="form-input-field form-input-field-ft fixed" placeholder="Search for uploaded projects" value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
+            </div>
+        </div>
+    {allFTData && allFTData.length === 0 ? (
+        <h6><em>No uploaded projects</em></h6>
+    ) : (
+    <div>
+        {/* <h6 className="mb-4" style={{ textDecoration: "underline" }}><b>Uploaded projects:</b></h6> */}
+        {allFTData && allFTData.map(data => (
+            <div key={data.ft_project_id} className="mb-1 filetransfer-history-box">
+                <h6>{data.projectname}</h6>
+                {/* <p>Files:</p> */}
+                <ul>
+                {data.files.map(file => (
+                    <li key={file.ft_file_id}>{file.filename} <em>(uploaded: {file && file.uploaded_at})</em></li>
+                ))}
+                </ul>
+                {/* <hr style={{ marginRight: "20em" }}></hr> */}
+            </div>
+        ))}
+      </div>
+    )}
 
       <Sidemenu_filetransfer />
     </div>

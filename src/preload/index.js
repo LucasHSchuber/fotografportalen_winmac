@@ -78,8 +78,13 @@ const api = {
 
 
   // FILETRANSFER
-  uploadFile: (filePath, lang) => ipcRenderer.invoke('uploadFile', filePath, lang)
+  uploadFile: (filePath, lang) => ipcRenderer.invoke('uploadFile', filePath, lang),
+  createNewFTProject: (data) => ipcRenderer.invoke('createNewFTProject', data),
+  addFTFile: (fileData) => ipcRenderer.invoke('addFTFile', fileData),
+  getAllFTData: (user_id) => ipcRenderer.invoke('getAllFTData', user_id), // Pass user_id to get all FT projects and files by user
+  getAllFTDataBySearch: (user_id ,searchString) => ipcRenderer.invoke('getAllFTDataBySearch', user_id, searchString), // Pass user_id to get all FT projects and files by user and search
 
+  
 
 
 

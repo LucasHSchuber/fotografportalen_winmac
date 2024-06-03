@@ -30,7 +30,7 @@
   "header3": "Kontanter!",
   "calendaramount": "Antall spillere på laget",
   "calendaramounttext": "* Hver spiller får tre kalendere",
-  "ssn": "Personnummer (YYYYMMDD-XXXX)",
+  "ssn": "Personnummer (YYYYMMDDXXXX)",
   "address": "Adresse",
   "postalcode": "Postnummer",
   "county": "Sted",

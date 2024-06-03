@@ -466,6 +466,51 @@ function createTables() {
       }
     },
   );
+
+  // Create ft_projects table
+  db.run(
+    `
+   CREATE TABLE IF NOT EXISTS ft_projects (
+     ft_project_id INTEGER PRIMARY KEY AUTOINCREMENT,
+     project_uuid STRING,
+     projectname STRING,
+     is_sent BOOLEAN DEFAULT 0,
+     created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     user_id INTEGER,
+     project_id INT,
+     FOREIGN KEY (user_id) REFERENCES users(user_id),
+     FOREIGN KEY (project_id) REFERENCES projects(project_id) 
+    )
+ `,
+    (err) => {
+      if (err) {
+        console.error("Error creating ft_projects table:", err.message);
+      } else {
+        console.log("ft_projects table created successfully");
+      }
+    },
+  );
+
+  // Create filetransfer_history table
+  db.run(
+    `
+   CREATE TABLE IF NOT EXISTS ft_files (
+     ft_file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+     filename VARCHAR(255) NOT NULL,
+     filepath VARCHAR(255),
+     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     ft_project_id INTEGER,
+     FOREIGN KEY (ft_project_id) REFERENCES ft_projects(ft_project_id) 
+    )
+ `,
+    (err) => {
+      if (err) {
+        console.error("Error creating ft_files table:", err.message);
+      } else {
+        console.log("ft_files table created successfully");
+      }
+    },
+  );
 }
 
 // Function to insert data into tables
@@ -2056,6 +2101,184 @@ ipcMain.handle("createMainWindow", async (event, args) => {
     }
   }
 
+  //create new FT project
+  ipcMain.handle("createNewFTProject", async (event, data) => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!data || typeof data !== "object") {
+          throw new Error("Invalid arguments received for createNewFTProject");
+        }
+        const { project_uuid, projectname, user_id, project_id } = data;
+        if (!project_uuid || !projectname || !user_id || !project_id) {
+          throw new Error("Missing required data for createNewFTProject");
+        }
+  
+        const query = `
+          INSERT INTO ft_projects (
+              project_uuid, projectname, user_id, project_id 
+          )
+          VALUES (?, ?, ?, ?)
+        `;
+        const params = [project_uuid, projectname, user_id, project_id];
+  
+        db.run(query, params, function (err) {
+          if (err) {
+            log.error("Error adding new createNewFTProject:", err.message);
+            reject({ error: err.message });
+          } else {
+            const ft_project_id = this.lastID;
+            log.info(`createNewFTProject added successfully with id ${ft_project_id}`);
+            resolve({ success: true, ft_project_id });
+          }
+        });
+      } catch (err) {
+        log.error("Error adding new createNewFTProject:", err.message);
+        reject({ error: err.message });
+      }
+    });
+  });
+
+    //add new FT file
+    ipcMain.handle("addFTFile", async (event, fileData) => {
+      return new Promise((resolve, reject) => {
+        try {
+          if (!fileData || typeof fileData !== "object") {
+            throw new Error("Invalid arguments received for addFTFile");
+          }
+          const {filename, ft_project_id, filepath} = fileData;
+          if (!filename || !ft_project_id) {
+            throw new Error("Missing required data for addFTFile");
+          }
+    
+          const query = `
+            INSERT INTO ft_files (
+              filename, ft_project_id, filepath 
+            )
+            VALUES (?, ?, ?)
+          `;
+          const params = [filename, ft_project_id, filepath];
+    
+          db.run(query, params, function (err) {
+            if (err) {
+              log.error("Error adding new addFTFile:", err.message);
+              reject({ error: err.message });
+            } else {
+              log.info(`addFTFile added successfully`);
+              resolve({ success: true });
+            }
+          });
+        } catch (err) {
+          log.error("Error adding new addFTFile:", err.message);
+          reject({ error: err.message });
+        }
+      });
+    });
+
+    ipcMain.handle("getAllFTData", async (event, user_id) => {
+      return new Promise((resolve, reject) => {
+        const query = `
+          SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, f.ft_file_id, f.filename, f.filepath, f.uploaded_at
+          FROM ft_projects p
+          INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
+          WHERE p.user_id = ?
+        `;
+    
+        db.all(query, [user_id], (err, rows) => {
+          if (err) {
+            log.error("Error fetching FT data:", err.message);
+            reject(new Error(err.message));
+          } else {
+            const projects = {};
+    
+            rows.forEach(row => {
+              if (!projects[row.ft_project_id]) {
+                projects[row.ft_project_id] = {
+                  ft_project_id: row.ft_project_id,
+                  project_uuid: row.project_uuid,
+                  projectname: row.projectname,
+                  is_sent: row.is_sent,
+                  created: row.created,
+                  user_id: row.user_id,
+                  project_id: row.project_id,
+                  files: []
+                };
+              }
+              projects[row.ft_project_id].files.push({
+                ft_file_id: row.ft_file_id,
+                filename: row.filename,
+                filepath: row.filepath,
+                uploaded_at: row.uploaded_at
+              });
+            });
+    
+            const result = Object.values(projects);
+            log.info("FT data fetched and organized successfully");
+            resolve(result);
+          }
+        });
+      }).catch(err => {
+        log.error("Unhandled error in getAllFTData:", err.message);
+        throw err;
+      });
+    });
+
+    //get all previous projects by user_id
+    ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
+      const retrieveQuery = `
+        SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, 
+               f.ft_file_id, f.filename, f.filepath, f.uploaded_at
+        FROM ft_projects p
+        INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
+        WHERE p.user_id = ? AND p.projectname LIKE ?
+      `;
+    
+      console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id, `%${searchString}%`]);
+    
+      try {
+        const projects = await new Promise((resolve, reject) => {
+          const db = new sqlite3.Database(dbPath);
+    
+          db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
+            if (error) {
+              db.close();
+              return reject({ statusCode: 0, errorMessage: error.message });
+            }
+    
+            const projects = {};
+    
+            rows.forEach(row => {
+              if (!projects[row.ft_project_id]) {
+                projects[row.ft_project_id] = {
+                  ft_project_id: row.ft_project_id,
+                  project_uuid: row.project_uuid,
+                  projectname: row.projectname,
+                  is_sent: row.is_sent,
+                  created: row.created,
+                  user_id: row.user_id,
+                  project_id: row.project_id,
+                  files: []
+                };
+              }
+              projects[row.ft_project_id].files.push({
+                ft_file_id: row.ft_file_id,
+                filename: row.filename,
+                filepath: row.filepath,
+                uploaded_at: row.uploaded_at
+              });
+            });
+    
+            db.close(() => {
+              resolve({ statusCode: 1, projects: Object.values(projects) });
+            });
+          });
+        });
+    
+        return projects;
+      } catch (error) {
+        console.error("Error fetching searched projects:", error);
+        return { statusCode: 0, errorMessage: error.message };
+      }
+    });
 
 // //crate login window & close login window
 // ipcMain.handle("createNewuserWindow", async (event) => {

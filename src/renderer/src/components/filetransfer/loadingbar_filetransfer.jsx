@@ -5,7 +5,7 @@ import { Bars } from "react-loader-spinner";
 
 import "../../assets/css/filetransfer/components_filetransfer.css";
 
-const Loadingbar_teamleader = ({ uploadProgress }) => {
+const Loadingbar_filetransfer = ({ uploadProgress }) => {
   //define states
   console.log(uploadProgress);
   return (
@@ -26,4 +26,4 @@ const Loadingbar_teamleader = ({ uploadProgress }) => {
   );
 };
 
-export default Loadingbar_teamleader;
+export default Loadingbar_filetransfer;

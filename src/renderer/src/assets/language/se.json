@@ -30,7 +30,7 @@
   "header3": "Cashing!",
   "calendaramount": "Antal spelare i laget",
   "calendaramounttext": "* Varje spelar får tre kalendrar",
-  "ssn": "Personnummer (YYYYMMDD-XXXX)",
+  "ssn": "Personnummer (YYYYMMDDXXXX)",
   "address": "Adress",
   "postalcode": "Postnummer",
   "county": "Stad",

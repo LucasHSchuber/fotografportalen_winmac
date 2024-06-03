@@ -30,7 +30,7 @@
     "header3": "Käteistä!",
     "calendaramount": "Pelaajien lukumäärä joukkueessa",
     "calendaramounttext": "* Jokainen pelaaja saa kolme kalenteria",
-    "ssn": "Henkilötunnus (YYYYMMDD-XXXX)",
+    "ssn": "Henkilötunnus (YYYYMMDDXXXX)",
     "address": "Osoite",
     "postalcode": "Postinumero",
     "county": "Kaupunki",

@@ -8,7 +8,7 @@ import Select from "react-select";
 import { TailSpin } from "react-loader-spinner";
 
 import Sidemenu_filetransfer from "../../components/filetransfer/sidemenu_filetransfer";
-import Loadingbar_teamleader from "../../components/filetransfer/loadingbar_filetransfer";
+import Loadingbar_filetransfer from "../../components/filetransfer/loadingbar_filetransfer";
 
 import "../../assets/css/filetransfer/main_filetransfer.css";
 import "../../assets/css/filetransfer/buttons_filetransfer.css";
@@ -22,7 +22,9 @@ function Home_filetransfer() {
   const [chosenProjectName, setChosenProjectName] = useState("");
   const [chosenProjectUuid, setChosenProjectUuid] = useState("");
   const [chosenProjectLang, setChosenProjectLang] = useState("");
+  const [chosenProject_id, setChosenProject_id] = useState("");
   const [projects, setProjects] = useState([]);
+  const [FTProjectId, setFTProjectId] = useState("");
 
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -93,6 +95,7 @@ function Home_filetransfer() {
   };
 
   const handleSubmit = async () => {
+    let user_id = localStorage.getItem("user_id");
     console.log("Sending files from filetransfer to company database...");
     console.log(files);
     const data = {
@@ -101,36 +104,63 @@ function Home_filetransfer() {
       files: files,
     };
     console.log("data:", data);
-
-    // if (files.length > 0) {
-    //   console.log("zip check confirmation");
-    //   files.forEach((file) => {
-    //     console.log("file path", file.path);
-    //     const response = await window.api.uploadFile(file.path, chosenProjectLang);
-    //   });
-    // }
     if (files.length > 0) {
       setIsUploading(true);
       setUploadProgress({ uploaded: 0, total: files.length });
-
-      console.log("zip check confirmation");
+      
+      //Create new FT-project in database
+      const projectData = {
+        project_uuid: chosenProjectUuid,
+        projectname: chosenProjectName,
+        user_id: user_id,
+        project_id: chosenProject_id
+      }
+      console.log(projectData);
+      try{
+        let FT_response = await window.api.createNewFTProject(projectData);
+        console.log("FT response:", FT_response);
+        const ft_project_id = FT_response.ft_project_id;
+        setFTProjectId(ft_project_id);
+        sessionStorage.setItem("ft_project_id", ft_project_id);
+        console.log("ft_project_id:", ft_project_id);
+      }catch (error){
+        console.log("error creating FT project", error);
+      }
+      
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        //upload files to FTP-server
         try {
           const response = await window.api.uploadFile(
             file.path,
             chosenProjectLang,
           );
           console.log(response);
+          
           if (response.status === "success") {
             setProgress(((i + 1) / files.length) * 100);
             console.log(`File uploaded successfully: ${file.name}`);
             setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
 
-            setChooseNewProjectName("");
-            setProjectName("");
-            setFiles([]);
-            // alert(`File uploaded successfully: ${file.name}`);
+            //Create new FT-file in database
+            console.log(FTProjectId);
+            let _ft_project_id = sessionStorage.getItem("ft_project_id");
+            console.log(_ft_project_id);
+            const fileData = {
+              filename: file.name,
+              filepath: file.path,
+              ft_project_id: _ft_project_id
+            }
+            console.log(fileData);
+            try{
+              let FTfile_response = await window.api.addFTFile(fileData);
+              console.log("FT file response:", FTfile_response);
+            }catch (error){
+              console.log("error creating FT file", error);
+            }
+
+            //Remove file name from setFiles
+            // setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
           } else {
             alert(
               `Failed to upload file: ${file.name}. Error: ${response.message}`,
@@ -144,38 +174,13 @@ function Home_filetransfer() {
           return;
         }
       }
-      alert("All files uploaded successfully!");
+      alert(`Filetransfer:  All files uploaded successfully!`);
       setIsUploading(false);
       setChooseNewProjectName("");
+      setChosenProjectName("");
       setProjectName("");
       setFiles([]);
     }
-
-    // if (file) {
-    //   const formData = new FormData();
-    //   formData.append("file", file);
-
-    //   try {
-    //     const response = await axios.post(
-    //       "http://your-php-backend/upload.php",
-    //       formData,
-    //       {
-    //         headers: {
-    //           "Content-Type": "multipart/form-data",
-    //         },
-    //       },
-    //     );
-
-    //     if (response.status === 200) {
-    //       alert("File uploaded successfully");
-    //     } else {
-    //       alert("File upload failed");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error uploading file:", error);
-    //     alert("Error uploading file");
-    //   }
-    // }
   };
 
   const handleProjectChange = (selectedOption) => {
@@ -183,10 +188,12 @@ function Home_filetransfer() {
       setChosenProjectName(selectedOption.label);
       setChosenProjectUuid(selectedOption.value);
       setChosenProjectLang(selectedOption.lang);
+      setChosenProject_id(selectedOption.project_id);
       setProjectName(selectedOption);
       console.log(selectedOption);
       console.log(selectedOption.label);
       console.log(selectedOption.lang);
+      console.log(selectedOption.project_id);
     } else {
       setChosenProjectName("");
       setProjectName("");
@@ -253,6 +260,7 @@ function Home_filetransfer() {
                       value: project.project_uuid,
                       label: project.projectname,
                       lang: project.lang,
+                      project_id: project.project_id,
                     }))
                   }
                   isClearable
@@ -374,7 +382,7 @@ function Home_filetransfer() {
 
       <Sidemenu_filetransfer />
       {isUploading && (
-      <Loadingbar_teamleader uploadProgress={uploadProgress} />
+      <Loadingbar_filetransfer uploadProgress={uploadProgress} />
       )}
 
     </div>

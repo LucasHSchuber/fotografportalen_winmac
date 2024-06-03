@@ -14,6 +14,9 @@ import fetchNews from '../assets/js/fetchNews';
 
 import env from "../assets/js/env";
 
+import DOMPurify from 'dompurify';
+
+
 // import { response } from "express";
 
 function Index() {
@@ -310,11 +313,13 @@ function Index() {
 
         <hr style={{ width: "80%" }} className="hr"></hr>
 
-        <div className="index-box">
+        <div className="index-box" >
           {allNews.map(news => (
             <div key={news.id} className="mb-4">
               <h6><b>{news.title}</b></h6>
-              <p>{news.content}</p>
+              {/* <p>{news.content}</p> */}
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.content) }}></div>
+              {/* <p style={{ fontSize: "0.9em", marginTop: "-1em" }}>Posted: <em>{news.created_at}</em></p> */}
             </div>
           ))}
         </div>
