@@ -1519,38 +1519,63 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
 });
 
 //send project to DB
-ipcMain.handle(
-  "sendProjectToDb",
-  async (event, project_id, alertSale, responseId) => {
-    const updateQuery =
-      "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ?, is_sent_id = ? WHERE project_id = ?";
+ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale, responseId) => {
+  const updateQuery = `
+    UPDATE projects 
+    SET is_sent = 1, 
+        sent_date = CURRENT_TIMESTAMP, 
+        alert_sale = ?, 
+        is_sent_id = ? 
+    WHERE project_id = ?
+  `;
 
-    try {
-      const result = await new Promise((resolve, reject) => {
-        const db = new sqlite3.Database(dbPath);
+  try {
+    const db = new sqlite3.Database(dbPath);
+    const params = [alertSale, responseId, project_id];
 
-        db.run(
-          updateQuery,
-          [alertSale, responseId, project_id],
-          function (error) {
-            if (error) {
-              db.close();
-              reject({ statusCode: 0, errorMessage: error });
-            } else {
-              db.close();
-              resolve({ rowsAffected: this.changes });
-            }
-          },
-        );
-      });
+    const result = await executeUpdateWithRetry(db, updateQuery, params);
+    console.log("Project sent to DB successfully");
 
-      return { statusCode: 1, result };
-    } catch (error) {
-      log.info("Error sending project to db:", error);
-      return { statusCode: 0, errorMessage: error.message };
-    }
-  },
-);
+    await closeDatabase(db);
+
+    return { statusCode: 1, result };
+  } catch (error) {
+    console.error("Error sending project to db:", error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+// ipcMain.handle(
+//   "sendProjectToDb",
+//   async (event, project_id, alertSale, responseId) => {
+//     const updateQuery =
+//       "UPDATE projects SET is_sent = 1, sent_date = CURRENT_TIMESTAMP, alert_sale = ?, is_sent_id = ? WHERE project_id = ?";
+
+//     try {
+//       const result = await new Promise((resolve, reject) => {
+//         const db = new sqlite3.Database(dbPath);
+
+//         db.run(
+//           updateQuery,
+//           [alertSale, responseId, project_id],
+//           function (error) {
+//             if (error) {
+//               db.close();
+//               reject({ statusCode: 0, errorMessage: error });
+//             } else {
+//               db.close();
+//               resolve({ rowsAffected: this.changes });
+//             }
+//           },
+//         );
+//       });
+
+//       return { statusCode: 1, result };
+//     } catch (error) {
+//       log.info("Error sending project to db:", error);
+//       return { statusCode: 0, errorMessage: error.message };
+//     }
+//   },
+// );
 
 //create new team
 ipcMain.handle("createNewTeam", async (event, args) => {
