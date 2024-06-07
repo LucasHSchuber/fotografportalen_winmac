@@ -45,11 +45,13 @@ function Home_teamleader() {
 
     //fetch all projects from big(express-bild) database
     const fetchData = async () => {
+        console.log("fetchdata")
         const projects = await fetchProjects();
         console.log('Projects:', projects);
 
         const project = projects.result;
         const response = await window.api.create_Projects(project);
+        console.log('create_Projects DONE:');
         console.log('Create Projects Response:', response);
 
         if (response && response.success) {

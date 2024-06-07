@@ -540,40 +540,57 @@ ipcMain.handle("maximize", () => {
 
 ipcMain.handle("create_Projects", async (event, projects) => {
   try {
-    // console.log("Received projects data:", projects); // Log received data for debugging
-
     if (!Array.isArray(projects)) {
       throw new Error("Invalid data received for create_Projects");
     }
 
-    // Clear existing data from the _projects table
-    await db.run("DELETE FROM _projects");
+    const db = new sqlite3.Database(dbPath);
 
-    // Insert each project into the database
-    const stmt = db.prepare(
-      "INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)",
-    );
-    for (const project of projects) {
-      // Check if _project_uuid is provided and not null
-      if (!project.project_uuid) {
-        console.error("Error adding project:", "Missing _project_uuid");
-        continue; // Skip insertion for this project
-      }
+    await executeUpdateWithRetry("DELETE FROM _projects");
 
-      stmt.run(
-        project.project_uuid,
-        project.projectname,
-        project.start,
-        project.lang,
-      );
+    const batchInsert = async (projectsBatch) => {
+      return new Promise((resolve, reject) => {
+        db.serialize(() => {
+          const stmt = db.prepare(
+            "INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)"
+          );
+          db.run("BEGIN TRANSACTION");
+          for (const project of projectsBatch) {
+            if (!project.project_uuid) {
+              console.error("Error adding project:", "Missing _project_uuid");
+              continue;
+            }
+            stmt.run(
+              project.project_uuid,
+              project.projectname,
+              project.start,
+              project.lang
+            );
+          }
+          db.run("COMMIT", (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+          stmt.finalize();
+        });
+      });
+    };
+
+    const batchSize = 100; // Adjust batch size as needed
+    for (let i = 0; i < projects.length; i += batchSize) {
+      const batch = projects.slice(i, i + batchSize);
+      await batchInsert(batch);
     }
-    stmt.finalize();
 
-    console.log("Projects added successfully");
-    event.sender.send("add-projects-response", { success: true }); // Send success response
+    log.info("Projects added successfully");
+    db.close();
+    return { success: true };
   } catch (err) {
     console.error("Error adding projects:", err.message);
-    event.sender.send("add-projects-response", { error: err.message }); // Send error response
+    return { statusCode: 0, errorMessage: "Error adding projects to SQLITE _projects" };
   }
 });
 
@@ -1347,6 +1364,27 @@ ipcMain.handle("checkProjectExists", async (event, project_uuid, user_id) => {
   }
 });
 
+const executeInsertWithRetryAndId = (db, query, params = [], retries = 5, delay = 1000) => {
+  return new Promise((resolve, reject) => {
+    function attempt() {
+      db.run(query, params, function (error) {
+        if (error) {
+          if (error.code === 'SQLITE_BUSY' && retries > 0) {
+            setTimeout(() => {
+              attempt(--retries); // Decrement retries and try again
+            }, delay);
+          } else {
+            reject(error);
+          }
+        } else {
+          resolve(this.lastID); // Retrieve the last inserted row ID
+        }
+      });
+    }
+    attempt();
+  });
+};
+
 //create new project
 ipcMain.handle("createNewProject", async (event, args) => {
   try {
@@ -1378,36 +1416,27 @@ ipcMain.handle("createNewProject", async (event, args) => {
 
     const db = new sqlite3.Database(dbPath);
 
-    const project_id = await new Promise((resolve, reject) => {
-      db.run(
-        `
+    const project_id = await executeInsertWithRetryAndId(db,
+      `
         INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-        `,
-        [
-          projectname.toLowerCase(),
-          photographername,
-          type.toLowerCase(),
-          project_date,
-          user_id,
-          lang,
-          project_uuid,
-        ],
-        function (error) {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(this.lastID); // Retrieve the last inserted row ID
-          }
-        }
-      );
-    });
+      `,
+      [
+        projectname.toLowerCase(),
+        photographername,
+        type.toLowerCase(),
+        project_date,
+        user_id,
+        lang,
+        project_uuid,
+      ]
+    );
 
     log.info("Project added successfully with project_id:", project_id);
 
     return { success: true, project_id };
   } catch (err) {
-    console.error("Error adding new project data:", err.message);
+    console.error("Error adding new project data (createNewProject):", err.message);
     return { error: err.message };
   }
 });
@@ -2408,6 +2437,33 @@ ipcMain.handle("gdprProtection_teamshistory", async (event) => {
   }
 });
 
+
+// async function executeUpdateWithRetry(query, params = [], retries = 5, delay = 1000) {
+//   return new Promise((resolve, reject) => {
+//     const db = new sqlite3.Database(dbPath);
+//     function attempt() {
+//       db.run(query, params, function (error) {
+//         if (error) {
+//           if (error.code === 'SQLITE_BUSY' && retries > 0) {
+//             log.info('Database is busy, retrying...', { retries, delay });
+//             setTimeout(() => {
+//               attempt(--retries); // Decrement retries and try again
+//             }, delay);
+//           } else {
+//             log.error('Database error:', error.message);
+//             db.close();
+//             reject(error);
+//           }
+//         } else {
+//           const lastID = this.lastID;
+//           db.close();
+//           resolve(lastID); // Resolve with the last inserted row ID
+//         }
+//       });
+//     }
+//     attempt();
+//   });
+// }
 async function executeUpdateWithRetry(db, query, params = [], retries = 5, delay = 1000) {
   return new Promise((resolve, reject) => {
     function attempt() {

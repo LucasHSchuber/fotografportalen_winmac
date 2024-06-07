@@ -3,6 +3,7 @@
 
 # dependencies
 /node_modules
+/resources/fp.db
 src/renderer/src/assets/js/env.js
 
 /.pnp
