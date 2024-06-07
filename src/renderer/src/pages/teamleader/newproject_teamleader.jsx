@@ -169,81 +169,155 @@ function Newproject_teamleader() {
         CreateNewProject(sport_type);
     }
 
+
     const CreateNewProject = async (sport_type) => {
         console.log("creating a new project....");
         console.log("project_uuid:", project_uuid);
         let user_id = localStorage.getItem("user_id");
-
+      
         try {
-            if (!chosenProjectName || !type || !project_uuid) {
-                throw new Error('Project name, type, and project_uuid are required.');
-            }
-
-            const response = await window.api.checkProjectExists(project_uuid, user_id);
-            console.log('Project already exists - response:', response);
-
-
-            if (response && response.statusCode === 1) {
-                console.log('Project exists:', response.projectname);
-                setProjectExistsMessage("The choosen project has already been created");
-                return true; // Project exists
+          if (!chosenProjectName || !type || !project_uuid) {
+            throw new Error('Project name, type, and project_uuid are required.');
+          }
+      
+          const response = await window.api.checkProjectExists(project_uuid, user_id);
+          console.log('Project already exists - response:', response);
+      
+          if (response && response.statusCode === 1) {
+            console.log('Project exists:', response.projectname);
+            setProjectExistsMessage("The chosen project has already been created");
+            return true; // Project exists
+          } else {
+            console.log('Project does not exist.');
+      
+            console.log('sport_type:', sport_type);
+            console.log('TYPE:', type);
+            console.log('SPORT TYPE:', sportType);
+      
+            let user_id = localStorage.getItem("user_id");
+            let photographername = localStorage.getItem("user_name");
+            console.log(user_id);
+            console.log(photographername);
+            const args = {
+              projectname: chosenProjectName,
+              type: sport_type ? sport_type : type,
+              project_uuid: project_uuid,
+              photographername: photographername,
+              project_date: projectDate,
+              user_id: user_id,
+              lang: projectLang,
+            };
+            console.log(args);
+      
+            const createResponse = await window.api.createNewProject(args);
+            console.log('Create New Project Response:', createResponse);
+      
+            if (createResponse.success) {
+              console.log('Project created successfully');
+              const latestProjectResponse = await window.api.getLatestProject(user_id, project_uuid);
+              console.log('Check Latest Project Response:', latestProjectResponse);
+      
+              if (!latestProjectResponse.project_id) {
+                console.error('Error: Project ID is not set.');
+                setErrorCreatingProject(true);
+                return;
+              }
+      
+              localStorage.setItem("project_id", latestProjectResponse.project_id);
+              console.log(localStorage.getItem("project_id"));
+      
+              // Check if project ID is set in local storage
+              if (!localStorage.getItem("project_id")) {
+                console.error('Error: Project ID is not set in local storage.');
+                setErrorCreatingProject(true);
+                return;
+              }
+      
+              navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
             } else {
-                console.log('Project does not exist.');
-
-                console.log('sport_type:', sport_type);
-                console.log('TYPE:', type);
-                console.log('SPORT TYPE:', sportType);
-                
-                let user_id = localStorage.getItem("user_id");
-                let photographername = localStorage.getItem("user_name");
-                console.log(user_id);
-                console.log(photographername);
-                const args = {
-                    projectname: chosenProjectName,
-                    type: sport_type ? sport_type : type,
-                    project_uuid: project_uuid,
-                    photographername: photographername,
-                    project_date: projectDate,
-                    user_id: user_id,
-                    lang: projectLang
-                };
-                console.log(args);
-                const response = await window.api.createNewProject(args);
-                console.log('Create New Projects Response:', response);
-
-                if (response.success) {
-                    console.log('Project created successfully');
-                    //get latest tuppel in projects-table
-                    const latestProjectResponse = await window.api.getLatestProject(user_id, project_uuid);
-                    console.log('Check Latest Project Response:', latestProjectResponse);
-
-                    if (!latestProjectResponse.project_id) {
-                        console.error('Error: Project ID is not set.');
-                        setErrorCreatingProject(true);
-                        return;
-                    }
-
-                    localStorage.setItem("project_id", latestProjectResponse.project_id)
-                    console.log(localStorage.getItem("project_id"));
-
-                    // Check if project ID is set in local storage
-                    if (!localStorage.getItem("project_id")) {
-                        console.error('Error: Project ID is not set in local storage.');
-                        setErrorCreatingProject(true);
-                        return;
-                    }
-
-                    navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
-
-                } else {
-                    console.error('Error creating project:', response?.error || 'Unknown error');
-                }
+              console.error('Error creating project:', createResponse?.error || 'Unknown error');
             }
+          }
         } catch (error) {
-            console.error('Error checking project existence:', error);
-            return false;
+          console.error('Error checking project existence:', error);
+          return false;
         }
-    }
+      };
+    // const CreateNewProject = async (sport_type) => {
+    //     console.log("creating a new project....");
+    //     console.log("project_uuid:", project_uuid);
+    //     let user_id = localStorage.getItem("user_id");
+
+    //     try {
+    //         if (!chosenProjectName || !type || !project_uuid) {
+    //             throw new Error('Project name, type, and project_uuid are required.');
+    //         }
+
+    //         const response = await window.api.checkProjectExists(project_uuid, user_id);
+    //         console.log('Project already exists - response:', response);
+
+
+    //         if (response && response.statusCode === 1) {
+    //             console.log('Project exists:', response.projectname);
+    //             setProjectExistsMessage("The choosen project has already been created");
+    //             return true; // Project exists
+    //         } else {
+    //             console.log('Project does not exist.');
+
+    //             console.log('sport_type:', sport_type);
+    //             console.log('TYPE:', type);
+    //             console.log('SPORT TYPE:', sportType);
+                
+    //             let user_id = localStorage.getItem("user_id");
+    //             let photographername = localStorage.getItem("user_name");
+    //             console.log(user_id);
+    //             console.log(photographername);
+    //             const args = {
+    //                 projectname: chosenProjectName,
+    //                 type: sport_type ? sport_type : type,
+    //                 project_uuid: project_uuid,
+    //                 photographername: photographername,
+    //                 project_date: projectDate,
+    //                 user_id: user_id,
+    //                 lang: projectLang
+    //             };
+    //             console.log(args);
+    //             const response = await window.api.createNewProject(args);
+    //             console.log('Create New Projects Response:', response);
+
+    //             if (response.success) {
+    //                 console.log('Project created successfully');
+    //                 //get latest tuppel in projects-table
+    //                 const latestProjectResponse = await window.api.getLatestProject(user_id, project_uuid);
+    //                 console.log('Check Latest Project Response:', latestProjectResponse);
+
+    //                 if (!latestProjectResponse.project_id) {
+    //                     console.error('Error: Project ID is not set.');
+    //                     setErrorCreatingProject(true);
+    //                     return;
+    //                 }
+
+    //                 localStorage.setItem("project_id", latestProjectResponse.project_id)
+    //                 console.log(localStorage.getItem("project_id"));
+
+    //                 // Check if project ID is set in local storage
+    //                 if (!localStorage.getItem("project_id")) {
+    //                     console.error('Error: Project ID is not set in local storage.');
+    //                     setErrorCreatingProject(true);
+    //                     return;
+    //                 }
+
+    //                 navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
+
+    //             } else {
+    //                 console.error('Error creating project:', response?.error || 'Unknown error');
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.error('Error checking project existence:', error);
+    //         return false;
+    //     }
+    // }
 
 
     // Custom styles for the Select component

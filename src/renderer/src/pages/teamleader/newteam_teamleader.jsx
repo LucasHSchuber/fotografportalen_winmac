@@ -85,7 +85,7 @@ function Newteam_teamleader() {
     }, [])
 
 
-    let isDbLocked = false;
+let isDbLocked = false;
 
 const handleSubmit = async (e) => {
     e.preventDefault();

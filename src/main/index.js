@@ -315,202 +315,158 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // Function to create tables
 function createTables() {
-  // Create users table
-  db.run(
-    `
-    CREATE TABLE IF NOT EXISTS users (
-      user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT NOT NULL,
-      firstname TEXT NOT NULL,
-      lastname TEXT NOT NULL,
-      password TEXT NOT NULL,
-      city TEXT,
-      mobile VARCHAR,
-      lang STRING NOT NULL,
-      token STRING,
-      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    )
-  `,
-    (err) => {
-      if (err) {
-        console.error("Error creating users table:", err.message);
-      } else {
-        console.log("Users table created successfully");
-        // insertDataToTables();
-      }
+  const tableDefinitions = [
+    {
+      name: 'users',
+      query: `
+        CREATE TABLE IF NOT EXISTS users (
+          user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          email TEXT NOT NULL,
+          firstname TEXT NOT NULL,
+          lastname TEXT NOT NULL,
+          password TEXT NOT NULL,
+          city TEXT,
+          mobile VARCHAR,
+          lang TEXT NOT NULL,
+          token TEXT,
+          created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+      `,
     },
-  );
+    {
+      name: 'projects',
+      query: `
+        CREATE TABLE IF NOT EXISTS projects (
+          project_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_uuid TEXT NOT NULL,
+          projectname TEXT NOT NULL,
+          photographername TEXT,
+          project_date TEXT NOT NULL,
+          type TEXT NOT NULL,
+          anomaly TEXT,
+          merged_teams TEXT,
+          unit BOOLEAN,
+          lang TEXT,
+          created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          alert_sale BOOLEAN,
+          is_deleted BOOLEAN DEFAULT 0,
+          is_sent BOOLEAN DEFAULT 0,
+          is_sent_id INTEGER,
+          files_uploaded BOOLEAN DEFAULT 0,
+          sent_date TEXT,
+          user_id INTEGER NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+      `,
+    },
+    {
+      name: 'teams',
+      query: `
+        CREATE TABLE IF NOT EXISTS teams (
+          team_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          teamname TEXT NOT NULL,
+          amount INTEGER,
+          leader_firstname TEXT,
+          leader_lastname TEXT,
+          leader_address TEXT,
+          leader_postalcode TEXT,
+          leader_county TEXT,
+          leader_mobile TEXT,
+          leader_email TEXT,
+          leader_ssn INTEGER,
+          calendar_amount INTEGER,
+          portrait BOOLEAN,
+          crowd BOOLEAN,
+          protected_id BOOLEAN,
+          named_photolink BOOLEAN,
+          sold_calendar BOOLEAN,
+          is_deleted BOOLEAN DEFAULT 0,
+          created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          project_id INTEGER NOT NULL,
+          FOREIGN KEY (project_id) REFERENCES projects(project_id)
+        )
+      `,
+    },
+    {
+      name: 'teams_history',
+      query: `
+        CREATE TABLE IF NOT EXISTS teams_history (
+          team_history_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          teamname TEXT,
+          amount INTEGER,
+          leader_firstname TEXT,
+          leader_lastname TEXT,
+          leader_address TEXT,
+          leader_postalcode TEXT,
+          leader_county TEXT,
+          leader_mobile TEXT,
+          leader_email TEXT,
+          leader_ssn INTEGER,
+          calendar_amount INTEGER,
+          portrait BOOLEAN,
+          crowd BOOLEAN,
+          protected_id BOOLEAN,
+          named_photolink BOOLEAN,
+          sold_calendar BOOLEAN,
+          is_deleted BOOLEAN DEFAULT 0,
+          created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          team_id INTEGER NOT NULL,
+          FOREIGN KEY (team_id) REFERENCES teams(team_id)
+        )
+      `,
+    },
+    {
+      name: '_projects',
+      query: `
+        CREATE TABLE IF NOT EXISTS _projects (
+          project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_uuid TEXT NOT NULL,
+          projectname TEXT NOT NULL,
+          start TEXT NOT NULL,
+          lang TEXT NOT NULL
+        )
+      `,
+    },
+    {
+      name: 'ft_projects',
+      query: `
+        CREATE TABLE IF NOT EXISTS ft_projects (
+          ft_project_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_uuid TEXT,
+          projectname TEXT,
+          is_sent BOOLEAN DEFAULT 0,
+          created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          user_id INTEGER,
+          project_id INTEGER,
+          FOREIGN KEY (user_id) REFERENCES users(user_id),
+          FOREIGN KEY (project_id) REFERENCES projects(project_id)
+        )
+      `,
+    },
+    {
+      name: 'ft_files',
+      query: `
+        CREATE TABLE IF NOT EXISTS ft_files (
+          ft_file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          filename VARCHAR(255) NOT NULL,
+          filepath VARCHAR(255),
+          uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          ft_project_id INTEGER,
+          FOREIGN KEY (ft_project_id) REFERENCES ft_projects(ft_project_id)
+        )
+      `,
+    },
+  ];
 
-  // Create project table
-  db.run(
-    `
-    CREATE TABLE IF NOT EXISTS projects (
-      project_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_uuid STRING NOT NULL,
-      projectname TEXT NOT NULL,
-      photographername TEXT,
-      project_date TEXT NOT NULL,
-      type SRTING NOT NULL,
-      anomaly TEXT,
-      merged_teams TEXT,
-      unit BOOLEAN,
-      lang STRING,
-      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      alert_sale BOOLEAN,
-      is_deleted BOOLEAN DEFAULT 0,
-      is_sent BOOLEAN DEFAULT 0,
-      is_sent_id INT,
-      files_uploaded BOOLEAN DEFAULT 0,
-      sent_date TEXT,
-      user_id INTEGER NOT NULL,
-      FOREIGN KEY (user_id) REFERENCES users(user_id)
-    )
-  `,
-    (err) => {
+  tableDefinitions.forEach(({ name, query }) => {
+    db.run(query, (err) => {
       if (err) {
-        console.error("Error creating projects table:", err.message);
+        console.error(`Error creating ${name} table:`, err.message);
       } else {
-        console.log("Projects table created successfully");
+        console.log(`${name} table created successfully`);
       }
-    },
-  );
-
-  // Create teams table
-  db.run(
-    `
-    CREATE TABLE IF NOT EXISTS teams (
-      team_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      teamname TEXT NOT NULL,
-      amount INT,
-      leader_firstname STRING,
-      leader_lastname STRING,
-      leader_address STRING,
-      leader_postalcode STRING,
-      leader_county STRING,
-      leader_mobile STRING,
-      leader_email STRING,
-      leader_ssn INTEGER,
-      calendar_amount INTEGER,
-      portrait BOOLEAN,
-      crowd BOOLEAN,
-      protected_id BOOLEAN,
-      named_photolink BOOLEAN,
-      sold_calendar BOOLEAN,
-      is_deleted BOOLEAN DEFAULT 0,
-      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      project_id INTEGER NOT NULL,
-      FOREIGN KEY (project_id) REFERENCES projects(project_id)
-    )
-  `,
-    (err) => {
-      if (err) {
-        console.error("Error creating teams table:", err.message);
-      } else {
-        console.log("Teams table created successfully");
-      }
-    },
-  );
-
-  // Create teams_history table
-  db.run(
-    `
-    CREATE TABLE IF NOT EXISTS teams_history (
-      team_history_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      teamname TEXT,
-      amount INT,
-      leader_firstname STRING,
-      leader_lastname STRING,
-      leader_address STRING,
-      leader_postalcode STRING,
-      leader_county STRING,
-      leader_mobile STRING,
-      leader_email STRING,
-      leader_ssn INTEGER,
-      calendar_amount INTEGER,
-      portrait BOOLEAN,
-      crowd BOOLEAN,
-      protected_id BOOLEAN,
-      named_photolink BOOLEAN,
-      sold_calendar BOOLEAN,
-      is_deleted BOOLEAN DEFAULT 0,
-      created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      team_id INTEGER NOT NULL,
-      FOREIGN KEY (team_id) REFERENCES teams(team_id)
-    )
-  `,
-    (err) => {
-      if (err) {
-        console.error("Error creating teams_history table:", err.message);
-      } else {
-        console.log("Teams_history table created successfully");
-      }
-    },
-  );
-
-  // Create _projects table
-  db.run(
-    `
-   CREATE TABLE IF NOT EXISTS _projects (
-     project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
-     project_uuid STRING NOT NULL,
-     projectname STRING NOT NULL,
-     start TEXT NOT NULL,
-     lang STRING NOT NULL
-   )
- `,
-    (err) => {
-      if (err) {
-        console.error("Error creating _projects table:", err.message);
-      } else {
-        console.log("_projects table created successfully");
-      }
-    },
-  );
-
-  // Create ft_projects table
-  db.run(
-    `
-   CREATE TABLE IF NOT EXISTS ft_projects (
-     ft_project_id INTEGER PRIMARY KEY AUTOINCREMENT,
-     project_uuid STRING,
-     projectname STRING,
-     is_sent BOOLEAN DEFAULT 0,
-     created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     user_id INTEGER,
-     project_id INT,
-     FOREIGN KEY (user_id) REFERENCES users(user_id),
-     FOREIGN KEY (project_id) REFERENCES projects(project_id) 
-    )
- `,
-    (err) => {
-      if (err) {
-        console.error("Error creating ft_projects table:", err.message);
-      } else {
-        console.log("ft_projects table created successfully");
-      }
-    },
-  );
-
-  // Create filetransfer_history table
-  db.run(
-    `
-   CREATE TABLE IF NOT EXISTS ft_files (
-     ft_file_id INTEGER PRIMARY KEY AUTOINCREMENT,
-     filename VARCHAR(255) NOT NULL,
-     filepath VARCHAR(255),
-     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-     ft_project_id INTEGER,
-     FOREIGN KEY (ft_project_id) REFERENCES ft_projects(ft_project_id) 
-    )
- `,
-    (err) => {
-      if (err) {
-        console.error("Error creating ft_files table:", err.message);
-      } else {
-        console.log("ft_files table created successfully");
-      }
-    },
-  );
+    });
+  });
 }
 
 // Function to insert data into tables
@@ -1422,11 +1378,10 @@ ipcMain.handle("createNewProject", async (event, args) => {
 
     const db = new sqlite3.Database(dbPath);
 
-    await executeUpdateWithRetry(
-      db,
+    await executeUpdateWithRetry(db,
       `
-        INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
       [
         projectname.toLowerCase(),
@@ -1436,17 +1391,15 @@ ipcMain.handle("createNewProject", async (event, args) => {
         user_id,
         lang,
         project_uuid,
-      ]
+      ],
     );
 
     log.info("Project added successfully");
-    log.info("Fetching new project with UUID:", project_uuid);
-    // Send the newProject object as a response to the frontend
-    event.sender.send("createNewProject-response", { success: true });
-    return { success: true }; // Optionally, also return the newProject object
+
+    return { success: true };
   } catch (err) {
     console.error("Error adding new project data:", err.message);
-    event.sender.send("createNewProject-response", { error: err.message });
+
     return { error: err.message };
   }
 });
@@ -1507,34 +1460,55 @@ ipcMain.handle("createNewProject", async (event, args) => {
 // });
 
 //get latest project
+// ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
+//   const retrieveQuery = "SELECT project_id FROM projects WHERE user_id = ? AND project_uuid = ?";
+
+//   log.info("SQL Query:", retrieveQuery, "Parameters:", [user_id, project_uuid]);
+
+//   try {
+//     const db = new sqlite3.Database(dbPath);
+
+//     const row = await executeQueryWithRetry(db, retrieveQuery, [user_id, project_uuid]);
+
+//     if (!row) {
+//       log.info("Project not found (getLatestProject)");
+//       return { statusCode: 0, errorMessage: "Project not found" };
+//     }
+
+//     log.info("Project found (getLatestProject):", row);
+
+//     return {
+//       statusCode: 1,
+//       project_id: row.project_id
+//     };
+//   } catch (error) {
+//     log.info("Error fetching project data (getLatestProject):", error);
+//     return { statusCode: 0, errorMessage: error.message };
+//   }
+// });
 ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND project_uuid = ?";
 
   try {
-    const db = new sqlite3.Database(dbPath);
+    const project = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
 
-    const row = await executeQueryWithRetry(db, retrieveQuery, [user_id, project_uuid]);
-
-    if (!row) {
-      return { statusCode: 0, errorMessage: "Project not found" };
-    }
-
-    const project = {
-      statusCode: 1,
-      project_id: row.project_id,
-      project_uuid: row.project_uuid,
-      projectname: row.projectname,
-      type: row.type,
-      anomaly: row.anomaly,
-      merged_teams: row.merged_teams,
-      unit: row.unit,
-      alert_sale: row.alert_sale,
-      is_deleted: row.is_deleted,
-      is_sent: row.is_sent,
-      sent_date: row.sent_date,
-      user_id: row.user_id,
-      created: row.created,
-    };
+      db.get(retrieveQuery, [user_id, project_uuid], (error, row) => {
+        if (error) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: error });
+        } else if (!row) {
+          db.close();
+          reject({ statusCode: 0, errorMessage: "Project not found" });
+        } else {
+          db.close();
+          resolve({
+            statusCode: 1,
+            project_id: row.project_id
+          });
+        }
+      });
+    });
 
     return project;
   } catch (error) {
@@ -1542,48 +1516,6 @@ ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-// ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
-//   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND project_uuid = ?";
-
-//   try {
-//     const project = await new Promise((resolve, reject) => {
-//       const db = new sqlite3.Database(dbPath);
-
-//       db.get(retrieveQuery, [user_id, project_uuid], (error, row) => {
-//         if (error) {
-//           db.close();
-//           reject({ statusCode: 0, errorMessage: error });
-//         } else if (!row) {
-//           db.close();
-//           reject({ statusCode: 0, errorMessage: "Project not found" });
-//         } else {
-//           db.close();
-//           resolve({
-//             statusCode: 1,
-//             project_id: row.project_id,
-//             project_uuid: row.project_uuid,
-//             projectname: row.projectname,
-//             type: row.type,
-//             anomaly: row.anomaly,
-//             merged_teams: row.merged_teams,
-//             unit: row.unit,
-//             alert_sale: row.alert_sale,
-//             is_deleted: row.is_deleted,
-//             is_sent: row.is_sent,
-//             sent_date: row.sent_date,
-//             user_id: row.user_id,
-//             created: row.created,
-//           });
-//         }
-//       });
-//     });
-
-//     return project;
-//   } catch (error) {
-//     console.error("Error fetching project data:", error);
-//     return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
 
 //delete project
 ipcMain.handle("deleteProject", async (event, project_id) => {
@@ -1778,12 +1710,15 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
+
 async function executeQueryWithRetry(db, query, params = [], retries = 5, delay = 1000) {
   return new Promise((resolve, reject) => {
     function attempt() {
       db.all(query, params, (error, rows) => {
         if (error) {
+          log.info(`Error executing query: ${query}, params: ${params}, retries left: ${retries}`);
           if (error.code === 'SQLITE_BUSY' && retries > 0) {
+            log.info(`Retrying query after ${delay}ms`);
             setTimeout(attempt, delay);
           } else {
             reject(error);
