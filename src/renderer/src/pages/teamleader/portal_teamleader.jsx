@@ -122,7 +122,7 @@ function Portal_teamleader() {
                     setProjectAnomaly(projectData.project.anomaly);
                     setProjectMergedTeams(projectData.project.merged_teams);
                     localStorage.setItem("project_type", projectData.project.type);
-                    fetchTeamsByProjectId();
+                    
                 } else {
                     console.error('Error: Project data is null or undefined');
                     fetchProject();
@@ -144,7 +144,8 @@ function Portal_teamleader() {
             }
         };
 
-        fetchProject()
+        fetchProject();
+        fetchTeamsByProjectId();
 
         const timer = setTimeout(() => {
             setLoading(false);

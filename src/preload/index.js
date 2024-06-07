@@ -73,7 +73,7 @@ const api = {
   createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window
   createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // NOT EXISTS??? create main window
 
-  lookForUpdates: () => ipcRenderer.invoke('lookForUpdates'), //NOT EXIST???
+  // lookForUpdates: () => ipcRenderer.invoke('lookForUpdates'), //NOT EXIST???
 
 
 

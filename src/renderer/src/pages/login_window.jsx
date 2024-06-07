@@ -41,17 +41,17 @@ function Login_window() {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchUpdates = async () => {
-      try {
-        const response = await window.api.lookForUpdates();
-        console.log(response);
-      } catch (error) {
-        console.log("error msg:", error);
-      }
-    };
-    fetchUpdates();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUpdates = async () => {
+  //     try {
+  //       const response = await window.api.lookForUpdates();
+  //       console.log(response);
+  //     } catch (error) {
+  //       console.log("error msg:", error);
+  //     }
+  //   };
+  //   fetchUpdates();
+  // }, []);
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
