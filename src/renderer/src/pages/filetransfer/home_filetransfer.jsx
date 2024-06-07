@@ -134,6 +134,7 @@ function Home_filetransfer() {
           const response = await window.api.uploadFile(
             file.path,
             chosenProjectLang,
+            file.size
           );
           console.log(response);
           

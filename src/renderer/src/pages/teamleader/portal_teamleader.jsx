@@ -106,7 +106,7 @@ function Portal_teamleader() {
         }
     }
 
-    //load loading bar on load
+    //fetch projects and teams data
     useEffect(() => {
         let project_id = localStorage.getItem("project_id");
         console.log(project_id);
@@ -144,22 +144,6 @@ function Portal_teamleader() {
             }
         };
 
-        // const fetchUser = async () => {
-        //     let user_id = localStorage.getItem("user_id");
-        //     try {
-        //         const userData = await window.api.getUser(user_id);
-        //         if (userData && userData.user) {
-        //             console.log('User:', userData.user);
-        //             setUserForControlSheet(userData.user.firstname + " " + userData.user.lastname);
-        //         } else {
-        //             console.error('Error: User data is null or undefined');
-        //         }
-        //     } catch (error) {
-        //         console.error('Error fetching user:', error);
-        //     }
-        // };
-
-        // fetchUser();
         fetchProject()
 
         const timer = setTimeout(() => {

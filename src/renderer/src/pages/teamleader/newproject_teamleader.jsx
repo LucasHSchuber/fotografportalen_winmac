@@ -51,28 +51,41 @@ function Newproject_teamleader() {
             const user_lang = localStorage.getItem("user_lang");
             console.log(user_lang);
 
+            const timeout = (ms) => new Promise((resolve, reject) => {
+                const id = setTimeout(() => {
+                    clearTimeout(id);
+                    reject(new Error('Request timed out'));
+                }, ms);
+            });
+
             try {
-                const projects = await fetchProjectsByLang(user_lang);
+                const projects = await Promise.race([
+                    fetchProjectsByLang(user_lang),
+                    timeout(2000)
+                ]);
                 set_Projects(projects.result);
                 console.log('Projects:', projects.result);
 
             } catch (error) {
-                console.error('Error fetching projects by language from big database:', error);
+                console.error('Error fetching projects by language from big database or timeout:', error);
 
-                const response = await window.api.get_Projects(user_lang);
-                console.log('Projects from SQLite:', response);
+                try {
+                    const response = await window.api.get_Projects(user_lang);
+                    console.log('Projects from SQLite:', response);
 
-                if (response.statusCode === 1) {
-                    if (response.projects.length > 0) {
-                        set_Projects(response.projects);
-                        console.log('Projects fetched successfully');
+                    if (response.statusCode === 1) {
+                        if (response.projects.length > 0) {
+                            set_Projects(response.projects);
+                            console.log('Projects fetched from SQLite successfully');
+                        } else {
+                            console.log('No projects found for the specified language.');
+                        }
                     } else {
-                        console.log('No projects found for the specified language.');
+                        console.error('Error fetching projects:', response.errorMessage);
                     }
-                } else {
-                    console.error('Error fetching projects:', response.errorMessage);
+                } catch (innerError) {
+                    console.error('Error fetching projects from SQLite:', innerError);
                 }
-
             }
         };
 
@@ -137,7 +150,7 @@ function Newproject_teamleader() {
 
         let _uuid = selectedProject.project_uuid;
         setProject_uuid(_uuid); //set uuid
-        setProjectDate(selectedProject.start); //set project date
+        setProjectDate(selectedProject.start ? selectedProject.start : selectedProject.project_date); //set project date
 
         console.log('Selected project:', projectName);
         console.log('Selected type:', type);
@@ -177,7 +190,6 @@ function Newproject_teamleader() {
             } else {
                 console.log('Project does not exist.');
 
-                
                 console.log('sport_type:', sport_type);
                 console.log('TYPE:', type);
                 console.log('SPORT TYPE:', sportType);
@@ -279,7 +291,7 @@ function Newproject_teamleader() {
                     <Select
                         value={projectName}
                         onChange={handleProjectChange}
-                        options={_projects.map(project => ({ value: project.project_uuid, label: project.projectname, lang: project.lang }))}
+                        options={_projects.map(project => ({ value: project.project_uuid, label: project.projectname, lang: project.lang, project_date: project.project_date }))}
                         isClearable
                         placeholder="Search projects..."
                         styles={customStyles}

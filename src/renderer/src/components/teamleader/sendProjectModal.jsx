@@ -176,6 +176,9 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
             try {
                 const sentProject = await window.api.sendProjectToDb(project_id, alertSale, responseId);
                 console.log('Sent:', sentProject);
+                console.log(project_id);
+                console.log(alertSale);
+                console.log(responseId);
 
                 setShowConfirmationModal(false);
                 sessionStorage.setItem("feedbackMessage_sentproject", "Job successfully sent");

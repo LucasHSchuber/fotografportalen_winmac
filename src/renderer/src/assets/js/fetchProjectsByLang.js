@@ -11,7 +11,7 @@ const fetchProjectsByLang = async (lang) => {
 
     if (response && response.data) {
       console.log(`Fetched projects for language ${lang}:`, response.data);
-      return response.data; // Return the fetched data
+      return response.data; 
     } else {
       console.error('Empty response received');
       return null;

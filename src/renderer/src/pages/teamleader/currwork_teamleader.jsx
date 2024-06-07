@@ -17,6 +17,9 @@ function Currwork_teamleader() {
     const [projectsArray, setProjectsArray] = useState([]);
     const [loading, setLoading] = useState(true);
     const [projectId, setProjectId] = useState(null);
+    // const [projectUuid, setProjectUuid] = useState(null);
+    const [project, setProject] = useState({});
+    const [teams, setTeams] = useState({});
     const [showSendProjectModal, setShowSendProjectModal] = useState(false);
 
     const handleCloseProjectModal = () => setShowSendProjectModal(false);
@@ -69,9 +72,37 @@ function Currwork_teamleader() {
     }
 
     //send project to DB
-    const sendProject = async (project_id) => {
-        console.log(project_id);
-        setProjectId(project_id);
+    const sendProject = async (project) => {
+        console.log(project.project_id);
+        setProjectId(project.project_id);
+        // console.log(project_uuid);
+        // setProjectUuid(project_uuid);
+
+            try {
+                const projectData = await window.api.getProjectById(project.project_id);
+                if (projectData && projectData.project) {
+                    console.log('Project:', projectData.project);
+                    setProject(projectData.project);
+                    
+                } else {
+                    console.error('Error: Project data is null or undefined');
+                    fetchProject();
+                }
+            } catch (error) {
+                console.error('Error fetching project:', error);
+                fetchProject();
+            }
+            try {
+                const teamsData = await window.api.getTeamsByProjectId(project.project_id);
+                console.log('Teams:', teamsData.teams);
+                setTeams(teamsData.teams);
+                // setLoading(false); // Set loading to false when data is fetched
+            } catch (error) {
+                console.error('Error fetching teams:', error);
+            }
+
+        console.log(project);
+        setProject(project);
         setShowSendProjectModal(true);
     }
 
@@ -123,7 +154,7 @@ function Currwork_teamleader() {
                                 </div>
                                 <div className="currwork-box-right mx-2"
                                     value={project.project_id}
-                                    onClick={() => sendProject(project.project_id)}
+                                    onClick={() => sendProject(project)}
                                     title={`Send job: ${project.projectname}`}
                                 >
                                     <FontAwesomeIcon icon={faPaperPlane} />
@@ -141,7 +172,7 @@ function Currwork_teamleader() {
             </div>
 
             <Sidemenu_teamleader />
-            <SendProjectModal showSendProjectModal={showSendProjectModal} project_id={projectId} handleCloseProjectModal={handleCloseProjectModal} refreshProjects={refreshProjects} />
+            <SendProjectModal showSendProjectModal={showSendProjectModal} alertSale={false} project_id={projectId} project={project} teams={teams} handleCloseProjectModal={handleCloseProjectModal} refreshProjects={refreshProjects} />
 
         </div>
     );
