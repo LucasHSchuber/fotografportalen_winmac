@@ -214,17 +214,17 @@ function Newproject_teamleader() {
       
             if (createResponse.success) {
               console.log('Project created successfully');
-              const latestProjectResponse = await window.api.getLatestProject(user_id, project_uuid);
-              console.log('Check Latest Project Response:', latestProjectResponse);
+            //   const latestProjectResponse = await window.api.getLatestProject(user_id, project_uuid);
+            //   console.log('Check Latest Project Response:', latestProjectResponse);
       
-              if (!latestProjectResponse.project_id) {
+              if (!createResponse.project_id) {
                 console.error('Error: Project ID is not set.');
                 setErrorCreatingProject(true);
                 return;
               }
       
-              localStorage.setItem("project_id", latestProjectResponse.project_id);
-              console.log(localStorage.getItem("project_id"));
+              localStorage.setItem("project_id", createResponse.project_id);
+              console.log("localstorage setitem project_id:", localStorage.getItem("project_id"));
       
               // Check if project ID is set in local storage
               if (!localStorage.getItem("project_id")) {
@@ -233,7 +233,7 @@ function Newproject_teamleader() {
                 return;
               }
       
-              navigate(`/portal_teamleader/${latestProjectResponse.project_id}`);
+              navigate(`/portal_teamleader/${createResponse.project_id}`);
             } else {
               console.error('Error creating project:', createResponse?.error || 'Unknown error');
             }

@@ -1378,28 +1378,36 @@ ipcMain.handle("createNewProject", async (event, args) => {
 
     const db = new sqlite3.Database(dbPath);
 
-    await executeUpdateWithRetry(db,
-      `
-          INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        projectname.toLowerCase(),
-        photographername,
-        type.toLowerCase(),
-        project_date,
-        user_id,
-        lang,
-        project_uuid,
-      ],
-    );
+    const project_id = await new Promise((resolve, reject) => {
+      db.run(
+        `
+        INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        `,
+        [
+          projectname.toLowerCase(),
+          photographername,
+          type.toLowerCase(),
+          project_date,
+          user_id,
+          lang,
+          project_uuid,
+        ],
+        function (error) {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(this.lastID); // Retrieve the last inserted row ID
+          }
+        }
+      );
+    });
 
-    log.info("Project added successfully");
+    log.info("Project added successfully with project_id:", project_id);
 
-    return { success: true };
+    return { success: true, project_id };
   } catch (err) {
     console.error("Error adding new project data:", err.message);
-
     return { error: err.message };
   }
 });
