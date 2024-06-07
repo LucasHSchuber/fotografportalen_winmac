@@ -28,6 +28,8 @@ function Newteam_teamleader() {
         amount: false
     });
     const [project_id, setProject_id] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
 
     const navigate = useNavigate();
 
@@ -93,7 +95,8 @@ const handleSubmit = async (e) => {
         return;
     }
 
-    isDbLocked = true;  // Acquire the lock
+    isDbLocked = true;  
+    setIsSubmitting(true);
 
     try {
         // Set error messages
@@ -103,6 +106,7 @@ const handleSubmit = async (e) => {
             setErrorMessageSport(errorsSport);
             // Check if any errors exist
             if (Object.keys(errorsSport).length > 0) {
+                setIsSubmitting(false);
                 return;
             }
         } else if (projectType === "school" || projectType === "sport_portrait") {
@@ -112,6 +116,7 @@ const handleSubmit = async (e) => {
             setErrorMessage(errors);
             // Check if any errors exist
             if (Object.keys(errors).length > 0) {
+                setIsSubmitting(false);
                 return;
             }
         }
@@ -194,7 +199,8 @@ const handleSubmit = async (e) => {
             console.log("Project type is not defined");
         }
     } finally {
-        isDbLocked = false;  // Release the lock
+        isDbLocked = false;  
+        setIsSubmitting(false);
     }
 };
 
@@ -284,9 +290,12 @@ const handleSubmit = async (e) => {
                         </label>
                     </div>
                     <div className="mt-4">
-                        <button className="button cancel fixed-width mr-1" type="button" onClick={handleCancel}>Cancel</button>
-                        <button className="button standard fixed-width " type="submit">Create</button>
+                        <button className="button cancel fixed-width mr-1" type="button" onClick={handleCancel} >Cancel</button>
+                        <button className="button standard fixed-width " type="submit" disabled={isSubmitting}>{isSubmitting ? 'Creating...' : 'Create'}</button>
                     </div>
+                    {isSubmitting && <div className="spinner-border text-primary" role="status">
+                        <span className="sr-only">Loading...</span>
+                    </div>}
                 </form>
 
             </div>
