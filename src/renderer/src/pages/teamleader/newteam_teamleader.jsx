@@ -83,9 +83,19 @@ function Newteam_teamleader() {
     }, [])
 
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    let isDbLocked = false;
 
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isDbLocked) {
+        console.log("Database is currently locked, please wait.");
+        return;
+    }
+
+    isDbLocked = true;  // Acquire the lock
+
+    try {
         // Set error messages
         if (projectType === "sport") {
             let errorsSport = {};
@@ -95,7 +105,7 @@ function Newteam_teamleader() {
             if (Object.keys(errorsSport).length > 0) {
                 return;
             }
-        } else if (projectType === "school" || projectType === "sport_portrait" ) {
+        } else if (projectType === "school" || projectType === "sport_portrait") {
             let errors = {};
             if (!formData.teamname) errors.teamname = true;
             if (!formData.amount) errors.amount = true;
@@ -117,7 +127,7 @@ function Newteam_teamleader() {
         const crowdValue = formData.crowd ? 1 : 0;
         const protectedIdValue = formData.protected_id ? 1 : 0;
 
-        //if class (school)
+        // If class (school)
         if (projectType === "school" || projectType === "sport_portrait") {
             try {
                 const classData = await window.api.createNewClass({
@@ -138,7 +148,7 @@ function Newteam_teamleader() {
             } catch (error) {
                 console.error('Error adding class:', error);
             }
-            //if team (sport)
+            // If team (sport)
         } else if (projectType === "sport") {
             let team_id = localStorage.getItem("team_id");
             let calendar_sale = localStorage.getItem("calendar_sale");
@@ -165,7 +175,7 @@ function Newteam_teamleader() {
                 console.error('Error adding class:', error);
             }
 
-            //clear data in localstorage
+            // Clear data in localstorage
             localStorage.removeItem("newteam_teamname");
             localStorage.removeItem("newteam_leaderfirstname");
             localStorage.removeItem("newteam_leaderlastname");
@@ -183,7 +193,10 @@ function Newteam_teamleader() {
         } else {
             console.log("Project type is not defined");
         }
-    };
+    } finally {
+        isDbLocked = false;  // Release the lock
+    }
+};
 
 
 

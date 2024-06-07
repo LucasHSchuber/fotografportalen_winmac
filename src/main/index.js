@@ -1825,186 +1825,186 @@ ipcMain.handle("addDataToTeam", async (event, args) => {
 });
 
 //create new class
-ipcMain.handle("createNewClass", async (event, args) => {
-  try {
-    if (!args || typeof args !== "object") {
-      throw new Error("Invalid arguments received for createNewClass");
-    }
-    const { teamname, amount, protected_id, portrait, project_id, crowd } = args;
-    if (!teamname || !amount || !project_id) {
-      throw new Error("Missing required data for createNewClass");
-    }
-
-    const db = new sqlite3.Database(dbPath);
-    const query = `
-      INSERT INTO teams (
-          teamname, 
-          amount, 
-          protected_id,
-          portrait, 
-          crowd, 
-          project_id
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    const params = [
-      teamname,
-      amount,
-      protected_id ? 1 : 0, // Convert boolean to integer
-      portrait ? 1 : 0, // Convert boolean to integer
-      crowd ? 1 : 0, // Convert boolean to integer
-      project_id
-    ];
-
-    const result = await executeUpdateWithRetry(db, query, params);
-    console.log(`Class added successfully`);
-
-    await closeDatabase(db);
-
-    // Send success response to the frontend
-    return { success: true };
-  } catch (err) {
-    console.error("Error adding new class:", err.message);
-    // Send error response to the frontend
-    return { error: err.message };
-  }
-});
 // ipcMain.handle("createNewClass", async (event, args) => {
 //   try {
 //     if (!args || typeof args !== "object") {
 //       throw new Error("Invalid arguments received for createNewClass");
 //     }
-//     const { teamname, amount, protected_id, portrait, project_id, crowd } =
-//       args;
+//     const { teamname, amount, protected_id, portrait, project_id, crowd } = args;
 //     if (!teamname || !amount || !project_id) {
 //       throw new Error("Missing required data for createNewClass");
 //     }
 
-//     const result = await db.run(
-//       `
-//           INSERT INTO teams (
-//               teamname, 
-//               amount, 
-//               protected_id,
-//               portrait, 
-//               crowd, 
-//               project_id
-//           )
-//           VALUES (?, ?, ?, ?, ?, ?)
-//           `,
-//       [
-//         teamname,
-//         amount,
-//         protected_id ? 1 : 0, // Convert boolean to integer,
-//         portrait ? 1 : 0, // Convert boolean to integer
-//         crowd ? 1 : 0, // Convert boolean to integer
-//         project_id,
-//       ],
-//     );
+//     const db = new sqlite3.Database(dbPath);
+//     const query = `
+//       INSERT INTO teams (
+//           teamname, 
+//           amount, 
+//           protected_id,
+//           portrait, 
+//           crowd, 
+//           project_id
+//       )
+//       VALUES (?, ?, ?, ?, ?, ?)
+//     `;
+//     const params = [
+//       teamname,
+//       amount,
+//       protected_id ? 1 : 0, // Convert boolean to integer
+//       portrait ? 1 : 0, // Convert boolean to integer
+//       crowd ? 1 : 0, // Convert boolean to integer
+//       project_id
+//     ];
 
+//     const result = await executeUpdateWithRetry(db, query, params);
 //     console.log(`Class added successfully`);
 
+//     await closeDatabase(db);
+
 //     // Send success response to the frontend
-//     event.sender.send("createNewClass-response", { success: true });
 //     return { success: true };
 //   } catch (err) {
 //     console.error("Error adding new class:", err.message);
 //     // Send error response to the frontend
-//     event.sender.send("createNewClass-response", { error: err.message });
 //     return { error: err.message };
 //   }
 // });
-
-//Add team data to team
-ipcMain.handle("addTeamDataToTeam", async (event, args) => {
+ipcMain.handle("createNewClass", async (event, args) => {
   try {
     if (!args || typeof args !== "object") {
-      throw new Error("Invalid arguments received for addTeamDataToTeam");
+      throw new Error("Invalid arguments received for createNewClass");
+    }
+    const { teamname, amount, protected_id, portrait, project_id, crowd } =
+      args;
+    if (!teamname || !amount || !project_id) {
+      throw new Error("Missing required data for createNewClass");
     }
 
-    const { amount, protected_id, portrait, crowd, sold_calendar, team_id } = args;
+    const result = await db.run(
+      `
+          INSERT INTO teams (
+              teamname, 
+              amount, 
+              protected_id,
+              portrait, 
+              crowd, 
+              project_id
+          )
+          VALUES (?, ?, ?, ?, ?, ?)
+          `,
+      [
+        teamname,
+        amount,
+        protected_id ? 1 : 0, // Convert boolean to integer,
+        portrait ? 1 : 0, // Convert boolean to integer
+        crowd ? 1 : 0, // Convert boolean to integer
+        project_id,
+      ],
+    );
 
-    if (!amount || !team_id) {
-      throw new Error("Missing required data for addTeamDataToTeam");
-    }
-
-    const db = new sqlite3.Database(dbPath);
-    const query = `
-      UPDATE teams
-      SET amount = ?,
-      protected_id = ?,
-      portrait = ?,
-      crowd = ?,
-      sold_calendar = ?
-      WHERE team_id = ?
-    `;
-    const params = [
-      amount,
-      protected_id ? 1 : 0,
-      portrait ? 1 : 0,
-      crowd ? 1 : 0,
-      sold_calendar,
-      team_id
-    ];
-
-    const result = await executeUpdateWithRetry(db, query, params);
-    console.log(`Team data added successfully`);
-
-    await closeDatabase(db);
+    console.log(`Class added successfully`);
 
     // Send success response to the frontend
+    event.sender.send("createNewClass-response", { success: true });
     return { success: true };
   } catch (err) {
-    console.error("Error adding data to team:", err.message);
+    console.error("Error adding new class:", err.message);
     // Send error response to the frontend
+    event.sender.send("createNewClass-response", { error: err.message });
     return { error: err.message };
   }
 });
+
+//Add team data to team
 // ipcMain.handle("addTeamDataToTeam", async (event, args) => {
 //   try {
 //     if (!args || typeof args !== "object") {
 //       throw new Error("Invalid arguments received for addTeamDataToTeam");
 //     }
 
-//     const { amount, protected_id, portrait, crowd, sold_calendar, team_id } =
-//       args;
+//     const { amount, protected_id, portrait, crowd, sold_calendar, team_id } = args;
 
 //     if (!amount || !team_id) {
 //       throw new Error("Missing required data for addTeamDataToTeam");
 //     }
 
-//     const result = await db.run(
-//       `
-//         UPDATE teams
-//         SET amount = ?,
-//         protected_id = ?,
-//         portrait = ?,
-//         crowd = ?,
-//         sold_calendar = ?
-//         WHERE team_id = ?
-//         `,
-//       [
-//         amount,
-//         protected_id ? 1 : 0,
-//         portrait ? 1 : 0,
-//         crowd ? 1 : 0,
-//         sold_calendar,
-//         team_id,
-//       ],
-//     );
+//     const db = new sqlite3.Database(dbPath);
+//     const query = `
+//       UPDATE teams
+//       SET amount = ?,
+//       protected_id = ?,
+//       portrait = ?,
+//       crowd = ?,
+//       sold_calendar = ?
+//       WHERE team_id = ?
+//     `;
+//     const params = [
+//       amount,
+//       protected_id ? 1 : 0,
+//       portrait ? 1 : 0,
+//       crowd ? 1 : 0,
+//       sold_calendar,
+//       team_id
+//     ];
 
+//     const result = await executeUpdateWithRetry(db, query, params);
 //     console.log(`Team data added successfully`);
 
+//     await closeDatabase(db);
+
 //     // Send success response to the frontend
-//     event.sender.send("addTeamDataToTeam-response", { success: true });
 //     return { success: true };
 //   } catch (err) {
 //     console.error("Error adding data to team:", err.message);
 //     // Send error response to the frontend
-//     event.sender.send("addTeamDataToTeam-response", { error: err.message });
 //     return { error: err.message };
 //   }
 // });
+ipcMain.handle("addTeamDataToTeam", async (event, args) => {
+  try {
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for addTeamDataToTeam");
+    }
+
+    const { amount, protected_id, portrait, crowd, sold_calendar, team_id } =
+      args;
+
+    if (!amount || !team_id) {
+      throw new Error("Missing required data for addTeamDataToTeam");
+    }
+
+    const result = await db.run(
+      `
+        UPDATE teams
+        SET amount = ?,
+        protected_id = ?,
+        portrait = ?,
+        crowd = ?,
+        sold_calendar = ?
+        WHERE team_id = ?
+        `,
+      [
+        amount,
+        protected_id ? 1 : 0,
+        portrait ? 1 : 0,
+        crowd ? 1 : 0,
+        sold_calendar,
+        team_id,
+      ],
+    );
+
+    console.log(`Team data added successfully`);
+
+    // Send success response to the frontend
+    event.sender.send("addTeamDataToTeam-response", { success: true });
+    return { success: true };
+  } catch (err) {
+    console.error("Error adding data to team:", err.message);
+    // Send error response to the frontend
+    event.sender.send("addTeamDataToTeam-response", { error: err.message });
+    return { error: err.message };
+  }
+});
 
 //delete team
 ipcMain.handle("deleteTeam", async (event, team_id) => {
