@@ -1420,11 +1420,14 @@ ipcMain.handle("createNewProject", async (event, args) => {
       throw new Error("Missing required user data for createNewProject");
     }
 
-    await db.run(
+    const db = new sqlite3.Database(dbPath);
+
+    await executeUpdateWithRetry(
+      db,
       `
-          INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-          `,
+        INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
       [
         projectname.toLowerCase(),
         photographername,
@@ -1433,7 +1436,7 @@ ipcMain.handle("createNewProject", async (event, args) => {
         user_id,
         lang,
         project_uuid,
-      ],
+      ]
     );
 
     log.info("Project added successfully");
@@ -1447,43 +1450,91 @@ ipcMain.handle("createNewProject", async (event, args) => {
     return { error: err.message };
   }
 });
+// ipcMain.handle("createNewProject", async (event, args) => {
+//   try {
+//     if (!args || typeof args !== "object") {
+//       throw new Error("Invalid arguments received for createNewProject");
+//     }
+
+//     const {
+//       projectname,
+//       type,
+//       user_id,
+//       project_uuid,
+//       photographername,
+//       project_date,
+//       lang,
+//     } = args;
+
+//     if (
+//       !projectname ||
+//       !type ||
+//       !project_uuid ||
+//       !user_id ||
+//       !photographername ||
+//       !project_date ||
+//       !lang
+//     ) {
+//       throw new Error("Missing required user data for createNewProject");
+//     }
+
+//     await db.run(
+//       `
+//           INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
+//           VALUES (?, ?, ?, ?, ?, ?, ?)
+//           `,
+//       [
+//         projectname.toLowerCase(),
+//         photographername,
+//         type.toLowerCase(),
+//         project_date,
+//         user_id,
+//         lang,
+//         project_uuid,
+//       ],
+//     );
+
+//     log.info("Project added successfully");
+//     log.info("Fetching new project with UUID:", project_uuid);
+//     // Send the newProject object as a response to the frontend
+//     event.sender.send("createNewProject-response", { success: true });
+//     return { success: true }; // Optionally, also return the newProject object
+//   } catch (err) {
+//     console.error("Error adding new project data:", err.message);
+//     event.sender.send("createNewProject-response", { error: err.message });
+//     return { error: err.message };
+//   }
+// });
 
 //get latest project
 ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND project_uuid = ?";
 
   try {
-    const project = await new Promise((resolve, reject) => {
-      const db = new sqlite3.Database(dbPath);
+    const db = new sqlite3.Database(dbPath);
 
-      db.get(retrieveQuery, [user_id, project_uuid], (error, row) => {
-        if (error) {
-          db.close();
-          reject({ statusCode: 0, errorMessage: error });
-        } else if (!row) {
-          db.close();
-          reject({ statusCode: 0, errorMessage: "Project not found" });
-        } else {
-          db.close();
-          resolve({
-            statusCode: 1,
-            project_id: row.project_id,
-            project_uuid: row.project_uuid,
-            projectname: row.projectname,
-            type: row.type,
-            anomaly: row.anomaly,
-            merged_teams: row.merged_teams,
-            unit: row.unit,
-            alert_sale: row.alert_sale,
-            is_deleted: row.is_deleted,
-            is_sent: row.is_sent,
-            sent_date: row.sent_date,
-            user_id: row.user_id,
-            created: row.created,
-          });
-        }
-      });
-    });
+    const row = await executeQueryWithRetry(db, retrieveQuery, [user_id, project_uuid]);
+
+    if (!row) {
+      return { statusCode: 0, errorMessage: "Project not found" };
+    }
+
+    const project = {
+      statusCode: 1,
+      project_id: row.project_id,
+      project_uuid: row.project_uuid,
+      projectname: row.projectname,
+      type: row.type,
+      anomaly: row.anomaly,
+      merged_teams: row.merged_teams,
+      unit: row.unit,
+      alert_sale: row.alert_sale,
+      is_deleted: row.is_deleted,
+      is_sent: row.is_sent,
+      sent_date: row.sent_date,
+      user_id: row.user_id,
+      created: row.created,
+    };
 
     return project;
   } catch (error) {
@@ -1491,6 +1542,48 @@ ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
+// ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
+//   const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND project_uuid = ?";
+
+//   try {
+//     const project = await new Promise((resolve, reject) => {
+//       const db = new sqlite3.Database(dbPath);
+
+//       db.get(retrieveQuery, [user_id, project_uuid], (error, row) => {
+//         if (error) {
+//           db.close();
+//           reject({ statusCode: 0, errorMessage: error });
+//         } else if (!row) {
+//           db.close();
+//           reject({ statusCode: 0, errorMessage: "Project not found" });
+//         } else {
+//           db.close();
+//           resolve({
+//             statusCode: 1,
+//             project_id: row.project_id,
+//             project_uuid: row.project_uuid,
+//             projectname: row.projectname,
+//             type: row.type,
+//             anomaly: row.anomaly,
+//             merged_teams: row.merged_teams,
+//             unit: row.unit,
+//             alert_sale: row.alert_sale,
+//             is_deleted: row.is_deleted,
+//             is_sent: row.is_sent,
+//             sent_date: row.sent_date,
+//             user_id: row.user_id,
+//             created: row.created,
+//           });
+//         }
+//       });
+//     });
+
+//     return project;
+//   } catch (error) {
+//     console.error("Error fetching project data:", error);
+//     return { statusCode: 0, errorMessage: error.message };
+//   }
+// });
 
 //delete project
 ipcMain.handle("deleteProject", async (event, project_id) => {
