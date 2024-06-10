@@ -229,12 +229,13 @@
 }
 
 .work-type-button {
-    padding: 1.2em 1.5em 0.5em 1.5em;
+    padding: 1.4em 1.5em 0.4em 1.5em;
     margin: 0.5em 0.2em 0.5em 0;
     background-color: rgb(54, 54, 54);
     border: 1px solid rgb(189, 189, 189, 0);
     border-radius: 1px;
     transition: 0.2s;
+    font-size: 0.85em;
     /* border: none; */
     cursor: pointer;
     color: white;
@@ -257,11 +258,11 @@
 }
 
 .type-img {
-    width: 2em;
+    width: 1.8em;
 }
 
 .sport-type-button {
-    padding: 1.2em 1.5em 0.5em 1.5em;
+    padding: 1.2em 1.3em 0.1em 1.3em;
     margin: 0.5em 0.2em 0.5em 0;
     background-color: rgb(54, 54, 54);
     border: 1px solid rgb(189, 189, 189, 0);

@@ -14,53 +14,52 @@ function History_filetransfer() {
     const [allFTData, setAllFTData] = useState([]);
     const [searchString, setSearchString] = useState("");
 
-    useEffect(() => {
-        const fetchInitialData = async () => {
-            const user_id = localStorage.getItem("user_id");
-            console.log(user_id);
-            try {
-                const allFTdata = await window.api.getAllFTData(user_id);
-                console.log("FT data:", allFTdata);
-                // setAllFTData(allFTdata);
-                const sortedData = allFTdata.sort((a, b) => new Date(b.created) - new Date(a.created));
-                setAllFTData(sortedData);
-                console.log('Project data:', sortedData);
-            } catch (error) {
-                console.log("error getting FT projects and files:", error);
-            }
-        }
-        fetchInitialData();
-    }, []);
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-        let user_id = localStorage.getItem("user_id");
+    const fetchInitialData = async () => {
+        const user_id = localStorage.getItem("user_id");
         console.log(user_id);
-
-        if (searchString !== "") {
+        try {
+          const allFTdata = await window.api.getAllFTData(user_id);
+          console.log("FT data:", allFTdata);
+          const sortedData = allFTdata.sort((a, b) => new Date(b.created) - new Date(a.created));
+          setAllFTData(sortedData);
+          console.log("Project data:", sortedData);
+        } catch (error) {
+          console.log("error getting FT projects and files:", error);
+        }
+      };
+    
+      useEffect(() => {
+        fetchInitialData();
+      }, []);
+    
+      useEffect(() => {
+        const fetchData = async () => {
+          const user_id = localStorage.getItem("user_id");
+          console.log(user_id);
+    
+          if (searchString !== "") {
             console.log("search entered...");
             try {
-            const allFTdata = await window.api.getAllFTDataBySearch(user_id, searchString);
-            console.log("FT search data:", allFTdata);
-
-            if (allFTdata.statusCode === 1) {
+              const allFTdata = await window.api.getAllFTDataBySearch(user_id, searchString);
+              console.log("FT search data:", allFTdata);
+    
+              if (allFTdata.statusCode === 1) {
                 const sortedData = allFTdata.projects.sort((a, b) => new Date(b.created) - new Date(a.created));
                 setAllFTData(sortedData);
-                console.log('Project data:', sortedData);
-            } else {
-                console.error('Error fetching projects:', allFTdata.errorMessage);
-            }
+                console.log("Project data:", sortedData);
+              } else {
+                console.error("Error fetching projects:", allFTdata.errorMessage);
+              }
             } catch (error) {
-            console.log("error getting FT projects and files:", error);
+              console.log("error getting FT projects and files:", error);
             }
-        } else {
+          } else {
             fetchInitialData();
-        }
+          }
         };
-
+    
         fetchData();
-    }, [searchString]);
+      }, [searchString]);
 
     //when. search input is done 
     const handleSearchString = (e) => {

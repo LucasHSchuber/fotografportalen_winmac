@@ -374,14 +374,14 @@ function Newproject_teamleader() {
                         <button className={`work-type-button ${isSelectedType1 ? 'selected-type' : ''}`}
                             type="button" onClick={() => handleProjectType("Sport")}>
                             <img className="type-img" src={running} alt="running"></img>
-                            <p>
+                            <p className="mt-1">
                                 Sport Photography
                             </p>
                         </button>
                         <button className={`work-type-button ${isSelectedType2 ? 'selected-type' : ''}`}
                             type="button" onClick={() => handleProjectType("School")}>
                             <img className="type-img" src={academic} alt="academic"></img>
-                            <p>
+                            <p className="mt-1">
                                 School Photography
                             </p>
                         </button>

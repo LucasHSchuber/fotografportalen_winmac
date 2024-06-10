@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons";
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import CalendarConfirm from "../../components/teamleader/calendarconfirmModal";
@@ -232,18 +232,24 @@ function Calendarsale_teamleader() {
                   }
                 }}
               />
+            </div>
+            <div>
+              {/* calendar calculator */}
+              {formData.calendar_amount && (
+                <h6 style={{ fontSize: "0.9em" }}>
+                  <b>* {languageTexts.calendarText} {(formData.calendar_amount * 3) * languageTexts.calendarPrice} {languageTexts.currency}</b>     
+                </h6>
+              )}
               <h6 style={{ fontSize: "0.9em" }}>
                 {languageTexts?.calendaramounttext}
               </h6>
-            </div>
-            <div>
-              <div>
+              {/* <div>
                 {formData.calendar_amount && (
                   <div>
-                    <h6>Total income: {formData.calendar_amount * 3 * 100} SEK</h6>
+                    <h6>Total income: {(formData.calendar_amount * 3) * languageTexts.calendarPrice} {languageTexts.currency}</h6>
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
           {/* only show SSN input if SWEDISH OR GERMAN */}

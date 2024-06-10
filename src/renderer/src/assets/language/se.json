@@ -55,5 +55,9 @@
   "confirm_ssn": "Personnummer:",
   "confirm_address": "Adress:",
   "confirm_postalcode": "Postnummer:",
-  "confirm_county": "Stad:"
+  "confirm_county": "Stad:",
+
+  "calendarText": "Lagets totala inkomster:",
+  "calendarPrice": "100",
+  "currency": "SEK"
 }

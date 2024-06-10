@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -29,6 +29,8 @@ function Home_filetransfer() {
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
+
+  const inputRef = useRef(null);
 
 
   console.log("File:", files);
@@ -74,6 +76,7 @@ function Home_filetransfer() {
 
   const handleDrop = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const droppedFiles = Array.from(event.dataTransfer.files);
     const zipFiles = droppedFiles.filter((file) => file.name.endsWith(".zip"));
     if (zipFiles.length > 0) {
@@ -84,10 +87,14 @@ function Home_filetransfer() {
     } else {
       alert("The only valid file format is .zip-files");
     }
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   const handleDragOver = (event) => {
     event.preventDefault();
+    event.stopPropagation();
   };
 
   const handleDelete = (index) => {
