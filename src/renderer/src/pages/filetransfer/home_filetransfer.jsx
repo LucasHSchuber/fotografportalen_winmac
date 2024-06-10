@@ -182,7 +182,7 @@ function Home_filetransfer() {
           return;
         }
       }
-      alert(`Filetransfer:  All files uploaded successfully!`);
+      // alert(`Filetransfer:  All files uploaded successfully!`);
       setIsUploading(false);
       setChooseNewProjectName("");
       setChosenProjectName("");

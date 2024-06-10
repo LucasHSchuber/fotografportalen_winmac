@@ -312,6 +312,14 @@ const db = new sqlite3.Database(dbPath, (err) => {
     createTables(); // Call the function to create tables
   }
 });
+// Enable WAL mode
+db.exec('PRAGMA journal_mode=WAL;', (err) => {
+  if (err) {
+    console.error('Failed to enable WAL mode:', err);
+  } else {
+    console.log('WAL mode enabled');
+  }
+});
 
 // Function to create tables
 function createTables() {
