@@ -253,18 +253,6 @@ function Index() {
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
-          {/* <p>
-            Hello Lucas, can you work 8/6 between 8:00-16:00 in Tullinge?{" "}
-            <br></br> <em>Recieved: 14/5/2024</em>
-          </p>
-          <p>
-            Hello Lucas, can you work 12/6 between 9:00-16:00 in Märsta?{" "}
-            <br></br> <em>Recieved: 15/5/2024</em>
-          </p>
-          <p>
-            Hello Lucas, can you work 16/6 between 9:00-16:00 in Solna?{" "}
-            <br></br> <em>Recieved: 18/5/2024</em>
-          </p> */}
         </div>
 
         <hr style={{ width: "75%" }} className="hr"></hr>
@@ -347,22 +335,18 @@ function Index() {
                     <>
                       <h6 className="ml-3" style={{ color: "green" }}>
                         {" "}
+                        <span style={{ fontSize: "0.8em" }}>
+                          Marked as read
+                        </span>{" "}
                         <FontAwesomeIcon icon={faCheck} />{" "}
                       </h6>
                     </>
                   ) : (
-                    <>
-                      <button
-                        className="ml-2 small-button"
-                        onClick={() => confirmNews(news.news_id)}
-                      >
-                        <FontAwesomeIcon
-                          style={{ fontSize: "1.2em" }}
-                          icon={faSquareCheck}
-                        />
-                      </button>
-                    </>
+                    <></>
                   )}
+                </div>
+                <div className="mb-2" style={{ marginTop: "-0.5em" }}>
+                  <em>Posted: {news && news.created_at.substring(0, 10)}</em>
                 </div>
                 <div
                   dangerouslySetInnerHTML={{
@@ -373,7 +357,7 @@ function Index() {
                 {news.is_read === 0 ? (
                   <>
                     <button
-                      className="mt-2 button"
+                      className="mt-2 confirm-news-button"
                       onClick={() => confirmNews(news.news_id)}
                     >
                       Roger that!

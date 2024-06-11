@@ -1059,13 +1059,9 @@ ipcMain.handle("editUser", async (event, args) => {
     );
 
     console.log(`User data edited successfully`);
-    // Send success response to the frontend
-    event.sender.send("editUser-response", { success: true });
     return { success: true };
   } catch (err) {
     console.error("Error editing user:", err.message);
-    // Send error response to the frontend
-    event.sender.send("editUser-response", { error: err.message });
     return { error: err.message };
   }
 });

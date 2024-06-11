@@ -1,8 +1,6 @@
 /* buttons */
 .button {
   font-weight: 700;
-  /* outline: none !important; */
-  /* outline: 1px solid rgb(4, 0, 255) !important; */
   border: none;
   border-radius: 3px;
   padding: 0.5em 1em;
@@ -39,19 +37,20 @@
   color: rgb(46, 46, 46);
 }
 
-.small-button{
+.confirm-news-button{
+  font-weight: 700;
   border: none;
   border-radius: 3px;
+  padding: 0.5em 1em;
   cursor: pointer;
-  background-color: inherit;
-  transition: 0.2s;
-  margin-bottom: 0.2em;
 }
-.small-button:hover{
-  border: none;
-  border-radius: 3px;
+.confirm-news-button:hover{
   cursor: pointer;
   background-color: rgb(242, 242, 242);
+  outline: none;
+}
+.confirm-news-button:focus {
+  outline-color: #e4e4e4 !important;
 }
 .small-button:focus {
   outline-color: #e4e4e4 !important;

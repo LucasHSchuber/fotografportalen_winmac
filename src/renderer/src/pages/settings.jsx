@@ -105,13 +105,21 @@ function Settings() {
     setErrorMessage({ ...errorMessage, lastname: false });
   };
 
+  const handleChangeNewLang = (newValue) => {
+    console.log(newValue);
+    setLang(newValue);
+    setNewLang(newValue);
+  };
+
   // Function to handle update operation
-  const handleUpdate = async () => {
+  const handleUpdate = async (e) => {
+    e.preventDefault();
     const updatedFields = {};
     updatedFields.city = newCity !== "" ? newCity : user.city;
     updatedFields.mobile = newMobile !== "" ? newMobile : user.mobile;
     updatedFields.email = newEmail !== "" ? newEmail : user.email;
-    updatedFields.firstname = newFirstname !== "" ? newFirstname : user.firstname;
+    updatedFields.firstname =
+      newFirstname !== "" ? newFirstname : user.firstname;
     updatedFields.lastname = newLastname !== "" ? newLastname : user.lastname;
     updatedFields.lang = newLang !== "" ? newLang : user.lang;
     updatedFields.user_id = user.user_id;
@@ -257,30 +265,26 @@ function Settings() {
               <label>Language:</label>
               <div style={{ width: "20em" }}>
                 <select
+                  id="lang"
+                  name="lang"
                   className="form-input-field-fp"
-                  defaultValue={user && lang}
-                  onChange={(e) => setNewLang(e.target.value)}
+                  value={lang} // Set the value to user.lang
+                  onChange={(e) => handleChangeNewLang(e.target.value)}
                 >
-                  <option value="DK" selected={user.lang === "DK"}>
-                    Danish
-                  </option>
-                  <option value="FI" selected={user.lang === "FI"}>
-                    Finnish
-                  </option>
-                  <option value="DE" selected={user.lang === "DE"}>
-                    German
-                  </option>
-                  <option value="NO" selected={user.lang === "NO"}>
-                    Norwegian
-                  </option>
-                  <option value="SE" selected={user.lang === "SE"}>
-                    Swedish
-                  </option>
+                  <option value="DK">Danish</option>
+                  <option value="FI">Finnish</option>
+                  <option value="DE">German</option>
+                  <option value="NO">Norwegian</option>
+                  <option value="SE">Swedish</option>
                 </select>
               </div>
             </div>
 
-            <button className="button normal mt-3" type="submit" onClick={handleUpdate}>
+            <button
+              className="button normal mt-3"
+              type="submit"
+              onClick={handleUpdate}
+            >
               Update &nbsp; <FontAwesomeIcon icon={faCheck} />{" "}
             </button>
           </div>
