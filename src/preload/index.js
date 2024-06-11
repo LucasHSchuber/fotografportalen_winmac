@@ -41,6 +41,10 @@ const api = {
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
   get_Projects: (user_lang) => ipcRenderer.invoke('get_Projects', user_lang), // Pass workname to getUser handler in main process
 
+  create_news: news => ipcRenderer.invoke('create_news', news), // Database Call For Create News
+  get_news: (args) => ipcRenderer.invoke('get_news', args), // Database Call For Get News
+  confirm_news: (id) => ipcRenderer.invoke('confirm_news', id), // Database Call For Confriming News
+
   checkProjectExists: (project_uuid, user_id) => ipcRenderer.invoke('checkProjectExists', project_uuid, user_id), // Database Call For Checking if Project Exists
   createNewProject: args => ipcRenderer.invoke('createNewProject', args), // Database Call For Create new Project
   getLatestProject: (user_id, project_uuid) => ipcRenderer.invoke('getLatestProject', user_id, project_uuid), // Pass workname to getUser handler in main process

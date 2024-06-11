@@ -2,22 +2,21 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import profile from "../assets/images/photographer.png";
-import semver from 'semver';
+import semver from "semver";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSquareCheck } from "@fortawesome/free-regular-svg-icons";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
-// import LoginModal from "../components/loginModal";
 
-// import gdprProtectionMethod from "../assets/js/gdprProtection";
-import { gdprProtectionMethod, gdprProtectionMethod_teamshistory } from '../assets/js/gdprProtection';
-import fetchNews from '../assets/js/fetchNews';
-
+import {
+  gdprProtectionMethod,
+  gdprProtectionMethod_teamshistory,
+} from "../assets/js/gdprProtection";
+import fetchNews from "../assets/js/fetchNews";
 import env from "../assets/js/env";
-
-import DOMPurify from 'dompurify';
-
-
-// import { response } from "express";
+import DOMPurify from "dompurify";
 
 function Index() {
   //define states
@@ -31,7 +30,6 @@ function Index() {
   const [normalizedLatestVersion, setNormalizedLatestVersion] = useState("");
 
   const [allNews, setAllNews] = useState([]);
-
 
   const handleCloseLoginModal = () => {
     setShowLoginModal(false);
@@ -61,7 +59,9 @@ function Index() {
         const latestReleaseVersion = response.data[0].tag_name;
         console.log("Latest release version:", latestReleaseVersion);
         setLatestVersion(latestReleaseVersion);
-        const normalizedLatestReleaseVersion = latestVersion.startsWith('v') ? latestVersion.slice(1) : latestVersion;
+        const normalizedLatestReleaseVersion = latestVersion.startsWith("v")
+          ? latestVersion.slice(1)
+          : latestVersion;
         setNormalizedLatestVersion(normalizedLatestReleaseVersion);
       } catch (error) {
         console.error("Error fetching GitHub data:", error);
@@ -88,14 +88,20 @@ function Index() {
   }, []);
 
   //fetch all news from company database
+  const fetchAllNews = async () => {
+    const allNews = await fetchNews();
+    console.log("allnews", allNews);
+    try {
+      const newsFromTable = await window.api.get_news();
+      console.log("News from table:", newsFromTable);
+      setAllNews(newsFromTable.news);
+    } catch (error) {
+      console.log("Error fetching news from table:", error);
+    }
+  };
   useEffect(() => {
-    const fetchAllNews = async () => {
-      const news = await fetchNews();
-      console.log('News:', news.result);
-      setAllNews(news.result);
-    };
     fetchAllNews();
-  }, [])
+  }, []);
 
   //donwload latest version method
   const downloadLatestVersion = async () => {
@@ -201,7 +207,21 @@ function Index() {
     getAllProjects();
     runGdprProtection();
   }, []);
-  console.log(`Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`);
+  console.log(
+    `Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`,
+  );
+
+  //confirming news and updating news table
+  const confirmNews = async (id) => {
+    console.log("Confirm news!", id);
+    try {
+      const response = await window.api.confirm_news(id);
+      console.log("confirm news successfully updated", response);
+      fetchAllNews();
+    } catch (error) {
+      console.log("error updatating news", error);
+    }
+  };
 
   return (
     <div className="d-flex index-wrapper">
@@ -278,7 +298,9 @@ function Index() {
 
       <div className="index-box-right">
         {/* {currentVersion !== latestVersion.substring(1, 6) ? ( */}
-        {latestVersion && currentVersion && semver.gt(latestVersion, currentVersion) ? (
+        {latestVersion &&
+        currentVersion &&
+        semver.gt(latestVersion, currentVersion) ? (
           <div className="index-box">
             <h1 className="index-title three">News & updates</h1>
             <h6>
@@ -313,15 +335,55 @@ function Index() {
 
         <hr style={{ width: "80%" }} className="hr"></hr>
 
-        <div className="index-box" >
-          {allNews.map(news => (
-            <div key={news.id} className="mb-4">
-              <h6><b>{news.title}</b></h6>
-              {/* <p>{news.content}</p> */}
-              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.content) }}></div>
-              {/* <p style={{ fontSize: "0.9em", marginTop: "-1em" }}>Posted: <em>{news.created_at}</em></p> */}
-            </div>
-          ))}
+        <div className="index-box">
+          {allNews &&
+            allNews.map((news) => (
+              <div key={news.news_id} className="mb-4">
+                <div className="d-flex">
+                  <h6>
+                    <b>{news.title}</b>
+                  </h6>
+                  {news.is_read === 1 ? (
+                    <>
+                      <h6 className="ml-3" style={{ color: "green" }}>
+                        {" "}
+                        <FontAwesomeIcon icon={faCheck} />{" "}
+                      </h6>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        className="ml-2 small-button"
+                        onClick={() => confirmNews(news.news_id)}
+                      >
+                        <FontAwesomeIcon
+                          style={{ fontSize: "1.2em" }}
+                          icon={faSquareCheck}
+                        />
+                      </button>
+                    </>
+                  )}
+                </div>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(news.content),
+                  }}
+                ></div>
+
+                {news.is_read === 0 ? (
+                  <>
+                    <button
+                      className="mt-2 button"
+                      onClick={() => confirmNews(news.news_id)}
+                    >
+                      Roger that!
+                    </button>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
+            ))}
         </div>
       </div>
 

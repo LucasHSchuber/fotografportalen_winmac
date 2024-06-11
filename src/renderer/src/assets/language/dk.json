@@ -55,6 +55,10 @@
     "confirm_ssn": "CPR-nummer:",
     "confirm_address": "Adresse:",
     "confirm_postalcode": "Postnummer:",
-    "confirm_county": "By:"
+    "confirm_county": "By:",
+
+    "calendarText": "Holdets samlede mulige indtægter:",
+    "calendarPrice": "100",
+    "currency": "kr"
   }
   

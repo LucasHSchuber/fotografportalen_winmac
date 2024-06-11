@@ -55,6 +55,10 @@
     "confirm_ssn": "Sozialversicherungsnummer:",
     "confirm_address": "Adresse:",
     "confirm_postalcode": "Postleitzahl:",
-    "confirm_county": "Stadt:"
+    "confirm_county": "Stadt:",
+
+    "calendarText": "Gesamte mögliche Einnahmen des Teams:",
+    "calendarPrice": "10",
+    "currency": "EURO"
   }
   

@@ -39,6 +39,24 @@
   color: rgb(46, 46, 46);
 }
 
+.small-button{
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  background-color: inherit;
+  transition: 0.2s;
+  margin-bottom: 0.2em;
+}
+.small-button:hover{
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  background-color: rgb(242, 242, 242);
+}
+.small-button:focus {
+  outline-color: #e4e4e4 !important;
+}
+
 .register-link-login {
   cursor: pointer;
   text-decoration: underline !important;

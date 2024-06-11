@@ -55,5 +55,9 @@
   "confirm_ssn": "Personnummer:",
   "confirm_address": "Adresse:",
   "confirm_postalcode": "Postnummer:",
-  "confirm_county": "Sted:"
+  "confirm_county": "Sted:",
+
+  "calendarText": "Lagets totale mulige inntekter:",
+  "calendarPrice": "1o0",
+  "currency": "NOK"
 }

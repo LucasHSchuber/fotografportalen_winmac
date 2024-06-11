@@ -71,8 +71,8 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
     }
 
 
-    console.log(project);
-    console.log(teams);
+    // console.log(project);
+    // console.log(teams);
 
     return (
         <div className="minimenu-teamleader">

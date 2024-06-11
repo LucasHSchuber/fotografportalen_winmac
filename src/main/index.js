@@ -383,8 +383,9 @@ function createTables() {
           leader_email TEXT,
           leader_ssn INTEGER,
           calendar_amount INTEGER,
-          portrait BOOLEAN,
+          portrait BOOLEAN DEFAULT 0,
           crowd BOOLEAN,
+          reason_not_portrait TEXT,
           protected_id BOOLEAN,
           named_photolink BOOLEAN,
           sold_calendar BOOLEAN,
@@ -413,6 +414,7 @@ function createTables() {
           calendar_amount INTEGER,
           portrait BOOLEAN,
           crowd BOOLEAN,
+          reason_not_portrait TEXT,
           protected_id BOOLEAN,
           named_photolink BOOLEAN,
           sold_calendar BOOLEAN,
@@ -461,6 +463,22 @@ function createTables() {
           uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           ft_project_id INTEGER,
           FOREIGN KEY (ft_project_id) REFERENCES ft_projects(ft_project_id)
+        )
+      `,
+    },
+    {
+      name: 'news',
+      query: `
+        CREATE TABLE IF NOT EXISTS news (
+          news_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id INTEGER,
+          title TEXT,
+          content TEXT,
+          author TEXT,
+          created_at TEXT,
+          updated_at TEXT,
+          is_read BOOLEAN DEFAULT 0,
+          deleted BOOLEAN DEFAULT 0
         )
       `,
     },
@@ -599,6 +617,134 @@ ipcMain.handle("create_Projects", async (event, projects) => {
   } catch (err) {
     console.error("Error adding projects:", err.message);
     return { statusCode: 0, errorMessage: "Error adding projects to SQLITE _projects" };
+  }
+});
+
+//add news to SQLlite news table
+ipcMain.handle("create_news", async (event, news) => {
+  log.info(news);
+  try {
+    if (!Array.isArray(news)) {
+      throw new Error("Invalid data received for create_news");
+    }
+
+    const db = new sqlite3.Database(dbPath);
+
+    const existingNews = await new Promise((resolve, reject) => {
+      db.all("SELECT id FROM news", (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows.map(row => row.id));
+        }
+      });
+    });
+
+    const newNewsItems = news.filter(item => !existingNews.includes(item.id));
+
+    const batchInsert = async (NewsBatch) => {
+      return new Promise((resolve, reject) => {
+        db.serialize(() => {
+          const stmt = db.prepare(
+            "INSERT INTO news (id, title, content, author, created_at, updated_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?)"
+          );
+          db.run("BEGIN TRANSACTION");
+          for (const item of NewsBatch) {
+            stmt.run(
+              item.id,
+              item.title,
+              item.content,
+              item.author,
+              item.created_at,
+              item.updated_at,
+              item.deleted
+            );
+          }
+          db.run("COMMIT", (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+          stmt.finalize();
+        });
+      });
+    };
+
+    const batchSize = 100; // Adjust batch size as needed
+    for (let i = 0; i < newNewsItems.length; i += batchSize) {
+      const batch = newNewsItems.slice(i, i + batchSize);
+      await batchInsert(batch);
+    }
+
+    log.info("News added successfully");
+    db.close();
+    return { success: true };
+  } catch (err) {
+    console.error("Error adding news:", err.message);
+    return { statusCode: 0, errorMessage: "Error adding news to SQLITE news" };
+  }
+});
+
+//get all news
+ipcMain.handle("get_news", async (event) => {
+  const allNews = [];
+
+  const retrieveQuery = "SELECT * FROM news";
+  console.log("SQL Query:", retrieveQuery, "Parameters:", []);
+
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(dbPath);
+
+    db.each(retrieveQuery, [], (error, row) => {
+      if (error != null) {
+        db.close();
+        reject({ statusCode: 0, errorMessage: error });
+      }
+
+      allNews.push({
+        news_id: row.news_id,
+        id: row.id,
+        title: row.title,
+        content: row.content,
+        author: row.author,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        deleted: row.deleted,
+        is_read: row.is_read
+      });
+    });
+
+    db.close(() => {
+      resolve({ statusCode: 1, news: allNews });
+    });
+  });
+});
+
+
+//confirm news and edit news table
+ipcMain.handle("confirm_news", async (event, id) => {
+  try {
+
+    if (!id) {
+      throw new Error("Missing required data (id) for confirm_news");
+    }
+
+    const result = await db.run(
+      `
+      UPDATE news
+      SET 
+        is_read = 1 WHERE news_id = ?
+      `,
+      [id],
+    );
+
+    console.log(`News data updated successfully`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error updating confirm news:", err.message);
+    return { error: err.message };
   }
 });
 
@@ -1739,6 +1885,7 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
       leader_ssn: row.leader_ssn,
       portrait: row.portrait,
       crowd: row.crowd,
+      reason_not_portrait: row.reason_not_portrait,
       protected_id: row.protected_id,
       named_photolink: row.named_photolink,
       sold_calendar: row.sold_calendar,
@@ -1947,7 +2094,7 @@ ipcMain.handle("createNewClass", async (event, args) => {
     if (!args || typeof args !== "object") {
       throw new Error("Invalid arguments received for createNewClass");
     }
-    const { teamname, amount, protected_id, portrait, project_id, crowd } =
+    const { teamname, amount, protected_id, portrait, reason_not_portrait, project_id, crowd } =
       args;
     if (!teamname || !amount || !project_id) {
       throw new Error("Missing required data for createNewClass");
@@ -1960,16 +2107,18 @@ ipcMain.handle("createNewClass", async (event, args) => {
               amount, 
               protected_id,
               portrait, 
+              reason_not_portrait, 
               crowd, 
               project_id
           )
-          VALUES (?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
           `,
       [
         teamname,
         amount,
         protected_id ? 1 : 0, // Convert boolean to integer,
         portrait ? 1 : 0, // Convert boolean to integer
+        reason_not_portrait,
         crowd ? 1 : 0, // Convert boolean to integer
         project_id,
       ],
@@ -2039,7 +2188,7 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
       throw new Error("Invalid arguments received for addTeamDataToTeam");
     }
 
-    const { amount, protected_id, portrait, crowd, sold_calendar, team_id } =
+    const { amount, protected_id, portrait, reason_not_portrait, crowd, sold_calendar, team_id } =
       args;
 
     if (!amount || !team_id) {
@@ -2052,6 +2201,7 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
         SET amount = ?,
         protected_id = ?,
         portrait = ?,
+        reason_not_portrait = ?,
         crowd = ?,
         sold_calendar = ?
         WHERE team_id = ?
@@ -2060,6 +2210,7 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
         amount,
         protected_id ? 1 : 0,
         portrait ? 1 : 0,
+        reason_not_portrait,
         crowd ? 1 : 0,
         sold_calendar,
         team_id,
@@ -2116,6 +2267,7 @@ ipcMain.handle("editTeam", async (event, args) => {
       amount,
       protected_id,
       portrait,
+      reason_not_portrait,
       crowd,
       teamname,
       team_id,
@@ -2140,8 +2292,8 @@ ipcMain.handle("editTeam", async (event, args) => {
     // Adding data to teams_history table
     // Define SQL statement to insert updated team data into teams_history table
     const historySQL = `
-            INSERT INTO teams_history (team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, crowd, protected_id, sold_calendar)
-            SELECT team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, crowd, protected_id, sold_calendar
+            INSERT INTO teams_history (team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, reason_not_portrait, crowd, protected_id, sold_calendar)
+            SELECT team_id, teamname, amount, leader_firstname, leader_lastname, leader_email, leader_mobile, leader_ssn, leader_address, leader_postalcode, leader_county, calendar_amount, portrait, reason_not_portrait, crowd, protected_id, sold_calendar
             FROM teams
             WHERE team_id = ?
         `;
@@ -2157,6 +2309,7 @@ ipcMain.handle("editTeam", async (event, args) => {
         teamname = ?,
         protected_id = ?,
         portrait = ?,
+        reason_not_portrait = ?,
         sold_calendar = ?,
         crowd = ?,
         leader_firstname = ?,
@@ -2175,6 +2328,7 @@ ipcMain.handle("editTeam", async (event, args) => {
         teamname,
         protected_id,
         portrait,
+        reason_not_portrait,
         sold_calendar,
         crowd,
         leader_firstname,
@@ -2191,14 +2345,9 @@ ipcMain.handle("editTeam", async (event, args) => {
     );
 
     console.log(`Team data edited successfully`);
-
-    // Send success response to the frontend
-    event.sender.send("editTeam-response", { success: true });
     return { success: true };
   } catch (err) {
     console.error("Error editing data:", err.message);
-    // Send error response to the frontend
-    event.sender.send("editTeam-response", { error: err.message });
     return { error: err.message };
   }
 });

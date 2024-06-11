@@ -17,6 +17,7 @@ const EditTeamModal = ({
     amount: "",
     protected_id: teamData.protected_id,
     portrait: teamData.portrait,
+    reason_not_portrait: "",
     crowd: teamData.crowd,
     sold_calendar: teamData.sold_calendar,
     leader_firstname: "",
@@ -33,8 +34,12 @@ const EditTeamModal = ({
   const [errorMessage, setErrorMessage] = useState({
     teamname: false,
     amount: false,
+    reason_not_portrait: false
   });
   const [errorMessageSport, setErrorMessageSport] = useState({
+    teamname: false,
+    amount: false,
+    reason_not_portrait: false,
     leader_firstname: false,
     leader_lastname: false,
     leader_email: false,
@@ -48,6 +53,7 @@ const EditTeamModal = ({
   const [isTeamnamemodified, setIsTeamnamemodified] = useState(false);
   const [isAmountmodified, setIsAmountmodified] = useState(false);
   const [isPortraitmodified, setIsPortraitmodified] = useState(false);
+  const [isReasonNotPortraitmodified, setIsReasonNotPortraitmodified] = useState(false);
   const [isCrowdmodified, setIsCrowdmodified] = useState(false);
   const [isProtectedidmodified, setIsProtectedidmodified] = useState(false);
   const [isSoldCalendaridmodified, setIsSoldCalendarmodified] = useState(false);
@@ -64,13 +70,13 @@ const EditTeamModal = ({
   const [isLeaderCountymodified, setIsLeaderCountymodified] = useState(false);
   const [isCalendaramountmodified, setIsCalendaramountmodified] =
     useState(false);
-
   const [showInputFields, setShowInputFields] = useState(
     teamData.sold_calendar === 1,
   );
   const [user_lang, setUser_lang] = useState("");
 
-  console.log(teamData);
+  console.log("teamData", teamData);
+  console.log("formData", formData);
 
   //get user_lang
   useEffect(() => {
@@ -80,28 +86,70 @@ const EditTeamModal = ({
   }, []);
 
   //showing/hiding soldcalendarform
+  // useEffect(() => {
+  //   if (teamData.sold_calendar === 1) {
+  //     setShowInputFields(true);
+  //   } else {
+  //     setShowInputFields(false);
+  //   }
+  //   console.log("showInputFields:", showInputFields);
+  // }, [showEditModal, teamData]);
   useEffect(() => {
-    if (teamData.sold_calendar === 1) {
-      setShowInputFields(true);
-    } else {
-      setShowInputFields(false);
-    }
-    console.log("showInputFields:", showInputFields);
-  }, [showEditModal, teamData]);
+    setFormData({
+      teamname: teamData.teamname,
+      amount: teamData.amount,
+      protected_id: teamData.protected_id,
+      portrait: teamData.portrait,
+      reason_not_portrait: teamData.reason_not_portrait,
+      crowd: teamData.crowd,
+      sold_calendar: teamData.sold_calendar,
+      leader_firstname: teamData.leader_firstname,
+      leader_lastname: teamData.leader_lastname,
+      leader_email: teamData.leader_email,
+      leader_mobile: teamData.leader_mobile,
+      leader_ssn: teamData.leader_ssn,
+      leader_address: teamData.leader_address,
+      leader_postalcode: teamData.leader_postalcode,
+      leader_county: teamData.leader_county,
+      calendar_amount: teamData.calendar_amount,
+      team_id: teamId,
+    });
+    setShowInputFields(teamData.sold_calendar === 1);
+  }, [teamData, showEditModal]);
 
   //cancel/close modal
   const handleCancel = () => {
     resetModificationFlags(); // Reset modification flags
+    setFormData({
+      teamname: teamData.teamname,
+      amount: teamData.amount,
+      protected_id: teamData.protected_id,
+      portrait: teamData.portrait,
+      reason_not_portrait: teamData.reason_not_portrait,
+      crowd: teamData.crowd,
+      sold_calendar: teamData.sold_calendar,
+      leader_firstname: teamData.leader_firstname,
+      leader_lastname: teamData.leader_lastname,
+      leader_email: teamData.leader_email,
+      leader_mobile: teamData.leader_mobile,
+      leader_ssn: teamData.leader_ssn,
+      leader_address: teamData.leader_address,
+      leader_postalcode: teamData.leader_postalcode,
+      leader_county: teamData.leader_county,
+      calendar_amount: teamData.calendar_amount,
+      team_id: teamId,
+    });
     setErrorMessage({
       teamname: false,
       amount: false,
+      reason_not_portrait: false,
     });
     setErrorMessageSport({
       teamname: false,
       amount: false,
-      leader_firstname: false,
+      leader_firstname: false
     });
-    setShowInputFields(false);
+    setShowInputFields(teamData.sold_calendar === 1);
     handleCloseEditModal();
   };
 
@@ -112,6 +160,7 @@ const EditTeamModal = ({
     setIsTeamnamemodified(false);
     setIsAmountmodified(false);
     setIsPortraitmodified(false);
+    setIsReasonNotPortraitmodified(false);
     setIsCrowdmodified(false);
     setIsProtectedidmodified(false);
     setIsSoldCalendarmodified(false);
@@ -126,20 +175,21 @@ const EditTeamModal = ({
     setIsCalendaramountmodified(false);
   };
 
-  console.log(isAmountmodified);
-  console.log(isTeamnamemodified);
-  console.log(isCalendaramountmodified);
-  console.log(isCrowdmodified);
-  console.log(isPortraitmodified);
-  console.log(isProtectedidmodified);
-  console.log(isLeaderSsnmodified);
-  console.log(isLeaderAddressmodified);
-  console.log(isLeaderCountymodified);
-  console.log(isLeaderEmailmodified);
-  console.log(isLeaderFirstnamemodified);
-  console.log(isLeaderLastnamemodified);
-  console.log(isLeaderMobilemodified);
-  console.log(isLeaderPostalcodemodified);
+  // console.log("amount", isAmountmodified);
+  // console.log("teamname", isTeamnamemodified);
+  // console.log("calendar amount", isCalendaramountmodified);
+  // console.log("crowd", isCrowdmodified);
+  // console.log("portrait", isPortraitmodified);
+  // console.log("reason not portrait", isReasonNotPortraitmodified);
+  // console.log("protected if", isProtectedidmodified);
+  // console.log("leader SSN", isLeaderSsnmodified);
+  // console.log("Leader address", isLeaderAddressmodified);
+  // console.log("Leader county", isLeaderCountymodified);
+  // console.log("Leader email", isLeaderEmailmodified);
+  // console.log("Leader firstname", isLeaderFirstnamemodified);
+  // console.log("Leader lastname", isLeaderLastnamemodified);
+  // console.log("Leader mobile", isLeaderMobilemodified);
+  // console.log("Leader postalcode", isLeaderPostalcodemodified);
 
   // Handler for teamname change
   const handleTeamnameChange = (e) => {
@@ -161,10 +211,22 @@ const EditTeamModal = ({
       setErrorMessageSport({ ...errorMessageSport, amount: false });
     }
   };
+  // Handler for portrait change
   const handlePortraitChange = (e) => {
     const newValue = e.target.checked ? 1 : 0;
     setFormData({ ...formData, portrait: newValue });
+    console.log(newValue);
     setIsPortraitmodified(true);
+  };
+  // Handler for reason not portrait change
+  const handleReasonNotPortraitChange = (e) => {
+    setFormData({ ...formData, reason_not_portrait: e.target.value });
+    setIsReasonNotPortraitmodified(true);
+    if (projectType === "school" || projectType === "sport_portrait") {
+      setErrorMessage({ ...errorMessage, reason_not_portrait: false });
+    } else {
+      setErrorMessageSport({ ...errorMessageSport, reason_not_portrait: false });
+    }
   };
   const handleCrowdChange = (e) => {
     const newValue = e.target.checked ? 1 : 0;
@@ -183,55 +245,46 @@ const EditTeamModal = ({
     setIsSoldCalendarmodified(true);
     setShowInputFields(e.target.checked);
   };
-
   const handleLeaderFirstnameChange = (e) => {
     setFormData({ ...formData, leader_firstname: e.target.value });
     setIsLeaderFirstnamemodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_firstname: false });
   };
-
   const handleLeaderLastnameChange = (e) => {
     setFormData({ ...formData, leader_lastname: e.target.value });
     setIsLeaderLastnamemodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_lastname: false });
   };
-
   const handleLeaderEmailChange = (e) => {
     setFormData({ ...formData, leader_email: e.target.value });
     setIsLeaderEmailmodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_email: false });
   };
-
   const handleLeaderMobileChange = (e) => {
     setFormData({ ...formData, leader_mobile: e.target.value });
     setIsLeaderMobilemodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_mobile: false });
   };
-
   const handleLeaderSsnChange = (e) => {
     setFormData({ ...formData, leader_ssn: e.target.value });
     setIsLeaderSsnmodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_ssn: false });
   };
-
   const handleLeaderAddressChange = (e) => {
     setFormData({ ...formData, leader_address: e.target.value });
     setIsLeaderAddressmodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_address: false });
   };
-
   const handleLeaderPostalcodeChange = (e) => {
     setFormData({ ...formData, leader_postalcode: e.target.value });
     setIsLeaderPostalcodemodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_postalcode: false });
   };
-
   const handleLeaderCountyChange = (e) => {
     setFormData({ ...formData, leader_county: e.target.value });
     setIsLeaderCountymodified(true);
     setErrorMessageSport({ ...errorMessageSport, leader_county: false });
   };
-
   const handleLeaderCalendarAmountChange = (e) => {
     setFormData({ ...formData, calendar_amount: e.target.value });
     setIsCalendaramountmodified(true);
@@ -241,7 +294,6 @@ const EditTeamModal = ({
   //submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     let updatedFields = {
       teamname: isTeamnamemodified ? formData.teamname : teamData.teamname,
       leader_firstname: isLeaderFirstnamemodified
@@ -275,6 +327,7 @@ const EditTeamModal = ({
         ? parseInt(formData.amount)
         : parseInt(teamData.amount),
       portrait: isPortraitmodified ? formData.portrait : teamData.portrait,
+      reason_not_portrait: isReasonNotPortraitmodified ? formData.reason_not_portrait : teamData.reason_not_portrait,
       crowd: isCrowdmodified ? formData.crowd : teamData.crowd,
       protected_id: isProtectedidmodified
         ? formData.protected_id
@@ -290,6 +343,7 @@ const EditTeamModal = ({
       let errorsSport = {};
       if (!updatedFields.teamname) errorsSport.teamname = true;
       if (!updatedFields.amount) errorsSport.amount = true;
+      if (formData.portrait === 0 && (formData.reason_not_portrait === null || formData.reason_not_portrait === "")) errors.reason_not_portrait = true;
 
       if (showInputFields) {
         if (!updatedFields.leader_firstname)
@@ -306,15 +360,18 @@ const EditTeamModal = ({
         }
         if (!updatedFields.calendar_amount) errorsSport.calendar_amount = true;
       }
+      console.log("errorSport", errorsSport);
       setErrorMessageSport(errorsSport);
       // Check if any errors exist
       if (Object.keys(errorsSport).length > 0) {
         return;
       }
-    } else if (projectType === "school") {
+    } else if (projectType === "school" || projectType === "sport_portrait") {
       let errors = {};
       if (!updatedFields.teamname) errors.teamname = true;
       if (!updatedFields.amount) errors.amount = true;
+      if (formData.portrait === 0 && (formData.reason_not_portrait === null || formData.reason_not_portrait === "")) errors.reason_not_portrait = true;
+      console.log("errors", errors);
       setErrorMessage(errors);
       // Check if any errors exist
       if (Object.keys(errors).length > 0) {
@@ -342,6 +399,7 @@ const EditTeamModal = ({
         teamname: updatedFields.teamname,
         amount: updatedFields.amount,
         portrait: portraitValue,
+        reason_not_portrait: portraitValue === 1 ? null: formData.reason_not_portrait,
         crowd: crowdValue,
         protected_id: protectedIdValue,
         sold_calendar: calendarSalesValue,
@@ -373,25 +431,8 @@ const EditTeamModal = ({
       console.error("Error editing team:", error);
       setShowInputFields(false);
     }
-
-    // try {
-    //     const teamData = await window.api.editTeam(updatedFields);
-
-    //     if (teamData.success) {
-    //         console.log('Team data edited successfully');
-    //         setShowInputFields(false);
-    //         setFormData({ ...formData, leader_ssn: "" });
-    //         handleCloseEditModal();
-    //         refreshTeamData();
-    //     } else {
-    //         console.error('Error editing team:', teamData.error);
-    //         // Handle error as needed, e.g., show error message to the user
-    //     }
-    // } catch (error) {
-    //     console.error('Error editing team:', error);
-    //     // Handle error as needed, e.g., show error message to the user
-    // }
   };
+
 
   return (
     <Modal className="mt-5" show={showEditModal} onHide={handleCancel}>
@@ -413,7 +454,13 @@ const EditTeamModal = ({
                   {projectType === "school" ? "Class name:" : "Team name:"}
                 </label>
                 <input
-                  className={`form-input-field ${projectType === "school" ? (errorMessage.teamname ? "error-border" : "") : errorMessageSport.teamname ? "error-border" : ""}`}
+                  // className={`form-input-field ${projectType === "school" ? (errorMessage.teamname ? "error-border" : "") : errorMessageSport.teamname ? "error-border" : ""}`}
+                  className={`form-input-field ${
+                    ((projectType === "school" || projectType === "sport_portrait") && errorMessage.teamname) || 
+                    (projectType === "sport" && errorMessageSport.teamname) 
+                      ? "error-border" 
+                      : ""
+                  }`}
                   type="text"
                   id="teamname"
                   name="teamname"
@@ -432,7 +479,13 @@ const EditTeamModal = ({
                     : "Amount of photographed players:"}
                 </label>
                 <input
-                  className={`form-input-field ${projectType === "school" ? (errorMessage.amount ? "error-border" : "") : errorMessageSport.amount ? "error-border" : ""}`}
+                  // className={`form-input-field ${projectType === "school" ? (errorMessage.amount ? "error-border" : "") : errorMessageSport.amount ? "error-border" : ""}`}
+                  className={`form-input-field ${
+                    ((projectType === "school" || projectType === "sport_portrait") && errorMessage.amount) || 
+                    (projectType === "sport" && errorMessageSport.amount) 
+                      ? "error-border" 
+                      : ""
+                  }`}
                   type=""
                   id="amount"
                   name="amount"
@@ -447,7 +500,7 @@ const EditTeamModal = ({
                 />
               </div>
             </div>
-            <div className="checkbox-container">
+            <div className="checkbox-container d-flex">
               <label>
                 <input
                   className="checkmark mr-2"
@@ -458,6 +511,40 @@ const EditTeamModal = ({
                 />
                 I took portraits
               </label>
+              {(formData.portrait === "undefined" && teamData.portrait === 0) || (formData.portrait === 0) ? (
+                <div className="select-container ml-3">
+                  {/* <label htmlFor="reason">Reason:</label> */}
+                  <select
+                    id="reason"
+                    name="reason_not_portrait"
+                    className={`form-select ${
+                      ((projectType === "school" ||
+                        projectType === "sport_portrait") &&
+                        errorMessage.reason_not_portrait) ||
+                      (projectType === "sport" &&
+                        errorMessageSport.reason_not_portrait)
+                        ? "error-border"
+                        : ""
+                    }`}
+                    onChange={handleReasonNotPortraitChange}
+                    defaultValue={teamData.reason_not_portrait}
+                    >
+                    <option value="">If not, select reason</option>
+                    <option value="Didn't show up">Didn't show up</option>
+                    <option value="Another Photographer">
+                      Another Photographer
+                    </option>
+                    <option value="According to agreement">
+                      According to agreement
+                    </option>
+                    <option value="Other">
+                      Other reason (see anomaly report)
+                    </option>
+                  </select>
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
             <div className="checkbox-container">
               <label>
@@ -597,10 +684,13 @@ const EditTeamModal = ({
                         onChange={handleLeaderSsnChange}
                         onWheel={(event) => event.target.blur()}
                         onKeyDown={(event) => {
-                            // Prevents changing value by arrow keys
-                            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-                                event.preventDefault();
-                            }
+                          // Prevents changing value by arrow keys
+                          if (
+                            event.key === "ArrowUp" ||
+                            event.key === "ArrowDown"
+                          ) {
+                            event.preventDefault();
+                          }
                         }}
                       />
                     </div>
@@ -629,10 +719,13 @@ const EditTeamModal = ({
                       onChange={handleLeaderPostalcodeChange}
                       onWheel={(event) => event.target.blur()}
                       onKeyDown={(event) => {
-                          // Prevents changing value by arrow keys
-                          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-                              event.preventDefault();
-                          }
+                        // Prevents changing value by arrow keys
+                        if (
+                          event.key === "ArrowUp" ||
+                          event.key === "ArrowDown"
+                        ) {
+                          event.preventDefault();
+                        }
                       }}
                     />
                   </div>

@@ -57,7 +57,7 @@
   "confirm_postalcode": "Postnummer:",
   "confirm_county": "Stad:",
 
-  "calendarText": "Lagets totala inkomster:",
+  "calendarText": "Lagets totala möjliga inkomst:",
   "calendarPrice": "100",
-  "currency": "SEK"
+  "currency": "kr"
 }

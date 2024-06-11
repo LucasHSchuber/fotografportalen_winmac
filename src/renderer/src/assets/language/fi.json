@@ -55,5 +55,9 @@
     "confirm_ssn": "Henkilötunnus:",
     "confirm_address": "Osoite:",
     "confirm_postalcode": "Postinumero:",
-    "confirm_county": "Kaupunki:"
+    "confirm_county": "Kaupunki:",
+
+    "calendarText": "Joukkueen kokonaistulot:",
+    "calendarPrice": "10",
+    "currency": "EURO"
 }

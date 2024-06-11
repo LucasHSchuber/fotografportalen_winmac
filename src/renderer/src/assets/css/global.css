@@ -51,7 +51,13 @@ textarea::placeholder {
     font-size: 0.9em;
 }
 
-
+.form-select{
+    height: 1.9em;
+    width: 11.8em;
+    border-radius: 3px;
+    border: 1px solid rgb(175, 175, 175);
+    outline: none;
+}
 
 
 .page-loading {

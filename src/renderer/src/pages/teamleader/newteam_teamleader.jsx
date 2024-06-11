@@ -18,14 +18,17 @@ function Newteam_teamleader() {
         amount: '',
         protected_id: false,
         portrait: false,
+        reason_not_portrait: '',
         crowd: false
     });
     const [errorMessage, setErrorMessage] = useState({
         teamname: false,
-        amount: false
+        amount: false,
+        reason_not_portrait: false
     });
     const [errorMessageSport, setErrorMessageSport] = useState({
-        amount: false
+        amount: false,
+        reason_not_portrait: false
     });
     const [project_id, setProject_id] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,10 +57,11 @@ function Newteam_teamleader() {
         const newValue = type === 'checkbox' ? checked : value;
         setFormData({ ...formData, [name]: newValue });
 
-        if (projectType === "school") {
+        console.log(formData.portrait);
+        if (projectType === "school" || projectType === "sport_portrait") {
             setErrorMessage({ ...errorMessage, [name]: false });
         } else {
-            setErrorMessageSport({ ...errorMessageSport, amount: false });
+            setErrorMessageSport({ ...errorMessageSport, [name]: false });
         }
     };
 
@@ -103,7 +107,9 @@ const handleSubmit = async (e) => {
         if (projectType === "sport") {
             let errorsSport = {};
             if (!formData.amount) errorsSport.amount = true;
+            if (!formData.reason_not_portrait && formData.portrait === false) errorsSport.reason_not_portrait = true;
             setErrorMessageSport(errorsSport);
+            console.log("errors",errorsSport);
             // Check if any errors exist
             if (Object.keys(errorsSport).length > 0) {
                 setIsSubmitting(false);
@@ -113,6 +119,8 @@ const handleSubmit = async (e) => {
             let errors = {};
             if (!formData.teamname) errors.teamname = true;
             if (!formData.amount) errors.amount = true;
+            if (!formData.reason_not_portrait && formData.portrait === false) errors.reason_not_portrait = true;
+            console.log("errors",errors);
             setErrorMessage(errors);
             // Check if any errors exist
             if (Object.keys(errors).length > 0) {
@@ -140,6 +148,7 @@ const handleSubmit = async (e) => {
                     amount: amountNumber,
                     project_id: project_id,
                     portrait: portraitValue,
+                    reason_not_portrait: portraitValue === 0 ? formData.reason_not_portrait : null,
                     crowd: crowdValue,
                     protected_id: protectedIdValue
                 });
@@ -166,6 +175,7 @@ const handleSubmit = async (e) => {
                     amount: amountNumber,
                     team_id: team_id,
                     portrait: portraitValue,
+                    reason_not_portrait: portraitValue === 0 ? formData.reason_not_portrait : null,
                     crowd: crowdValue,
                     protected_id: protectedIdValue,
                     sold_calendar: calendar_sale
@@ -221,7 +231,13 @@ const handleSubmit = async (e) => {
                         {projectType && projectType === "school" || projectType === "sport_portrait" ? (
                             <div>
                                 <input
-                                    className={`form-input-field ${projectType === "school" ? (errorMessage.teamname ? "error-border" : "") : (errorMessageSport.teamname ? "error-border" : "")}`}
+                                    // className={`form-input-field ${projectType === "school" ? (errorMessage.teamname ? "error-border" : "") : (errorMessageSport.teamname ? "error-border" : "")}`}
+                                    className={`form-input-field ${
+                                        ((projectType === "school" || projectType === "sport_portrait") && errorMessage.teamname) || 
+                                        (projectType === "sport" && errorMessageSport.teamname) 
+                                          ? "error-border" 
+                                          : ""
+                                      }`}
                                     type="text"
                                     id="teamname"
                                     name="teamname"
@@ -236,7 +252,13 @@ const handleSubmit = async (e) => {
                         <div>
                             {/* <label htmlFor="amount">Amount:</label> */}
                             <input
-                                className={`form-input-field ${projectType === "school" ? (errorMessage.amount ? "error-border" : "") : (errorMessageSport.amount ? "error-border" : "")}`}
+                                // className={`form-input-field ${projectType === "school" ? (errorMessage.amount ? "error-border" : "") : (errorMessageSport.amount ? "error-border" : "")}`}
+                                className={`form-input-field ${
+                                    ((projectType === "school" || projectType === "sport_portrait") && errorMessage.amount) || 
+                                    (projectType === "sport" && errorMessageSport.amount) 
+                                      ? "error-border" 
+                                      : ""
+                                  }`}
                                 type="number"
                                 id="amount"
                                 name="amount"
@@ -253,7 +275,7 @@ const handleSubmit = async (e) => {
                             />
                         </div>
                     </div>
-                    <div className="checkbox-container">
+                    <div className="checkbox-container d-flex">
                         <label>
                             <input
                                 className="checkmark mr-2"
@@ -264,6 +286,30 @@ const handleSubmit = async (e) => {
                             />
                             I took portraits
                         </label>
+                        {!formData.portrait && (
+                            <div className="select-container ml-3">
+                            {/* <label htmlFor="reason">Reason:</label> */}
+                            <select
+                                id="reason"
+                                name="reason_not_portrait"
+                                // className={`form-select ${projectType === "school" ? (errorMessage.reason_not_portrait ? "error-border" : "") : (errorMessageSport.reason_not_portrait ? "error-border" : "")}`}
+                                className={`form-select ${
+                                    ((projectType === "school" || projectType === "sport_portrait") && errorMessage.reason_not_portrait) || 
+                                    (projectType === "sport" && errorMessageSport.reason_not_portrait) 
+                                      ? "error-border" 
+                                      : ""
+                                  }`}                                
+                                value={formData.reason_not_portrait}
+                                onChange={handleChange}
+                            >
+                                <option value="">If not, select reason</option>
+                                <option value="Didn't show up">Didn't show up</option>
+                                <option value="Another Photographer">Another Photographer</option>
+                                <option value="According to agreement">According to agreement</option>
+                                <option value="Other">Other reason (see anomaly report)</option>
+                            </select>
+                            </div>
+                        )}
                     </div>
                     <div className="checkbox-container">
                         <label>
