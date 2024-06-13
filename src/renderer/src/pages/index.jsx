@@ -5,7 +5,7 @@ import profile from "../assets/images/photographer.png";
 import semver from "semver";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquareCheck } from "@fortawesome/free-regular-svg-icons";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCheckDouble } from "@fortawesome/free-solid-svg-icons";
 
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
@@ -24,6 +24,7 @@ function Index() {
   const [homeDir, setHomeDir] = useState("");
   const [projectsArray, setProjectsArray] = useState([]);
   const [unsentNewsArray, setUnsentNewsArray] = useState([]);
+
   const [githubURL, setGithubURL] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
   const [latestVersion, setLatestVersion] = useState("");
@@ -31,10 +32,6 @@ function Index() {
 
   const [allNews, setAllNews] = useState([]);
 
-  // const handleCloseLoginModal = () => {
-  //   setShowLoginModal(false);
-  // };
-  // const navigate = useNavigate();
 
   // check if there is a new APP-release
   useEffect(() => {
@@ -218,10 +215,12 @@ function Index() {
       try {
         responseAllUnsentNews = await window.api.getAllUnsentNews();
         console.log("All unsent news:", responseAllUnsentNews.allUnsentNews);
-  
-        const unsentIdArray = responseAllUnsentNews.allUnsentNews.map((news) => news.id);
+
+        const unsentIdArray = responseAllUnsentNews.allUnsentNews.map(
+          (news) => news.id,
+        );
         console.log(unsentIdArray);
-  
+
         if (unsentIdArray.length > 0) {
           const token = localStorage.getItem("token");
           for (const news_id of unsentIdArray) {
@@ -235,24 +234,43 @@ function Index() {
                     Authorization: `Token ${token}`,
                     "Content-Type": "application/json",
                   },
-                }
+                },
               );
-  
+
               console.log("ResponseDb for news_id", news_id, ":", responseDb);
-  
+
               if (responseDb.status === 200) {
-                console.log("Successfully sent news_id to the backend:", news_id);
+                console.log(
+                  "Successfully sent news_id to the backend:",
+                  news_id,
+                );
                 try {
-                  const responseNewsDate = await window.api.addSentDateToNews(news_id);
-                  console.log("is_sent_date added to NEWS table for news_id:", news_id, responseNewsDate);
+                  const responseNewsDate =
+                    await window.api.addSentDateToNews(news_id);
+                  console.log(
+                    "is_sent_date added to NEWS table for news_id:",
+                    news_id,
+                    responseNewsDate,
+                  );
                 } catch (error) {
-                  console.log("Error adding is_sent_date in NEWS table for news_id:", news_id, error);
+                  console.log(
+                    "Error adding is_sent_date in NEWS table for news_id:",
+                    news_id,
+                    error,
+                  );
                 }
               } else {
-                console.log("Error sending news_id to the company database:", news_id);
+                console.log(
+                  "Error sending news_id to the company database:",
+                  news_id,
+                );
               }
             } catch (error) {
-              console.log("Could not send news_id to company database:", news_id, error);
+              console.log(
+                "Could not send news_id to company database:",
+                news_id,
+                error,
+              );
             }
           }
         } else {
@@ -265,11 +283,10 @@ function Index() {
       console.log("No internet connection. Unable to scan news table");
     }
   };
-  
+
   useEffect(() => {
     scanNewsTable();
   }, []);
-  
 
   //confirming news and updating news table
   const confirmNews = async (news_id) => {
@@ -427,19 +444,17 @@ function Index() {
                   <h6>
                     <b>{news.title}</b>
                   </h6>
-                  {news.is_read === 1 ? (
-                    <>
-                      <h6 className="ml-3" style={{ color: "green" }}>
-                        {" "}
-                        <span style={{ fontSize: "0.8em" }}>
-                          Marked as read
-                        </span>{" "}
-                        <FontAwesomeIcon icon={faCheck} />{" "}
-                      </h6>
-                    </>
-                  ) : (
-                    <></>
-                  )}
+                  {news.is_read === 1 && news.is_sent_date === null ? (
+                    <h6 className="ml-3" style={{ color: "green" }}>
+                      <span style={{ fontSize: "0.8em" }}>Confirmed</span>
+                      <FontAwesomeIcon icon={faCheck} title="Read" className="ml-1"/>
+                    </h6>
+                  ) : news.is_read === 1 && news.is_sent_date !== null ? (
+                    <h6 className="ml-3" style={{ color: "green" }}>
+                      <span style={{ fontSize: "0.8em" }}>Confirmed and sent</span>
+                      <FontAwesomeIcon icon={faCheckDouble} title="Read" className="ml-1"/>
+                    </h6>
+                  ) : null}
                 </div>
                 <div className="mb-2" style={{ marginTop: "-0.5em" }}>
                   <em>

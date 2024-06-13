@@ -719,6 +719,7 @@ ipcMain.handle("get_news", async (event) => {
         updated_at: row.updated_at,
         deleted: row.deleted,
         is_read: row.is_read,
+        is_sent_date: row.is_sent_date,
       });
     });
 
