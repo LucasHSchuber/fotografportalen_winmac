@@ -365,7 +365,7 @@ function Newproject_teamleader() {
                     <Select
                         value={projectName}
                         onChange={handleProjectChange}
-                        options={_projects.map(project => ({ value: project.project_uuid, label: project.projectname, lang: project.lang, project_date: project.project_date }))}
+                        options={_projects && _projects.map(project => ({ value: project.project_uuid, label: project.projectname, lang: project.lang, project_date: project.project_date }))}
                         isClearable
                         placeholder="Search projects..."
                         styles={customStyles}

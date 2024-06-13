@@ -313,11 +313,11 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 // Enable WAL mode
-db.exec('PRAGMA journal_mode=WAL;', (err) => {
+db.exec("PRAGMA journal_mode=WAL;", (err) => {
   if (err) {
-    console.error('Failed to enable WAL mode:', err);
+    console.error("Failed to enable WAL mode:", err);
   } else {
-    console.log('WAL mode enabled');
+    console.log("WAL mode enabled");
   }
 });
 
@@ -325,7 +325,7 @@ db.exec('PRAGMA journal_mode=WAL;', (err) => {
 function createTables() {
   const tableDefinitions = [
     {
-      name: 'users',
+      name: "users",
       query: `
         CREATE TABLE IF NOT EXISTS users (
           user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -342,7 +342,7 @@ function createTables() {
       `,
     },
     {
-      name: 'projects',
+      name: "projects",
       query: `
         CREATE TABLE IF NOT EXISTS projects (
           project_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -368,7 +368,7 @@ function createTables() {
       `,
     },
     {
-      name: 'teams',
+      name: "teams",
       query: `
         CREATE TABLE IF NOT EXISTS teams (
           team_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -397,7 +397,7 @@ function createTables() {
       `,
     },
     {
-      name: 'teams_history',
+      name: "teams_history",
       query: `
         CREATE TABLE IF NOT EXISTS teams_history (
           team_history_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -426,7 +426,7 @@ function createTables() {
       `,
     },
     {
-      name: '_projects',
+      name: "_projects",
       query: `
         CREATE TABLE IF NOT EXISTS _projects (
           project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -438,7 +438,7 @@ function createTables() {
       `,
     },
     {
-      name: 'ft_projects',
+      name: "ft_projects",
       query: `
         CREATE TABLE IF NOT EXISTS ft_projects (
           ft_project_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -454,7 +454,7 @@ function createTables() {
       `,
     },
     {
-      name: 'ft_files',
+      name: "ft_files",
       query: `
         CREATE TABLE IF NOT EXISTS ft_files (
           ft_file_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -467,7 +467,7 @@ function createTables() {
       `,
     },
     {
-      name: 'news',
+      name: "news",
       query: `
         CREATE TABLE IF NOT EXISTS news (
           news_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -478,6 +478,7 @@ function createTables() {
           created_at TEXT,
           updated_at TEXT,
           is_read BOOLEAN DEFAULT 0,
+          is_sent_date TIMESTAMP DEFAULT NULL,
           deleted BOOLEAN DEFAULT 0
         )
       `,
@@ -529,8 +530,10 @@ function insertDataToTables() {
 //Get user token
 ipcMain.handle("updateUserToken", async (event, token, user_id) => {
   try {
-    if (!user_id || !token ) {
-      throw new Error("Missing required data (token, user_id) for updateUserToken");
+    if (!user_id || !token) {
+      throw new Error(
+        "Missing required data (token, user_id) for updateUserToken",
+      );
     }
 
     const result = await db.run(
@@ -578,7 +581,7 @@ ipcMain.handle("create_Projects", async (event, projects) => {
       return new Promise((resolve, reject) => {
         db.serialize(() => {
           const stmt = db.prepare(
-            "INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)"
+            "INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)",
           );
           db.run("BEGIN TRANSACTION");
           for (const project of projectsBatch) {
@@ -590,7 +593,7 @@ ipcMain.handle("create_Projects", async (event, projects) => {
               project.project_uuid,
               project.projectname,
               project.start,
-              project.lang
+              project.lang,
             );
           }
           db.run("COMMIT", (err) => {
@@ -616,7 +619,10 @@ ipcMain.handle("create_Projects", async (event, projects) => {
     return { success: true };
   } catch (err) {
     console.error("Error adding projects:", err.message);
-    return { statusCode: 0, errorMessage: "Error adding projects to SQLITE _projects" };
+    return {
+      statusCode: 0,
+      errorMessage: "Error adding projects to SQLITE _projects",
+    };
   }
 });
 
@@ -635,18 +641,18 @@ ipcMain.handle("create_news", async (event, news) => {
         if (err) {
           reject(err);
         } else {
-          resolve(rows.map(row => row.id));
+          resolve(rows.map((row) => row.id));
         }
       });
     });
 
-    const newNewsItems = news.filter(item => !existingNews.includes(item.id));
+    const newNewsItems = news.filter((item) => !existingNews.includes(item.id));
 
     const batchInsert = async (NewsBatch) => {
       return new Promise((resolve, reject) => {
         db.serialize(() => {
           const stmt = db.prepare(
-            "INSERT INTO news (id, title, content, author, created_at, updated_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO news (id, title, content, author, created_at, updated_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?)",
           );
           db.run("BEGIN TRANSACTION");
           for (const item of NewsBatch) {
@@ -657,7 +663,7 @@ ipcMain.handle("create_news", async (event, news) => {
               item.author,
               item.created_at,
               item.updated_at,
-              item.deleted
+              item.deleted,
             );
           }
           db.run("COMMIT", (err) => {
@@ -712,7 +718,7 @@ ipcMain.handle("get_news", async (event) => {
         created_at: row.created_at,
         updated_at: row.updated_at,
         deleted: row.deleted,
-        is_read: row.is_read
+        is_read: row.is_read,
       });
     });
 
@@ -722,28 +728,73 @@ ipcMain.handle("get_news", async (event) => {
   });
 });
 
-
 //confirm news and edit news table
-ipcMain.handle("confirm_news", async (event, id) => {
+ipcMain.handle("confirmNewsToSqlite", async (event, news_id) => {
   try {
-
-    if (!id) {
-      throw new Error("Missing required data (id) for confirm_news");
+    if (!news_id) {
+      throw new Error("Missing required data (id) for confirmNewsToSqlite");
     }
 
     const result = await db.run(
       `
       UPDATE news
       SET 
-        is_read = 1 WHERE news_id = ?
+        is_read = 1 WHERE id = ?
       `,
-      [id],
+      [news_id],
     );
 
     console.log(`News data updated successfully`);
     return { success: true };
   } catch (err) {
     console.error("Error updating confirm news:", err.message);
+    return { error: err.message };
+  }
+});
+
+//getting all unsent news
+ipcMain.handle("getAllUnsentNews", async (event) => {
+  const retrieveQuery = "SELECT * FROM news WHERE is_read = 1 AND is_sent_date IS NULL";
+
+  try {
+    const db = new sqlite3.Database(dbPath);
+
+    const rows = await executeQueryWithRetry(db, retrieveQuery);
+    const unsentNews = rows.map((row) => ({
+      news_id: row.news_id,
+      id: row.id
+    }));
+
+    await closeDatabase(db);
+
+    log.info("All unsent news:", unsentNews);
+    return { statusCode: 1, allUnsentNews: unsentNews };
+  } catch (error) {
+    console.error("Error fetching unsent news:", error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+//adding date to news table
+ipcMain.handle("addSentDateToNews", async (event, news_id) => {
+  try {
+    if (!news_id) {
+      throw new Error("Missing required data (news_id) for addSentDateToNews");
+    }
+
+    const result = await db.run(
+      `
+      UPDATE news
+      SET 
+        is_sent_date = CURRENT_TIMESTAMP WHERE id = ?
+      `,
+      [news_id],
+    );
+
+    console.log(`Date added to news table successfully`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error adding date to news table:", err.message);
     return { error: err.message };
   }
 });
@@ -781,12 +832,18 @@ ipcMain.handle("getUser", async (event, id) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-async function executeGetWithRetry(db, query, params = [], retries = 5, delay = 1000) {
+async function executeGetWithRetry(
+  db,
+  query,
+  params = [],
+  retries = 5,
+  delay = 1000,
+) {
   return new Promise((resolve, reject) => {
     function attempt() {
       db.get(query, params, (error, row) => {
         if (error) {
-          if (error.code === 'SQLITE_BUSY' && retries > 0) {
+          if (error.code === "SQLITE_BUSY" && retries > 0) {
             setTimeout(attempt, delay);
           } else {
             reject(error);
@@ -1151,7 +1208,8 @@ ipcMain.handle("getAllProjects", async (event, user_id) => {
 
 //get all current projects by user_id
 ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0 AND is_deleted = 0";
+  const retrieveQuery =
+    "SELECT * FROM projects WHERE user_id = ? AND is_sent = 0 AND is_deleted = 0";
   console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
   const db = new sqlite3.Database(dbPath);
@@ -1231,7 +1289,8 @@ ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
 
 //get all previous projects by user_id
 ipcMain.handle("getAllPreviousProjects", async (event, user_id) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0";
+  const retrieveQuery =
+    "SELECT * FROM projects WHERE user_id = ? AND is_sent = 1 AND is_deleted = 0";
   console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
   const db = new sqlite3.Database(dbPath);
@@ -1514,12 +1573,18 @@ ipcMain.handle("checkProjectExists", async (event, project_uuid, user_id) => {
   }
 });
 
-const executeInsertWithRetryAndId = (db, query, params = [], retries = 5, delay = 1000) => {
+const executeInsertWithRetryAndId = (
+  db,
+  query,
+  params = [],
+  retries = 5,
+  delay = 1000,
+) => {
   return new Promise((resolve, reject) => {
     function attempt() {
       db.run(query, params, function (error) {
         if (error) {
-          if (error.code === 'SQLITE_BUSY' && retries > 0) {
+          if (error.code === "SQLITE_BUSY" && retries > 0) {
             setTimeout(() => {
               attempt(--retries); // Decrement retries and try again
             }, delay);
@@ -1566,7 +1631,8 @@ ipcMain.handle("createNewProject", async (event, args) => {
 
     const db = new sqlite3.Database(dbPath);
 
-    const project_id = await executeInsertWithRetryAndId(db,
+    const project_id = await executeInsertWithRetryAndId(
+      db,
       `
         INSERT INTO projects (projectname, photographername, type, project_date, user_id, lang, project_uuid)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -1579,14 +1645,17 @@ ipcMain.handle("createNewProject", async (event, args) => {
         user_id,
         lang,
         project_uuid,
-      ]
+      ],
     );
 
     log.info("Project added successfully with project_id:", project_id);
 
     return { success: true, project_id };
   } catch (err) {
-    console.error("Error adding new project data (createNewProject):", err.message);
+    console.error(
+      "Error adding new project data (createNewProject):",
+      err.message,
+    );
     return { error: err.message };
   }
 });
@@ -1674,7 +1743,8 @@ ipcMain.handle("createNewProject", async (event, args) => {
 //   }
 // });
 ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
-  const retrieveQuery = "SELECT * FROM projects WHERE user_id = ? AND project_uuid = ?";
+  const retrieveQuery =
+    "SELECT * FROM projects WHERE user_id = ? AND project_uuid = ?";
 
   try {
     const project = await new Promise((resolve, reject) => {
@@ -1691,7 +1761,7 @@ ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
           db.close();
           resolve({
             statusCode: 1,
-            project_id: row.project_id
+            project_id: row.project_id,
           });
         }
       });
@@ -1731,8 +1801,10 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
 });
 
 //send project to DB
-ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale, responseId) => {
-  const updateQuery = `
+ipcMain.handle(
+  "sendProjectToDb",
+  async (event, project_id, alertSale, responseId) => {
+    const updateQuery = `
     UPDATE projects 
     SET is_sent = 1, 
         sent_date = CURRENT_TIMESTAMP, 
@@ -1741,21 +1813,22 @@ ipcMain.handle("sendProjectToDb", async (event, project_id, alertSale, responseI
     WHERE project_id = ?
   `;
 
-  try {
-    const db = new sqlite3.Database(dbPath);
-    const params = [alertSale, responseId, project_id];
+    try {
+      const db = new sqlite3.Database(dbPath);
+      const params = [alertSale, responseId, project_id];
 
-    const result = await executeUpdateWithRetry(db, updateQuery, params);
-    console.log("Project sent to DB successfully");
+      const result = await executeUpdateWithRetry(db, updateQuery, params);
+      console.log("Project sent to DB successfully");
 
-    await closeDatabase(db);
+      await closeDatabase(db);
 
-    return { statusCode: 1, result };
-  } catch (error) {
-    console.error("Error sending project to db:", error);
-    return { statusCode: 0, errorMessage: error.message };
-  }
-});
+      return { statusCode: 1, result };
+    } catch (error) {
+      console.error("Error sending project to db:", error);
+      return { statusCode: 0, errorMessage: error.message };
+    }
+  },
+);
 // ipcMain.handle(
 //   "sendProjectToDb",
 //   async (event, project_id, alertSale, responseId) => {
@@ -1859,7 +1932,8 @@ ipcMain.handle("createNewTeam", async (event, args) => {
 
 //get all teams by project_id
 ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
-  const retrieveQuery = "SELECT * FROM teams WHERE is_deleted = 0 AND project_id = ?";
+  const retrieveQuery =
+    "SELECT * FROM teams WHERE is_deleted = 0 AND project_id = ?";
   console.log("SQL Query:", retrieveQuery, "Parameters:", [project_id]);
 
   const db = new sqlite3.Database(dbPath);
@@ -1899,13 +1973,21 @@ ipcMain.handle("getTeamsByProjectId", async (event, project_id) => {
   }
 });
 
-async function executeQueryWithRetry(db, query, params = [], retries = 5, delay = 1000) {
+async function executeQueryWithRetry(
+  db,
+  query,
+  params = [],
+  retries = 5,
+  delay = 1000,
+) {
   return new Promise((resolve, reject) => {
     function attempt() {
       db.all(query, params, (error, rows) => {
         if (error) {
-          log.info(`Error executing query: ${query}, params: ${params}, retries left: ${retries}`);
-          if (error.code === 'SQLITE_BUSY' && retries > 0) {
+          log.info(
+            `Error executing query: ${query}, params: ${params}, retries left: ${retries}`,
+          );
+          if (error.code === "SQLITE_BUSY" && retries > 0) {
             log.info(`Retrying query after ${delay}ms`);
             setTimeout(attempt, delay);
           } else {
@@ -2054,11 +2136,11 @@ ipcMain.handle("addDataToTeam", async (event, args) => {
 //     const db = new sqlite3.Database(dbPath);
 //     const query = `
 //       INSERT INTO teams (
-//           teamname, 
-//           amount, 
+//           teamname,
+//           amount,
 //           protected_id,
-//           portrait, 
-//           crowd, 
+//           portrait,
+//           crowd,
 //           project_id
 //       )
 //       VALUES (?, ?, ?, ?, ?, ?)
@@ -2090,8 +2172,15 @@ ipcMain.handle("createNewClass", async (event, args) => {
     if (!args || typeof args !== "object") {
       throw new Error("Invalid arguments received for createNewClass");
     }
-    const { teamname, amount, protected_id, portrait, reason_not_portrait, project_id, crowd } =
-      args;
+    const {
+      teamname,
+      amount,
+      protected_id,
+      portrait,
+      reason_not_portrait,
+      project_id,
+      crowd,
+    } = args;
     if (!teamname || !amount || !project_id) {
       throw new Error("Missing required data for createNewClass");
     }
@@ -2184,8 +2273,15 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
       throw new Error("Invalid arguments received for addTeamDataToTeam");
     }
 
-    const { amount, protected_id, portrait, reason_not_portrait, crowd, sold_calendar, team_id } =
-      args;
+    const {
+      amount,
+      protected_id,
+      portrait,
+      reason_not_portrait,
+      crowd,
+      sold_calendar,
+      team_id,
+    } = args;
 
     if (!amount || !team_id) {
       throw new Error("Missing required data for addTeamDataToTeam");
@@ -2590,7 +2686,6 @@ ipcMain.handle("gdprProtection_teamshistory", async (event) => {
   }
 });
 
-
 // async function executeUpdateWithRetry(query, params = [], retries = 5, delay = 1000) {
 //   return new Promise((resolve, reject) => {
 //     const db = new sqlite3.Database(dbPath);
@@ -2617,12 +2712,18 @@ ipcMain.handle("gdprProtection_teamshistory", async (event) => {
 //     attempt();
 //   });
 // }
-async function executeUpdateWithRetry(db, query, params = [], retries = 5, delay = 1000) {
+async function executeUpdateWithRetry(
+  db,
+  query,
+  params = [],
+  retries = 5,
+  delay = 1000,
+) {
   return new Promise((resolve, reject) => {
     function attempt() {
       db.run(query, params, function (error) {
         if (error) {
-          if (error.code === 'SQLITE_BUSY' && retries > 0) {
+          if (error.code === "SQLITE_BUSY" && retries > 0) {
             setTimeout(attempt, delay);
           } else {
             reject(error);
@@ -2719,248 +2820,261 @@ ipcMain.handle("createMainWindow", async (event, args) => {
   }
 });
 
-  //upload file in filetransfer
-  ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
-    log.info("initiating file upload");
+//upload file in filetransfer
+ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
+  log.info("initiating file upload");
 
-    let country = "";
-    if (lang === "SE") {
-      country = "Sweden";
-    } else if (lang === "NO") {
-      country = "Norway";
-    } else if (lang === "FI") {
-      country = "Finland";
-    } else if (lang === "DE") {
-      country = "Germany";
-    } else if (lang === "DK") {
-      country = "Denmark";
-    }
-
-    try {
-      log.info("starting file upload");
-      const result = await uploadFileToFTP(filePath, ftpConfig, country, filesize);
-      log.info(result);
-      return { status: "success", message: result };
-    } catch (error) {
-      log.info("error file upload");
-      log.info(error.message);
-      return { status: "failure", message: error.message };
-    }
-  });
-  //uploadfiletoFTP method
-  async function uploadFileToFTP(filePath, ftpConfig, country, filesize) {
-    const client = new ftp.Client();
-    client.ftp.verbose = true;
-    try {
-      await client.access(ftpConfig);
-      log.info(`Uploading ${filePath} to FTP server...`);
-      log.info(`Connected to FTP server: ${ftpConfig.host}`);
-
-      const remoteDirectory = `FileTransfer/${country}/`;
-      log.info("remote directory:", remoteDirectory);
-
-      const remotePath = path.posix.join(remoteDirectory, path.basename(filePath));
-      log.info(`Uploading ${filePath} to FTP server as ${remotePath}...`);
-
-      client.trackProgress(info => {
-        console.log("File", info.name)
-        console.log("File size", filesize)
-        console.log("Type", info.type)
-        console.log("Transferred", info.bytes)
-        console.log("Transferred Overall", info.bytesOverall)
-        const percentage = ((info.bytesOverall / filesize) * 100).toFixed(2);
-        console.log(`Upload Progress: ${percentage}%`);
-    })
-
-      await client.uploadFrom(filePath, remotePath);
-      log.info("Upload successful!");
-      return "Upload successful!";
-    } catch (err) {
-      log.info("Error uploading file:", err);
-      throw new Error(`Error uploading file: ${err.message}`);
-    } finally {
-      client.close();
-    }
+  let country = "";
+  if (lang === "SE") {
+    country = "Sweden";
+  } else if (lang === "NO") {
+    country = "Norway";
+  } else if (lang === "FI") {
+    country = "Finland";
+  } else if (lang === "DE") {
+    country = "Germany";
+  } else if (lang === "DK") {
+    country = "Denmark";
   }
 
-  //create new FT project
-  ipcMain.handle("createNewFTProject", async (event, data) => {
-    return new Promise((resolve, reject) => {
-      try {
-        if (!data || typeof data !== "object") {
-          throw new Error("Invalid arguments received for createNewFTProject");
-        }
-        const { project_uuid, projectname, user_id, project_id } = data;
-        if (!project_uuid || !projectname || !user_id || !project_id) {
-          throw new Error("Missing required data for createNewFTProject");
-        }
-  
-        const query = `
+  try {
+    log.info("starting file upload");
+    const result = await uploadFileToFTP(
+      filePath,
+      ftpConfig,
+      country,
+      filesize,
+    );
+    log.info(result);
+    return { status: "success", message: result };
+  } catch (error) {
+    log.info("error file upload");
+    log.info(error.message);
+    return { status: "failure", message: error.message };
+  }
+});
+//uploadfiletoFTP method
+async function uploadFileToFTP(filePath, ftpConfig, country, filesize) {
+  const client = new ftp.Client();
+  client.ftp.verbose = true;
+  try {
+    await client.access(ftpConfig);
+    log.info(`Uploading ${filePath} to FTP server...`);
+    log.info(`Connected to FTP server: ${ftpConfig.host}`);
+
+    const remoteDirectory = `FileTransfer/${country}/`;
+    log.info("remote directory:", remoteDirectory);
+
+    const remotePath = path.posix.join(
+      remoteDirectory,
+      path.basename(filePath),
+    );
+    log.info(`Uploading ${filePath} to FTP server as ${remotePath}...`);
+
+    client.trackProgress((info) => {
+      console.log("File", info.name);
+      console.log("File size", filesize);
+      console.log("Type", info.type);
+      console.log("Transferred", info.bytes);
+      console.log("Transferred Overall", info.bytesOverall);
+      const percentage = ((info.bytesOverall / filesize) * 100).toFixed(2);
+      console.log(`Upload Progress: ${percentage}%`);
+    });
+
+    await client.uploadFrom(filePath, remotePath);
+    log.info("Upload successful!");
+    return "Upload successful!";
+  } catch (err) {
+    log.info("Error uploading file:", err);
+    throw new Error(`Error uploading file: ${err.message}`);
+  } finally {
+    client.close();
+  }
+}
+
+//create new FT project
+ipcMain.handle("createNewFTProject", async (event, data) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!data || typeof data !== "object") {
+        throw new Error("Invalid arguments received for createNewFTProject");
+      }
+      const { project_uuid, projectname, user_id, project_id } = data;
+      if (!project_uuid || !projectname || !user_id || !project_id) {
+        throw new Error("Missing required data for createNewFTProject");
+      }
+
+      const query = `
           INSERT INTO ft_projects (
               project_uuid, projectname, user_id, project_id 
           )
           VALUES (?, ?, ?, ?)
         `;
-        const params = [project_uuid, projectname, user_id, project_id];
-  
-        db.run(query, params, function (err) {
-          if (err) {
-            log.error("Error adding new createNewFTProject:", err.message);
-            reject({ error: err.message });
-          } else {
-            const ft_project_id = this.lastID;
-            log.info(`createNewFTProject added successfully with id ${ft_project_id}`);
-            resolve({ success: true, ft_project_id });
-          }
-        });
-      } catch (err) {
-        log.error("Error adding new createNewFTProject:", err.message);
-        reject({ error: err.message });
-      }
-    });
-  });
+      const params = [project_uuid, projectname, user_id, project_id];
 
-    //add new FT file
-    ipcMain.handle("addFTFile", async (event, fileData) => {
-      return new Promise((resolve, reject) => {
-        try {
-          if (!fileData || typeof fileData !== "object") {
-            throw new Error("Invalid arguments received for addFTFile");
-          }
-          const {filename, ft_project_id, filepath} = fileData;
-          if (!filename || !ft_project_id) {
-            throw new Error("Missing required data for addFTFile");
-          }
-    
-          const query = `
+      db.run(query, params, function (err) {
+        if (err) {
+          log.error("Error adding new createNewFTProject:", err.message);
+          reject({ error: err.message });
+        } else {
+          const ft_project_id = this.lastID;
+          log.info(
+            `createNewFTProject added successfully with id ${ft_project_id}`,
+          );
+          resolve({ success: true, ft_project_id });
+        }
+      });
+    } catch (err) {
+      log.error("Error adding new createNewFTProject:", err.message);
+      reject({ error: err.message });
+    }
+  });
+});
+
+//add new FT file
+ipcMain.handle("addFTFile", async (event, fileData) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!fileData || typeof fileData !== "object") {
+        throw new Error("Invalid arguments received for addFTFile");
+      }
+      const { filename, ft_project_id, filepath } = fileData;
+      if (!filename || !ft_project_id) {
+        throw new Error("Missing required data for addFTFile");
+      }
+
+      const query = `
             INSERT INTO ft_files (
               filename, ft_project_id, filepath 
             )
             VALUES (?, ?, ?)
           `;
-          const params = [filename, ft_project_id, filepath];
-    
-          db.run(query, params, function (err) {
-            if (err) {
-              log.error("Error adding new addFTFile:", err.message);
-              reject({ error: err.message });
-            } else {
-              log.info(`addFTFile added successfully`);
-              resolve({ success: true });
-            }
-          });
-        } catch (err) {
+      const params = [filename, ft_project_id, filepath];
+
+      db.run(query, params, function (err) {
+        if (err) {
           log.error("Error adding new addFTFile:", err.message);
           reject({ error: err.message });
+        } else {
+          log.info(`addFTFile added successfully`);
+          resolve({ success: true });
         }
       });
-    });
+    } catch (err) {
+      log.error("Error adding new addFTFile:", err.message);
+      reject({ error: err.message });
+    }
+  });
+});
 
-    ipcMain.handle("getAllFTData", async (event, user_id) => {
-      return new Promise((resolve, reject) => {
-        const query = `
+ipcMain.handle("getAllFTData", async (event, user_id) => {
+  return new Promise((resolve, reject) => {
+    const query = `
           SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, f.ft_file_id, f.filename, f.filepath, f.uploaded_at
           FROM ft_projects p
           INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
           WHERE p.user_id = ?
         `;
-    
-        db.all(query, [user_id], (err, rows) => {
-          if (err) {
-            log.error("Error fetching FT data:", err.message);
-            reject(new Error(err.message));
-          } else {
-            const projects = {};
-    
-            rows.forEach(row => {
-              if (!projects[row.ft_project_id]) {
-                projects[row.ft_project_id] = {
-                  ft_project_id: row.ft_project_id,
-                  project_uuid: row.project_uuid,
-                  projectname: row.projectname,
-                  is_sent: row.is_sent,
-                  created: row.created,
-                  user_id: row.user_id,
-                  project_id: row.project_id,
-                  files: []
-                };
-              }
-              projects[row.ft_project_id].files.push({
-                ft_file_id: row.ft_file_id,
-                filename: row.filename,
-                filepath: row.filepath,
-                uploaded_at: row.uploaded_at
-              });
-            });
-    
-            const result = Object.values(projects);
-            log.info("FT data fetched and organized successfully");
-            resolve(result);
-          }
-        });
-      }).catch(err => {
-        log.error("Unhandled error in getAllFTData:", err.message);
-        throw err;
-      });
-    });
 
-    //get all previous projects by user_id
-    ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
-      const retrieveQuery = `
+    db.all(query, [user_id], (err, rows) => {
+      if (err) {
+        log.error("Error fetching FT data:", err.message);
+        reject(new Error(err.message));
+      } else {
+        const projects = {};
+
+        rows.forEach((row) => {
+          if (!projects[row.ft_project_id]) {
+            projects[row.ft_project_id] = {
+              ft_project_id: row.ft_project_id,
+              project_uuid: row.project_uuid,
+              projectname: row.projectname,
+              is_sent: row.is_sent,
+              created: row.created,
+              user_id: row.user_id,
+              project_id: row.project_id,
+              files: [],
+            };
+          }
+          projects[row.ft_project_id].files.push({
+            ft_file_id: row.ft_file_id,
+            filename: row.filename,
+            filepath: row.filepath,
+            uploaded_at: row.uploaded_at,
+          });
+        });
+
+        const result = Object.values(projects);
+        log.info("FT data fetched and organized successfully");
+        resolve(result);
+      }
+    });
+  }).catch((err) => {
+    log.error("Unhandled error in getAllFTData:", err.message);
+    throw err;
+  });
+});
+
+//get all previous projects by user_id
+ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
+  const retrieveQuery = `
         SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, 
                f.ft_file_id, f.filename, f.filepath, f.uploaded_at
         FROM ft_projects p
         INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
         WHERE p.user_id = ? AND p.projectname LIKE ?
       `;
-    
-      console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id, `%${searchString}%`]);
-    
-      try {
-        const projects = await new Promise((resolve, reject) => {
-          const db = new sqlite3.Database(dbPath);
-    
-          db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
-            if (error) {
-              db.close();
-              return reject({ statusCode: 0, errorMessage: error.message });
-            }
-    
-            const projects = {};
-    
-            rows.forEach(row => {
-              if (!projects[row.ft_project_id]) {
-                projects[row.ft_project_id] = {
-                  ft_project_id: row.ft_project_id,
-                  project_uuid: row.project_uuid,
-                  projectname: row.projectname,
-                  is_sent: row.is_sent,
-                  created: row.created,
-                  user_id: row.user_id,
-                  project_id: row.project_id,
-                  files: []
-                };
-              }
-              projects[row.ft_project_id].files.push({
-                ft_file_id: row.ft_file_id,
-                filename: row.filename,
-                filepath: row.filepath,
-                uploaded_at: row.uploaded_at
-              });
-            });
-    
-            db.close(() => {
-              resolve({ statusCode: 1, projects: Object.values(projects) });
-            });
+
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [
+    user_id,
+    `%${searchString}%`,
+  ]);
+
+  try {
+    const projects = await new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(dbPath);
+
+      db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
+        if (error) {
+          db.close();
+          return reject({ statusCode: 0, errorMessage: error.message });
+        }
+
+        const projects = {};
+
+        rows.forEach((row) => {
+          if (!projects[row.ft_project_id]) {
+            projects[row.ft_project_id] = {
+              ft_project_id: row.ft_project_id,
+              project_uuid: row.project_uuid,
+              projectname: row.projectname,
+              is_sent: row.is_sent,
+              created: row.created,
+              user_id: row.user_id,
+              project_id: row.project_id,
+              files: [],
+            };
+          }
+          projects[row.ft_project_id].files.push({
+            ft_file_id: row.ft_file_id,
+            filename: row.filename,
+            filepath: row.filepath,
+            uploaded_at: row.uploaded_at,
           });
         });
-    
-        return projects;
-      } catch (error) {
-        console.error("Error fetching searched projects:", error);
-        return { statusCode: 0, errorMessage: error.message };
-      }
+
+        db.close(() => {
+          resolve({ statusCode: 1, projects: Object.values(projects) });
+        });
+      });
     });
+
+    return projects;
+  } catch (error) {
+    console.error("Error fetching searched projects:", error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
 
 // //crate login window & close login window
 // ipcMain.handle("createNewuserWindow", async (event) => {

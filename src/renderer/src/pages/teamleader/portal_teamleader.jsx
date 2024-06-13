@@ -181,8 +181,6 @@ function Portal_teamleader() {
     };
 
 
-
-
     return (
         <div className="teamleader-wrapper">
 

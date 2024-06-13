@@ -18,6 +18,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     const navigate = useNavigate();
 
+    console.log(teams);
+    console.log(project);
 
     // get username and password from localstorage after mount
     useEffect(() => {
@@ -157,6 +159,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                 "amount": team.amount,
                 "calendar_amount": team.calendar_amount === null ? 0 : team.calendar_amount,
                 "portrait": team.portrait,
+                "reason_not_portrait": team.reason_not_portrait,
                 "crowd": team.crowd,
                 "protected_id": team.protected_id
             });

@@ -3,8 +3,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import fp from "../assets/images/diaphragm_black.png";
 
-
-
 function Login_window() {
   //define states
   const [username, setUsername] = useState("");
@@ -43,18 +41,6 @@ function Login_window() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const fetchUpdates = async () => {
-  //     try {
-  //       const response = await window.api.lookForUpdates();
-  //       console.log(response);
-  //     } catch (error) {
-  //       console.log("error msg:", error);
-  //     }
-  //   };
-  //   fetchUpdates();
-  // }, []);
-
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
     console.log("e.target.value");
@@ -88,8 +74,6 @@ function Login_window() {
 
     if (password !== "" && username !== "") {
       console.log("password and username entered");
-      // localStorage.setItem("username", username);
-      // localStorage.setItem("password", password);
 
       try {
         const data = { email: username, password: password };

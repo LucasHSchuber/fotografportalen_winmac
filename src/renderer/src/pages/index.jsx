@@ -23,7 +23,7 @@ function Index() {
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState("");
   const [projectsArray, setProjectsArray] = useState([]);
-  // const [showLoginModal, setShowLoginModal] = useState(false);
+  const [unsentNewsArray, setUnsentNewsArray] = useState([]);
   const [githubURL, setGithubURL] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
   const [latestVersion, setLatestVersion] = useState("");
@@ -31,10 +31,10 @@ function Index() {
 
   const [allNews, setAllNews] = useState([]);
 
-  const handleCloseLoginModal = () => {
-    setShowLoginModal(false);
-  };
-  const navigate = useNavigate();
+  // const handleCloseLoginModal = () => {
+  //   setShowLoginModal(false);
+  // };
+  // const navigate = useNavigate();
 
   // check if there is a new APP-release
   useEffect(() => {
@@ -154,7 +154,7 @@ function Index() {
     const fetchUser = async () => {
       try {
         const usersData = await window.api.getUser(user_id); // Fetch users data from main process
-        console.log("Users Data:", usersData); // Log the users data
+        console.log("Users Data:", usersData);
         setUser(usersData.user);
         console.log(usersData.user);
         localStorage.setItem(
@@ -202,7 +202,6 @@ function Index() {
         console.error("Error clearing GDPR data in teams_history:", error);
       }
     };
-
     fetchUser();
     getAllProjects();
     runGdprProtection();
@@ -211,13 +210,110 @@ function Index() {
     `Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`,
   );
 
+  //scanning news table for unsent news and then sending to db
+  const scanNewsTable = async () => {
+    // Check for internet connection
+    if (navigator.onLine) {
+      let responseAllUnsentNews;
+      try {
+        responseAllUnsentNews = await window.api.getAllUnsentNews();
+        console.log("All unsent news:", responseAllUnsentNews.allUnsentNews);
+  
+        const unsentIdArray = responseAllUnsentNews.allUnsentNews.map((news) => news.id);
+        console.log(unsentIdArray);
+  
+        if (unsentIdArray.length > 0) {
+          const token = localStorage.getItem("token");
+          for (const news_id of unsentIdArray) {
+            console.log(news_id);
+            try {
+              const responseDb = await axios.post(
+                "https://backend.expressbild.org/index.php/rest/photographer_portal/newsread",
+                { id: news_id },
+                {
+                  headers: {
+                    Authorization: `Token ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                }
+              );
+  
+              console.log("ResponseDb for news_id", news_id, ":", responseDb);
+  
+              if (responseDb.status === 200) {
+                console.log("Successfully sent news_id to the backend:", news_id);
+                try {
+                  const responseNewsDate = await window.api.addSentDateToNews(news_id);
+                  console.log("is_sent_date added to NEWS table for news_id:", news_id, responseNewsDate);
+                } catch (error) {
+                  console.log("Error adding is_sent_date in NEWS table for news_id:", news_id, error);
+                }
+              } else {
+                console.log("Error sending news_id to the company database:", news_id);
+              }
+            } catch (error) {
+              console.log("Could not send news_id to company database:", news_id, error);
+            }
+          }
+        } else {
+          console.log("No unsent news to process.");
+        }
+      } catch (error) {
+        console.log("Error getting all news from news table", error);
+      }
+    } else {
+      console.log("No internet connection. Unable to scan news table");
+    }
+  };
+  
+  useEffect(() => {
+    scanNewsTable();
+  }, []);
+  
+
   //confirming news and updating news table
-  const confirmNews = async (id) => {
-    console.log("Confirm news!", id);
+  const confirmNews = async (news_id) => {
+    console.log("Confirm news!", news_id);
+    let token = localStorage.getItem("token");
+    console.log("token", token);
     try {
-      const response = await window.api.confirm_news(id);
-      console.log("confirm news successfully updated", response);
+      const responseSqlite = await window.api.confirmNewsToSqlite(news_id);
+      console.log("confirm news successfully updated", responseSqlite);
       fetchAllNews();
+      // Check for internet connection
+      if (navigator.onLine) {
+        console.log("Sending news id to db:", news_id);
+        try {
+          const responseDb = await axios.post(
+            "https://backend.expressbild.org/index.php/rest/photographer_portal/newsread",
+            { id: news_id },
+            {
+              headers: {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
+              },
+            },
+          );
+          console.log("ResponseDb:", responseDb);
+
+          // Check if the response status is 200
+          if (responseDb.status === 200) {
+            console.log(
+              "Trigger method to update is_sent_date timestamp column in table NEWS",
+            );
+            try {
+              const responseNewsDate =
+                await window.api.addSentDateToNews(news_id);
+              console.log("is_sent_date added to NEWS table", responseNewsDate);
+            } catch (error) {
+              console.log("Error adding is_sent_date in NEWS table", error);
+            }
+          }
+        } catch (error) {
+          console.log("error when sending news id to company database");
+          console.log("error:", error);
+        }
+      }
     } catch (error) {
       console.log("error updatating news", error);
     }
@@ -346,7 +442,10 @@ function Index() {
                   )}
                 </div>
                 <div className="mb-2" style={{ marginTop: "-0.5em" }}>
-                  <em>Posted: {news && news.created_at.substring(0, 10)}</em>
+                  <em>
+                    Posted: {news && news.created_at.substring(0, 10)}, at:{" "}
+                    {news.created_at.substring(11, 16)}
+                  </em>
                 </div>
                 <div
                   dangerouslySetInnerHTML={{
@@ -358,7 +457,7 @@ function Index() {
                   <>
                     <button
                       className="mt-2 confirm-news-button"
-                      onClick={() => confirmNews(news.news_id)}
+                      onClick={() => confirmNews(news.id)}
                     >
                       Roger that!
                     </button>

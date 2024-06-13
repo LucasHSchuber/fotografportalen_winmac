@@ -43,7 +43,11 @@ const api = {
 
   create_news: news => ipcRenderer.invoke('create_news', news), // Database Call For Create News
   get_news: (args) => ipcRenderer.invoke('get_news', args), // Database Call For Get News
-  confirm_news: (id) => ipcRenderer.invoke('confirm_news', id), // Database Call For Confriming News
+  confirmNewsToSqlite: (news_id) => ipcRenderer.invoke('confirmNewsToSqlite', news_id), // Database Call For Confriming News
+  getAllUnsentNews: () => ipcRenderer.invoke('getAllUnsentNews'), // Database Call For getting all unsent news from news table
+  addSentDateToNews: (news_id) => ipcRenderer.invoke('addSentDateToNews', news_id), // Database Call For adding is_sent_date in News table
+
+  
 
   checkProjectExists: (project_uuid, user_id) => ipcRenderer.invoke('checkProjectExists', project_uuid, user_id), // Database Call For Checking if Project Exists
   createNewProject: args => ipcRenderer.invoke('createNewProject', args), // Database Call For Create new Project
