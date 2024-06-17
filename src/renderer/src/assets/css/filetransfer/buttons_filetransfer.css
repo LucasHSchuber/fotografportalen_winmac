@@ -44,3 +44,16 @@
     /* color:rgb(49, 49, 49); */
 }
 
+.custom-confirm-button {
+    background-color: rgb(41, 41, 41) !important;
+    transition: 0.2s;
+    color: white;
+    box-shadow: none !important;
+    width: 8em;
+  }
+  
+  .custom-confirm-button:hover {
+    background-color: #4f4f4f !important;
+  }
+
+  

@@ -10,7 +10,7 @@ import "../../assets/css/filetransfer/main_filetransfer.css";
 import "../../assets/css/filetransfer/buttons_filetransfer.css";
 
 function History_filetransfer() {
-  // Define states
+  // define states
     const [allFTData, setAllFTData] = useState([]);
     const [searchString, setSearchString] = useState("");
 

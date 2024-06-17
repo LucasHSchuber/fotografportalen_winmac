@@ -56,7 +56,7 @@ function Calendarsale_teamleader() {
   }, [images.length]);
 
   useEffect(() => {
-    // Determine the language from sessionStorage
+    // Determine the language from localStorage
     const user_lang = localStorage.getItem("user_lang");
     console.log(user_lang);
     let selectedLang;

@@ -162,7 +162,7 @@ ipcMain.handle("applyUpdates", async (event, downloadUrl) => {
   } catch (error) {
     console.error("Error during update process:", error);
   } finally {
-    app.exit(0); // Ensures the app quits after attempting to update
+    app.exit(0);
   }
 });
 
@@ -496,36 +496,36 @@ function createTables() {
   });
 }
 
-// Function to insert data into tables
-function insertDataToTables() {
-  db.run(
-    `
-  INSERT INTO users (email, firstname, lastname, city, lang, token) 
-  VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE', '123xyz')
-  `,
-    (err) => {
-      if (err) {
-        console.error("Error inserting user:", err.message);
-      } else {
-        console.log("User inserted successfully");
-      }
-    },
-  );
+// // Function to insert data into tables
+// function insertDataToTables() {
+//   db.run(
+//     `
+//   INSERT INTO users (email, firstname, lastname, city, lang, token) 
+//   VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE', '123xyz')
+//   `,
+//     (err) => {
+//       if (err) {
+//         console.error("Error inserting user:", err.message);
+//       } else {
+//         console.log("User inserted successfully");
+//       }
+//     },
+//   );
 
-  db.run(
-    `
-  INSERT INTO users (email, firstname, lastname, city, lang, token) 
-  VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'Stockholm', 'SE', 'abc098')
-  `,
-    (err) => {
-      if (err) {
-        console.error("Error inserting user:", err.message);
-      } else {
-        console.log("User inserted successfully");
-      }
-    },
-  );
-}
+//   db.run(
+//     `
+//   INSERT INTO users (email, firstname, lastname, city, lang, token) 
+//   VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'Stockholm', 'SE', 'abc098')
+//   `,
+//     (err) => {
+//       if (err) {
+//         console.error("Error inserting user:", err.message);
+//       } else {
+//         console.log("User inserted successfully");
+//       }
+//     },
+//   );
+// }
 
 //Get user token
 ipcMain.handle("updateUserToken", async (event, token, user_id) => {

@@ -6,12 +6,9 @@ const app = electron.app;
 const shell = electron.shell;
 
 
-
-
 // Custom APIs for renderer
 const api = {
   
-
   //TOKEN 
   updateUserToken: (token, user_id) => ipcRenderer.invoke('updateUserToken', token, user_id), 
 
@@ -25,7 +22,6 @@ const api = {
   //UPDATES TEAMLEADER
   applyUpdates: (downloadUrl) => ipcRenderer.invoke("applyUpdates", downloadUrl),
   getCurrentAppVersion: () => ipcRenderer.invoke('getCurrentAppVersion'), 
-  // downloadLatestVersion: (args) => ipcRenderer.invoke('downloadLatestVersion', args), 
   installLatestVersion: (args) => ipcRenderer.invoke('installLatestVersion', args), 
 
   minimize: () => ipcRenderer.invoke('minimize'), // Minimize The Window
@@ -46,8 +42,6 @@ const api = {
   confirmNewsToSqlite: (news_id) => ipcRenderer.invoke('confirmNewsToSqlite', news_id), // Database Call For Confriming News
   getAllUnsentNews: () => ipcRenderer.invoke('getAllUnsentNews'), // Database Call For getting all unsent news from news table
   addSentDateToNews: (news_id) => ipcRenderer.invoke('addSentDateToNews', news_id), // Database Call For adding is_sent_date in News table
-
-  
 
   checkProjectExists: (project_uuid, user_id) => ipcRenderer.invoke('checkProjectExists', project_uuid, user_id), // Database Call For Checking if Project Exists
   createNewProject: args => ipcRenderer.invoke('createNewProject', args), // Database Call For Create new Project
@@ -81,8 +75,6 @@ const api = {
   createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window
   createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // NOT EXISTS??? create main window
 
-  // lookForUpdates: () => ipcRenderer.invoke('lookForUpdates'), //NOT EXIST???
-
 
 
   // FILETRANSFER
@@ -95,16 +87,12 @@ const api = {
   
 
 
-
   // navigateBack: () => ipcRenderer.send('navigateBack'), // Send a message to Electron's main process to navigate back
-
   // createUserToComp: args => ipcRenderer.invoke('createUserToComp', args), // Database Call For Create User
   // createUser: args => ipcRenderer.invoke('createUser', args), // Database Call For Create User
   // getUsers: () => ipcRenderer.invoke('getUsers'),
   // getUser: (workname) => ipcRenderer.invoke('getUser', workname), // Pass workname to getUser handler in main process
   // createGroup: args => ipcRenderer.invoke('createGroup', args), // Database Call For Create Group
-  
-
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

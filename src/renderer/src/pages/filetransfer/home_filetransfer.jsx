@@ -6,6 +6,10 @@ import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faRepeat } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
 import { TailSpin } from "react-loader-spinner";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+const MySwal = withReactContent(Swal);
+
 
 import Sidemenu_filetransfer from "../../components/filetransfer/sidemenu_filetransfer";
 import Loadingbar_filetransfer from "../../components/filetransfer/loadingbar_filetransfer";
@@ -166,23 +170,54 @@ function Home_filetransfer() {
             }catch (error){
               console.log("error creating FT file", error);
             }
-
             //Remove file name from setFiles
             // setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
           } else {
-            alert(
-              `Failed to upload file: ${file.name}. Error: ${response.message}`,
-            );
+            MySwal.fire({
+              title: 'Upload Failed',
+              text: `Failed to upload file: ${file.name}. Error: ${response.message}`,
+              icon: 'error',
+              confirmButtonText: 'Close',
+              customClass: {
+                popup: 'custom-popup',
+                title: 'custom-title',
+                content: 'custom-text',
+                confirmButton: 'custom-confirm-button'
+              }
+            });
             setIsUploading(false);
             return;
           }
         } catch (error) {
-          alert(`Error during file upload: ${error.message}`);
+          MySwal.fire({
+            title: 'Upload Error',
+            text: `Error during file upload: ${error.message}`,
+            icon: 'error',
+            confirmButtonText: 'Close',
+            customClass: {
+              popup: 'custom-popup',
+              title: 'custom-title',
+              content: 'custom-text',
+              confirmButton: 'custom-confirm-button'
+            }
+          });
           setIsUploading(false);
           return;
         }
       }
-      // alert(`Filetransfer:  All files uploaded successfully!`);
+      // Notify user
+      MySwal.fire({
+        title: 'Filetransfer!',
+        text: 'All files have been uploaded',
+        icon: 'success',
+        confirmButtonText: 'Close',
+        customClass: {
+          popup: 'custom-popup',
+          title: 'custom-title',
+          content: 'custom-text',
+          confirmButton: 'custom-confirm-button'
+        }
+      });
       setIsUploading(false);
       setChooseNewProjectName("");
       setChosenProjectName("");
@@ -227,12 +262,12 @@ function Home_filetransfer() {
     }),
     menu: (base) => ({
       ...base,
-      width: "35em", // Set the width of the dropdown menu
+      width: "35em",
     }),
     noOptionsMessage: (base) => ({
       ...base,
-      width: "35em", // Set the width of the no options message
-      textAlign: "center", // Optionally, center the message
+      width: "35em", 
+      textAlign: "center",
     }),
   };
 
@@ -385,12 +420,14 @@ function Home_filetransfer() {
               )}
             </div>
           </div>
-        </div>
-      )}
 
-      <Sidemenu_filetransfer />
-      {isUploading && (
-      <Loadingbar_filetransfer uploadProgress={uploadProgress} />
+          <Sidemenu_filetransfer />
+          {isUploading && (
+          <Loadingbar_filetransfer uploadProgress={uploadProgress} />
+          )}
+
+        </div>
+        
       )}
 
     </div>
