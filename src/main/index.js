@@ -646,7 +646,7 @@ ipcMain.handle("create_news", async (event, news) => {
           reject(err);
         } else {
           resolve(rows.reduce((acc, row) => {
-            acc[row.id.toString()] = row.updated_at; // Convert IDs to strings
+            acc[row.id.toString()] = row.updated_at;
             return acc;
           }, {}));
         }
@@ -654,7 +654,7 @@ ipcMain.handle("create_news", async (event, news) => {
     });
     log.info("Existing news IDs and updated_at:", existingNews);
 
-    const incomingNewsIds = new Set(news.map(item => item.id.toString())); // Convert incoming IDs to strings
+    const incomingNewsIds = new Set(news.map(item => item.id.toString()));
 
     // Identify ids to mark as deleted (those ids that exists in table but not incoming news array)
     const idsToMarkAsDeleted = Object.keys(existingNews).filter(id => !incomingNewsIds.has(id));
@@ -679,7 +679,7 @@ ipcMain.handle("create_news", async (event, news) => {
               item.author,
               item.created_at,
               item.updated_at,
-              item.deleted || 0 // Ensure deleted is set to 0 if not provided
+              item.deleted || 0
             );
           }
           db.run("COMMIT", (err) => {
