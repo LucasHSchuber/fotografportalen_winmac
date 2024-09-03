@@ -451,8 +451,8 @@ function Index() {
                       <FontAwesomeIcon icon={faCheck} title="Read" className="ml-1"/>
                     </h6>
                   ) : news.is_read === 1 && news.is_sent_date !== null ? (
-                    <h6 className="ml-3" style={{ color: "green" }}>
-                      <span style={{ fontSize: "0.8em" }}>Confirmed and sent</span>
+                    <h6 className="ml-2" style={{ color: "green" }}>
+                      <span style={{ fontSize: "0.75em" }}>Confirmed and sent</span>
                       <FontAwesomeIcon icon={faCheckDouble} title="Read" className="ml-1"/>
                     </h6>
                   ) : null}
