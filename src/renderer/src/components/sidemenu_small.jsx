@@ -18,13 +18,13 @@ function Sidemenu_small() {
         <div className="sidemenu_small">
             <ul className="menu-small">
                 <div className="link-box-small" onClick={() => navigate('/')}>
-                    <FontAwesomeIcon icon={faHouse} className="icons" />
+                    <FontAwesomeIcon icon={faHouse} title="Home" className="icons" />
                 </div>
                 <div className="link-box-small" onClick={() => navigate('/settings')}>
-                    <FontAwesomeIcon icon={faCog} className="icons" />
+                    <FontAwesomeIcon icon={faCog} title="Settings" className="icons" />
                 </div>
                 <div className="link-box-small" onClick={() => navigate('/account')}>
-                    <FontAwesomeIcon icon={faUser} className="icons" />
+                    <FontAwesomeIcon icon={faUser} title="Profile" className="icons" />
                 </div>
             </ul>
         </div>

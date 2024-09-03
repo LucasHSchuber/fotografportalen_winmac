@@ -107,7 +107,8 @@
 
 .loading-bar-text {
     text-align: center;
-    margin-top: 10em;
+    font-size: 0.85em;
+    margin-top: 16em !important;
     width: 30vh;
     height: 4px;
     margin-left: 30%;

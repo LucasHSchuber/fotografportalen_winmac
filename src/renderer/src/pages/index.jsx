@@ -88,6 +88,7 @@ function Index() {
   const fetchAllNews = async () => {
     const allNews = await fetchNews();
     console.log("allnews", allNews);
+
     try {
       const newsFromTable = await window.api.get_news();
       console.log("News from table:", newsFromTable);
@@ -357,7 +358,7 @@ function Index() {
           </div>
         </div>
 
-        <div className="index-box">
+        {/* <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
             <b>You have 1 new message</b>
@@ -366,7 +367,7 @@ function Index() {
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
-        </div>
+        </div> */}
 
         <hr style={{ width: "75%" }} className="hr"></hr>
 
@@ -439,7 +440,7 @@ function Index() {
         <div className="index-box">
           {allNews &&
             allNews.map((news) => (
-              <div key={news.news_id} className="mb-4">
+              <div key={news.id} className="mb-4">
                 <div className="d-flex">
                   <h6>
                     <b>{news.title}</b>
@@ -456,11 +457,23 @@ function Index() {
                     </h6>
                   ) : null}
                 </div>
-                <div className="mb-2" style={{ marginTop: "-0.5em" }}>
+                <div className="mb-2" style={{ marginTop: "-0.5em", fontSize: "0.85em" }}>
+                  {news && news.updated_at === "NULL" ? (
                   <em>
                     Posted: {news && news.created_at.substring(0, 10)}, at:{" "}
                     {news.created_at.substring(11, 16)}
                   </em>
+                  ) : (
+                  <div>
+                  <em>
+                    Posted: {news && news.created_at.substring(0, 10)}, at:{" "}
+                    {news.created_at.substring(11, 16)}
+                    &nbsp;
+                    (Updated: {news && news.updated_at.substring(0, 10)}, at:{" "}
+                    {news.updated_at.substring(11, 16)})
+                  </em>
+                  </div>
+                  )}
                 </div>
                 <div
                   dangerouslySetInnerHTML={{

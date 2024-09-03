@@ -3,7 +3,10 @@ import axios from 'axios';
 
 const fetchNews = async () => {
   let token = localStorage.getItem("token");
-  console.log(token);
+  let user_id = localStorage.getItem("user_id");
+  // console.log("token", token);
+  // console.log("user id", user_id);
+  
   try {
     let response = await axios.get('https://backend.expressbild.org/index.php/rest/photographer_portal/News', {
       headers: {
@@ -14,6 +17,24 @@ const fetchNews = async () => {
     if (response && response.data) {
       console.log('Fetched news from endpoint:', response.data);
 
+
+      
+      // try {
+      //   const responseRead = await axios.get(
+      //     `https://backend.expressbild.org/index.php/rest/photographer_portal/newsread/${user_id}`, {
+      //       headers: {
+      //         Authorization: `Token ${token}`,
+      //       },
+      //     },
+      //   );
+      //   console.log("responseRead:", responseRead);  
+        
+      // } catch (error) {
+      //   console.log("Error fetching news read", error)
+      // }
+
+
+     
       // Add news to SQLite news table
       try {
         const news = response.data.result;

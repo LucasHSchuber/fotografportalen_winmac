@@ -470,7 +470,6 @@ function createTables() {
       name: "news",
       query: `
         CREATE TABLE IF NOT EXISTS news (
-          news_id INTEGER PRIMARY KEY AUTOINCREMENT,
           id INTEGER,
           title TEXT,
           content TEXT,
@@ -626,6 +625,10 @@ ipcMain.handle("create_Projects", async (event, projects) => {
   }
 });
 
+
+
+
+
 //add news to SQLlite news table
 ipcMain.handle("create_news", async (event, news) => {
   log.info(news);
@@ -636,23 +639,36 @@ ipcMain.handle("create_news", async (event, news) => {
 
     const db = new sqlite3.Database(dbPath);
 
+    // Fetch all existing news records
     const existingNews = await new Promise((resolve, reject) => {
-      db.all("SELECT id FROM news", (err, rows) => {
+      db.all("SELECT id, updated_at FROM news", (err, rows) => {
         if (err) {
           reject(err);
         } else {
-          resolve(rows.map((row) => row.id));
+          resolve(rows.reduce((acc, row) => {
+            acc[row.id.toString()] = row.updated_at; // Convert IDs to strings
+            return acc;
+          }, {}));
         }
       });
     });
+    log.info("Existing news IDs and updated_at:", existingNews);
 
-    const newNewsItems = news.filter((item) => !existingNews.includes(item.id));
+    const incomingNewsIds = new Set(news.map(item => item.id.toString())); // Convert incoming IDs to strings
 
+    // Identify ids to mark as deleted (those ids that exists in table but not incoming news array)
+    const idsToMarkAsDeleted = Object.keys(existingNews).filter(id => !incomingNewsIds.has(id));
+    // Insert new items (Those that exists in incoming news array but not in table)
+    const newNewsItems = news.filter(item => !existingNews.hasOwnProperty(item.id.toString()));
+    // Update items (those where updated_at in incoming news array are bigger than updated_at in table)
+    const updates = news.filter(item => existingNews.hasOwnProperty(item.id.toString()) && new Date(item.updated_at) > new Date(existingNews[item.id.toString()]));
+
+    // Batch insert new items
     const batchInsert = async (NewsBatch) => {
       return new Promise((resolve, reject) => {
         db.serialize(() => {
           const stmt = db.prepare(
-            "INSERT INTO news (id, title, content, author, created_at, updated_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO news (id, title, content, author, created_at, updated_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?)"
           );
           db.run("BEGIN TRANSACTION");
           for (const item of NewsBatch) {
@@ -663,7 +679,7 @@ ipcMain.handle("create_news", async (event, news) => {
               item.author,
               item.created_at,
               item.updated_at,
-              item.deleted,
+              item.deleted || 0 // Ensure deleted is set to 0 if not provided
             );
           }
           db.run("COMMIT", (err) => {
@@ -677,11 +693,73 @@ ipcMain.handle("create_news", async (event, news) => {
         });
       });
     };
-
-    const batchSize = 100; // Adjust batch size as needed
+    const batchSize = 100;
     for (let i = 0; i < newNewsItems.length; i += batchSize) {
       const batch = newNewsItems.slice(i, i + batchSize);
       await batchInsert(batch);
+    }
+
+    // Batch update existing items
+    const batchUpdate = async (NewsBatch) => {
+      return new Promise((resolve, reject) => {
+        db.serialize(() => {
+          const stmt = db.prepare(
+            "UPDATE news SET title = ?, content = ?, author = ?, created_at = ?, updated_at = ?, is_read = ?, is_sent_date = ?, deleted = ? WHERE id = ?"
+          );
+          db.run("BEGIN TRANSACTION");
+          for (const item of NewsBatch) {
+            stmt.run(
+              item.title,
+              item.content,
+              item.author,
+              item.created_at,
+              item.updated_at,
+              0,
+              "NULL",
+              item.deleted || 0, 
+              item.id
+            );
+          }
+          db.run("COMMIT", (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+          stmt.finalize();
+        });
+      });
+    };
+    // Update items in batches
+    if (updates.length > 0) {
+      for (let i = 0; i < updates.length; i += batchSize) {
+        const batch = updates.slice(i, i + batchSize);
+        await batchUpdate(batch);
+      }
+      log.info("News items updated successfully");
+    }
+
+    // Mark existing news items as deleted if they are not in the incoming news array
+    if (idsToMarkAsDeleted.length > 0) {
+      await new Promise((resolve, reject) => {
+        db.serialize(() => {
+          const stmt = db.prepare("UPDATE news SET deleted = 1 WHERE id = ?");
+          db.run("BEGIN TRANSACTION");
+          for (const id of idsToMarkAsDeleted) {
+            stmt.run(id);
+          }
+          db.run("COMMIT", (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+          stmt.finalize();
+        });
+      });
+      log.info("IDs marked as deleted:", idsToMarkAsDeleted);
     }
 
     log.info("News added successfully");
@@ -693,11 +771,18 @@ ipcMain.handle("create_news", async (event, news) => {
   }
 });
 
+
+
+
+
+
+
+
 //get all news
 ipcMain.handle("get_news", async (event) => {
   const allNews = [];
 
-  const retrieveQuery = "SELECT * FROM news";
+  const retrieveQuery = "SELECT * FROM news WHERE deleted IS NULL OR deleted != 1";
   console.log("SQL Query:", retrieveQuery, "Parameters:", []);
 
   return new Promise((resolve, reject) => {
@@ -710,7 +795,6 @@ ipcMain.handle("get_news", async (event) => {
       }
 
       allNews.push({
-        news_id: row.news_id,
         id: row.id,
         title: row.title,
         content: row.content,
@@ -762,7 +846,6 @@ ipcMain.handle("getAllUnsentNews", async (event) => {
 
     const rows = await executeQueryWithRetry(db, retrieveQuery);
     const unsentNews = rows.map((row) => ({
-      news_id: row.news_id,
       id: row.id
     }));
 
