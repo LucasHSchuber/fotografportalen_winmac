@@ -184,16 +184,16 @@ function Prevwork_teamleader() {
 
 
 
-    if (loading) {
-        return <div>
-            <div className="loading-bar-text">
-                <p><b>Loading previous work...</b></p>
-            </div>
-            <div className="loading-bar-container">
-                <div className="loading-bar"></div>
-            </div>
-        </div>;
-    }
+    // if (loading) {
+    //     return <div>
+    //         <div className="loading-bar-text">
+    //             <p><b>Loading previous work...</b></p>
+    //         </div>
+    //         <div className="loading-bar-container">
+    //             <div className="loading-bar"></div>
+    //         </div>
+    //     </div>;
+    // }
     return (
         <div className="teamleader-wrapper">
             <div className="prevwork-teamleader-content">
