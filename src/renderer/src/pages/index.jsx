@@ -458,21 +458,21 @@ function Index() {
                   ) : null}
                 </div>
                 <div className="mb-2" style={{ marginTop: "-0.5em", fontSize: "0.85em" }}>
-                  {news && news.updated_at === "NULL" ? (
-                  <em>
-                    Posted: {news && news.created_at.substring(0, 10)}, at:{" "}
-                    {news.created_at.substring(11, 16)}
-                  </em>
+                  {news && !news.updated_at ? (
+                    <em>
+                      Posted: {news?.created_at ? news.created_at.substring(0, 10) : "N/A"}, at:{" "}
+                      {news?.created_at ? news.created_at.substring(11, 16) : "N/A"}
+                    </em>
                   ) : (
-                  <div>
-                  <em>
-                    Posted: {news && news.created_at.substring(0, 10)}, at:{" "}
-                    {news.created_at.substring(11, 16)}
-                    &nbsp;
-                    (Updated: {news && news.updated_at.substring(0, 10)}, at:{" "}
-                    {news.updated_at.substring(11, 16)})
-                  </em>
-                  </div>
+                    <div>
+                      <em>
+                        Posted: {news?.created_at ? news.created_at.substring(0, 10) : "N/A"}, at:{" "}
+                        {news?.created_at ? news.created_at.substring(11, 16) : "N/A"}
+                        &nbsp;
+                        (Updated: {news?.updated_at ? news.updated_at.substring(0, 10) : "N/A"}, at:{" "}
+                        {news?.updated_at ? news.updated_at.substring(11, 16) : "N/A"})
+                      </em>
+                    </div>
                   )}
                 </div>
                 <div
