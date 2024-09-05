@@ -101,11 +101,33 @@ function Index() {
     fetchAllNews();
   }, []);
 
+
+  // useEffect(() => {
+  //   // Function to fetch platform from the preload API
+  //   const fetchPlatform = async () => {
+  //     try {
+  //       const platform = await window.api.getPlatform();
+  //       console.log('platform', platform);
+  //     } catch (error) {
+  //       console.error('Error fetching platform:', error);
+  //     }
+  //   };
+
+  //   fetchPlatform();
+  // }, []);
+
   //donwload latest version method
   const downloadLatestVersion = async () => {
     console.log("downloading latest version");
-    const platform = process.platform;
-    console.log('platform', platform);
+    // finding users platform
+    let platform;
+    try {
+      platform = await window.api.getPlatform();
+      console.log('platform', platform);
+    } catch (error) {
+      console.error('Error fetching platform:', error);
+      return;
+    }
     let fileExtension;
     if (platform === 'win32') {
       fileExtension = '.exe';
@@ -115,7 +137,7 @@ function Index() {
       console.error("Unsupported platform - unable to find installation file");
       return;
     }
-
+    // finding the correct installation file with correct extension
     try {
       const githubResponse = await axios.get(githubURL);
       const latestRelease = githubResponse.data;
@@ -124,10 +146,11 @@ function Index() {
       )?.browser_download_url;
 
       if (!downloadUrl) {
-        throw new Error("No .dmg file found in the latest release");
+        throw new Error(`No ${fileExtension} file found in the latest release`);
       }
       console.log(downloadUrl);
-      console.log("Update available, preparing to download...");
+      console.log("Update available, preparing to download from url", downloadUrl);
+      // propting user, and starting update
       const userConfirmed = await promptUserToCloseApp();
       if (userConfirmed) {
         console.log("User confirmed, proceeding with update...");
