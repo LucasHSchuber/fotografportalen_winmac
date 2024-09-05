@@ -69,3 +69,18 @@
 .register-link-login:hover {
   color: gray !important;
 }
+
+
+.custom-confirm-button {
+  background-color: black; 
+  color: white; 
+  border: none; 
+  width: 12em;
+  font-size: 0.9em !important;
+}
+.custom-confirm-button:hover {
+  background-color: #333; 
+}
+.custom-cancel-button {
+  font-size: 0.9em !important;
+}

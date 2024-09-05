@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import profile from "../assets/images/photographer.png";
 import semver from "semver";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+const MySwal = withReactContent(Swal);
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquareCheck } from "@fortawesome/free-regular-svg-icons";
 import { faCheck, faCheckDouble } from "@fortawesome/free-solid-svg-icons";
@@ -31,6 +35,8 @@ function Index() {
   const [normalizedLatestVersion, setNormalizedLatestVersion] = useState("");
 
   const [allNews, setAllNews] = useState([]);
+
+  const [loading, setLoading] = useState(false);
 
 
   // check if there is a new APP-release
@@ -113,6 +119,7 @@ function Index() {
       console.log('platform', platform);
     } catch (error) {
       console.error('Error fetching platform:', error);
+      showErrorModal('Failed to fetch platform information.');
       return;
     }
     let fileExtension;
@@ -122,6 +129,7 @@ function Index() {
       fileExtension = '.dmg';
     } else {
       console.error("Unsupported platform - unable to find installation file");
+      showErrorModal('Unsupported platform.');
       return;
     }
     // finding the correct installation file with correct extension
@@ -140,21 +148,57 @@ function Index() {
       // propting user, and starting update
       const userConfirmed = await promptUserToCloseApp();
       if (userConfirmed) {
+        setLoading(true);
         console.log("User confirmed, proceeding with update...");
-        localStorage.setItem("pendingUpdateUrl", downloadUrl);
-        await window.api.applyUpdates(downloadUrl);
+        try {
+          localStorage.setItem("pendingUpdateUrl", downloadUrl);
+          await window.api.applyUpdates(downloadUrl);
+          console.log("Update applied successfully.");
+        } catch (error) {
+          console.error("Error applying update:", error);
+          showErrorModal('Failed to apply the update.');
+        } finally {
+          setLoading(false); 
+        }
       } else {
         console.log("User canceled the update.");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Download error:", error);
+      showErrorModal('Failed to download the update.');
+
     }
   };
 
-  const promptUserToCloseApp = () => {
-    return window.confirm(
-      "The application will close to update. Make sure to save all your work. Do you want to continue?",
-    );
+  const promptUserToCloseApp = async () => {
+    // return window.confirm(
+    //   "The Application is about to start downloading the new installation file to your desktop. Once it's finished, the application will automatically quit. The download might take a few minutes. Do you wish to continue?",
+    // );
+    const result = await MySwal.fire({
+      title: 'Update Available',
+      text: "The Application is about to start downloading the new installation file to your desktop. Once it's finished, the application will automatically quit. The download might take a few minutes. Do you wish to continue?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, start download',
+      cancelButtonText: 'No, cancel',
+      customClass: {
+        confirmButton: 'custom-confirm-button',
+        cancelButton: 'custom-cancel-button' // Optional: if you want to style the cancel button as well
+      },
+      didOpen: () => {
+        // Style the title
+        const title = document.querySelector('.swal2-title');
+        if (title) {
+          title.style.fontSize = '1.2em';  
+        }
+        // Style the content text
+        const content = document.querySelector('.swal2-html-container');
+        if (content) {
+          content.style.fontSize = '0.85em';  
+        }
+      }
+    });
+    return result.isConfirmed;
   };
 
   //get all current projects with user_id
@@ -359,6 +403,28 @@ function Index() {
     }
   };
 
+
+  
+   // SweetAlert2 error modal
+   const showErrorModal = (errorMessage) => {
+    MySwal.fire({
+      title: 'Error!',
+      text: errorMessage,
+      icon: 'error',
+      confirmButtonText: 'Close',
+    });
+  };
+
+
+  if (loading) {
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+        <p style={{ textAlign: "center", marginTop: "1em" }}>Downloading update. It might take a few minutes. <br></br> Please wait...</p>
+      </div>
+    );
+  }
+  
   return (
     <div className="d-flex index-wrapper">
       <div className="index-box-left">
@@ -383,8 +449,12 @@ function Index() {
         <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
-            <b>You have 1 new message</b>
+            <b>You have 2 new message</b>
           </h6>
+          <p>
+            Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
+            <br></br> <em>Recieved: 10/5/2024</em>
+          </p>
           <p>
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
@@ -424,11 +494,11 @@ function Index() {
         {/* {currentVersion !== latestVersion.substring(1, 6) ? ( */}
         {latestVersion &&
         currentVersion &&
-        semver.eq(latestVersion, currentVersion) ? (
+        semver.gt(latestVersion, currentVersion) ? (
           <div className="index-box">
             <h1 className="index-title three">News & updates</h1>
             <h6>
-              <b>New updates for Fotografportalen</b>
+              <b>New updates for Photographer Portal</b>
             </h6>
             <p>
               Current Version: <b>{currentVersion}</b> - Latest Version:{" "}
@@ -438,7 +508,7 @@ function Index() {
               Get the latest updates from the button below
             </p>
             <p style={{ marginTop: "-1em" }}>
-              Download version 'Fotografportalen v
+              Download version 'Photographer Portal v
               {latestVersion.substring(1, 6)}' here:
             </p>
             <button className="button normal" onClick={downloadLatestVersion}>

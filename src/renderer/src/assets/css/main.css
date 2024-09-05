@@ -1,4 +1,6 @@
 /* main css */
+
+
 .page-loading-login {
   text-align: center;
   margin-left: 3em;
@@ -89,7 +91,34 @@
 
 
 
-/* WRAPPERS */
+/* VERSION UPDATE SPINNER */
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin-right: 9em;
+}
+
+.spinner {
+  border: 12px solid #f3f3f3;
+  border-top: 12px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 
 
@@ -305,89 +334,3 @@ background-color: rgb(227, 227, 227);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-/* HOME */
-/* 
-.home-wrapper {
-  padding: 0 0 5em 0;
-}
-
-
-.home-wrapper textarea,
-.home-wrapper input {
-  border-radius: 5px;
-  border: 1px solid rgb(128, 128, 128, 0.5);
-  padding: 0.4em;
-  margin: 0.1em;
-  background-color: #efefef;
-} */
-
-
-/* Table Styles */
-/* .user-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.user-table th,
-.user-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-.user-table th {
-  background-color: #f2f2f2;
-}
-
-.user-table tbody tr {
-  background-color: #f2f2f2;
-  transition: 0.1s;
-}
-
-.user-table tbody tr:hover {
-  background-color: #e6eef1;
-} */
-
-
-
-
-/* ADD GROUP */
-
-/* form */
-/* .custom-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 22px;
-  height: 22px;
-  border: 2px solid #333;
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-}
-
-.custom-checkbox:checked {
-  background-color: #333333;
-}
-
-.custom-checkbox:checked::before {
-  content: '\2713';
-  display: block;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  line-height: 20.8px;
-  color: #fff;
-} */

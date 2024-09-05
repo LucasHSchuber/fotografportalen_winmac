@@ -167,46 +167,56 @@ ipcMain.handle("applyUpdates", async (event, downloadUrl) => {
 });
 
 async function applyUpdate(downloadUrl) {
-  const localDmgPath = path.join(
+  const fileExtension = path.extname(downloadUrl);
+  const localFilePath = path.join(
     os.homedir(),
     "Desktop",
-    "downloadedUpdate.dmg",
+    `downloadedUpdate${fileExtension}`
   );
 
   try {
-    console.log(`Downloading DMG from: ${downloadUrl}`);
-    await downloadFile(downloadUrl, localDmgPath);
-    console.log(`Download complete, saved to: ${localDmgPath}`);
+    console.log(`Downloading ${fileExtension} from: ${downloadUrl}`);
+    await downloadFile(downloadUrl, localFilePath);
+    console.log(`Download complete, saved to: ${localFilePath}`);
 
     // Verify file exists
-    if (!fs.existsSync(localDmgPath)) {
+    if (!fs.existsSync(localFilePath)) {
       throw new Error("Downloaded file does not exist.");
     }
 
-    // Mount the DMG file
-    const mountPoint = path.join(
-      os.homedir(),
-      "Desktop",
-      "Fotografportalen 1.0.2",
-    );
-    console.log(`Mounting DMG at: ${mountPoint}`);
-    await execPromise(
-      `hdiutil attach "${localDmgPath}" -nobrowse -mountpoint "${mountPoint}"`,
-    );
+    // Extract the base name (without extension) from the download URL
+    const fileName = path.basename(downloadUrl, path.extname(downloadUrl)); 
+    log.info("fileName (OS)", fileName);
 
-    console.log("DMG mounted");
+    if (fileExtension === '.dmg') {
+      // Handle DMG file (macOS)
+      const mountPoint = path.join(
+        os.homedir(),
+        'Desktop',
+        fileName
+      );
+      console.log(`Mounting DMG at: ${mountPoint}`);
+      await execPromise(
+        `hdiutil attach "${localFilePath}" -nobrowse -mountpoint "${mountPoint}"`
+      );
+      console.log('DMG mounted');
 
-    // Open the mounted DMG location
-    console.log("Opening mounted DMG location...");
-    await execPromise(`open "${mountPoint}"`);
+      // Open the mounted DMG location
+      console.log('Opening mounted DMG location...');
+      await execPromise(`open "${mountPoint}"`);
+      console.log('DMG mounted successfully, please replace the application manually.');
+    } else if (fileExtension === '.exe') {
+      // Handle EXE file (Windows)
+      console.log(`Executing EXE installer from: ${localFilePath}`);
+      await execPromise(`"${localFilePath}"`);
+      console.log('EXE file executed successfully.');
+    } else {
+      throw new Error('Unsupported file type.');
+    }
 
-    // No need to unmount or delete the DMG in this case
-    console.log(
-      "DMG mounted successfully, please replace the application manually.",
-    );
     return true;
   } catch (error) {
-    console.error("Failed to apply update:", error);
+    console.error('Failed to apply update:', error);
     return false;
   }
 }
