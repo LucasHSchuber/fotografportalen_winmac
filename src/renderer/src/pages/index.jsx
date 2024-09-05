@@ -104,11 +104,23 @@ function Index() {
   //donwload latest version method
   const downloadLatestVersion = async () => {
     console.log("downloading latest version");
+    const platform = process.platform;
+    console.log('platform', platform);
+    let fileExtension;
+    if (platform === 'win32') {
+      fileExtension = '.exe';
+    } else if (platform === 'darwin') {
+      fileExtension = '.dmg';
+    } else {
+      console.error("Unsupported platform - unable to find installation file");
+      return;
+    }
+
     try {
       const githubResponse = await axios.get(githubURL);
       const latestRelease = githubResponse.data;
       const downloadUrl = latestRelease.assets.find((asset) =>
-        asset.name.endsWith(".dmg"),
+        asset.name.endsWith(fileExtension),
       )?.browser_download_url;
 
       if (!downloadUrl) {
@@ -358,7 +370,7 @@ function Index() {
           </div>
         </div>
 
-        <div className="index-box">
+        {/* <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
             <b>You have 1 new message</b>
@@ -367,7 +379,7 @@ function Index() {
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
-        </div>
+        </div> */}
 
         <hr style={{ width: "75%" }} className="hr"></hr>
 

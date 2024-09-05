@@ -1,7 +1,7 @@
 {
   "name": "fotografportalen",
   "productName": "Fotografportalen",
-  "version": "1.0.8",
+  "version": "1.0.1",
   "description": "An Electron application with React - Fotografportalen",
   "main": "./out/main/index.js",
   "author": "Lucas Schuber / Fotografportalen",
