@@ -358,7 +358,7 @@ function Index() {
           </div>
         </div>
 
-        {/* <div className="index-box">
+        <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
             <b>You have 1 new message</b>
@@ -367,7 +367,7 @@ function Index() {
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
-        </div> */}
+        </div>
 
         <hr style={{ width: "75%" }} className="hr"></hr>
 

@@ -263,10 +263,10 @@ function Portal_teamleader() {
                                     )}
                                 </div>
 
-                                <button className="button standard mt-2"
+                                <button className="button standard mt-2" title="Create new team"
                                     onClick={() => createNewTeam()}>
                                         <FontAwesomeIcon icon={faPlus} 
-                                    /></button>
+                                /></button>
 
                                 <div className="d-flex mt-5">
                                     <div className="portal-analytics">
