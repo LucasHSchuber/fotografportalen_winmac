@@ -59,7 +59,7 @@ const TeamsChart = ({ data, prevProjectsLength }) => {
         <div className="chart-teamleader-wrapper my-3">
             <div className="chart-container">
                 <div className="d-flex">
-                    <h6 style={{ textDecoration: "none", margin: "0.3em 0.5em 0 0" }}>Change scope: </h6>
+                    <h6 style={{ textDecoration: "none", margin: "0.3em 0.5em 0 0", fontSize: "0.85em" }}>Change scope: </h6>
                     <select value={userInputChartOne} onChange={(e) => setUserInputChartOne(e.target.value)}>
                         {[...Array(prevProjectsLength).keys()].map((num) => (
                             <option key={num + 1} value={num + 1} >

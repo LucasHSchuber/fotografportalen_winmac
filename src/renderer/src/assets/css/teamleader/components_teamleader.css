@@ -245,15 +245,19 @@
 
 .chart-container h6 {
     text-decoration: underline;
+    font-size: 0.9em;
 }
 
 .chart-container select {
     /* background-color: rgb(255, 255, 255); */
     background-color: inherit;
     color: #333333;
-    border-radius: 5px;
+    border-radius: 3px;
     border: 1px solid #d8d8d8;
-    padding: 0.2em;
+    padding: 0.1em;
+    height: 1.5em !important;
+    font-size: 0.9em;
+    margin-top: 0.2em !important;
 }
 
 

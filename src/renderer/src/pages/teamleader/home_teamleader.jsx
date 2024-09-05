@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 
+import flash_black from "../../assets/images/flash_black.png";
+import running_black from "../../assets/images/running_black.png";
+import academic_black from "../../assets/images/academic_black.png";
+
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import SubjectsChart from "../../components/teamleader/subjectsChart";
 import TeamsChart from "../../components/teamleader/teamsChart";
@@ -23,6 +27,9 @@ function Home_teamleader() {
     const [currProjectsArray, setCurrProjectsArray] = useState([]);
     const [prevProjectsArray, setPrevProjectsArray] = useState([]);
 
+    const [latestProject, setLatestProject] = useState({});
+
+    const navigate = useNavigate();
 
 
     //load loading bar on load
@@ -142,6 +149,47 @@ function Home_teamleader() {
     }, []);
 
 
+    //get all projects 
+    useEffect(() => {
+        let user_id = localStorage.getItem("user_id");
+        console.log(user_id);
+        const getAllProjects = async (retryCount = 3) => {
+            try {
+                const projects = await window.api.getAllCurrentProjects(user_id);
+                console.log('Projects:', projects.projects);
+                if (projects && projects.projects) {
+                    const latestProject = projects.projects[projects.projects.length - 1];
+                    console.log('latestProject', latestProject);
+                    setLatestProject(latestProject);
+                } else {
+                    console.error('Invalid projects data:', projects);
+                    getAllProjects();
+                }
+
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+                if (retryCount > 0) {
+                    console.log(`Retrying... Attempts left: ${retryCount}`);
+                    // Retry fetching projects after a delay
+                    setTimeout(() => {
+                        getAllProjects(retryCount - 1);
+                    }, 1000); // Adjust the delay as needed
+                } else {
+                    console.error('Max retry attempts reached. Failed to fetch projects.');
+                    // Handle maximum retry attempts reached
+                }
+            }
+        };
+        getAllProjects();
+    }, []);
+
+    
+    //enter a project (portal_teamleader)
+    const enterProject = (project_id) => {
+        console.log(project_id);
+        localStorage.setItem("project_id", project_id);
+        navigate(`/portal_teamleader/${project_id}`);
+    }
 
 
     return (
@@ -158,7 +206,7 @@ function Home_teamleader() {
             ) : (
                 //html content
                 <>
-                    <div className="home-teamleader-content">
+                    <div className="home-teamleader-content mb-5">
                         <div className="header">
                             <h4>Welcome to Teamleader, {user}!</h4>
                             <p>This is your plattform for keeping track of your jobs, working progress and control sheet</p>
@@ -166,17 +214,71 @@ function Home_teamleader() {
                     </div>
 
                     {currProjectsArray && currProjectsArray.length > 0 ? (
-                        <div className="home-message-box mb-3 mt-5 d-flex">
-                            <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Message: </b> &nbsp; </h6>
+                        <div className="home-message-box mb-3 d-flex">
+                            <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Alert: </b> &nbsp; </h6>
                             <h6> You have <b>{currProjectsArray.length > 0 ? currProjectsArray.length : "0"}</b> unsent job{currProjectsArray.length > 1 ? "s":""}</h6>
                         </div>
                     ) : (
                         <>
-
                         </>
                     )}
 
+                    {latestProject ? (
+                        <div 
+                        className="my-4"
+                        onClick={() => enterProject(latestProject.project_id)}
+                        >
+                            <h6 style={{ fontSize: "0.8em", fontWeight: "600" }}>
+                                {/* <img className="title-img" src={flash_black} alt="flash" /> */}
+                                 Latest project
+                            </h6>
+                            <div key={latestProject.project_id} className="mb-3">
+                                <div className="home-latestproject-box d-flex"
+                                    value={latestProject.project_id}
+                                    // onClick={() => enterProject(project.project_id)}
+                                    title={`Open job: ${latestProject.projectname}`}
+                                    >
+                                    <p className="ml-2 mr-1 ">{latestProject.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-latestwork" src={running_black} alt="running"></img>}</p>
+                                    <p className="mx-4">{latestProject?.projectname?.length > 70 ? latestProject.projectname.substring(0, 70) + "..." : latestProject.projectname}</p>
+                                </div>
+                            </div>
+                        </div>    
+                    ) : (
+                        <>
+                        </>
+                    )}
+
+
+                    <h6 className="" style={{ fontSize: "0.8em", fontWeight: "600" }}>Statistics</h6>
                     <div className="home-analytics-box d-flex">
+                        <div className="home-analytics">
+                            <p>
+                                Total completed jobs
+                            </p>
+                            <div className="home-analytics-number">
+                                {prevProjectsArray && prevProjectsArray.length > 0 ? prevProjectsArray.length : "0"}
+                            </div>
+                        </div>
+                        <div className="home-analytics">
+                            <p >
+                                Total photographed subjects
+                            </p>
+                            <div className="test">
+                                <div className="home-analytics-number">
+                                    {data && data.reduce((total, project) => total + project.teams.amount, 0)}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="home-analytics">
+                            <p>
+                                Total sold calendars
+                            </p>
+                            <div className="home-analytics-number">
+                                {data && data.reduce((total, calendar) => total + calendar.teams.sold_calendar, 0)}
+                            </div>
+                        </div>
+                    </div>
+                 {/* <div className="home-analytics-box d-flex">
                         <div className="home-analytics mx-2">
                             <p style={{ textDecoration: "underline" }}>
                                 Total completed jobs
@@ -200,11 +302,11 @@ function Home_teamleader() {
                                 Total sold calendars
                             </p>
                             <div className="home-analytics-number">
-                                {/* {teams.reduce((total, calendars) => total + calendars.sold_calendar, 0)} */}
                                 {data && data.reduce((total, calendar) => total + calendar.teams.sold_calendar, 0)}
                             </div>
                         </div>
                     </div>
+                */}
 
 
                     <SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length} />

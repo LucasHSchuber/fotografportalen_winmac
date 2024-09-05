@@ -200,7 +200,7 @@ function Prevwork_teamleader() {
 
                 <div className="header">
                     <h4><img className="title-img" src={suitcase_black} alt="suitcase" /> Previous work</h4>
-                    <p>This is your prevoius work. All the projects are locked since they have been sent in. In case important information have been missed out in one of your previous projects, please send a message to our office by clicking the email-icon to corresponding project.</p>
+                    <p>This is your prevoius work. All the projects are locked since they have been sent in. In case important information have been missed out in one of your previous projects, please contact the office.</p>
                 </div>
 
                 <div className="mt-4 mb-5">
@@ -221,7 +221,6 @@ function Prevwork_teamleader() {
                                         <p className="ml-2">{project.type === "school" ? <img className="type-img-currwork" src={academic_gray} alt="academic"></img> : <img className="type-img-currwork" src={running_gray} alt="running"></img>}</p>
                                         <p className="ml-3">{project.projectname.length > 73 ? project.projectname.substring(0, 73) + "..." : project.projectname}</p>
                                     </div>
-                                    {/* <p className="ml-4 mr-5">{project.created.substring(0, 10)}</p> */}
                                     <FontAwesomeIcon className="mt-1" icon={faLock} />
                                 </div>
 

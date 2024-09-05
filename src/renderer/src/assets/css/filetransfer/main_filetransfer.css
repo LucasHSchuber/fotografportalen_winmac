@@ -59,19 +59,6 @@
     animation: fillLoadingBar 2s linear;
 }
 
-
-.home-message-box {
-    background-color: rgb(255, 255, 255);
-    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
-    width: fit-content;
-    border-radius: 10px;
-    padding: 0.5em 1em 0.1em 1em;
-}
-
-.home-message-box i {
-    color: #ff6262;
-}
-
 .loading-bar-text {
     text-align: center;
     margin-top: 10em;

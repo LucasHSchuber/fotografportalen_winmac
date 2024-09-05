@@ -58,49 +58,81 @@
     animation: fillLoadingBar 2s linear;
 }
 
-
-.home-analytics-box {
+.home-latestproject-box{
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
+    color: #323232 !important;
+    padding: 1em 1em 0 1em;
+    height: 3.5em;
+    border-radius: 5px;
+    width: 43em;
+    font-size: 0.7em !important;
+}
+.home-latestproject-box:hover{
+    background-color: #f3f3f3;
+    box-shadow: 0 0 10px 1px rgba(172, 172, 172, 0.1);
+    transition: 0.2s;
+    cursor: pointer;
+}
+.type-img-latestwork {
+    width: 1.4em;
+}
+/* .home-analytics-box {
     background-color: rgb(255, 255, 255);
     box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
     width: fit-content;
     border-radius: 10px;
     padding: 2.5em 1em;
 }
-
 .home-analytics {
     width: 12em;
 }
-
 .home-analytics p {
     text-align: center;
     font-weight: 700;
     font-size: 0.9em;
+} */
+.home-analytics-box {
+    /* background-color: rgb(255, 255, 255); */
+    /* box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2); */
+    width: fit-content;
+    border-radius: 10px;
+    /* padding: 1.8em 0.8em 0; */
+}
+
+.home-analytics {
+    width: 11.4em;
+    margin-right: 0.6em;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
+    padding: 1em 0 0 1.2em;
+    border-radius: 10px
+}
+
+.home-analytics p {
+    /* text-align: center; */
+    font-weight: 700;
+    font-size: 0.65em;
 }
 
 .home-analytics-number {
-    /* background-color: #1d1d1d; */
-    /* background-color: #009c4a; */
-    background-color: #5B5B5B;
-    border-radius: 50%;
-    color: white;
-    width: 5em;
-    height: 5em;
-    font-size: 1em;
+    color: rgb(60, 60, 60);
+    font-size: 1.1em;
     font-weight: 700;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
+    margin: 0 0 1em 0;
 }
 
 .home-message-box {
     background-color: rgb(255, 255, 255);
-    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
+    /* box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2); */
     width: fit-content;
-    border-radius: 10px;
-    padding: 0.5em 1em 0.1em 1em;
+    border-radius: 5px;
+    /* padding: 0.5em 1em 0.1em 1em; */
 }
-
+.home-message-box h6 {
+    font-size: 0.85em;
+}
 .home-message-box i {
     color: #ff6262;
 }
@@ -133,6 +165,7 @@
 .prevwork-box-mid,
 .prevwork-box-right {
     font-size: 0.8em !important;
+    cursor: default;
 }
 
 .prevwork-box-left {

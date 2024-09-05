@@ -628,7 +628,6 @@ ipcMain.handle("create_Projects", async (event, projects) => {
 
 
 
-
 //add news to SQLlite news table
 ipcMain.handle("create_news", async (event, news) => {
   log.info(news);
@@ -655,7 +654,7 @@ ipcMain.handle("create_news", async (event, news) => {
     log.info("Existing news IDs and updated_at:", existingNews);
 
     const incomingNewsIds = new Set(news.map(item => item.id.toString()));
-
+  
     // Identify ids to mark as deleted (those ids that exists in table but not incoming news array)
     const idsToMarkAsDeleted = Object.keys(existingNews).filter(id => !incomingNewsIds.has(id));
     // Insert new items (Those that exists in incoming news array but not in table)
@@ -668,7 +667,7 @@ ipcMain.handle("create_news", async (event, news) => {
       return new Promise((resolve, reject) => {
         db.serialize(() => {
           const stmt = db.prepare(
-            "INSERT INTO news (id, title, content, author, created_at, updated_at, deleted) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO news (id, title, content, author, created_at, updated_at, is_read, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
           );
           db.run("BEGIN TRANSACTION");
           for (const item of NewsBatch) {
@@ -679,6 +678,7 @@ ipcMain.handle("create_news", async (event, news) => {
               item.author,
               item.created_at,
               item.updated_at,
+              item.isRead ? 1 : 0,
               item.deleted || 0
             );
           }
@@ -697,6 +697,27 @@ ipcMain.handle("create_news", async (event, news) => {
     for (let i = 0; i < newNewsItems.length; i += batchSize) {
       const batch = newNewsItems.slice(i, i + batchSize);
       await batchInsert(batch);
+    }
+
+     // Update existing items with their is_read status
+     const updateReadStatus = async (newsItem) => {
+      return new Promise((resolve, reject) => {
+        db.run(
+          "UPDATE news SET is_read = ? WHERE id = ?",
+          [newsItem.isRead ? 1 : 0, newsItem.id],
+          (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          }
+        );
+      });
+    };
+    // Go through each incoming news item and update `is_read` status
+    for (const newsItem of news) {
+      await updateReadStatus(newsItem);
     }
 
     // Batch update existing items
@@ -770,9 +791,6 @@ ipcMain.handle("create_news", async (event, news) => {
     return { statusCode: 0, errorMessage: "Error adding news to SQLITE news" };
   }
 });
-
-
-
 
 
 

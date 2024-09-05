@@ -373,7 +373,7 @@ function Home_filetransfer() {
                 onChange={handleFileChange}
                 multiple
                 placeholder="sdfsdf"
-                accept=".zip"
+                accept=".zip, .rar"
                 style={{ color: "white" }}
               />
               <div

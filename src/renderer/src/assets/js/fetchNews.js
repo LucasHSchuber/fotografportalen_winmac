@@ -3,10 +3,12 @@ import axios from 'axios';
 
 const fetchNews = async () => {
   let token = localStorage.getItem("token");
-  let user_id = localStorage.getItem("user_id");
-  // console.log("token", token);
-  // console.log("user id", user_id);
-  
+  let _user_id = localStorage.getItem("user_id");
+  let user_id = parseInt(_user_id);
+  console.log("token", token);
+  console.log("user id", user_id);
+
+
   try {
     let response = await axios.get('https://backend.expressbild.org/index.php/rest/photographer_portal/News', {
       headers: {
@@ -17,28 +19,26 @@ const fetchNews = async () => {
     if (response && response.data) {
       console.log('Fetched news from endpoint:', response.data);
 
+      const news = response.data.result;
 
-      
-      // try {
-      //   const responseRead = await axios.get(
-      //     `https://backend.expressbild.org/index.php/rest/photographer_portal/newsread/${user_id}`, {
-      //       headers: {
-      //         Authorization: `Token ${token}`,
-      //       },
-      //     },
-      //   );
-      //   console.log("responseRead:", responseRead);  
-        
-      // } catch (error) {
-      //   console.log("Error fetching news read", error)
-      // }
+      // loop through news and check if news article is read by user or not
+      news.forEach((newsItem) => {
+        let isRead = false;
+        newsItem.read_by.forEach((item) => {
+          console.log(item.id);
+          if (item.id === user_id){
+            console.log("ok");
+            isRead = true;
+          } else {
+            console.log("no")
+          }
+        })
+        newsItem.isRead = isRead;
+      });
+      console.log("new news aray - sending to backend", news);
 
-
-     
       // Add news to SQLite news table
       try {
-        const news = response.data.result;
-        console.log("news sending to sqlite:", news);
         const responseCreate_news = await window.api.create_news(news);
         if (responseCreate_news.success) {
           console.log("Successfully added news to news table");
