@@ -446,7 +446,7 @@ function Index() {
           </div>
         </div>
 
-        <div className="index-box">
+        {/* <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
             <b>You have 2 new message</b>
@@ -459,7 +459,7 @@ function Index() {
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
-        </div>
+        </div> */}
 
         <hr style={{ width: "75%" }} className="hr"></hr>
 
@@ -520,9 +520,9 @@ function Index() {
             <div className="index-box">
               <h1 className="index-title three">News & updates</h1>
               <h6>
-                <b>You're running the application on the latest version</b>
+                <b>You're running the application on the latest version - v{currentVersion}</b>
               </h6>
-              <p>You're running the application on the latest version</p>
+              <p>There are no current updates</p>
             </div>
           </>
         )}
