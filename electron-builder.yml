@@ -18,7 +18,7 @@ win:
         - x64
         - ia32
   icon: resources/logo.png 
-  executableName: Fotografportalen
+  executableName: Photographer Portal
   asarUnpack: ["**/*.node"]
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
