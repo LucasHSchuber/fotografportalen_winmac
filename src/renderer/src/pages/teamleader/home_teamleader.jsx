@@ -225,8 +225,7 @@ function Home_teamleader() {
 
                     {latestProject ? (
                         <div 
-                        className="my-4"
-                        onClick={() => enterProject(latestProject.project_id)}
+                         className="my-4"
                         >
                             <h6 style={{ fontSize: "0.8em", fontWeight: "600" }}>
                                 {/* <img className="title-img" src={flash_black} alt="flash" /> */}
@@ -234,6 +233,7 @@ function Home_teamleader() {
                             </h6>
                             <div key={latestProject.project_id} className="mb-3">
                                 <div className="home-latestproject-box d-flex"
+                                    onClick={() => enterProject(latestProject.project_id)}
                                     value={latestProject.project_id}
                                     // onClick={() => enterProject(project.project_id)}
                                     title={`Open job: ${latestProject.projectname}`}

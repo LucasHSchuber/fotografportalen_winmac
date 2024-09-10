@@ -21,7 +21,8 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
         setDeleteInputValue(e.target.value);
     };
 
-    const handleDelete = async () => {
+    const handleDelete = async (e) => {
+        e.preventDefault();
         if (deleteInputValue === teamName) {
             console.log("Delete");
             console.log(teamId);

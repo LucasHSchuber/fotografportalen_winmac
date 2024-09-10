@@ -108,7 +108,6 @@ function Index() {
   }, []);
 
 
-
   //donwload latest version method
   const downloadLatestVersion = async () => {
     console.log("downloading latest version");
@@ -148,6 +147,11 @@ function Index() {
       // propting user, and starting update
       const userConfirmed = await promptUserToCloseApp();
       if (userConfirmed) {
+        if (!navigator.onLine) {
+            console.log("No internet access");
+            showErrorModal('No internet connection! Please connect to internet and try again.');
+            return;
+        }
         setLoading(true);
         console.log("User confirmed, proceeding with update...");
         try {
@@ -446,7 +450,7 @@ function Index() {
           </div>
         </div>
 
-        <div className="index-box">
+        {/* <div className="index-box">
           <h1 className="index-title one">Messages</h1>
           <h6>
             <b>You have 1 new message</b>
@@ -455,7 +459,7 @@ function Index() {
             Hello Lucas, can you work 6/6 between 8:00-13:00 in Bromma?{" "}
             <br></br> <em>Recieved: 10/5/2024</em>
           </p>
-        </div>
+        </div> */}
 
         <hr style={{ width: "75%" }} className="hr"></hr>
 
@@ -497,18 +501,18 @@ function Index() {
               <b>New updates for Photographer Portal</b>
             </h6>
             <p>
-              Current Version: <b>{currentVersion}</b> - Latest Version:{" "}
-              <b>{latestVersion.substring(1, 6)}</b>
+              Current Version: <b>v{currentVersion}</b> - Latest Version:{" "}
+              <b>{latestVersion}</b>
             </p>
             <p style={{ marginTop: "-1em" }}>
               Get the latest updates from the button below
             </p>
-            <p style={{ marginTop: "-1em" }}>
+            {/* <p style={{ marginTop: "-1em" }}>
               Download version 'Photographer Portal v
-              {latestVersion.substring(1, 6)}' here:
-            </p>
+              {latestVersion}' here:
+            </p> */}
             <button className="button normal" onClick={downloadLatestVersion}>
-              Download v{latestVersion.substring(1, 6)}
+              Download {latestVersion}
             </button>
           </div>
         ) : (

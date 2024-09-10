@@ -27,6 +27,7 @@ src/renderer/src/assets/js/env.js
 .env
 /.env
 
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
