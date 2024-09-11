@@ -6,6 +6,8 @@ import { useEffect } from "react";
 import Index from "./pages/index";
 import Settings from "./pages/settings";
 import Account from "./pages/account";
+import Knowledgebase from "./pages/knowledgebase"
+import Faq from "./pages/faq";
 import Login_window from "./pages/login_window";
 import Register_window from "./pages/register_window";
 
@@ -62,9 +64,16 @@ function App() {
             <Routes><Route path="/settings" element={<Settings />} /></Routes>
           </div>
 
-
           <div className="">
             <Routes><Route path="/account" element={<Account />} /></Routes>
+          </div>
+
+          <div className="">
+            <Routes><Route path="/knowledgebase" element={<Knowledgebase />} /></Routes>
+          </div>
+
+          <div className="">
+            <Routes><Route path="/faq" element={<Faq />} /></Routes>
           </div>
 
         </div>

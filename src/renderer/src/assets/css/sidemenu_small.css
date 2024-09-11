@@ -4,7 +4,7 @@
     position: fixed;
     top: 0;
     right: 0 !important;
-    width: 2.5em;
+    width: 2.35em;
     height: 100vh;
     background-color: #232323;
     color: white;
@@ -31,5 +31,5 @@
 }
 
 .icons {
-    font-size: 1.4em;
+    font-size: 1.25em;
 }

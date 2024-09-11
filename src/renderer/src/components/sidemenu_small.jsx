@@ -5,7 +5,7 @@ import fp from "../assets/images/diaphragm.png";
 import teamleader from "../assets/images/teamwork.png";
 import cloud from "../assets/images/cloud.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog, faUser, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCog, faUser, faHouse, faCircleQuestion, faBook, faB } from '@fortawesome/free-solid-svg-icons';
 
 
 function Sidemenu_small() {
@@ -20,11 +20,17 @@ function Sidemenu_small() {
                 <div className="link-box-small" onClick={() => navigate('/')}>
                     <FontAwesomeIcon icon={faHouse} title="Home" className="icons" />
                 </div>
+                <div className="link-box-small" onClick={() => navigate('/account')}>
+                    <FontAwesomeIcon icon={faUser} title="Profile" className="icons" />
+                </div>
                 <div className="link-box-small" onClick={() => navigate('/settings')}>
                     <FontAwesomeIcon icon={faCog} title="Settings" className="icons" />
                 </div>
-                <div className="link-box-small" onClick={() => navigate('/account')}>
-                    <FontAwesomeIcon icon={faUser} title="Profile" className="icons" />
+                <div className="link-box-small" onClick={() => navigate("/knowledgebase")}>
+                    <FontAwesomeIcon icon={faBook} title="Knowledge Base" className="icons" />
+                </div>
+                <div className="link-box-small" onClick={() => navigate("/faq")}>
+                    <FontAwesomeIcon icon={faCircleQuestion} title="FAQ & Support" className="icons" />
                 </div>
             </ul>
         </div>

@@ -334,3 +334,106 @@ background-color: rgb(227, 227, 227);
 
 
 
+
+/* KNOWLEDGE BASE */
+
+.knowledgebase-wrapper {
+  padding: 4em 0 6em 4em;
+  margin: 0 0 0 0;
+}
+.knowledgebase-box-left {
+  max-width: 30% !important;
+  /* width: 25%; */
+  height: fit-content;
+  /* border-right: 1px solid rgb(212, 212, 212) !important; */
+  padding-right: 1em;
+}
+
+.knowledgebase-box-right {
+  width: 60% !important;
+  height: fit-content;
+  background-color: #f8f8f8;
+}
+
+.knowledgebase-box-left ul {
+  list-style-type: none;
+  padding: 0;
+  
+}
+
+.knowledgebase-box-left li {
+  cursor: pointer;
+  color: #000000;
+  font-size: 0.8em;
+  padding-bottom: 0.4em;
+}
+
+.knowledgebase-box-left li:hover {
+  /* text-decoration: underline; */
+  color: rgb(88, 88, 88);
+}
+
+.knowledgebase-box-right h5{
+  font-weight: 600;
+  font-size: 0.75em;
+}
+.knowledgebase-box-right h6{
+  font-size: 0.7em;
+}
+.knowledgebase-article-box{
+  border-bottom: 1px solid rgb(246, 246, 246);
+  padding: 0.5em 1.3em 0.1em 1.3em;
+}
+.knowledgebase-article-box:hover{
+  background-color: rgb(244, 244, 244);
+  cursor: pointer;
+}
+
+
+
+
+
+/* FAQ & SUPPORT */
+
+.faq-wrapper {
+  padding: 4em 0 6em 4em;
+  margin: 0 0 0 0;
+}
+
+ .faq-box-left {
+  max-width: 30% !important;
+  /* width: 25%; */
+  height: fit-content;
+  border-right: 1px solid rgb(212, 212, 212) !important;
+  padding-right: 1em;
+}
+
+.faq-box-right {
+  width: 60% !important;
+  min-height: fit-content;
+  padding: 0 3em;
+}
+
+.faq-box-left ul {
+  list-style-type: none;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.faq-box-left li {
+  cursor: pointer;
+  color: #007bff;
+  font-size: 0.9em;
+}
+
+.faq-box-left li:hover {
+  text-decoration: underline;
+}
+
+.faq-box-right h5{
+  font-weight: 600;
+  font-size: 1em;
+}
+.faq-box-right h6{
+  font-size: 0.8em;
+}
