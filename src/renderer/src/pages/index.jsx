@@ -32,6 +32,7 @@ function Index() {
   const [githubURL, setGithubURL] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
   const [latestVersion, setLatestVersion] = useState("");
+  const [releaseNotes, setReleaseNotes] = useState("");
   const [normalizedLatestVersion, setNormalizedLatestVersion] = useState("");
 
   const [allNews, setAllNews] = useState([]);
@@ -58,6 +59,11 @@ function Index() {
             Authorization: `token ${githubToken}`,
           },
         });
+        console.log('response', response);
+        // Extract realase notes
+        const releaseNotes = response.data[0].body;
+        console.log(releaseNotes);
+        setReleaseNotes(releaseNotes);
         // Extract the latest release version
         const latestReleaseVersion = response.data[0].tag_name;
         console.log("Latest release version:", latestReleaseVersion);
@@ -504,9 +510,15 @@ function Index() {
               Current Version: <b>v{currentVersion}</b> - Latest Version:{" "}
               <b>{latestVersion}</b>
             </p>
-            <p style={{ marginTop: "-1em" }}>
+            {releaseNotes && (
+            <div style={{ marginBottom: "2em" }}>
+              <h6 style={{fontSize: "1em", fontWeight: "600"}} >Release notes:</h6>
+              <p>{releaseNotes}</p>
+            </div>
+            )}
+            {/* <p style={{ marginTop: "-1em" }}>
               Get the latest updates from the button below
-            </p>
+            </p> */}
             {/* <p style={{ marginTop: "-1em" }}>
               Download version 'Photographer Portal v
               {latestVersion}' here:

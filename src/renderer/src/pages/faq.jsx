@@ -18,8 +18,10 @@ const faqData = {
 teamleader: {
     categoryName: "Teamleader",
     questions: [
-    { id: 1, question: "Can I recover a project I accidentally deleted?", answer: "Unfortunately, once a project is deleted, it cannot be recovered. We recommend double-checking before deleting any projects to avoid accidental loss of important work." },
-],
+    { id: 1, question: "Can I recover a project I have deleted?", answer: "Unfortunately, once a project is deleted, it cannot be recovered. We recommend double-checking before deleting any projects to avoid accidental loss of important work." },
+    { id: 2, question: "Can I edit a team after I have submitted the project?", answer: "Unfortunately, once a project is submitted, it cannot be edited or modified. Please contact the support if a project is submitted but has information that needs to be edited." },
+    { id: 3, question: "When submitting a project, when should I check the 'Report anomalies to sales department' checkbox?", answer: "The 'Report anomalies to sales department' should be checked when submitting a project only if the information in the anomaly report might be valueable information for the sales department. This helps ensure that any issues related to the project could be promptly addressed untill next time." },
+  ],
 },
 filetransfer: {
     categoryName: "Filetransfer",

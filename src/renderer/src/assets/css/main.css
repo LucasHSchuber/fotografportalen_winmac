@@ -1,6 +1,5 @@
 /* main css */
 
-
 .page-loading-login {
   text-align: center;
   margin-left: 3em;
@@ -68,14 +67,14 @@
 
 .form-input-field-fp {
   width: 50%;
-  height: 2.4em;
+  height: 2em;
   padding: 0.4em;
   margin-bottom: 0.4em;
-  border-radius: 5px;
+  border-radius: 3px;
   /* background-color: rgb(244, 244, 244); */
   border: 1px solid rgb(155, 155, 155);
   outline: none;
-  font-size: 0.95em;
+  font-size: 0.9em;
 }
 
 .form-input-field-fp:focus {
@@ -121,6 +120,21 @@
 }
 
 
+
+.header {
+  width: 75%;
+}
+.header h4 {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+.header h5 {
+  font-size: 1.15em;
+  font-weight: 700;
+}
+.header p {
+  font-size: 0.9em !important;
+}
 
 /* LOGIN_WINDOW */
 
@@ -226,18 +240,18 @@
 }
 
 
+
+
+
 /* SETTINGS */
 
 .settings-wrapper {
   padding: 4em 0 6em 4em;
 }
 
-.settings-wrapper .header h5 {
-  font-weight: 700;
-}
-
 .settings-content label {
   margin-bottom: 0;
+  font-size: 0.85em;
 }
 
 
@@ -352,20 +366,19 @@ background-color: rgb(227, 227, 227);
 .knowledgebase-box-right {
   width: 60% !important;
   height: fit-content;
-  background-color: #f8f8f8;
+  /* background-color: #f8f8f8; */
 }
 
 .knowledgebase-box-left ul {
   list-style-type: none;
   padding: 0;
-  
 }
 
 .knowledgebase-box-left li {
   cursor: pointer;
   color: #000000;
   font-size: 0.8em;
-  padding-bottom: 0.4em;
+  padding-bottom: 0.6em;
 }
 
 .knowledgebase-box-left li:hover {
@@ -381,8 +394,10 @@ background-color: rgb(227, 227, 227);
   font-size: 0.7em;
 }
 .knowledgebase-article-box{
-  border-bottom: 1px solid rgb(246, 246, 246);
+  border-bottom: 1px solid rgb(239, 239, 239);
   padding: 0.5em 1.3em 0.1em 1.3em;
+  background-color: rgb(248, 248, 248);
+  border-radius: 3px;
 }
 .knowledgebase-article-box:hover{
   background-color: rgb(244, 244, 244);

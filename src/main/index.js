@@ -201,12 +201,12 @@ async function applyUpdate(downloadUrl) {
       );
       console.log('DMG mounted');
 
-      // Open the mounted DMG location
+      // Open the mounted dmg location
       console.log('Opening mounted DMG location...');
       await execPromise(`open "${mountPoint}"`);
       console.log('DMG mounted successfully, please replace the application manually.');
     } else if (fileExtension === '.exe') {
-      // Handle EXE file (Windows)
+      // Handle exe file (Windows)
       console.log(`Executing EXE installer from: ${localFilePath}`);
       await execPromise(`"${localFilePath}"`);
       console.log('EXE file executed successfully.');
@@ -489,6 +489,20 @@ function createTables() {
           is_read BOOLEAN DEFAULT 0,
           is_sent_date TIMESTAMP DEFAULT NULL,
           deleted BOOLEAN DEFAULT 0
+        )
+      `,
+    },
+    {
+      name: "knowledgebase",
+      query: `
+        CREATE TABLE IF NOT EXISTS knowledgebase (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          description TEXT NOT NULL,
+          tags TEXT,
+          lang TEXT,
+          files TEXT,
+          created_at TEXT NOT NULL
         )
       `,
     },

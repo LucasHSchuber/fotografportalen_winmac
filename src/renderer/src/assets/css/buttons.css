@@ -84,3 +84,10 @@
 .custom-cancel-button {
   font-size: 0.9em !important;
 }
+
+.download-file-button{
+  cursor: pointer;
+}
+.download-file-button:hover{
+  color: gray;
+}

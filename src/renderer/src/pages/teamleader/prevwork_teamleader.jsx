@@ -86,12 +86,12 @@ function Prevwork_teamleader() {
         return () => clearTimeout(timer);
     }, []);
 
-    //when. search input is done 
+    //when search input is entered 
     const handleSearchString = (e) => {
         console.log(e);
         setSearchString(e);
-
     }
+
     useEffect(() => {
         let user_id = localStorage.getItem("user_id");
         console.log(user_id);
@@ -216,7 +216,7 @@ function Prevwork_teamleader() {
                     {projectsArray && projectsArray.length > 0 ? (
                         projectsArray.sort((a, b) => new Date(b.sent_date) - new Date(a.sent_date)).map(project => (
                             <div key={project.project_id} className="prevwork-box d-flex mb-2">
-                                <div className="prevwork-box-left d-flex justify-content-between" title="Job">
+                                <div className="prevwork-box-left d-flex justify-content-between" title={project.projectname}>
                                     <div className="d-flex">
                                         <p className="ml-2">{project.type === "school" ? <img className="type-img-currwork" src={academic_gray} alt="academic"></img> : <img className="type-img-currwork" src={running_gray} alt="running"></img>}</p>
                                         <p className="ml-3">{project.projectname.length > 73 ? project.projectname.substring(0, 73) + "..." : project.projectname}</p>
