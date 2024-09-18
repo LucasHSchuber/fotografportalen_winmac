@@ -16,23 +16,51 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
     //define states
     const [pdfUrl, setPdfUrl] = useState(null);
 
-   
+   useEffect(() => {
+     console.log('item', item);
+   }, [item]);
+    
     const closeModal = () => {
         setPdfUrl(null);
         handleKnowledgeModal(false); 
     };
 
-    const downloadFile = (filePath) => {
-        console.log("Downloading file...", filePath)
-        window.open(filePath, '_blank');
 
+
+// Decode base64 string and create Blob URL
+  const viewFile = (base64String, filename) => {
+    try {
+        console.log('filename:', filename);
+        console.log('Base64 String (first 100 characters):', base64String.substring(0, 100)); 
+
+        const blob = base64ToBlob(base64String);
+        console.log('Blob:', blob);
+
+        const url = URL.createObjectURL(blob);
+        // window.open(url, '_blank');
+        window.api.createKnowledgebaseWindow(url);
+
+
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error viewing file:', error);
     }
+  };
+  
+  function base64ToBlob(base64, contentType = 'application/pdf') {
+    const byteCharacters = atob(base64);
+    const byteNumbers = Array.from(byteCharacters).map(char => char.charCodeAt(0));
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: contentType });
+  }
 
-    const viewFile = (filePath) => {
-        console.log("Viewing file", filePath)
-        setPdfUrl(filePath);
 
-    }
+  const downloadFile = (filePath, fileName) => {
+    console.log("DownloadFile method triggered");
+    console.log('filePath', filePath);
+    console.log('fileName', fileName);
+  };
+
 
 
 
@@ -52,8 +80,8 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
                         {item.files.map((file) => (
                         <div key={file.name} className="d-flex">
                             <h6 style={{ fontSize: "0.85em" }}><FontAwesomeIcon icon={faFile} className="mr-2" style={{ color: "#0083ce" }} /> {file.name}</h6>
-                            <FontAwesomeIcon icon={faEye} className="mx-3 download-file-button" title="View File" onClick={() => viewFile(file.path)}/>
-                            <FontAwesomeIcon icon={faDownload} className="download-file-button" title="Download File" onClick={() => downloadFile(file.path)}/>
+                            <FontAwesomeIcon icon={faEye} className="mx-3 download-file-button" title={`View File ${file.name}`}  onClick={() => viewFile(file.path, file.name)}/>
+                            <FontAwesomeIcon icon={faDownload} className="download-file-button" title={`Download File ${file.name}`} onClick={() => downloadFile(file.path, file.name)} />
                         </div>
                         ))}
                     </div>

@@ -2946,6 +2946,21 @@ ipcMain.handle("createMainWindow", async (event, args) => {
   }
 });
 
+
+//Creating window for showing file in knowledge base
+ipcMain.handle('createknowledgebasewindow', async (event, url) => {
+  const win = new BrowserWindow({
+      autoHideMenuBar: true, // Auto-hide the menu bar
+      width: 1200,
+      height: 600,
+      // parent: mainWindow, // Set the parent window
+      // modal: true, // Makes the window modal
+  });
+
+  win.loadURL(url);
+});
+
+
 //upload file in filetransfer
 ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
   log.info("initiating file upload");
