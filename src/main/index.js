@@ -2950,7 +2950,7 @@ ipcMain.handle("createMainWindow", async (event, args) => {
 //Creating window for showing file in knowledge base
 ipcMain.handle('createknowledgebasewindow', async (event, url) => {
   const win = new BrowserWindow({
-      autoHideMenuBar: true, // Auto-hide the menu bar
+      autoHideMenuBar: true,
       width: 1200,
       height: 600,
       // parent: mainWindow, // Set the parent window
@@ -2959,6 +2959,33 @@ ipcMain.handle('createknowledgebasewindow', async (event, url) => {
 
   win.loadURL(url);
 });
+
+//download file from knowledge base to desktop
+ipcMain.handle('downloadKnowledgebaseFile', (event, base64Data, fileName) => {
+  return new Promise((resolve, reject) => {
+    try {
+      // Define path to desktop
+      const desktopPath = app.getPath('desktop');
+      const fullPath = path.join(desktopPath, fileName);
+
+      // Decode the Base64 string and write to file
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      fs.writeFile(fullPath, buffer, (err) => {
+        if (err) {
+          console.error('File write error:', err);
+          reject({ status: 500, error: 'Failed to download file' });
+        } else {
+          console.log('File saved successfully:', fullPath);
+          resolve({ status: 200, message: fullPath });
+        }
+      });
+    } catch (error) {
+      console.error('Error in downloadKnowledgebaseFile:', error);
+      reject({ status: 500, error: 'Failed to download file' });
+    }
+  });
+});;
 
 
 //upload file in filetransfer

@@ -10,6 +10,11 @@ import { faFile } from "@fortawesome/free-regular-svg-icons";
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css'; 
 
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+const MySwal = withReactContent(Swal);
+
+import "../assets/css/components.css"
 
 const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
 
@@ -44,9 +49,9 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
         URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Error viewing file:', error);
+        showErrorModal(`Could not view file: ${filename}`);
     }
   };
-  
   function base64ToBlob(base64, contentType = 'application/pdf') {
     const byteCharacters = atob(base64);
     const byteNumbers = Array.from(byteCharacters).map(char => char.charCodeAt(0));
@@ -55,13 +60,69 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
   }
 
 
-  const downloadFile = (filePath, fileName) => {
+  const downloadFile = async (filePath, fileName) => {
     console.log("DownloadFile method triggered");
     console.log('filePath', filePath);
     console.log('fileName', fileName);
+    try {
+        console.log('Download initiated successfully.');
+        const response = await window.api.downloadKnowledgebaseFile(filePath, fileName);
+        console.log("Reponse: ", response);
+        if (response.status === 200) {
+            showSuccessModal(`File downloaded successfully to: ${response.message}`);
+        } else if (response.status === 500){
+            showErrorModal(`${response.error}`);
+        } else {
+            showErrorModal(`File failed to download`);
+        }
+
+      } catch (error) {
+        console.error('Error downloading file:', error);
+      }
   };
 
 
+
+   // SweetAlert2 error modal
+   const showErrorModal = (message) => {
+    MySwal.fire({
+      title: 'Error!',
+      text: message,
+      icon: 'error',
+      confirmButtonText: 'Close',
+      customClass: {
+        title: 'my-custom-title',
+        content: 'my-custom-content',
+        confirmButton: 'my-custom-confirm-button'
+      },
+      didOpen: () => {
+        const content = document.querySelector('.swal2-html-container');
+        if (content) {
+          content.style.fontSize = '0.9em';
+        }
+      }
+    });
+  };
+    // SweetAlert2 success modal
+    const showSuccessModal = (message) => {
+        MySwal.fire({
+          title: 'Success!',
+          text: message,
+          icon: 'success',
+          confirmButtonText: 'Close',
+          customClass: {
+            title: 'my-custom-title',
+            content: 'my-custom-content',
+            confirmButton: 'my-custom-confirm-button'
+          },
+          didOpen: () => {
+            const content = document.querySelector('.swal2-html-container');
+            if (content) {
+              content.style.fontSize = '0.9em';
+            }
+          }
+        });
+    };
 
 
     return (

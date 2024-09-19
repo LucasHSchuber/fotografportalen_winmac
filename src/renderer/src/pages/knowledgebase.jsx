@@ -180,6 +180,7 @@ const [showKnowledgeModal, setShowKnowledgeModal] = useState(false);
   const handleKnowledgeModal = (show, item) => {
     setShowKnowledgeModal(show);
     setSelectedItem(item);
+    console.log('item selected', item);
   };
 
   const handleKnowledgeClick = (tag) => {

@@ -417,13 +417,13 @@ function Index() {
   
    // SweetAlert2 error modal
    const showErrorModal = (errorMessage) => {
-    MySwal.fire({
-      title: 'Error!',
-      text: errorMessage,
-      icon: 'error',
-      confirmButtonText: 'Close',
-    });
-  };
+      MySwal.fire({
+        title: 'Error!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'Close',
+      });
+    };
 
 
   if (loading) {

@@ -22,4 +22,16 @@
 
 
 /* SWEET ALERT STYLING */
+.my-custom-title {
+  font-size: 1.2em !important; 
+}
 
+.my-custom-confirm-button {
+  font-size: 0.9em !important;
+   background-color: black !important;
+}
+.my-custom-content {
+  font-size: 1em !important; /* Adjust content font size */
+  color: #ff0000 !important; /* Optional: change content color */
+  line-height: 1.5 !important; /* Optional: adjust line height */
+}

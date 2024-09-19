@@ -75,7 +75,8 @@ const api = {
   createMainWindow: (args) => ipcRenderer.invoke('createMainWindow', args), // create main window
   createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // NOT EXISTS??? create main window
   createKnowledgebaseWindow: (url) => ipcRenderer.invoke('createknowledgebasewindow', url), // create knowledgebase window
-
+  
+  downloadKnowledgebaseFile: (filepath, filename) => ipcRenderer.invoke('downloadKnowledgebaseFile', filepath, filename), // download knowledgebase file
 
 
   // FILETRANSFER
