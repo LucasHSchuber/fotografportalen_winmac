@@ -1,8 +1,8 @@
 {
   "name": "photographerportal",
   "productName": "Photographer Portal",
-  "version": "1.0.21",
-  "description": "An Electron application with React - Photographer Portal",
+  "version": "1.0.22",
+  "description": "Photographer Portal Application",
   "main": "./out/main/index.js",
   "author": "Lucas Schuber / Photographer Portal",
   "homepage": "https://www.electronjs.org",

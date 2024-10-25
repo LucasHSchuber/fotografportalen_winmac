@@ -41,27 +41,22 @@
 @keyframes spin {
   0% {
     transform: rotate(0deg);
-    /* Start rotation from 0 degrees */
   }
 
   25% {
     transform: rotate(90deg);
-    /* Rotate 1 quarter (90 degrees) */
   }
 
   50% {
     transform: rotate(180deg);
-    /* Rotate 2 quarters (180 degrees) */
   }
 
   75% {
     transform: rotate(270deg);
-    /* Rotate 3 quarters (270 degrees) */
   }
 
   100% {
     transform: rotate(360deg);
-    /* End rotation at 360 degrees (full circle) */
   }
 }
 
@@ -414,7 +409,16 @@ background-color: rgb(227, 227, 227);
   padding: 4em 0 6em 4em;
   margin: 0 0 0 0;
 }
-
+.faq-searchbox{
+  font-size: 0.8em;
+  width: 100%;
+  border: 0.5px solid gray;
+  border-radius: 3px;
+  padding: 0.2em 0.3em;
+}
+.faq-searchbox:active, .faq-searchbox:focus{
+  outline: none;
+}
  .faq-box-left {
   max-width: 30% !important;
   /* width: 25%; */
@@ -451,4 +455,10 @@ background-color: rgb(227, 227, 227);
 }
 .faq-box-right h6{
   font-size: 0.8em;
+}
+.faq-box-right img {
+  max-width: 90%;
+  padding: 1em;
+  border: 0.5px solid rgb(241, 241, 241);
+  box-shadow: 0 2px 3px 3px rgba(179, 179, 179, 0.1) !important;
 }

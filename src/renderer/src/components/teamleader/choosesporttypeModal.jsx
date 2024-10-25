@@ -100,7 +100,7 @@ const ChooseSportTypeModal = ({
                 <img className="sporttype-img" src={calendar} alt="calendar"></img> */}
               <FontAwesomeIcon icon={faUser} style={{ fontSize: "1.2em" }}/> <b className="mx-2"> + </b>{" "}
               <FontAwesomeIcon icon={faPeopleGroup} style={{ fontSize: "1.2em" }} />
-              <p className="mt-1" style={{ fontSize: "0.85em" }}>Portrait + group</p>
+              <p className="mt-1" style={{ fontSize: "0.85em" }}>Portrait + Group</p>
             </div>
           </div>
 

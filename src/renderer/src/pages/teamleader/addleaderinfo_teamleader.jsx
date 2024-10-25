@@ -167,7 +167,6 @@ function Addleaderinfo_teamleader() {
 
 
         // Set error messages
-       
         let errors = {};
         if (!formData.teamname) errors.teamname = true;
         if (!formData.leader_firstname) errors.leader_firstname = true;

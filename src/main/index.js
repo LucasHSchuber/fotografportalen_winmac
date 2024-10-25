@@ -497,12 +497,16 @@ function createTables() {
       query: `
         CREATE TABLE IF NOT EXISTS knowledgebase (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT NOT NULL,
+          article_id TEXT NOT NULL UNIQUE,
+          title TEXT NOT NULL UNIQUE,
           description TEXT NOT NULL,
           tags TEXT,
-          lang TEXT,
+          langs TEXT,
           files TEXT,
-          created_at TEXT NOT NULL
+          author TEXT,         
+          created_at TEXT NOT NULL,
+          updated_at TEXT,     
+          deleted INTEGER DEFAULT 0
         )
       `,
     },
@@ -2985,7 +2989,108 @@ ipcMain.handle('downloadKnowledgebaseFile', (event, base64Data, fileName) => {
       reject({ status: 500, error: 'Failed to download file' });
     }
   });
-});;
+});
+
+
+
+//get all articles in knowledgebase table
+ipcMain.handle("getKnowledgebaseArticles", async (event, user_lang) => {
+  console.log("getKnowledgebaseArticles user_lang: ", user_lang);
+
+  const retrieveQuery =
+    "SELECT * FROM knowledgebase WHERE deleted = 0 AND langs = ?";
+  
+
+  const db = new sqlite3.Database(dbPath);
+
+  try {
+    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_lang]);
+
+    const articles = rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      tags: row.tags ? row.tags.split(",") : [], 
+      langs: row.langs ? row.langs.split(",") : [],
+      files: row.files ? JSON.parse(row.files) : [], 
+      author: row.author,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      deleted: row.deleted,
+    }));
+
+    await closeDatabase(db);
+    return { statusCode: 200, articles: articles };
+  } catch (error) {
+    await closeDatabase(db);
+    console.error("Error fetching knowledgebase articles (getKnowledgebaseArticles):", error);
+    return { statusCode: 500, errorMessage: error.message };
+  }
+});
+
+
+//post articles to knowledgebase table
+ipcMain.handle("createKnowledgebaseArticles", async (event, data) => {
+  // const { title, description, tags, langs, files, author, createdAt, updatedAt,} = data;
+
+  // log.info("data: ", data);
+  const insertQuery = `
+  INSERT INTO knowledgebase (article_id, title, description, tags, langs, files, author, created_at, updated_at, deleted)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  ON CONFLICT(article_id) DO UPDATE SET
+    title = excluded.title,
+    description = excluded.description,
+    tags = excluded.tags,
+    langs = excluded.langs,
+    files = excluded.files,
+    author = excluded.author,
+    created_at = excluded.created_at,
+    updated_at = excluded.updated_at,
+    deleted = excluded.deleted;`;
+
+  const deleteQuery = `
+  UPDATE knowledgebase SET deleted = 1 WHERE article_id = ?`;
+
+  const db = new sqlite3.Database(dbPath);
+
+  try {
+
+    const existingIdQuery = `SELECT article_id FROM knowledgebase WHERE deleted = 0`;
+    const existingIds = await executeQueryWithRetry(db, existingIdQuery); 
+    const existingIdSet = new Set(existingIds.map(row => row.article_id));
+
+    const incomingIdSet = new Set(data.map(article => article.id));
+    for (const articleId of existingIdSet) {
+      if (!incomingIdSet.has(articleId)){
+        await executeQueryWithRetry(db, deleteQuery, [articleId]); 
+      }
+    }
+
+    for (const article of data) {
+      const { id, title, description, tags, langs, files, author, created_at, updated_at } = article;
+
+      if (!id || !title || !description || !langs || !tags || !created_at) {
+        return { statusCode: 400, errorMessage: "Missing required fields for one or more articles" };
+      }
+
+      const tagsArray = Array.isArray(tags) ? tags.join(", ") : "";
+      const langsArray = Array.isArray(langs) ? langs.join(", ") : "";
+      const filesArray = JSON.stringify(files);
+      const deleted = 0
+
+      await executeQueryWithRetry(db, insertQuery, [
+        id, title, description, tagsArray, langsArray, filesArray, author, created_at, updated_at, deleted 
+      ]);
+
+    }
+    await closeDatabase(db);
+    return { statusCode: 201, message: "Articles added successfully" };
+  } catch (error) {
+    await closeDatabase(db);
+    console.error("Error adding knowledgebase article:", error);
+    return { statusCode: 500, errorMessage: error.message };
+  }
+});
 
 
 //upload file in filetransfer

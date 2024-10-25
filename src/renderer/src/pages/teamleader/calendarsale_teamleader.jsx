@@ -50,7 +50,7 @@ function Calendarsale_teamleader() {
         setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
         setFade(true);
       }, 1200);
-    }, 5000);
+    }, 3500);
 
     return () => clearInterval(interval);
   }, [images.length]);
@@ -183,7 +183,7 @@ function Calendarsale_teamleader() {
           <p>{languageTexts?.salestextsend}</p>
         </div>
 
-        <div>
+        <div className="mt-4">
           <button
             className="button cancel fixed-width mr-1"
             onClick={handleBack}

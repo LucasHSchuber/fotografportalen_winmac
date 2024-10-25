@@ -5,6 +5,7 @@ import { faTimes, faHandHoldingDollar } from "@fortawesome/free-solid-svg-icons"
 
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import CalendarConfirm from "../../components/teamleader/calendarconfirmModal";
+import AcceptTermsModal from "../../components/teamleader/accepttermsModal";
 
 import "../../assets/css/teamleader/main_teamleader.css";
 
@@ -32,10 +33,10 @@ function Calendarsale_teamleader() {
     leader_county: false,
     leader_ssn: false,
   });
-  const [showCalendarConfirmModal, setShowCalendarConfirmModal] =
-    useState(false);
-  const [showTermsAndConditionBox, setShowTermsAndConditionBox] =
-    useState(false);
+  const [showCalendarConfirmModal, setShowCalendarConfirmModal] =useState(false);
+  const [showTermsAndConditionBox, setShowTermsAndConditionBox] = useState(false);
+  const [showTermsAndConditionModal, setShowTermsAndConditionModal] = useState(false);
+
   const [teamData, setTeamData] = useState({});
   const [languageTexts, setLanguageTexts] = useState({});
   const [user_lang, setUser_lang] = useState("");
@@ -80,9 +81,9 @@ function Calendarsale_teamleader() {
     const { name, value, checked } = e.target;
     setFormData((prevState) => ({
       ...prevState,
-      [name]: name === "terms" ? checked : value, // Update terms separately
+      [name]: name === "terms" ? checked : value, 
     }));
-    setErrorMessage({ ...errorMessage, [name]: false }); //clear error-border if typing
+    setErrorMessage({ ...errorMessage, [name]: false }); 
   };
 
   const handleSubmit = async (e) => {
@@ -105,13 +106,16 @@ function Calendarsale_teamleader() {
       return;
     }
 
-    if (!formData.terms) {
-      const confirmResponse = window.confirm("You must accept the terms.");
-      if (!confirmResponse) {
-        return;
-      } else {
-        return;
-      }
+    if (!formData.terms || errorMessage.terms === true) {
+      setShowTermsAndConditionModal(true);
+      console.log('Terms And Conditions are not checked');
+      return;
+      // const confirmResponse = window.confirm("You must accept the terms.");
+      // if (!confirmResponse) {
+      //   return;
+      // } else {
+      //   return;
+      // }
     }
 
     let calendar_sale = localStorage.getItem("calendar_sale");
@@ -183,10 +187,12 @@ function Calendarsale_teamleader() {
     }
   };
 
-  // const showTermsAndConditions = () => {
-  //     console.log("terms and conditions");
-  //     setShowTermsAndConditionBox(true);
-  // }
+
+  const handleConfirm = () => {
+    setShowTermsAndConditionModal(false);
+  };
+
+
 
   useEffect(() => {
     function handleResize() {
@@ -312,7 +318,7 @@ function Calendarsale_teamleader() {
           <div className="checkbox-container my-3">
             <label className="mr-2">
               <input
-                className="checkmark mr-2"
+                className={`checkmark mr-2`}
                 type="checkbox"
                 name="terms"
                 checked={formData.terms}
@@ -343,6 +349,7 @@ function Calendarsale_teamleader() {
         </form>
       </div>
 
+      {/* Terms and conditions box        */}
       {showTermsAndConditionBox && (
         <div className="termsandcondition-box">
           <div className="d-flex justify-content-between mb-3">
@@ -350,6 +357,8 @@ function Calendarsale_teamleader() {
               <b>{languageTexts?.tacHeader1}</b>
             </h6>
             <h6
+              className="close-circle"
+              title="Close"
               onClick={() =>
                 setShowTermsAndConditionBox(!showTermsAndConditionBox)
               }
@@ -385,6 +394,14 @@ function Calendarsale_teamleader() {
         </div>
       )}
 
+      
+      <AcceptTermsModal 
+        showTermsAndConditionModal={showTermsAndConditionModal}
+         message="You must accept the terms & conditions."
+         handleConfirm={handleConfirm}
+        //  handleCancel={handleCancel}  
+      />
+      
       <Sidemenu_teamleader />
       <CalendarConfirm
         showCalendarConfirmModal={showCalendarConfirmModal}

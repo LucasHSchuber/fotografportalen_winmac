@@ -188,7 +188,7 @@ function Settings() {
                   className={`form-input-field-fp ${errorMessage.email ? "error-border" : ""}`}
                   type="email"
                   defaultValue={email ? email : ""}
-                  placeholder="New email"
+                  placeholder="Email"
                   onChange={(e) => {
                     setNewEmail(e.target.value);
                     handleEmailChange(e.target.value);
@@ -206,7 +206,7 @@ function Settings() {
                   className={`form-input-field-fp ${errorMessage.firstname ? "error-border" : ""}`}
                   type="text"
                   defaultValue={firstname ? firstname : ""}
-                  placeholder="New first name"
+                  placeholder="First name"
                   onChange={(e) => {
                     setNewFirstname(e.target.value);
                     handleFirstnameChange(e.target.value);
@@ -225,7 +225,7 @@ function Settings() {
                   className={`form-input-field-fp ${errorMessage.lastname ? "error-border" : ""}`}
                   type="text"
                   defaultValue={lastname ? lastname : ""}
-                  placeholder="New last name"
+                  placeholder="Last name"
                   onChange={(e) => {
                     setNewLastname(e.target.value);
                     handleLastnameChange(e.target.value);
@@ -244,7 +244,7 @@ function Settings() {
                   className="form-input-field-fp"
                   type="text"
                   defaultValue={city ? city : ""}
-                  placeholder="New city"
+                  placeholder="City"
                   onChange={(e) => setNewCity(e.target.value)}
                 />
               </div>
@@ -256,7 +256,7 @@ function Settings() {
                   className="form-input-field-fp"
                   type="text"
                   defaultValue={mobile ? mobile : ""}
-                  placeholder="New Mobile"
+                  placeholder="Mobile"
                   onChange={(e) => setNewMobile(e.target.value)}
                 />
               </div>

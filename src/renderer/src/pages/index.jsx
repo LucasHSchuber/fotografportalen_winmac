@@ -589,6 +589,7 @@ function Index() {
                   <>
                     <button
                       className="mt-2 confirm-news-button"
+                      title="Confirm news article to office"
                       onClick={() => confirmNews(news.id)}
                     >
                       Roger that!

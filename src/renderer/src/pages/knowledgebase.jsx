@@ -12,90 +12,51 @@ import Sidemenu_small from "../components/sidemenu_small";
 
 function Knowledgebase() {
 //define states
+const [loading, setLoading] = useState(true);
 const [data, setData] = useState([]);
 const [tagsArray, setTagsArray] = useState({ uniqueTags: [], tagCounts: {} });
 const [selectedTag, setSelectedTag] = useState("All");
 const [selectedItem, setSelectedItem] = useState(null);
-
 const [searchString, setSearchString] = useState("");
-
 const [showKnowledgeModal, setShowKnowledgeModal] = useState(false);
+const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(false);
 
 
-// const sampleData = {
-//     result: [
-//       {
-//         id: 1,
-//         title: "Photographer Portal Manual",
-//         description: "A manual for Photographer Portal. Before your first photography work, please read through the manual for the software in order get to know your workspace. Good luck!",
-//         tags: ["Photographer Portal"],
-//         lang: ["SE", "FI", "DK"],
-//         files: {
-//           "manual.pdf": "https://example.com/manual1.pdf"
-//         },
-//         created_at: "2024-09-02",
-//       },
-//       {
-//         id: 2,
-//         title: "Teamleader Setup Guide",
-//         description: "A guide to setting up Teamleader for new users",
-//         tags: ["Teamleader", "Setup"],
-//         lang: ["SE", "FI", "NO"],
-//         files: {
-//           "setup_guide.pdf": "https://example.com/setup_guide.pdf"
-//         },
-//         created_at: "2024-09-02",
-//       },
-//       {
-//         id: 3,
-//         title: "Filetransfer Usage Guide",
-//         description: "Learn how to use Filetransfer effectively",
-//         tags: ["Filetransfer", "Guide"],
-//         lang: ["SE", "DK"],
-//         files: {
-//           "usage_guide.pdf": "https://example.com/usage_guide.pdf"
-//         },
-//         created_at: "2024-09-02",
-//       },
-//       {
-//         id: 4,
-//         title: "Teamleader Task Management",
-//         description: "How to manage tasks in Teamleader",
-//         tags: ["Teamleader", "Tasks"],
-//         lang: ["FI", "NO"],
-//         files: {
-//           "task_management.pdf": "https://example.com/task_management.pdf"
-//         },
-//         created_at: "2024-09-02",
-//       },
-//       {
-//         id: 5,
-//         title: "Photographer Portal FAQ",
-//         description: "Frequently asked questions for Photographer Portal",
-//         tags: ["Photographer Portal"],
-//         lang: ["SE", "FI", "NO", "DK"],
-//         files: {
-//           "faq.pdf": "https://example.com/faq.pdf"
-//         },
-//         created_at: "2024-09-02",
-//       },
-//       {
-//         id: 6,
-//         title: "Photographer Portal Instructions",
-//         description: "A pdf file of instructions for Photographer Portal",
-//         tags: ["Photographer Portal"],
-//         lang: ["SE", "FI", "DK"],
-//         files: {
-//           "instructions.pdf": "https://example.com/instructions.pdf"
-//         },
-//         created_at: "2024-09-02",
-//       },
-//     ]
-//   };
+  // Check internet conenction
+  useEffect(() => {
+    setLoading(true);
+    const checkInternetConnection = () => {
+        if (navigator.onLine) {
+            console.log("Internet access");
+            fetchKnowledgebase();
+        } else {
+            console.log("No internet access");
+            fetchKnowledgebaseFromTable();
+        }
+    };
+    checkInternetConnection();
+  }, [])
 
+
+  useEffect(() => {
+    if (navigator.onLine){
+        console.log("Online, postArticlesToKnowledgebase method triggered!")
+        const postArticlesToKnowledgebase = async () => {
+        try { 
+          console.log('data', data);
+          const response = await window.api.createKnowledgebaseArticles(data);
+          console.log('response postArticlesToKnowledgebase: ', response);
+        } catch (error) {
+          console.log('error adding artciles to knowledge base table: ', error);
+        }
+      }
+      postArticlesToKnowledgebase();
+    } else{
+      console.log("Offline, postArticlesToKnowledgebase method NOT triggered!")
+    }
+  }, [data]);
 
   // Fetching all knowledge base data from REST API 
-  useEffect(() => {
     const fetchKnowledgebase = async () => {
       let user_lang = localStorage.getItem("user_lang");
       let token = localStorage.getItem("token");
@@ -109,22 +70,41 @@ const [showKnowledgeModal, setShowKnowledgeModal] = useState(false);
             },
           }
         );
+        setLoading(false);
         console.log("response", response.data.result);
         setData(response.data.result)
       } catch (err) {
         console.error("Error fetching data:", err);
+        setLoading(false);
       }
   }
-  fetchKnowledgebase();
-  }, []);
+    // Fetching all knowledge base data from db table
+    const fetchKnowledgebaseFromTable = async () => {
+      let user_lang = localStorage.getItem("user_lang");
+      console.log('user_lang', user_lang);
+      try {
+        const response = await window.api.getKnowledgebaseArticles(user_lang);
+        console.log("Knowledge base response from db table: ", response);
+        if (response.statusCode === 200) {
+          console.log("Array ", response.articles);
+          setData(response.articles)
+          setLoading(false);
+        } else{
+          console.log("Error: Could not fetch articles from knowledgebase table in Database")
+          setErrorFetchingDataFromTable(true);
+          setLoading(false);
+        }
+       
+      } catch (err) {
+        console.error("Error fetching knowledge base:", err);
+      }
+  }
 
+
+  // Create unique tags and tags count for left menu (tag menu in interface)
   useEffect(() => {
-    // console.log('sampleData', sampleData);
-    // setData(sampleData.result);
-
     let tagsArray = []; 
     let tagsCount = {}; 
-
     data.forEach(data => {
         data.tags.forEach(tag => {
             if (tagsCount[tag]) {
@@ -145,36 +125,11 @@ const [showKnowledgeModal, setShowKnowledgeModal] = useState(false);
     setTagsArray({ uniqueTags: tagsArray, tagCounts: tagsCount });
   }, [data]);
 
+
+
   // useEffect(() => {
-  //   console.log('sampleData', sampleData);
-  //   setData(sampleData.result);
-
-  //   let tagsArray = []; 
-  //   let tagsCount = {}; 
-
-  //   sampleData.result.forEach(data => {
-  //       data.tags.forEach(tag => {
-  //           if (tagsCount[tag]) {
-  //               tagsCount[tag] +=1
-  //               console.log("has");
-  //           }else{
-  //               console.log("has not");
-  //               tagsCount[tag] = 1
-  //           }
-
-  //           if (!tagsArray.includes(tag)) {
-  //               tagsArray.push(tag);
-  //           }
-  //       })
-  //   })
-  //   console.log("Unique tags:", tagsArray);
-  //   console.log("Tags count:", tagsCount);
-  //   setTagsArray({ uniqueTags: tagsArray, tagCounts: tagsCount });
-  // }, []);
-
-  useEffect(() => {
-    console.log(tagsArray)
-  }, [tagsArray]);
+  //   console.log(tagsArray)
+  // }, [tagsArray]);
   
 
   const handleKnowledgeModal = (show, item) => {
@@ -213,24 +168,12 @@ const [showKnowledgeModal, setShowKnowledgeModal] = useState(false);
                   <input className="form-input-field-fp" placeholder="Search..." value={searchString} onChange={(e) => handleSearchString(e.target.value)} style={{ fontSize: "0.95em", width: "30em" }} ></input>
                   {searchString && (
                   <button 
-                  title="Remove Search String"
-                  style={{
-                    position: "absolute",
-                    left: "22.5em",  
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    background: "transparent",
-                    cursor: "pointer",
-                    fontSize: "1.2em",
-                    color: "#888",
-                    padding: "0 0 0.4em 0",  
-                    outline: "none"
-                  }}
-                  onClick={() => handleSearchString("")}
-                >
-                  &times;
-              </button>
+                    title="Remove Search String"
+                    style={{ position: "absolute", left: "22.5em",  top: "50%",transform: "translateY(-50%)",border: "none",background: "transparent",cursor: "pointer",fontSize: "1.2em",color: "#888",padding: "0 0 0.4em 0",  outline: "none"}}
+                    onClick={() => handleSearchString("")}
+                  >
+                    &times;
+                </button>
               )}
               </div>
         </div>
@@ -302,13 +245,23 @@ const [showKnowledgeModal, setShowKnowledgeModal] = useState(false);
                                   ))}
                               </div>
                               <div>
-                                  <h6>{item.created_at.substring(0,10)}</h6>
+                                  {item.updated_at ? (
+                                  <h6><i>Updated:</i> {item.updated_at.substring(0,10)}</h6>
+                                  ) : (
+                                    <h6>{item.created_at.substring(0,10)}</h6>
+                                  )}
                               </div>
                           </div>
                       ))
                   ) : (
                       <div className="mt-2 ml-5">
+                         {loading ? (
+                          <p style={{ fontSize: "0.8em", width: "30em" }}><span style={{ fontWeight: "600" }}></span>Please wait while loading articles in Knowledge Base...</p>
+                         ) : errorFetchingDataFromTable ? (
+                          <p style={{ fontSize: "0.8em", width: "30em" }}><span style={{ color: "red", fontWeight: "600" }}>Oh no! <br></br></span>Ops! Something went wrong when fetching articles from knowledge base in offline mode... <br></br><br></br> Please connect to internet or try again soon!</p>
+                        ) : (
                           <p style={{ fontSize: "0.8em" }}>No items was found in the folder</p>
+                        )}
                       </div>
                   )
               )}
