@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import fp from "../assets/images/diaphragm.png";
 import teamleader from "../assets/images/teamwork.png";
 import cloud from "../assets/images/cloud.png";
+import timereport from "../assets/images/report.png";
 
 
 
@@ -35,14 +36,20 @@ function Sidemenu() {
             <ul className="menu">
                 <div className="link-box">
                     <NavLink to="/home_teamleader" exact="true">
-                        <img className="link-img" src={teamleader} alt="teamleader" />
+                        <img className="link-img" src={teamleader} alt="Teamleader" />
                         <p>Teamleader</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
                     <NavLink to="/home_filetransfer" exact="true" >
-                        <img className="link-img" src={cloud} alt="cloud" />
+                        <img className="link-img" src={cloud} alt="Filestransfer" />
                         <p>Filetransfer</p>
+                    </NavLink>
+                </div>
+                <div className="link-box">
+                    <NavLink to="/home_timereport" exact="true" >
+                        <img className="link-img" src={timereport} alt="Time Report" />
+                        <p>Time Report</p>
                     </NavLink>
                 </div>
             </ul>

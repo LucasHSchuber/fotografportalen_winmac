@@ -188,7 +188,6 @@
     align-items: center !important;
     border-radius: 7px;
 }
-
 .prevwork-box-right {
     background-color: rgb(237, 237, 237);
     padding: 1.1em 1em 1.1em 1em;
@@ -196,9 +195,6 @@
     align-items: center !important;
     border-radius: 7px;
 }
-
-
-
 .prevwork-box-right:hover {
     background-color: #00b3ff;
     transition: 0.2s;
@@ -218,7 +214,6 @@
     width: 43em;
     font-size: 0.8em !important;
 }
-
 .currwork-box-right {
     background-color: rgb(237, 237, 237);
     padding: 1.1em 1em 1.1em 1em;
@@ -228,7 +223,6 @@
     font-size: 0.8em !important;
     margin-top: 0.15em;
 }
-
 .currwork-box-left:hover,
 .currwork-box-right:hover {
     background-color: #00b3ff;

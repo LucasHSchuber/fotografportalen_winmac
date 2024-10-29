@@ -90,6 +90,13 @@ const api = {
   getAllFTDataBySearch: (user_id ,searchString) => ipcRenderer.invoke('getAllFTDataBySearch', user_id, searchString), // Pass user_id to get all FT projects and files by user and search
 
   
+  // TIME REPORT
+  getAllTimereports: (user_id) => ipcRenderer.invoke('getAllTimereports', user_id), // Pass user_id to get all Timereport data
+  getProjectsAndTimereport: (args) => ipcRenderer.invoke('getProjectsAndTimereport', args), // Pass user_id to get all Timereport data
+  markActivityAsCompleted: (data) => ipcRenderer.invoke('markActivityAsCompleted', data),
+
+
+
 
 
   // navigateBack: () => ipcRenderer.send('navigateBack'), // Send a message to Electron's main process to navigate back

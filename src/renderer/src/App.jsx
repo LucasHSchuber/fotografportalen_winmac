@@ -24,6 +24,8 @@ import Yescalendarsale_teamleader from "./pages/teamleader/yescalendarsale_teaml
 import Home_filetransfer from "./pages/filetransfer/home_filetransfer";
 import History_filetransfer from "./pages/filetransfer/history_filetransfer";
 
+import Home_timereport from "./pages/timereport/home_timereport";
+
 //importing css styles
 import "./App.css";
 import './assets/css/global.css';
@@ -143,6 +145,19 @@ function App() {
 
             <div className="route-layout">
               <Routes> <Route path="/history_filetransfer" element={<History_filetransfer />} /></Routes>
+            </div>
+
+          </div>
+        </div>
+
+
+      {/* TIME REPORT */}
+        {/* .main-content for margin/padding left to make room for sidebar */}
+        <div className="main-content">
+          <div className="content">
+
+            <div className="route-layout">
+              <Routes> <Route path="/home_timereport" element={<Home_timereport />} /></Routes>
             </div>
 
           </div>

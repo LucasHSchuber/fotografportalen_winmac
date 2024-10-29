@@ -1,0 +1,75 @@
+/* buttons timreport */
+
+.change-month-button{
+    font-size: 1.2em;
+    background-color: inherit;
+    border-radius: 50%;
+    padding: 0.2em 0.4em;
+    transition: 0.1s;
+    cursor: pointer;
+}
+.change-month-button:hover{
+    background-color: #c7c7c7;
+}
+
+
+.complete-project-button{
+    color: #ffffff;
+    background-color: #A74FFF;
+    border: 1px solid #A74FFF;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.1s;
+}
+.complete-project-button:hover{
+    color: grey;
+    background-color: rgb(246, 246, 246);
+    border-radius: 3px;
+}
+.complete-project-button:focus{
+    border: 2px solid #A74FFF !important;
+    outline: #A74FFF;
+}
+.disable-button{
+    cursor: not-allowed;
+    color: #A74FFF;
+    background-color: white;
+    border: 1px solid #A74FFF;
+    border: 1px solid #A74FFF;
+}
+.disable-button:hover{
+    background-color: white;
+    border: 1px solid #A74FFF;
+    border: 1px solid #A74FFF;
+}
+
+.add-new-tr-button{
+    font-weight: 900;
+    font-size: 0.8em;
+    padding: 0.3em 0.6em;
+    color: #A74FFF;
+    border: 1px solid #A74FFF;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.1s;
+    background-color: white;
+}
+.add-new-tr-button:hover{
+    background-color: rgb(246, 246, 246);
+}
+
+.complete-month-button{
+    font-size: 0.9em;
+    color: white;
+    background-color: #A74FFF;
+    border: 1px solid #A74FFF !important;
+    float: right;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.1s;
+}
+.complete-month-button:hover{
+    color: #A74FFF;
+    background-color: #ffffff;
+    border: 1px solid #A74FFF;
+}
