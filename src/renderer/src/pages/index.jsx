@@ -181,9 +181,6 @@ function Index() {
   };
 
   const promptUserToCloseApp = async () => {
-    // return window.confirm(
-    //   "The Application is about to start downloading the new installation file to your desktop. Once it's finished, the application will automatically quit. The download might take a few minutes. Do you wish to continue?",
-    // );
     const result = await MySwal.fire({
       title: 'Update Available',
       text: "The Application is about to start downloading the new installation file to your desktop. Once it's finished, the application will automatically quit. The download might take a few minutes. Do you wish to continue?",
@@ -193,7 +190,7 @@ function Index() {
       cancelButtonText: 'No, cancel',
       customClass: {
         confirmButton: 'custom-confirm-button',
-        cancelButton: 'custom-cancel-button' // Optional: if you want to style the cancel button as well
+        cancelButton: 'custom-cancel-button' 
       },
       didOpen: () => {
         // Style the title
@@ -227,7 +224,7 @@ function Index() {
     // fetch user data
     const fetchUser = async () => {
       try {
-        const usersData = await window.api.getUser(user_id); // Fetch users data from main process
+        const usersData = await window.api.getUser(user_id); 
         console.log("Users Data:", usersData);
         setUser(usersData.user);
         console.log(usersData.user);
@@ -396,8 +393,7 @@ function Index() {
               "Trigger method to update is_sent_date timestamp column in table NEWS",
             );
             try {
-              const responseNewsDate =
-                await window.api.addSentDateToNews(news_id);
+              const responseNewsDate = await window.api.addSentDateToNews(news_id);
               console.log("is_sent_date added to NEWS table", responseNewsDate);
             } catch (error) {
               console.log("Error adding is_sent_date in NEWS table", error);

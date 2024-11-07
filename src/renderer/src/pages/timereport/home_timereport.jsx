@@ -341,7 +341,7 @@ function Home_timereport() {
                                             <input
                                                 className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
                                                 type="text"
-                                                value={project.starttime || "08:00"}
+                                                value={project.starttime || "00:00"}
                                                 disabled={project.timereport_is_sent === 1}
                                                 onChange={(e) => handleInputChange(e, index, "starttime")}
                                             />
@@ -350,7 +350,7 @@ function Home_timereport() {
                                             <input
                                                 className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
                                                 type="text"
-                                                value={project.endtime || "17:00"}
+                                                value={project.endtime || "00:00"}
                                                 disabled={project.timereport_is_sent === 1}
                                                 onChange={(e) => handleInputChange(e, index, "endtime")}
                                             />
@@ -359,7 +359,7 @@ function Home_timereport() {
                                             <input
                                                 className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
                                                 type="text"
-                                                value={project.breaktime || "00:30"}
+                                                value={project.breaktime || "00:00"}
                                                 disabled={project.timereport_is_sent === 1}
                                                 onChange={(e) => handleInputChange(e, index, "breaktime")}
                                             />
