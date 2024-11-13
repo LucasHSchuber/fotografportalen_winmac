@@ -32,53 +32,33 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
 
 
 
-// Decode base64 string and create Blob URL
-  const viewFile = (base64String, filename) => {
-    try {
-        console.log('filename:', filename);
-        console.log('Base64 String (first 100 characters):', base64String.substring(0, 100)); 
+// View file
+  const viewFile = (file_id, filename) => {
+    if (navigator.onLine){
+      console.log('file_id', file_id);
+      const fileUrl = "https://fs.ebx.nu/view/" + file_id
+      window.open(fileUrl);
+    } else {
+      console.log('No internet, viewing file from local computer');
 
-        const blob = base64ToBlob(base64String);
-        console.log('Blob:', blob);
-
-        const url = URL.createObjectURL(blob);
-        // window.open(url, '_blank');
-        window.api.createKnowledgebaseWindow(url);
-
-
-        URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('Error viewing file:', error);
-        showErrorModal(`Could not view file: ${filename}`);
     }
   };
-  function base64ToBlob(base64, contentType = 'application/pdf') {
-    const byteCharacters = atob(base64);
-    const byteNumbers = Array.from(byteCharacters).map(char => char.charCodeAt(0));
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: contentType });
-  }
 
-
-  const downloadFile = async (filePath, fileName) => {
+  // Download file
+  const downloadFile = async (file_id, fileName) => {
     console.log("DownloadFile method triggered");
-    console.log('filePath', filePath);
+    console.log('filePath', file_id);
     console.log('fileName', fileName);
-    try {
-        console.log('Download initiated successfully.');
-        const response = await window.api.downloadKnowledgebaseFile(filePath, fileName);
-        console.log("Reponse: ", response);
-        if (response.status === 200) {
-            showSuccessModal(`File downloaded successfully to: ${response.message}`);
-        } else if (response.status === 500){
-            showErrorModal(`${response.error}`);
-        } else {
-            showErrorModal(`File failed to download`);
-        }
+    
+    const fileUrl = `https://fs.ebx.nu/download/${file_id}`;
+    // Create a temporary link element
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = fileName || "downloaded_file"; 
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); 
 
-      } catch (error) {
-        console.error('Error downloading file:', error);
-      }
   };
 
 
@@ -139,23 +119,30 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
                         <p>{item.description}</p>
                         <h6 style={{ fontSize: "0.95em", fontWeight: "600" }}>Files:</h6>
                         {item.files.map((file) => (
-                        <div key={file.name} className="d-flex">
-                            <h6 style={{ fontSize: "0.85em" }}><FontAwesomeIcon icon={faFile} className="mr-2" style={{ color: "#0083ce" }} /> {file.name}</h6>
-                            <FontAwesomeIcon icon={faEye} className="mx-3 download-file-button" title={`View File ${file.name}`}  onClick={() => viewFile(file.path, file.name)}/>
-                            <FontAwesomeIcon icon={faDownload} className="download-file-button" title={`Download File ${file.name}`} onClick={() => downloadFile(file.path, file.name)} />
-                        </div>
+                          <div key={file.name} className="mb-1 d-flex">
+                              <h6 style={{ fontSize: "0.85em" }}><FontAwesomeIcon icon={faFile} className="mr-2" style={{ color: "#0083ce" }} /> {file.name}</h6>
+                              <div style={{ marginTop: "-0.4em" }}>
+                                <button className="ml-3 mr-2 download-file-button" title={`View File ${file.name}`}  onClick={() => viewFile(file.file_id, file.name)}>
+                                  View File 
+                                  {/* <FontAwesomeIcon icon={faEye} /> */}
+                                </button>   
+                                <button className="download-file-button" title={`Download File ${file.name}`} onClick={() => downloadFile(file.file_id, file.name)}>
+                                  <FontAwesomeIcon icon={faDownload} />
+                                </button>
+                              </div>  
+                          </div>
                         ))}
                     </div>
                     )}
                 </div>
 
-                {pdfUrl && (
+                {/* {pdfUrl && (
                     <div style={{ height: 'fit-content', width: '100%', marginTop: '20px' }}>
                         <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
                         <Viewer fileUrl={pdfUrl} />
                         </Worker>
                     </div>
-                )}
+                )} */}
 
                 <div className="mt-5">
                     <Button className="button cancel" onClick={closeModal}>

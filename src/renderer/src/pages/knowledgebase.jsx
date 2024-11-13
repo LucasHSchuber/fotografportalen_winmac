@@ -39,22 +39,18 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
 
 
   useEffect(() => {
-    if (navigator.onLine){
-        console.log("Online, postArticlesToKnowledgebase method triggered!")
-        const postArticlesToKnowledgebase = async () => {
-        try { 
-          console.log('data', data);
-          const response = await window.api.createKnowledgebaseArticles(data);
-          console.log('response postArticlesToKnowledgebase: ', response);
-        } catch (error) {
-          console.log('error adding artciles to knowledge base table: ', error);
-        }
-      }
-      postArticlesToKnowledgebase();
-    } else{
-      console.log("Offline, postArticlesToKnowledgebase method NOT triggered!")
-    }
+    console.log('data', data);
+    data.forEach(element => {
+      console.log('element.files', element.files);
+      element.files.forEach(file => {
+        console.log('file', file);
+
+        // DOWNLOAD EACH file TO LOCAL COMPUTER. MAKE SURE IT DOESNT EXISTS FIRST
+
+      });
+    });
   }, [data]);
+
 
   // Fetching all knowledge base data from REST API 
     const fetchKnowledgebase = async () => {
@@ -100,6 +96,25 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
       }
   }
 
+  // If online - download knowledge base article to sqlite table
+  useEffect(() => {
+    if (navigator.onLine){
+        console.log("Online, postArticlesToKnowledgebase method triggered!")
+        const postArticlesToKnowledgebase = async () => {
+          try { 
+            console.log('data', data);
+            const response = await window.api.createKnowledgebaseArticles(data);
+            console.log('response postArticlesToKnowledgebase: ', response);
+          } catch (error) {
+            console.log('error adding artciles to knowledge base table: ', error);
+          }
+      }
+      postArticlesToKnowledgebase();
+    } else{
+      console.log("Offline, postArticlesToKnowledgebase method NOT triggered!")
+    }
+  }, [data]);
+
 
   // Create unique tags and tags count for left menu (tag menu in interface)
   useEffect(() => {
@@ -127,9 +142,6 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
 
 
 
-  // useEffect(() => {
-  //   console.log(tagsArray)
-  // }, [tagsArray]);
   
 
   const handleKnowledgeModal = (show, item) => {

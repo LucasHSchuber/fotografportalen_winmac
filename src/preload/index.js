@@ -76,7 +76,7 @@ const api = {
   createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // NOT EXISTS??? create main window
   createKnowledgebaseWindow: (url) => ipcRenderer.invoke('createknowledgebasewindow', url), // create knowledgebase window
   
-  downloadKnowledgebaseFile: (filepath, filename) => ipcRenderer.invoke('downloadKnowledgebaseFile', filepath, filename), // download knowledgebase file
+  // downloadKnowledgebaseFile: (filepath, filename) => ipcRenderer.invoke('downloadKnowledgebaseFile', filepath, filename), // download knowledgebase file
   getKnowledgebaseArticles: (user_lang) => ipcRenderer.invoke('getKnowledgebaseArticles', user_lang), // get all articles in knowledgebase table based on user language
   createKnowledgebaseArticles: data => ipcRenderer.invoke('createKnowledgebaseArticles', data), // Database Call For Create articles for knowledge base
 

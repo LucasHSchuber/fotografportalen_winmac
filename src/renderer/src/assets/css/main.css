@@ -217,6 +217,12 @@
   padding: 0.2em 0.6em;
   border-radius: 5px;
 }
+.confirmed-box{
+  padding: 0.2em 0.5em 0.3em 0.5em;
+  border-radius: 7px;
+  margin-top: -0.2em;
+  background-color: rgb(250, 250, 250);
+}
 
 .one {
   background-color: #00c9a4;
@@ -391,7 +397,7 @@ background-color: rgb(227, 227, 227);
 .knowledgebase-article-box{
   border-bottom: 1px solid rgb(239, 239, 239);
   padding: 0.5em 1.3em 0.1em 1.3em;
-  background-color: rgb(248, 248, 248);
+  background-color: rgb(249, 249, 249);
   border-radius: 3px;
 }
 .knowledgebase-article-box:hover{

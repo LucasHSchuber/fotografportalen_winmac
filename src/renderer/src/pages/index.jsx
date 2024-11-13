@@ -40,6 +40,8 @@ function Index() {
   const [loading, setLoading] = useState(false);
 
 
+  // ---------- CHECK FOR UPDATES AND UPDATES METHODS ---------- 
+
   // check if there is a new APP-release
   useEffect(() => {
     let env_file = env;
@@ -94,23 +96,6 @@ function Index() {
       }
     };
     checkForUpdates();
-  }, []);
-
-  //fetch all news from company database
-  const fetchAllNews = async () => {
-    const allNews = await fetchNews();
-    console.log("allnews", allNews);
-
-    try {
-      const newsFromTable = await window.api.get_news();
-      console.log("News from table:", newsFromTable);
-      setAllNews(newsFromTable.news);
-    } catch (error) {
-      console.log("Error fetching news from table:", error);
-    }
-  };
-  useEffect(() => {
-    fetchAllNews();
   }, []);
 
 
@@ -208,78 +193,31 @@ function Index() {
     return result.isConfirmed;
   };
 
-  //get all current projects with user_id
+
+
+  // ---------- NEWS METHODS ---------- 
+
+  //fetch all news from company database
+  const fetchAllNews = async () => {
+    const allNews = await fetchNews();
+    console.log("allnews", allNews);
+
+    if (allNews !== null){
+      try {
+        const newsFromTable = await window.api.get_news();
+        console.log("News from table:", newsFromTable);
+        const sortedNews = newsFromTable.news.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        console.log('sortedNews', sortedNews);
+        setAllNews(sortedNews);
+      } catch (error) {
+        console.log("Error fetching news from table:", error);
+      }
+    }
+  };
   useEffect(() => {
-    let user_id = localStorage.getItem("user_id");
-    const getAllProjects = async () => {
-      try {
-        const projects = await window.api.getAllCurrentProjects(user_id);
-        console.log("Projects:", projects.projects);
-        setProjectsArray(projects.projects);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
-
-    // fetch user data
-    const fetchUser = async () => {
-      try {
-        const usersData = await window.api.getUser(user_id); 
-        console.log("Users Data:", usersData);
-        setUser(usersData.user);
-        console.log(usersData.user);
-        localStorage.setItem(
-          "user_name",
-          usersData.user.firstname + " " + usersData.user.lastname,
-        );
-        localStorage.setItem("user_lang", usersData.user.lang);
-        localStorage.setItem("token", usersData.user.token);
-      } catch (error) {
-        console.error("Error fetching users data:", error);
-      }
-    };
-
-    //clear data - GDPR
-    const runGdprProtection = async () => {
-      try {
-        const response = await gdprProtectionMethod();
-        console.log("GDPR response:", response);
-
-        if (response && response.statusCode === 1) {
-          console.log("GDPR data cleared successfully");
-        } else {
-          console.error(
-            "Error clearing GDPR data:",
-            response?.errorMessage || "Unknown error",
-          );
-        }
-      } catch (error) {
-        console.error("Error clearing GDPR data:", error);
-      }
-
-      try {
-        const response = await gdprProtectionMethod_teamshistory();
-        console.log("GDPR response:", response);
-
-        if (response && response.statusCode === 1) {
-          console.log("GDPR data cleared successfully in teams_history");
-        } else {
-          console.error(
-            "Error clearing GDPR data in teams_history:",
-            response?.errorMessage || "Unknown error",
-          );
-        }
-      } catch (error) {
-        console.error("Error clearing GDPR data in teams_history:", error);
-      }
-    };
-    fetchUser();
-    getAllProjects();
-    runGdprProtection();
+    fetchAllNews();
   }, []);
-  console.log(
-    `Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`,
-  );
+  
 
   //scanning news table for unsent news and then sending to db
   const scanNewsTable = async () => {
@@ -357,7 +295,6 @@ function Index() {
       console.log("No internet connection. Unable to scan news table");
     }
   };
-
   useEffect(() => {
     scanNewsTable();
   }, []);
@@ -366,43 +303,52 @@ function Index() {
   const confirmNews = async (news_id) => {
     console.log("Confirm news!", news_id);
     let token = localStorage.getItem("token");
-    console.log("token", token);
     try {
       const responseSqlite = await window.api.confirmNewsToSqlite(news_id);
       console.log("confirm news successfully updated", responseSqlite);
-      fetchAllNews();
-      // Check for internet connection
-      if (navigator.onLine) {
-        console.log("Sending news id to db:", news_id);
-        try {
-          const responseDb = await axios.post(
-            "https://backend.expressbild.org/index.php/rest/photographer_portal/newsread",
-            { id: news_id },
-            {
-              headers: {
-                Authorization: `Token ${token}`,
-                "Content-Type": "application/json",
-              },
-            },
-          );
-          console.log("ResponseDb:", responseDb);
 
-          // Check if the response status is 200
-          if (responseDb.status === 200) {
-            console.log(
-              "Trigger method to update is_sent_date timestamp column in table NEWS",
+      if (responseSqlite.success !== true) {
+        console.log('error confirming news to sqlite table');
+        return;
+      }else {  
+      // Check for internet connection
+        if (navigator.onLine) {
+          console.log("Sending news id to db:", news_id);
+          try {
+            const responseDb = await axios.post(
+              "https://backend.expressbild.org/index.php/rest/photographer_portal/newsread",
+              { id: news_id },
+              {
+                headers: {
+                  Authorization: `Token ${token}`,
+                  "Content-Type": "application/json",
+                },
+              },
             );
-            try {
-              const responseNewsDate = await window.api.addSentDateToNews(news_id);
-              console.log("is_sent_date added to NEWS table", responseNewsDate);
-            } catch (error) {
-              console.log("Error adding is_sent_date in NEWS table", error);
+            console.log("ResponseDb:", responseDb);
+
+            // Check if the response status is 200
+            if (responseDb.status === 200) {
+              console.log(
+                "Trigger method to update is_sent_date timestamp column in table NEWS",
+              );
+              try {
+                const responseNewsDate = await window.api.addSentDateToNews(news_id);
+                console.log("is_sent_date added to NEWS table", responseNewsDate);
+              } catch (error) {
+                console.log("Error adding is_sent_date in NEWS table", error);
+              }
             }
+          } catch (error) {
+            console.log("error when sending news id to company database");
+            console.log("error:", error);
           }
-        } catch (error) {
-          console.log("error when sending news id to company database");
-          console.log("error:", error);
         }
+
+        setTimeout(() => {
+          fetchAllNews();  
+        }, 1000);
+        
       }
     } catch (error) {
       console.log("error updatating news", error);
@@ -410,16 +356,102 @@ function Index() {
   };
 
 
+
+  // ----------- GET ALL CURRENT PROJECTS BY USER -----------
+
+  //get all current projects with user_id
+  useEffect(() => {
+    let user_id = localStorage.getItem("user_id");
+    const getAllProjects = async () => {
+      try {
+        const projects = await window.api.getAllCurrentProjects(user_id);
+        console.log("Projects:", projects.projects);
+        setProjectsArray(projects.projects);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+
+
+    // ----------- FETCH USER DATA -----------
+
+    // fetch user data
+    const fetchUser = async () => {
+      try {
+        const usersData = await window.api.getUser(user_id); 
+        console.log("Users Data:", usersData);
+        setUser(usersData.user);
+        console.log(usersData.user);
+        localStorage.setItem(
+          "user_name",
+          usersData.user.firstname + " " + usersData.user.lastname,
+        );
+        localStorage.setItem("user_lang", usersData.user.lang);
+        localStorage.setItem("token", usersData.user.token);
+      } catch (error) {
+        console.error("Error fetching users data:", error);
+      }
+    };
+
+
+
+    // ----------- GDPR -----------
+
+    //clear data - GDPR
+    const runGdprProtection = async () => {
+      try {
+        const response = await gdprProtectionMethod();
+        console.log("GDPR response:", response);
+
+        if (response && response.statusCode === 1) {
+          console.log("GDPR data cleared successfully");
+        } else {
+          console.error(
+            "Error clearing GDPR data:",
+            response?.errorMessage || "Unknown error",
+          );
+        }
+      } catch (error) {
+        console.error("Error clearing GDPR data:", error);
+      }
+
+      try {
+        const response = await gdprProtectionMethod_teamshistory();
+        console.log("GDPR response:", response);
+
+        if (response && response.statusCode === 1) {
+          console.log("GDPR data cleared successfully in teams_history");
+        } else {
+          console.error(
+            "Error clearing GDPR data in teams_history:",
+            response?.errorMessage || "Unknown error",
+          );
+        }
+      } catch (error) {
+        console.error("Error clearing GDPR data in teams_history:", error);
+      }
+    };
+    fetchUser();
+    getAllProjects();
+    runGdprProtection();
+  }, []);
+  console.log(
+    `Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`,
+  );
+
   
-   // SweetAlert2 error modal
-   const showErrorModal = (errorMessage) => {
+  // SweetAlert2 error modal
+  const showErrorModal = (errorMessage) => {
       MySwal.fire({
         title: 'Error!',
         text: errorMessage,
         icon: 'error',
         confirmButtonText: 'Close',
       });
-    };
+  };
+
+
 
 
   if (loading) {
@@ -430,7 +462,6 @@ function Index() {
       </div>
     );
   }
-  
   return (
     <div className="d-flex index-wrapper">
       <div className="index-box-left">
@@ -546,14 +577,14 @@ function Index() {
                     <b>{news.title}</b>
                   </h6>
                   {news.is_read === 1 && news.is_sent_date === null ? (
-                    <h6 className="ml-3" style={{ color: "green" }}>
-                      <span style={{ fontSize: "0.8em" }}>Confirmed</span>
-                      <FontAwesomeIcon icon={faCheck} title="Read" className="ml-1"/>
+                    <h6 className="ml-2 confirmed-box" style={{ color: "green" }}>
+                      <span style={{ fontSize: "0.75em" }}>Confirmed</span>
+                      <FontAwesomeIcon icon={faCheck} title="Confirmed" style={{ fontSize: "0.75em" }} className="ml-1"/>
                     </h6>
                   ) : news.is_read === 1 && news.is_sent_date !== null ? (
-                    <h6 className="ml-2" style={{ color: "green" }}>
-                      <span style={{ fontSize: "0.75em" }}>Confirmed and sent</span>
-                      <FontAwesomeIcon icon={faCheckDouble} title="Read" className="ml-1"/>
+                    <h6 className="ml-2 confirmed-box" style={{ color: "green" }}>
+                      <span style={{ fontSize: "0.75em" }}>Confirmed & sent</span>
+                      <FontAwesomeIcon icon={faCheckDouble} title="Confirmed & sent" style={{ fontSize: "0.75em" }} className="ml-1"/>
                     </h6>
                   ) : null}
                 </div>
@@ -584,7 +615,7 @@ function Index() {
                 {news.is_read === 0 ? (
                   <>
                     <button
-                      className="mt-2 confirm-news-button"
+                      className="mt-1 confirm-news-button"
                       title="Confirm news article to office"
                       onClick={() => confirmNews(news.id)}
                     >

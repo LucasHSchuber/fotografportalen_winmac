@@ -5,9 +5,6 @@ const fetchNews = async () => {
   let token = localStorage.getItem("token");
   let _user_id = localStorage.getItem("user_id");
   let user_id = parseInt(_user_id);
-  console.log("token", token);
-  console.log("user id", user_id);
-
 
   try {
     let response = await axios.get('https://backend.expressbild.org/index.php/rest/photographer_portal/News', {
@@ -25,18 +22,17 @@ const fetchNews = async () => {
       news.forEach((newsItem) => {
         let isRead = false;
         newsItem.read_by.forEach((item) => {
-          console.log(item.id);
+          // console.log(item.id);
           if (item.id === user_id){
-            console.log("ok");
+            // console.log("ok");
             isRead = true;
           } else {
-            console.log("no")
+            // console.log("no");
           }
         })
         newsItem.isRead = isRead;
       });
       console.log("new news aray - sending to backend", news);
-
       // Add news to SQLite news table
       try {
         const responseCreate_news = await window.api.create_news(news);
@@ -48,7 +44,9 @@ const fetchNews = async () => {
       } catch (error) {
         console.log("Error adding news to news table", error);
       }
-      return response.data;
+      // console.log(response.data)
+      // return response.data;
+      return news;
     } else {
       console.error('Empty news-response received');
       return null;

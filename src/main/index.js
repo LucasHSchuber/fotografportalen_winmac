@@ -3046,9 +3046,7 @@ ipcMain.handle("getKnowledgebaseArticles", async (event, user_lang) => {
 
 //post articles to knowledgebase table
 ipcMain.handle("createKnowledgebaseArticles", async (event, data) => {
-  // const { title, description, tags, langs, files, author, createdAt, updatedAt,} = data;
-
-  // log.info("data: ", data);
+  
   const insertQuery = `
   INSERT INTO knowledgebase (article_id, title, description, tags, langs, files, author, created_at, updated_at, deleted)
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -3069,7 +3067,6 @@ ipcMain.handle("createKnowledgebaseArticles", async (event, data) => {
   const db = new sqlite3.Database(dbPath);
 
   try {
-
     const existingIdQuery = `SELECT article_id FROM knowledgebase WHERE deleted = 0`;
     const existingIds = await executeQueryWithRetry(db, existingIdQuery); 
     const existingIdSet = new Set(existingIds.map(row => row.article_id));
