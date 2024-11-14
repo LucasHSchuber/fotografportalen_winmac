@@ -79,8 +79,9 @@ const api = {
   // downloadKnowledgebaseFile: (filepath, filename) => ipcRenderer.invoke('downloadKnowledgebaseFile', filepath, filename), // download knowledgebase file
   getKnowledgebaseArticles: (user_lang) => ipcRenderer.invoke('getKnowledgebaseArticles', user_lang), // get all articles in knowledgebase table based on user language
   createKnowledgebaseArticles: data => ipcRenderer.invoke('createKnowledgebaseArticles', data), // Database Call For Create articles for knowledge base
-
-
+  donwloadKnowledgeBaseFiles: data => ipcRenderer.invoke('donwloadKnowledgeBaseFiles', data), // Donwloading files in knowledge base to locale computer
+  openLocallyKnowledgeBaseFile: filename => ipcRenderer.invoke('openLocallyKnowledgeBaseFile', filename), // Pass filename to open knowledge base file 
+  downloadLocallyKnowledgeBaseFile: filename => ipcRenderer.invoke('downloadLocallyKnowledgeBaseFile', filename), // Pass filename to download knowledge base file 
 
   // FILETRANSFER
   uploadFile: (filePath, lang, filesize) => ipcRenderer.invoke('uploadFile', filePath, lang, filesize),

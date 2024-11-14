@@ -19,90 +19,111 @@ import "../assets/css/components.css"
 const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
 
     //define states
-    const [pdfUrl, setPdfUrl] = useState(null);
+  const [runningOnline, setRunningOnline] = useState(true);
 
-   useEffect(() => {
-     console.log('item', item);
-   }, [item]);
+
+
+  // Method to check internet connection every 2 seconds
+  const checkInternetConnection = () => {
+      if (navigator.onLine) {
+        setRunningOnline(true);
+        console.log('Running Online');
+      } else{
+        console.log('Running Offline');
+        setRunningOnline(false);
+      }
+  }
+  // Check internet connection every 2 seconds
+  useEffect(() => {
+    const intervalId = setInterval(checkInternetConnection, 2000);
+    return () => clearInterval(intervalId);
+  }, []);
     
-    const closeModal = () => {
-        setPdfUrl(null);
-        handleKnowledgeModal(false); 
-    };
 
 
+   // Close modal
+   const closeModal = () => {
+      handleKnowledgeModal(false); 
+   };
 
-// View file
-  const viewFile = (file_id, filename) => {
-    if (navigator.onLine){
-      console.log('file_id', file_id);
-      const fileUrl = "https://fs.ebx.nu/view/" + file_id
-      window.open(fileUrl);
-    } else {
-      console.log('No internet, viewing file from local computer');
 
-    }
+  // View file
+  const viewFile = (file_id, fileName) => {
+      console.log('Opening File:', fileName);
+      window.api.openLocallyKnowledgeBaseFile(fileName);
   };
 
   // Download file
   const downloadFile = async (file_id, fileName) => {
-    console.log("DownloadFile method triggered");
-    console.log('filePath', file_id);
-    console.log('fileName', fileName);
-    
-    const fileUrl = `https://fs.ebx.nu/download/${file_id}`;
-    // Create a temporary link element
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.download = fileName || "downloaded_file"; 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link); 
-
+    console.log("DownloadFile method triggered");    
+    if (navigator.onLine) {
+      const fileUrl = `https://fs.ebx.nu/download/${file_id}`;
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = fileName || "downloaded_file"; 
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link); 
+    } else {
+      console.log('No internet, cannot download file');
+      // window.api.downloadLocallyKnowledgeBaseFile(fileName)
+      // .then(response => {
+      //   if (response.statusCode === 200) {
+      //     console.log('File downloaded successfully:', response.fileName);
+      //   } else if (response.statusCode === 0) {
+      //     console.log('Download was canceled by the user');
+      //   } else {
+      //     console.error('Error downloading file:', response.message);
+      //   }
+      // })
+      // .catch(error => {
+      //   console.error('IPC call failed:', error);
+      // });
+    }
   };
 
 
 
-   // SweetAlert2 error modal
-   const showErrorModal = (message) => {
-    MySwal.fire({
-      title: 'Error!',
-      text: message,
-      icon: 'error',
-      confirmButtonText: 'Close',
-      customClass: {
-        title: 'my-custom-title',
-        content: 'my-custom-content',
-        confirmButton: 'my-custom-confirm-button'
-      },
-      didOpen: () => {
-        const content = document.querySelector('.swal2-html-container');
-        if (content) {
-          content.style.fontSize = '0.9em';
-        }
-      }
-    });
-  };
-    // SweetAlert2 success modal
-    const showSuccessModal = (message) => {
-        MySwal.fire({
-          title: 'Success!',
-          text: message,
-          icon: 'success',
-          confirmButtonText: 'Close',
-          customClass: {
-            title: 'my-custom-title',
-            content: 'my-custom-content',
-            confirmButton: 'my-custom-confirm-button'
-          },
-          didOpen: () => {
-            const content = document.querySelector('.swal2-html-container');
-            if (content) {
-              content.style.fontSize = '0.9em';
-            }
-          }
-        });
-    };
+  //  // SweetAlert2 error modal
+  //  const showErrorModal = (message) => {
+  //   MySwal.fire({
+  //     title: 'Error!',
+  //     text: message,
+  //     icon: 'error',
+  //     confirmButtonText: 'Close',
+  //     customClass: {
+  //       title: 'my-custom-title',
+  //       content: 'my-custom-content',
+  //       confirmButton: 'my-custom-confirm-button'
+  //     },
+  //     didOpen: () => {
+  //       const content = document.querySelector('.swal2-html-container');
+  //       if (content) {
+  //         content.style.fontSize = '0.9em';
+  //       }
+  //     }
+  //   });
+  // };
+  //   // SweetAlert2 success modal
+  //   const showSuccessModal = (message) => {
+  //       MySwal.fire({
+  //         title: 'Success!',
+  //         text: message,
+  //         icon: 'success',
+  //         confirmButtonText: 'Close',
+  //         customClass: {
+  //           title: 'my-custom-title',
+  //           content: 'my-custom-content',
+  //           confirmButton: 'my-custom-confirm-button'
+  //         },
+  //         didOpen: () => {
+  //           const content = document.querySelector('.swal2-html-container');
+  //           if (content) {
+  //             content.style.fontSize = '0.9em';
+  //           }
+  //         }
+  //       });
+  //   };
 
 
     return (
@@ -126,23 +147,17 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
                                   View File 
                                   {/* <FontAwesomeIcon icon={faEye} /> */}
                                 </button>   
-                                <button className="download-file-button" title={`Download File ${file.name}`} onClick={() => downloadFile(file.file_id, file.name)}>
+                                {runningOnline ? (
+                                  <button className="download-file-button" title={`Download File ${file.name}`} onClick={() => downloadFile(file.file_id, file.name)}>
                                   <FontAwesomeIcon icon={faDownload} />
                                 </button>
+                                ) : null }
                               </div>  
                           </div>
                         ))}
                     </div>
                     )}
                 </div>
-
-                {/* {pdfUrl && (
-                    <div style={{ height: 'fit-content', width: '100%', marginTop: '20px' }}>
-                        <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
-                        <Viewer fileUrl={pdfUrl} />
-                        </Worker>
-                    </div>
-                )} */}
 
                 <div className="mt-5">
                     <Button className="button cancel" onClick={closeModal}>

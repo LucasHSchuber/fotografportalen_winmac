@@ -87,10 +87,10 @@
 
 
 .download-file-button{
-  cursor: pointer;
+  /* cursor: pointer; */
   color: rgb(0, 0, 0);
   background-color: inherit;
-  border: 1px solid rgb(215, 215, 215);
+  border: 1px solid rgb(237, 237, 237);
   font-size: 0.9em;
   border-radius: 2px;
   padding: 0.1em 0.6em;

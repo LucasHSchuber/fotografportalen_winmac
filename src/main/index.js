@@ -1,6 +1,7 @@
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 // require('dotenv').config();
-const electron = require("electron");
+// const electron = require("electron");
+const electron = require('electron');
 const log = require("electron-log");
 const path = require("path");
 const fs = require("fs");
@@ -8,10 +9,12 @@ const fsa = require("fs/promises");
 const util = require("util");
 const sqlite3 = require("sqlite3").verbose();
 const fse = require("fs-extra");
+const axios = require('axios');
 // const icon = path.join(__dirname, "../../resources/icon2.png");
 const ipcMain = electron.ipcMain;
 const app = electron.app;
 const shell = electron.shell;
+const dialog = electron.dialog;
 const os = require("os");
 const BrowserWindow = electron.BrowserWindow;
 const isDev = require("electron-is-dev");
@@ -3103,6 +3106,116 @@ ipcMain.handle("createKnowledgebaseArticles", async (event, data) => {
     return { statusCode: 500, errorMessage: error.message };
   }
 });
+
+
+//Download knowledge base file to locale computer
+ipcMain.handle('donwloadKnowledgeBaseFiles', async (event, file) => {
+  try {
+    const localFilePath = path.join(
+      'C:',
+      'ProgramData',
+      'Photographer Portal',
+      'KnowledgeBaseFiles', 
+      `${file.originalname}`
+    );
+    // log.info("localFilePath:", localFilePath);
+
+    if (fs.existsSync(localFilePath)) {
+      console.log(`File already exists: ${file.originalname}`);
+      return { statusCode: 200, status: "skipped", fileName: file.originalname, fileId: file.id };
+    }
+      // Make sure directory exists
+      const pathDir = path.dirname(localFilePath);
+      if (!fs.existsSync(pathDir)) {
+        fs.mkdirSync(pathDir, { recursive: true });
+      }
+      // log.info("pathDir:", pathDir);
+
+    // Download file
+    const downloadUrl = `https://fs.ebx.nu/download/${file.id}`;
+    const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+    fs.writeFileSync(localFilePath, response.data);
+
+    console.log(`Downloaded and saved: ${file.originalname, "to path:", pathDir}`);
+    return { statusCode: 200, status: "success", fileName: file.originalname, fileId: file.id };
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    return { statusCode: 400, status: "failure", fileName: file.originalname, fileId: file.id, message: error.message };
+  }
+});
+
+
+// Open knowledge base file
+ipcMain.handle('openLocallyKnowledgeBaseFile', async (event, filename) => {
+  log.info("filename", filename);
+  try {
+     const localFilePath = path.join(
+      'C:',
+      'ProgramData',
+      'Photographer Portal',
+      'KnowledgeBaseFiles', 
+      `${filename}`
+    );
+
+    if (fs.existsSync(localFilePath)) {
+      await shell.openPath(localFilePath);
+      return { statusCode: 200, status: 'success', fileName: filename, filePath: localFilePath };
+    }else {
+      console.error('File does not exist locally:', localFilePath);
+      return { statusCode: 404, status: 'failure', fileName: filename, filePath: localFilePath };
+    }
+  } catch (error) {
+    console.log("Error viewing file:", error)
+    return { statusCode: 400, status: "failure", fileName: filename, message: error.message }
+  }
+})
+
+// DO NOT NEED
+// Download knowledge base file
+ipcMain.handle('downloadLocallyKnowledgeBaseFile', async (event, filename) => {
+  log.info("filename", filename);
+  try {
+
+    const result = await dialog.showSaveDialog({
+      title: 'Save Knowledge Base File',
+      defaultPath: path.join(os.homedir(), 'Desktop', filename),
+      filters: [
+        { name: 'All Files', extensions: ['*'] } 
+      ]
+    });
+
+    if (result.canceled) {
+      console.log('User canceled the save dialog');
+      return { statusCode: 0, status: 'canceled' };
+    }
+
+    const selectedPath = result.filePath;
+
+    if (fs.existsSync(selectedPath)) {
+      await shell.openPath(selectedPath); 
+      return {
+        statusCode: 200,
+        status: 'success',
+        fileName: filename,
+        filePath: selectedPath
+      };
+    } else {
+      console.error('File does not exist locally:', selectedPath);
+      // resolve({ status: 'failure' });
+      return {
+        statusCode: 404,
+        status: 'failure',
+        fileName: filename,
+        filePath: selectedPath
+      };
+    }
+  } catch (error) {
+    console.log("Error viewing file:", error)
+    return { statusCode: 400, status: "failure", fileName: filename, message: error.message }
+  }
+})
+
+
 
 
 //upload file in filetransfer

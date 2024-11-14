@@ -38,18 +38,55 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
   }, [])
 
 
+  // Download files in Knowledge Base to locale computer
   useEffect(() => {
-    console.log('data', data);
-    data.forEach(element => {
-      console.log('element.files', element.files);
-      element.files.forEach(file => {
-        console.log('file', file);
+      const downloadKnowledgeBaseFilesToComputer = async () => {
+        console.log('downloadKnowledgeBaseFilesToComputer triggered!');
+        console.log('data', data);
 
-        // DOWNLOAD EACH file TO LOCAL COMPUTER. MAKE SURE IT DOESNT EXISTS FIRST
+            const filesArray = [];
+            try {
+              const response = await axios.get(`https://fs.ebx.nu/list`)
+              console.log('response', response.data);
+              filesArray.push(response.data);
+              console.log('filesArray', filesArray[0]); 
 
-      });
-    });
+              const filteredFilesArray = filesArray[0].filter(item => {
+                // Check if any `data` item contains a file with matching file_id
+                return data.some(dataItem => 
+                  dataItem.files.some(f => f.file_id === item.id)
+                );
+              });
+              console.log("filteredFilesArray", filteredFilesArray);
+              if (filteredFilesArray.length > 0) {
+                // SEND FILES TO MAIN PROCESS AND DOWNLOAD TO LOCALE COMPUTER
+                console.log('Saving files to locale computer, amount:', filteredFilesArray.length);
+                filteredFilesArray.forEach(file => {
+                  console.log('file', file);
+                  downloadFile(file);
+                });
+              } else {
+                console.log('No files in knowledgebase, not saving them to locale computer');
+              }
+            } catch (error) {
+              console.log('error downloading file');
+            }
+      }
+    if (navigator.onLine){
+      downloadKnowledgeBaseFilesToComputer();
+    }
   }, [data]);
+  // Download file method
+  const downloadFile = async (file) => {
+    console.log('downloading file', file);
+    try {
+      const response = await window.api.donwloadKnowledgeBaseFiles(file);
+      console.log(response);
+    } catch (error) {
+      console.error('Error downloading file:', file, "error:", error);
+    }
+  };
+
 
 
   // Fetching all knowledge base data from REST API 
@@ -177,11 +214,11 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
                   <h6 style={{ fontSize: "0.9em" }}>Search in knowledge base:</h6>
               </div>
               <div style={{ position: "relative" }}>
-                  <input className="form-input-field-fp" placeholder="Search..." value={searchString} onChange={(e) => handleSearchString(e.target.value)} style={{ fontSize: "0.95em", width: "30em" }} ></input>
+                  <input className="form-input-field-fp" placeholder="Search..." value={searchString} onChange={(e) => handleSearchString(e.target.value)} style={{ fontSize: "0.85em", width: "30em" }} ></input>
                   {searchString && (
                   <button 
                     title="Remove Search String"
-                    style={{ position: "absolute", left: "22.5em",  top: "50%",transform: "translateY(-50%)",border: "none",background: "transparent",cursor: "pointer",fontSize: "1.2em",color: "#888",padding: "0 0 0.4em 0",  outline: "none"}}
+                    style={{ position: "absolute", left: "20.3em",  top: "50%",transform: "translateY(-50%)",border: "none",background: "transparent",cursor: "pointer",fontSize: "1.2em",color: "#888",padding: "0 0 0.4em 0",  outline: "none"}}
                     onClick={() => handleSearchString("")}
                   >
                     &times;
@@ -195,14 +232,15 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
             <div className="knowledgebase-box-left">
                 <div>
                     <ul>
-                      <li style={{ textDecoration: selectedTag === "All" ? "underline" : "none" }} onClick={() => handleKnowledgeClick("All")}> <FontAwesomeIcon icon={faFolderOpen} className="mr-2" style={{ color: "#e34c00" }} /> 
-                        All
-                        <span style={{ color: "#787878", marginLeft: "0.5em", fontSize: "0.8em" }}>{data.length}</span>
+                      <li className={`${selectedTag === "All" ? "selected-tag-box" : ""}`} onClick={() => handleKnowledgeClick("All")}> <FontAwesomeIcon icon={faFolderOpen} className="ml-1 mr-2" style={{ color: "#e34c00" }} /> 
+                        <span className={`${selectedTag === "All" ? "selected-tag" : ""}`}>All</span>
+                        <span className="tags-count">{data.length}</span>
                       </li>
                     {tagsArray && tagsArray.uniqueTags.map((tag) => (
-                        <li key={tag} onClick={() => handleKnowledgeClick(tag)} style={{ textDecoration: selectedTag === tag ? "underline" : "none" }}>
-                            <FontAwesomeIcon icon={faFolderOpen} className="mr-2" style={{ color: "#e34c00" }} />
-                            {tag} <span style={{ color: "#787878", marginLeft: "0.5em", fontSize: "0.8em" }}>{tagsArray.tagCounts[tag]}</span>
+                        <li className={`${selectedTag === tag ? "selected-tag-box" : ""}`} key={tag} onClick={() => handleKnowledgeClick(tag)} >
+                            <FontAwesomeIcon icon={faFolderOpen} className="ml-1 mr-2" style={{ color: "#e34c00" }} />
+                            <span className={`${selectedTag === tag ? "selected-tag" : ""}`} style={{ width: "fit-content" }}>{tag}</span> 
+                            <span className="tags-count" >{tagsArray.tagCounts[tag]}</span>
                         </li>
                     ))}
                     </ul>
