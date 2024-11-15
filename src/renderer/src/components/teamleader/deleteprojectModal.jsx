@@ -26,27 +26,37 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
     };
 
     const handleDelete = async () => {
-        if (deleteInputValue === projectName) {
+        console.log("deleteInputValue", deleteInputValue.toLocaleLowerCase());
+        console.log("projectName", projectName.toLocaleLowerCase());
+        if (deleteInputValue.toLocaleLowerCase() === projectName.toLocaleLowerCase()) {
             console.log("Delete");
             let project_id = localStorage.getItem("project_id");
+
+            if (!project_id) {
+                console.error("No project ID found in local storage.");
+                return;
+            }
 
             try {
                 const deleted = await window.api.deleteProject(project_id);
                 console.log('Delete:', deleted);
-
-                setDeleteMessage("");
-                localStorage.removeItem("project_id");
-                sessionStorage.setItem("feedbackMessage_deletedproject", "Project successfully deleted");
-
-                navigate("/prevwork_teamleader");
-
+                if (deleted.result.status === 200){
+                    setDeleteMessage("");
+                    localStorage.removeItem("project_id");
+                    sessionStorage.setItem("feedbackMessage_deletedproject", "Project successfully deleted");
+                    setTimeout(() => {
+                        navigate("/prevwork_teamleader");
+                    }, 2000);
+                } else{
+                    console.log("Error deleting project")
+                }
             } catch (error) {
                 console.error('Error deleting project:', error);
             }
-
         } else {
             console.log("Do not match");
             setDeleteMessage("Input does not match with project name");
+            return;
         }
     };
 

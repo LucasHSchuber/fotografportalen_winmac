@@ -78,7 +78,7 @@ function History_filetransfer() {
           />{" "}
           History
         </h4>
-        <p>This is your history of uploaded files and projects</p>
+        <p>This is your history of uploaded files to each project</p>
       </div>
     
       <div className="mb-3">
@@ -97,13 +97,11 @@ function History_filetransfer() {
         {allFTData && allFTData.map(data => (
             <div key={data.ft_project_id} className="mb-1 filetransfer-history-box">
                 <h6>{data.projectname}</h6>
-                {/* <p>Files:</p> */}
                 <ul>
-                {data.files.map(file => (
-                    <li key={file.ft_file_id}>{file.filename} <em>(uploaded: {file && file.uploaded_at})</em></li>
-                ))}
+                  {data.files.map(file => (
+                      <li key={file.ft_file_id}>{file.filename} <em>(uploaded: {file && file.uploaded_at})</em></li>
+                  ))}
                 </ul>
-                {/* <hr style={{ marginRight: "20em" }}></hr> */}
             </div>
         ))}
       </div>

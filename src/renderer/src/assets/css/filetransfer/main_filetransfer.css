@@ -99,9 +99,13 @@
 .filetransfer-history-box {
     background-color: rgb(245, 245, 245);
     color: #323232 !important;
-    padding: 1.2em 1em 0.5em 1em;
+    padding: 1.2em 1em 0.1em 1em;
     height: fit-content;
     border-radius: 5px;
     width: 90vh;
     font-size: 0.8em !important;
+}
+.filetransfer-history-box h6{
+    font-size: 1em;
+    font-weight: 600;
 }

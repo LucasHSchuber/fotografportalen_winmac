@@ -1611,11 +1611,11 @@ ipcMain.handle("getProjectById", async (event, project_id) => {
     };
 
     await closeDatabase(db);
-    return { statusCode: 1, project: project };
+    return { status: 200, statusCode: 1, project: project };
   } catch (error) {
     await closeDatabase(db);
     console.error("Error fetching projects (getProjectById):", error);
-    return { statusCode: 0, errorMessage: error.message };
+    return { status: 400, statusCode: 0, errorMessage: error.message };
   }
 });
 // ipcMain.handle("getProjectById", async (event, project_id) => {
@@ -1946,10 +1946,10 @@ ipcMain.handle("deleteProject", async (event, project_id) => {
       db.run(updateQuery, [project_id], function (error) {
         if (error) {
           db.close();
-          reject({ statusCode: 0, errorMessage: error });
+          reject({ status: 400, statusCode: 0, errorMessage: error });
         } else {
           db.close();
-          resolve({ rowsAffected: this.changes });
+          resolve({ status: 200, rowsAffected: this.changes });
         }
       });
     });
@@ -2481,7 +2481,7 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
       db.run(updateQuery, [team_id], function (error) {
         if (error) {
           db.close();
-          reject({ statusCode: 0, errorMessage: error });
+          reject({ status: 500, statusCode: 500, errorMessage: error });
         } else {
           db.close();
           resolve({ rowsAffected: this.changes });
@@ -2489,7 +2489,11 @@ ipcMain.handle("deleteTeam", async (event, team_id) => {
       });
     });
 
-    return { statusCode: 1, result };
+    if (result.rowsAffected > 0) {
+      return { status: 200, statusCode: 200, message: "Team deleted successfully", result };
+    } else {
+      return { status: 404, statusCode: 404, message: "Team not found or already deleted" };
+    }
   } catch (error) {
     console.error("Error deleting team:", error);
     return { statusCode: 0, errorMessage: error.message };
@@ -3220,7 +3224,7 @@ ipcMain.handle('downloadLocallyKnowledgeBaseFile', async (event, filename) => {
 
 //upload file in filetransfer
 ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
-  log.info("initiating file upload");
+  log.info("uploadFile triggered");
 
   let country = "";
   if (lang === "SE") {
@@ -3243,12 +3247,12 @@ ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
       country,
       filesize,
     );
-    log.info(result);
-    return { status: "success", message: result };
+    log.info("result uploadFileToFTP:", result);
+    return { statusCode: 200, status: "success", message: result };
   } catch (error) {
     log.info("error file upload");
     log.info(error.message);
-    return { status: "failure", message: error.message };
+    return { statusCode: 400, status: "failure", message: error.message };
   }
 });
 //uploadfiletoFTP method
@@ -3292,6 +3296,7 @@ async function uploadFileToFTP(filePath, ftpConfig, country, filesize) {
 
 //create new FT project
 ipcMain.handle("createNewFTProject", async (event, data) => {
+  log.info("createNewFTProject triggered");
   return new Promise((resolve, reject) => {
     try {
       if (!data || typeof data !== "object") {
@@ -3313,13 +3318,13 @@ ipcMain.handle("createNewFTProject", async (event, data) => {
       db.run(query, params, function (err) {
         if (err) {
           log.error("Error adding new createNewFTProject:", err.message);
-          reject({ error: err.message });
+          reject({ status: 400, error: err.message });
         } else {
           const ft_project_id = this.lastID;
           log.info(
             `createNewFTProject added successfully with id ${ft_project_id}`,
           );
-          resolve({ success: true, ft_project_id });
+          resolve({ status: 200, success: true, ft_project_id });
         }
       });
     } catch (err) {
@@ -3352,15 +3357,15 @@ ipcMain.handle("addFTFile", async (event, fileData) => {
       db.run(query, params, function (err) {
         if (err) {
           log.error("Error adding new addFTFile:", err.message);
-          reject({ error: err.message });
+          reject({status: 400, error: err.message });
         } else {
           log.info(`addFTFile added successfully`);
-          resolve({ success: true });
+          resolve({ status: 201, success: true, message: "success" });
         }
       });
     } catch (err) {
       log.error("Error adding new addFTFile:", err.message);
-      reject({ error: err.message });
+      reject({ status: 400, error: err.message });
     }
   });
 });

@@ -45,11 +45,13 @@ function Login_window() {
     setUsername(e.target.value);
     console.log("e.target.value");
     setUsernameMessage("");
+    setErrorLogginginMessage("");
   };
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     console.log("e.target.value");
     setPasswordMessage("");
+    setErrorLogginginMessage("");
   };
 
   const loginUser = async () => {

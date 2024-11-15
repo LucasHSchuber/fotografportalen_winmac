@@ -23,18 +23,27 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
 
     const handleDelete = async (e) => {
         e.preventDefault();
-        if (deleteInputValue === teamName) {
+        console.log("deleteInputValue", deleteInputValue.toLocaleLowerCase());
+        console.log("teamName", teamName.toLocaleLowerCase());
+        if (deleteInputValue.toLocaleLowerCase() === teamName.toLocaleLowerCase()) {
             console.log("Delete");
             console.log(teamId);
             try {
                 const deletedTeam = await window.api.deleteTeam(teamId);
-                console.log('Delete:', deletedTeam);
+                console.log('deletedTeam:', deletedTeam);
 
-                setDeleteMessage("");
-                handleCancel();
-                updateFeedbackMessage(`${projectType === "school" ? "Class deleted successfully" : "Team deleted successfully"}`);
-                refreshTeamData(); //refresh team data in parent
-                localStorage.removeItem("team_id");
+                if (deletedTeam.status === 200) {
+                    setDeleteMessage("");
+                    handleCancel();
+                    updateFeedbackMessage(`${projectType === "school" ? "Class deleted successfully" : "Team deleted successfully"}`);
+                    refreshTeamData(); //refresh team data in parent
+                    localStorage.removeItem("team_id");
+                } else {
+                    console.log("Error when deleting team");
+                    updateFeedbackMessage(`${projectType === "school" ? "Error when deleting class" : "Error when deleting team"}`);
+
+                }
+                
             } catch (error) {
                 console.error('Error deleting team:', error);
             }
@@ -42,6 +51,7 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
         } else {
             console.log("Do not match");
             setDeleteMessage(projectType === "school" ? "Input does not match with class name" : "Input does not match with team name");
+            return;
         }
     };
 

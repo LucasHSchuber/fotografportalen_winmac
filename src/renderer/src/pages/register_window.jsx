@@ -76,8 +76,8 @@ function Register_window() {
         console.log(url);
 
         // const response = await axios.post(url, {
-          // const response = await axios.post("/index.php/rest/photographer_portal/login", {
-          const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, {
+        // const response = await axios.post("/index.php/rest/photographer_portal/login", {
+        const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, {
           'email': username,
           'password': password
         });

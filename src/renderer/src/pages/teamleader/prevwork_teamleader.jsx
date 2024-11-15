@@ -139,10 +139,8 @@ function Prevwork_teamleader() {
     //open contol sheet modal
     const handleClose = () => { setShowControlSheetModal(false); }
     const viewControlSheet = (project_id, project_type) => {
-
         setProjectId(project_id);
         setProjectType(project_type);
-
         fetchTeamsForControlSheet(project_id);
         setShowControlSheetModal(true);
     }

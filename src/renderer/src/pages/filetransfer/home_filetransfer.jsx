@@ -58,6 +58,8 @@ function Home_filetransfer() {
     }
   }, []);
 
+
+
   //get all projects
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
@@ -74,10 +76,12 @@ function Home_filetransfer() {
     fetchAllProjects();
   }, []);
 
+  // handle file change
   const handleFileChange = (event) => {
     setFiles((prevFiles) => [...prevFiles, ...Array.from(event.target.files)]);
   };
 
+  // When dropping files in box
   const handleDrop = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -101,10 +105,14 @@ function Home_filetransfer() {
     event.stopPropagation();
   };
 
+  // deleting files
   const handleDelete = (index) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
+
+
+  // METHOD to sumbit
   const handleSubmit = async () => {
     let user_id = localStorage.getItem("user_id");
     console.log("Sending files from filetransfer to company database...");
@@ -121,61 +129,20 @@ function Home_filetransfer() {
       
       //Create new FT-project in database
       const projectData = {
-        project_uuid: chosenProjectUuid,
-        projectname: chosenProjectName,
-        user_id: user_id,
-        project_id: chosenProject_id
+          project_uuid: chosenProjectUuid,
+          projectname: chosenProjectName,
+          user_id: user_id,
+          project_id: chosenProject_id
       }
       console.log(projectData);
       try{
-        let FT_response = await window.api.createNewFTProject(projectData);
-        console.log("FT response:", FT_response);
-        const ft_project_id = FT_response.ft_project_id;
-        setFTProjectId(ft_project_id);
-        sessionStorage.setItem("ft_project_id", ft_project_id);
-        console.log("ft_project_id:", ft_project_id);
-      }catch (error){
-        console.log("error creating FT project", error);
-      }
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        //upload files to FTP-server
-        try {
-          const response = await window.api.uploadFile(
-            file.path,
-            chosenProjectLang,
-            file.size
-          );
-          console.log(response);
-          
-          if (response.status === "success") {
-            setProgress(((i + 1) / files.length) * 100);
-            console.log(`File uploaded successfully: ${file.name}`);
-            setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
-
-            //Create new FT-file in database
-            console.log(FTProjectId);
-            let _ft_project_id = sessionStorage.getItem("ft_project_id");
-            console.log(_ft_project_id);
-            const fileData = {
-              filename: file.name,
-              filepath: file.path,
-              ft_project_id: _ft_project_id
-            }
-            console.log(fileData);
-            try{
-              let FTfile_response = await window.api.addFTFile(fileData);
-              console.log("FT file response:", FTfile_response);
-            }catch (error){
-              console.log("error creating FT file", error);
-            }
-            //Remove file name from setFiles
-            // setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
-          } else {
+          let FT_response = await window.api.createNewFTProject(projectData);
+          console.log("FT response:", FT_response);
+          // IF NOT 200 return
+          if (FT_response.status !== 200) {
             MySwal.fire({
-              title: 'Upload Failed',
-              text: `Failed to upload file: ${file.name}. Error: ${response.message}`,
+              title: 'Error',
+              text: `Failed when adding data to local database`,
               icon: 'error',
               confirmButtonText: 'Close',
               customClass: {
@@ -188,21 +155,108 @@ function Home_filetransfer() {
             setIsUploading(false);
             return;
           }
+
+          const ft_project_id = FT_response.ft_project_id;
+          setFTProjectId(ft_project_id);
+          sessionStorage.setItem("ft_project_id", ft_project_id);
+          console.log("ft_project_id:", ft_project_id);
+      }catch (error){
+          console.log("error creating FT project", error);
+      }
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        //upload files to FTP-server
+        try {
+            const response = await window.api.uploadFile(
+              file.path,
+              chosenProjectLang,
+              file.size
+            );
+            console.log("response uploadFile:", response);
+            
+            if (response.statusCode === 200) {
+                setProgress(((i + 1) / files.length) * 100);
+                console.log(`File uploaded successfully: ${file.name}`);
+                setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
+
+                // send file data and project_uuid to rest api to verify upload
+                const data = {
+                  filename: file.name,
+                  project_uuid: chosenProjectUuid
+                }
+                const token = localStorage.getItem("token");
+                const response = await axios.post(`https://backend.expressbild.org/index.php/rest/filetransfer/uploaddata`, data, {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Token ${token}`,
+                  }
+                });
+                console.log('response', response);
+
+                //Create new FT-file in database
+                if (response.status === 200) {
+                    console.log(FTProjectId);
+                    let _ft_project_id = sessionStorage.getItem("ft_project_id");
+                    console.log(_ft_project_id);
+                    const fileData = {
+                      filename: file.name,
+                      filepath: file.path,
+                      ft_project_id: _ft_project_id
+                    }
+                    console.log(fileData);
+                    try{
+                      let FTfile_response = await window.api.addFTFile(fileData);
+                      console.log("FT file response:", FTfile_response);
+                    }catch (error){
+                      console.log("error creating FT file", error);
+                    }
+                } else {
+                    MySwal.fire({
+                      title: 'Error',
+                      text: `Failed when verifying upload to filetransfer`,
+                      icon: 'error',
+                      confirmButtonText: 'Close',
+                      customClass: {
+                        popup: 'custom-popup',
+                        title: 'custom-title',
+                        content: 'custom-text',
+                        confirmButton: 'custom-confirm-button'
+                      }
+                    });
+                }
+                
+          } else {
+                MySwal.fire({
+                  title: 'Upload Failed',
+                  text: `Failed to upload file: ${file.name}. Error: ${response.message}`,
+                  icon: 'error',
+                  confirmButtonText: 'Close',
+                  customClass: {
+                    popup: 'custom-popup',
+                    title: 'custom-title',
+                    content: 'custom-text',
+                    confirmButton: 'custom-confirm-button'
+                  }
+                });
+                setIsUploading(false);
+                return;
+          }
         } catch (error) {
-          MySwal.fire({
-            title: 'Upload Error',
-            text: `Error during file upload: ${error.message}`,
-            icon: 'error',
-            confirmButtonText: 'Close',
-            customClass: {
-              popup: 'custom-popup',
-              title: 'custom-title',
-              content: 'custom-text',
-              confirmButton: 'custom-confirm-button'
-            }
-          });
-          setIsUploading(false);
-          return;
+            MySwal.fire({
+              title: 'Upload Error',
+              text: `Error during file upload: ${error.message}`,
+              icon: 'error',
+              confirmButtonText: 'Close',
+              customClass: {
+                popup: 'custom-popup',
+                title: 'custom-title',
+                content: 'custom-text',
+                confirmButton: 'custom-confirm-button'
+              }
+            });
+            setIsUploading(false);
+            return;
         }
       }
       // Notify user
@@ -226,6 +280,9 @@ function Home_filetransfer() {
     }
   };
 
+
+
+
   const handleProjectChange = (selectedOption) => {
     if (selectedOption) {
       setChosenProjectName(selectedOption.label);
@@ -244,6 +301,7 @@ function Home_filetransfer() {
       console.log("No project selected");
     }
   };
+
   const handleProjectChangeNew = (e) => {
     setChosenProjectName(e);
     setChosenProjectUuid("abc");
@@ -254,6 +312,10 @@ function Home_filetransfer() {
   const newProjectName = () => {
     setChooseNewProjectName((prevState) => !prevState);
   };
+
+
+
+
   // Custom styles for the Select component
   const customStyles = {
     control: (styles) => ({
@@ -270,6 +332,8 @@ function Home_filetransfer() {
       textAlign: "center",
     }),
   };
+
+
 
   return (
     <div className="filetransfer-wrapper">
@@ -395,6 +459,7 @@ function Home_filetransfer() {
                         <li key={index}>
                           {file.name}
                           <button
+                            title="Delete File"
                             className="delete-ft"
                             onClick={() => handleDelete(index)}
                             style={{ marginLeft: "10px" }}

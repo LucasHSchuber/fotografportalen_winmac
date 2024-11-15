@@ -90,7 +90,6 @@ function Portal_teamleader() {
     }
 
     const openEditModal = async (team_id, data) => {
-        // setTeamName(data.team_name);
         setTeamId(team_id);
         setEditTeam(data);
         setShowEditModal(true);
@@ -114,7 +113,7 @@ function Portal_teamleader() {
         const fetchProject = async () => {
             try {
                 const projectData = await window.api.getProjectById(project_id);
-                if (projectData && projectData.project) {
+                if (projectData.status === 200) {
                     console.log('Project:', projectData.project);
                     setProject(projectData.project);
                     setProjectType(projectData.project.type);
@@ -122,14 +121,17 @@ function Portal_teamleader() {
                     setProjectAnomaly(projectData.project.anomaly);
                     setProjectMergedTeams(projectData.project.merged_teams);
                     localStorage.setItem("project_type", projectData.project.type);
-                    
                 } else {
                     console.error('Error: Project data is null or undefined');
-                    fetchProject();
+                    setTimeout(() => {
+                        updateFeedbackMessage("Error loading project data");       
+                    }, 3000);
                 }
             } catch (error) {
                 console.error('Error fetching project:', error);
-                fetchProject();
+                setTimeout(() => {
+                    updateFeedbackMessage("Error loading project data");       
+                }, 3000);
             }
         };
 
