@@ -22,10 +22,8 @@ function Register_window() {
 
 
   useEffect(() => {
-    setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");
-    // setPassword(localStorage.getItem("password") ? localStorage.getItem("password") : "");     
+    setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");  
     console.log(getBaseUrl());
-    
   }, [])
 
   const handleUsernameChange = (e) => {
@@ -75,13 +73,11 @@ function Register_window() {
         const url = getBaseUrl().url;
         console.log(url);
 
-        // const response = await axios.post(url, {
-        // const response = await axios.post("/index.php/rest/photographer_portal/login", {
         const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, {
           'email': username,
           'password': password
         });
-        if (response && response.data) {
+        if (response.status === 200) {
           console.log('User:', response.data);
           console.log('User result:', response.data.result);
 
@@ -93,7 +89,7 @@ function Register_window() {
 
             if (responseData.success === true) {
               console.log("User created successfully");
-              setSuccessRegisterMessage("Account registered successfully")
+              setSuccessRegisterMessage("Account registered successfully. You can now proceed to log in!")
               setPassword("");
               setUsername("");
               setErrorLogginginMessage("");

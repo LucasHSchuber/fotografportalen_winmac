@@ -73,3 +73,14 @@
     background-color: #ffffff;
     border: 1px solid #A74FFF;
 }
+
+.complete-activity-button{
+    background-color: #A74FFF;
+    border: 1px solid #A74FFF !important;
+    transition: 0.1s;
+}
+.complete-activity-button:hover{
+    color: #A74FFF;
+    background-color: #ffffff;
+    border: 1px solid #A74FFF;
+}

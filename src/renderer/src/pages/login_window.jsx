@@ -3,6 +3,12 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import fp from "../assets/images/diaphragm_black.png";
 
+// Determine the base URL based on the environment
+const apiBaseUrl = process.env.NODE_ENV === 'development'
+  ? '/index.php'
+  : 'https://backend.expressbild.org/index.php';
+
+
 function Login_window() {
   //define states
   const [username, setUsername] = useState("");
@@ -14,6 +20,8 @@ function Login_window() {
   const [isLoadingConfirm, setIsLoadingConfirm] = useState(false);
 
   const navigate = useNavigate();
+
+  
 
   //lget localstorage variables
   useEffect(() => {
@@ -76,10 +84,45 @@ function Login_window() {
 
     if (password !== "" && username !== "") {
       console.log("password and username entered");
+      let loginFlag = false;
 
       try {
-        const data = { email: username, password: password };
+        const data = { 
+          email: username, 
+          password: password 
+        };
         console.log(data);
+        // First check user to global database
+        const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, data, {
+          headers: {
+            "Content-Type": "application/json",
+          }
+        });
+        console.log('response', response);
+
+        if (response.status === 200) {
+          console.log('GLOBAL DATABSE USER OK');
+        } else {
+          console.log('GLOBAL DATABSE USER NOT OK');
+        }
+
+      } catch (error) {
+         // Username exists in global database BUT incorrect password
+         if (error.response.status === 403) {
+          console.log('response:', error.response.data.error);
+        } else { // Username does not exists in global 
+          console.log('User ' + username + ' does not exists');
+          loginFlag = true; // Flag that user does not exists in global database
+        }
+      }
+
+      try {
+        // Then check user to local database
+        const data = { 
+          email: username, 
+          password: password 
+        };
+
         const responseData = await window.api.loginUser(data);
         console.log(responseData);
 
@@ -96,12 +139,18 @@ function Login_window() {
             // setIsLoadingConfirm(false);
           }, 2400);
         } else {
-          console.log("Invalid username or/and password");
-          setErrorLogginginMessage("Invalid username and/or password");
+          if (loginFlag === true) {
+            console.log("user does not exists in local database or global database");
+            setErrorLogginginMessage("User not found. Activate your account by clicking the 'Activate account' button below.");
+          } else {
+            console.log("Invalid username or/and password");
+            setErrorLogginginMessage("Invalid password");
+          }
         }
       } catch (error) {
-        console.log("Error logging in");
+        // console.log("Error logging in");
         console.log("error:", error);
+        
       }
     } else {
       console.error("Password or Username is missing");
@@ -116,7 +165,7 @@ function Login_window() {
         <div className="spinning-logo-login">
           <img src={fp} alt="fotografportalen" />
           <p>
-            <em>Fotografportalen</em>
+            <em>Photographer Portal</em>
           </p>
         </div>
         {/* <div className="loading-bar-text">
@@ -202,7 +251,7 @@ function Login_window() {
             Log in
           </button>
           <button
-            className="button cancel-fp fixed-width mb-2"
+            className="button activate-account-button fixed-width mb-2"
             onClick={(e) => {
               e.preventDefault();
               navigate("/register_window");

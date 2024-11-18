@@ -18,8 +18,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     const navigate = useNavigate();
 
-    console.log(teams);
-    console.log(project);
+    // console.log(teams);
+    // console.log(project);
 
     // get username and password from localstorage after mount
     useEffect(() => {
@@ -85,7 +85,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                     'password': password
                 });
 
-                if (response && response.data) {
+                if (response.status === 200) {
                     console.log('User:', response.data);
 
                     setPassword("");

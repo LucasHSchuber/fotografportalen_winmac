@@ -46,12 +46,12 @@ function Sidemenu() {
                         <p>Filetransfer</p>
                     </NavLink>
                 </div>
-                {/* <div className="link-box">
+                <div className="link-box">
                     <NavLink to="/home_timereport" exact="true" >
                         <img className="link-img" src={timereport} alt="Time Report" />
                         <p>Time Report</p>
                     </NavLink>
-                </div> */}
+                </div>
             </ul>
         </div>
     );

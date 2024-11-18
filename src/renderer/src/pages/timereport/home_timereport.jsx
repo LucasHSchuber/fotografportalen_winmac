@@ -5,6 +5,7 @@ import { faCaretRight, faCaretLeft, faCheck } from '@fortawesome/free-solid-svg-
 
 
 import Sidemenu_timereport from "../../components/timereport/sidemenu_timereport";
+import ConfirmActivityModal from "../../components/timereport/confirmActivityModal"
 
 import '../../assets/css/timereport/main_timereport.css';
 import '../../assets/css/timereport/buttons_timreport.css';
@@ -19,6 +20,7 @@ function Home_timereport() {
     const [projectAndTimreportData, setProjectAndTimreportData] = useState([]);
     const [timereportData, setTimereportData] = useState([]);
     const [projectData, setProjectData] = useState([]);
+    const [selectedIndex, setSelectedIndex] = useState(null);
 
     const [month, setMonth] = useState(new Date().getMonth()); 
     const [year, setYear] = useState(new Date().getFullYear());
@@ -29,14 +31,24 @@ function Home_timereport() {
         projectname: '',
     });
 
-    const navigate = useNavigate();
+    const [sumMiles, setSumMiles] = useState(0);
+    const [sumExpenses, setSumExpenses] = useState(0);
+    const [sumWorkedHours, setSumWorkedHours] = useState(0);
 
+    const [showConfirmActivityModal, setShowConfirmActivityModal] = useState(false);
+
+
+
+    const handleClose = () => setShowConfirmActivityModal(false);
+    const handleShow = (index) => {
+        setSelectedIndex(index);
+        setShowConfirmActivityModal(true);
+    };
 
 
     //calculate amount of uncompleted projects in tableData array
     const completedAmount = tableData.filter(item => item.timereport_is_sent === 1);
     console.log('completedAmount', completedAmount);
-
 
 
     //load loading bar on load
@@ -87,7 +99,6 @@ function Home_timereport() {
     fetchAllFromTimereport();
     fetchAllProjects();
     }  
-
     useEffect(() => {
         getTableData()
     }, []);
@@ -227,7 +238,7 @@ function Home_timereport() {
         const data = {
             starttime: tableData[index].starttime = (tableData[index].starttime === undefined || tableData[index].starttime === "") ? "08:00" : tableData[index].starttime,
             endtime: tableData[index].endtime = (tableData[index].endtime === undefined || tableData[index].endtime === "") ? "17:00" : tableData[index].endtime,
-            breaktime: tableData[index].breaktime = (tableData[index].breaktime === undefined || tableData[index].breaktime === "") ? "00:30" : tableData[index].breaktime,
+            breaktime: tableData[index].breaktime = (tableData[index].breaktime === undefined || tableData[index].breaktime === "") ? "00:00" : tableData[index].breaktime,
             miles: tableData[index].miles = (tableData[index].miles === undefined) ? "0" : tableData[index].miles,
             tolls: tableData[index].tolls = (tableData[index].tolls === undefined) ? "0" : tableData[index].tolls,
             park: tableData[index].park = (tableData[index].park === undefined) ? "0" : tableData[index].park,
@@ -263,6 +274,7 @@ function Home_timereport() {
             park: 0,
             other_fees: 0,
         };
+        console.log('newRow', newRow);
         if (newRowInputs.project_date === ""){return}
         if (newRowInputs.projectname === ""){return}
         setTableData(prevDataTable => [...prevDataTable, newRow]);
@@ -276,9 +288,85 @@ function Home_timereport() {
 
 
 
+    // Calculate statistics 
     useEffect(() => {
-      console.log('tableData', tableData);
+      // Calculate expenses  
+      let expensesArray = [];
+      tableData.forEach(element => {
+        const expensesElement = element.other_fees + element.park + element.tolls;
+        expensesArray.push(expensesElement);
+      });
+      const expensesArrayFiltered = expensesArray.filter(
+        item => typeof item === "number" && !Number.isNaN(item)
+      );      
+      const sumExpenses = expensesArrayFiltered.reduce((acc, value) => acc + value, 0)
+      console.log('sumExpenses', sumExpenses);
+      setSumExpenses(sumExpenses);
+
+      // Calculate miles
+      let milesArray = [];
+      tableData.forEach(element => {
+        const milesElement = element.miles;
+        milesArray.push(milesElement);
+      });
+      console.log('milesArray', milesArray);
+      const milesArrayFiltered = milesArray.filter(
+        item => typeof item === "number" && !Number.isNaN(item)
+      );     
+      const sumMiles = milesArrayFiltered.reduce((acc, value) => acc + value, 0)
+      console.log('sumMiles', sumMiles);
+      setSumMiles(sumMiles);
+
     }, [tableData]);
+
+
+    // Calculate worked time
+    useEffect(() => {
+        const timeToMinutes = (timeStr) => {
+          if (!timeStr || typeof timeStr !== "string" || !timeStr.includes(":")) {
+            return 0;
+          }
+          const [hours, minutes] = timeStr.split(":").map(Number);
+          return hours * 60 + minutes;
+        };
+      
+        let workedTimeArray = [];
+
+     tableData.forEach((element, index) => {
+        console.log(`Processing entry ${index}:`, element);
+
+        const startMinutes = timeToMinutes(element.starttime);
+        const endMinutes = timeToMinutes(element.endtime);
+        const breakMinutes = element.breaktime ? timeToMinutes(element.breaktime) : 0;
+
+        // Validate times and calculate worked minutes
+        if (endMinutes > startMinutes) {
+            const workedMinutes = endMinutes - startMinutes - breakMinutes;
+            workedTimeArray.push(Math.max(workedMinutes, 0)); 
+        } else {
+            console.warn(`Invalid times for entry ${index}: starttime=${element.starttime}, endtime=${element.endtime}`);
+            workedTimeArray.push(0); 
+        }
+        });
+      
+        const workedTimeArrayFiltered = workedTimeArray.filter(
+          item => typeof item === "number" && !Number.isNaN(item)
+        );
+        const sumWorkedMinutes = workedTimeArrayFiltered.reduce((acc, value) => acc + value, 0);
+      
+        console.log('workedTimeArray', workedTimeArray);
+        console.log('sumWorkedMinutes', sumWorkedMinutes);
+        const totalHours = Math.floor(sumWorkedMinutes / 60); 
+        const totalMinutes = sumWorkedMinutes % 60; 
+
+        console.log(`Total Worked Time: ${totalHours} hours and ${totalMinutes} minutes`);
+        setSumWorkedHours(`${totalHours} h ${totalMinutes} min`);
+
+    }, [tableData]);
+      
+
+
+
 
 
 
@@ -311,6 +399,26 @@ function Home_timereport() {
                     </div>
 
                     <div className="mt-5 projects-table-tr">
+
+                    {tableData && (
+                        <div className="tr-statistics-box d-flex justify-content-end">
+                            
+                                <div className="tr-statistics">
+                                    <h1>Worked Hours:</h1>
+                                    <h2>{sumWorkedHours}</h2>
+                                </div>
+                                <div className="tr-statistics">
+                                    <h1>Total Miles:</h1>
+                                    <h2>{sumMiles} miles</h2>
+                                </div>
+                                <div className="tr-statistics">
+                                    <h1>Total Expenses:</h1>
+                                    <h2>{sumExpenses}</h2>
+                                </div>
+
+                        </div>
+                    )}
+
                     <table className="table-tr">
                             <thead>
                                 <tr>
@@ -346,7 +454,7 @@ function Home_timereport() {
                                                 onChange={(e) => handleInputChange(e, index, "starttime")}
                                             />
                                         </td>
-                                        <td>
+                                        <td >
                                             <input
                                                 className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
                                                 type="text"
@@ -406,7 +514,10 @@ function Home_timereport() {
                                         </td>
                                         <td>
                                             <button className={`complete-project-button ${project.timereport_is_sent === 1 ? "disable-button" : ""}`} title={`${project.timereport_is_sent === 1 ? "Completed" : "Complete Project"}`}
-                                                    onClick={() => completeProject(index)}
+                                                    // onClick={() => completeProject(index)}
+                                                    // onClick={() => setShowConfirmActivityModal(true)}
+                                                    onClick={() => handleShow(index)}
+                                                    disabled={project.timereport_is_sent === 1}
                                                 >
                                                 <FontAwesomeIcon icon={faCheck} />
                                             </button>
@@ -462,6 +573,11 @@ function Home_timereport() {
 
 
                     <Sidemenu_timereport />
+                    <ConfirmActivityModal   
+                        showConfirmActivityModal={showConfirmActivityModal}
+                        handleClose={handleClose}
+                        completeProject={completeProject}
+                        index={selectedIndex} />
                 </>
             )}
 
