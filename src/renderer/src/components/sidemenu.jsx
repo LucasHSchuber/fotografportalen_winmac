@@ -4,7 +4,8 @@ import { Link, NavLink } from "react-router-dom";
 import fp from "../assets/images/diaphragm.png";
 import teamleader from "../assets/images/teamwork.png";
 import cloud from "../assets/images/cloud.png";
-import timereport from "../assets/images/report.png";
+// import timereport from "../assets/images/report.png";
+import timereport from "../assets/images/timereport.png";
 
 
 

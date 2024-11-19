@@ -4,7 +4,7 @@
 /* GENERAL - TIME REPORT */
 
 .timereport-wrapper {
-    padding: 6em 0 6em 0;
+    padding: 6em 0 10em 0;
     color: #323232;
 }
 
@@ -72,10 +72,10 @@
 }
 .tr-statistics{
     width: 9em;
-    background-color: rgb(248, 248, 248) !important;
-    background-color: #A74FFF !important;
-    border: 1px solid rgb(167, 79, 255, 0.2);
-    color: white;
+    height: fit-content;
+    background-color: #fbfbfb !important;
+    border: 1px solid rgb(167, 79, 255, 0.4);
+    color: rgb(50, 50, 50);
     border-radius: 5px;
     padding: 0.6em 0 0.5em 0.5em;
     margin-right: 0.75em;
@@ -93,6 +93,7 @@
 .table-tr{
     width: 100% !important;
     /* border: 1px solid rgb(226, 226, 226); */
+    border-left: 1px solid rgb(200, 200, 200);
 }
 .table-tr tbody{
     padding: 1em !important;
@@ -129,7 +130,7 @@
 
 .input-field-tr{
     font-size: 0.9em;
-    width: 7em;
+    width: 3.8em !important;
     margin: 0.1em 0;
     padding: 0.3em 0.2em;
     border: 1px solid rgb(222, 222, 222);
@@ -176,6 +177,26 @@
     font-weight: 800;
     color: #A74FFF;
 }
+
+
+/* SWAL FIRE css */
+.custom-confirm-button {
+    background-color: #A74FFF !important;  
+    border: 1px solid #A74FFF !important;    
+    color: white !important;           
+    font-weight: 600;    
+}
+.custom-confirm-button:hover {
+    background-color: #ffffff !important;  
+    border: 1px solid #A74FFF !important;    
+    color: #A74FFF !important;     
+}
+.custom-title {     
+    font-size: 1.4em !important;          
+    font-weight: bold !important;        
+  }
+
+
 
 @media screen and (max-width: 1080px) {
     .input-field-tr{

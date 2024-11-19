@@ -83,10 +83,11 @@ function createLoginWindow() {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
       contextIsolation: true,
-      // nodeIntegration: true,
+      nodeIntegration: false,
       // webSecurity: false,
       worldSafeExecuteJavaScript: true,
       enableRemoteModule: false,
+      worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
     },
   });
 
@@ -143,6 +144,9 @@ app.whenReady().then(() => {
   //   optimizer.watchWindowShortcuts(window);
   // });
 });
+
+
+
 
 //send app version to front end
 ipcMain.handle("getCurrentAppVersion", async (event) => {
@@ -2934,8 +2938,9 @@ ipcMain.handle("createMainWindow", async (event, args) => {
         preload: path.join(__dirname, "../preload/index.js"),
         sandbox: false,
         contextIsolation: true,
-        nodeIntegration: true,
+        nodeIntegration: false,
         webSecurity: false,
+        worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
       },
     });
 

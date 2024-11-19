@@ -99,13 +99,6 @@ const api = {
 
 
 
-
-  // navigateBack: () => ipcRenderer.send('navigateBack'), // Send a message to Electron's main process to navigate back
-  // createUserToComp: args => ipcRenderer.invoke('createUserToComp', args), // Database Call For Create User
-  // createUser: args => ipcRenderer.invoke('createUser', args), // Database Call For Create User
-  // getUsers: () => ipcRenderer.invoke('getUsers'),
-  // getUser: (workname) => ipcRenderer.invoke('getUser', workname), // Pass workname to getUser handler in main process
-  // createGroup: args => ipcRenderer.invoke('createGroup', args), // Database Call For Create Group
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

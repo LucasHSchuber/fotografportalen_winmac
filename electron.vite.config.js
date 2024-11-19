@@ -16,7 +16,8 @@ export default defineConfig({
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
-        '@fortawesome/react-fontawesome': '@fortawesome/react-fontawesome'
+        '@fortawesome/react-fontawesome': '@fortawesome/react-fontawesome',
+        path: require.resolve('path-browserify')  // Add this alias for `path`
       }
     },
     publicDir: 'src/assets',

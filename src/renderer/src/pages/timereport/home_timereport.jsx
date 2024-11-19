@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import Swal from "sweetalert2";
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretRight, faCaretLeft, faCheck } from '@fortawesome/free-solid-svg-icons';
 
-
 import Sidemenu_timereport from "../../components/timereport/sidemenu_timereport";
 import ConfirmActivityModal from "../../components/timereport/confirmActivityModal"
+import FeesChart from "../../components/timereport/feesChart"
 
 import '../../assets/css/timereport/main_timereport.css';
 import '../../assets/css/timereport/buttons_timreport.css';
-import axios from "axios";
+
 
 
 function Home_timereport() {
@@ -21,6 +24,8 @@ function Home_timereport() {
     const [timereportData, setTimereportData] = useState([]);
     const [projectData, setProjectData] = useState([]);
     const [selectedIndex, setSelectedIndex] = useState(null);
+    const [dataForFeesChart, setDataForFeesChart] = useState([]);
+    const [completedAmount, setCompletedAmount] = useState("");
 
     const [month, setMonth] = useState(new Date().getMonth()); 
     const [year, setYear] = useState(new Date().getFullYear());
@@ -38,7 +43,6 @@ function Home_timereport() {
     const [showConfirmActivityModal, setShowConfirmActivityModal] = useState(false);
 
 
-
     const handleClose = () => setShowConfirmActivityModal(false);
     const handleShow = (index) => {
         setSelectedIndex(index);
@@ -46,10 +50,14 @@ function Home_timereport() {
     };
 
 
-    //calculate amount of uncompleted projects in tableData array
-    const completedAmount = tableData.filter(item => item.timereport_is_sent === 1);
-    console.log('completedAmount', completedAmount);
-
+    useEffect(() => {
+      //calculate amount of uncompleted projects in tableData array
+        const completedAmount = tableData.filter(item => item.timereport_is_sent === 1);
+        console.log('completedAmount', completedAmount);
+        setCompletedAmount(completedAmount);
+        setDataForFeesChart(completedAmount);
+    }, [tableData]);
+    
 
     //load loading bar on load
     useEffect(() => {
@@ -107,7 +115,6 @@ function Home_timereport() {
     // FETCH USER - get user data and all project and teams by user_id
     useEffect(() => {
         const user_id = localStorage.getItem("user_id");
-
         const fetchUser = async () => {
             try {
                 const userData = await window.api.getUser(user_id);
@@ -129,24 +136,6 @@ function Home_timereport() {
     }, []);
 
 
-    // // get user data and all project and teams by user_id
-    // const fetchAllFromTimereport = async () => {
-    //     const user_id = localStorage.getItem("user_id");
-    //     try {
-    //         const response = await window.api.getProjectsAndTimereport(user_id);
-    //         if (response.statusCode === 200) {
-    //             console.log('new data:', response.data); 
-    //             setProjectAndTimreportData(response.data)
-    //         } else {
-    //             console.error('Error fetching data from getProjectsAndTimereport:', response.errorMessage);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching data from getProjectsAndTimereport:', error);
-    //     }
-    // };
-    // useEffect(() => {
-    //     fetchAllFromTimereport();
-    // }, []);
 
 
     useEffect(() => {
@@ -226,6 +215,8 @@ function Home_timereport() {
         }));
     };
     
+
+
     // Function to generate a random int
     function generateRandomInt(min = 10000000, max = 10000000000) {
         return Math.floor(Math.random() * (max - min + 1)) + min; 
@@ -254,11 +245,36 @@ function Home_timereport() {
             console.log('response', response);
             if (response.statusCode === 201){
                 getTableData();
+                checkIfMonthFininshed();
             }
         } catch (error) {
             console.log('error when sending in job with index:' + index, error);
         }
     }
+    // IF COMPLETED === TOTAL then display a fininshedMonthModal
+    const checkIfMonthFininshed = () => {
+        if (completedAmount.length + 1  === tableData.length) {
+            Swal.fire({
+                title: "Great!",
+                text: "You have completed all activities for the month!",
+                imageUrl: "https://media.giphy.com/media/3q7VFETRrjXRTaaWOo/giphy.gif", 
+                // imageUrl: "https://media.giphy.com/media/bJHEzxb2uKtzmSYJgU/giphy.gif", 
+                imageWidth: 250,
+                imageHeight: 150,
+                imageAlt: "Congratulations GIF",
+                confirmButtonText: "Awesome!",
+                background: '#fff', 
+                padding: '20px', 
+                customClass: {
+                    confirmButton: 'custom-confirm-button',
+                    title: 'custom-title',                 
+                    content: 'custom-text'                 
+                }
+            });
+        } 
+    };
+
+
 
     // add new row in table
     const addNewRow = () => {
@@ -299,6 +315,7 @@ function Home_timereport() {
       const expensesArrayFiltered = expensesArray.filter(
         item => typeof item === "number" && !Number.isNaN(item)
       );      
+      console.log('expensesArrayFiltered', expensesArrayFiltered);
       const sumExpenses = expensesArrayFiltered.reduce((acc, value) => acc + value, 0)
       console.log('sumExpenses', sumExpenses);
       setSumExpenses(sumExpenses);
@@ -332,23 +349,21 @@ function Home_timereport() {
       
         let workedTimeArray = [];
 
-     tableData.forEach((element, index) => {
-        console.log(`Processing entry ${index}:`, element);
-
-        const startMinutes = timeToMinutes(element.starttime);
-        const endMinutes = timeToMinutes(element.endtime);
-        const breakMinutes = element.breaktime ? timeToMinutes(element.breaktime) : 0;
-
-        // Validate times and calculate worked minutes
-        if (endMinutes > startMinutes) {
-            const workedMinutes = endMinutes - startMinutes - breakMinutes;
-            workedTimeArray.push(Math.max(workedMinutes, 0)); 
-        } else {
-            console.warn(`Invalid times for entry ${index}: starttime=${element.starttime}, endtime=${element.endtime}`);
-            workedTimeArray.push(0); 
-        }
+        tableData.forEach((element, index) => {
+            // console.log(`Processing entry ${index}:`, element);
+            const startMinutes = timeToMinutes(element.starttime);
+            const endMinutes = timeToMinutes(element.endtime);
+            const breakMinutes = element.breaktime ? timeToMinutes(element.breaktime) : 0;
+            // Validate times and calculate worked minutes
+            if (endMinutes > startMinutes) {
+                const workedMinutes = endMinutes - startMinutes - breakMinutes;
+                workedTimeArray.push(Math.max(workedMinutes, 0)); 
+            } else {
+                console.warn(`Invalid times for entry ${index}: starttime=${element.starttime}, endtime=${element.endtime}`);
+                workedTimeArray.push(0); 
+            }
         });
-      
+        
         const workedTimeArrayFiltered = workedTimeArray.filter(
           item => typeof item === "number" && !Number.isNaN(item)
         );
@@ -401,21 +416,24 @@ function Home_timereport() {
                     <div className="mt-5 projects-table-tr">
 
                     {tableData && (
-                        <div className="tr-statistics-box d-flex justify-content-end">
-                            
-                                <div className="tr-statistics">
-                                    <h1>Worked Hours:</h1>
-                                    <h2>{sumWorkedHours}</h2>
-                                </div>
-                                <div className="tr-statistics">
-                                    <h1>Total Miles:</h1>
-                                    <h2>{sumMiles} miles</h2>
-                                </div>
-                                <div className="tr-statistics">
-                                    <h1>Total Expenses:</h1>
-                                    <h2>{sumExpenses}</h2>
-                                </div>
-
+                        <div className="mb-5 d-flex">
+                            <div>
+                                <FeesChart dataForFeesChart={dataForFeesChart} />
+                            </div>
+                            <div className="mt-5 tr-statistics-box d-flex justify-content-end">
+                                    <div className="tr-statistics">
+                                        <h1>Worked Hours:</h1>
+                                        <h2>{sumWorkedHours}</h2>
+                                    </div>
+                                    <div className="tr-statistics">
+                                        <h1>Total Miles:</h1>
+                                        <h2>{sumMiles} miles</h2>
+                                    </div>
+                                    <div className="tr-statistics">
+                                        <h1>Total Expenses:</h1>
+                                        <h2>{sumExpenses}</h2>
+                                    </div>
+                            </div>
                         </div>
                     )}
 
@@ -431,7 +449,7 @@ function Home_timereport() {
                                     <th>Tolls</th>
                                     <th>Park</th>
                                     <th>Other</th>
-                                    <th></th>
+                                    <th style={{ color: "#A74FFF", fontSize: "0.85em" }}>{completedAmount && completedAmount.length}/{tableData.length}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -443,7 +461,7 @@ function Home_timereport() {
                                             })}
                                         </td>
                                         <td className="table-row-title-tr" title={project.projectname}>
-                                            {project.projectname.length > 32 ? project.projectname.substring(5, 32) + "..." : project.projectname}
+                                            {project.projectname.length > 40 ? project.projectname.substring(5, 40) + "..." : project.projectname}
                                         </td>
                                         <td>
                                             <input
@@ -513,7 +531,7 @@ function Home_timereport() {
                                             />
                                         </td>
                                         <td>
-                                            <button className={`complete-project-button ${project.timereport_is_sent === 1 ? "disable-button" : ""}`} title={`${project.timereport_is_sent === 1 ? "Completed" : "Complete Project"}`}
+                                            <button className={`complete-project-button ${project.timereport_is_sent === 1 ? "disable-button" : ""}`} title={`${project.timereport_is_sent === 1 ? "Completed" : "Complete Activity"}`}
                                                     // onClick={() => completeProject(index)}
                                                     // onClick={() => setShowConfirmActivityModal(true)}
                                                     onClick={() => handleShow(index)}
@@ -546,7 +564,7 @@ function Home_timereport() {
                                         className="new-input-field-tr"
                                         type="text"
                                         name="projectname"
-                                        placeholder="New row title"
+                                        placeholder="New Project Name"
                                         value={newRowInputs.projectname}
                                         onChange={handleNewRowInputChange}
                                     />
@@ -558,8 +576,8 @@ function Home_timereport() {
                                 </td> 
                             </tr>
                             {tableData.length > 0 && (
-                            <div className="mr-2 completedamount-box">
-                                <h1>{completedAmount.length}/{tableData.length}</h1>
+                            <div style={{ marginRight: "1em" }} className="completedamount-box">
+                                <h1>{completedAmount && completedAmount.length}/{tableData.length}</h1>
                             </div>
                             )}
                         </div>
