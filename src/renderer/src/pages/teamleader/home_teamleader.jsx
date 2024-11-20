@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationCircle, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 import flash_black from "../../assets/images/flash_black.png";
 import running_black from "../../assets/images/running_black.png";
@@ -229,17 +229,17 @@ function Home_teamleader() {
                         >
                             <h6 style={{ fontSize: "0.8em", fontWeight: "600" }}>
                                 {/* <img className="title-img" src={flash_black} alt="flash" /> */}
-                                 Latest project
+                                 Shortcut To Latest project:
                             </h6>
                             <div key={latestProject.project_id} className="mb-3">
-                                <div className="home-latestproject-box d-flex"
+                                <div className="home-latestproject-box d-flex justify-content-left"
                                     onClick={() => enterProject(latestProject.project_id)}
                                     value={latestProject.project_id}
-                                    // onClick={() => enterProject(project.project_id)}
                                     title={`Open job: ${latestProject.projectname}`}
-                                    >
-                                    <p className="ml-2 mr-1 ">{latestProject.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-latestwork" src={running_black} alt="running"></img>}</p>
-                                    <p className="mx-4">{latestProject?.projectname?.length > 70 ? latestProject.projectname.substring(0, 70) + "..." : latestProject.projectname}</p>
+                                >
+                                    <p>{latestProject.type === "school" ? <img className="type-img-currwork" src={academic_black} alt="academic"></img> : <img className="type-img-latestwork" src={running_black} alt="running"></img>}</p>
+                                    <p className="ml-4 ">{latestProject?.projectname?.length > 70 ? latestProject.projectname.substring(0, 70) + "..." : latestProject.projectname}</p>
+                                    <FontAwesomeIcon icon={faArrowRight} className="ml-5 mt-1" />
                                 </div>
                             </div>
                         </div>    
@@ -249,7 +249,7 @@ function Home_teamleader() {
                     )}
 
 
-                    <h6 className="" style={{ fontSize: "0.8em", fontWeight: "600" }}>Statistics</h6>
+                    <h6 className="" style={{ fontSize: "0.8em", fontWeight: "600" }}>Statistics:</h6>
                     <div className="home-analytics-box d-flex">
                         <div className="home-analytics">
                             <p>
@@ -278,36 +278,6 @@ function Home_teamleader() {
                             </div>
                         </div>
                     </div>
-                 {/* <div className="home-analytics-box d-flex">
-                        <div className="home-analytics mx-2">
-                            <p style={{ textDecoration: "underline" }}>
-                                Total completed jobs
-                            </p>
-                            <div className="home-analytics-number">
-                                {prevProjectsArray && prevProjectsArray.length > 0 ? prevProjectsArray.length : "0"}
-                            </div>
-                        </div>
-                        <div className="home-analytics">
-                            <p style={{ textDecoration: "underline" }}>
-                                Total photographed subjects
-                            </p>
-                            <div className="test">
-                                <div className="home-analytics-number">
-                                    {data && data.reduce((total, project) => total + project.teams.amount, 0)}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="home-analytics">
-                            <p style={{ textDecoration: "underline" }}>
-                                Total sold calendars
-                            </p>
-                            <div className="home-analytics-number">
-                                {data && data.reduce((total, calendar) => total + calendar.teams.sold_calendar, 0)}
-                            </div>
-                        </div>
-                    </div>
-                */}
-
 
                     <SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length} />
                     <TeamsChart data={data} prevProjectsLength={prevProjectsArray.length} />

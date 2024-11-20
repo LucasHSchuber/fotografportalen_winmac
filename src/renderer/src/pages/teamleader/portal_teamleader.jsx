@@ -267,15 +267,16 @@ function Portal_teamleader() {
 
                                 <button className="button standard mt-2" title="Create new team"
                                     onClick={() => createNewTeam()}>
-                                        <FontAwesomeIcon icon={faPlus} 
-                                /></button>
+                                    <FontAwesomeIcon icon={faPlus} 
+                                />
+                                </button>
 
                                 <div className="d-flex mt-5">
                                     <div className="portal-analytics">
                                         <p>
                                             Photographed subjects
                                         </p>
-                                        <div className="test">
+                                        <div>
                                             <div className="portal-analytics-number">
                                                 {teams && teams.length > 0 ? teams.reduce((total, team) => total + team.amount, 0) : 0}
                                             </div>

@@ -18,9 +18,8 @@ import '../../assets/css/timereport/buttons_timreport.css';
 function Home_timereport() {
     // Define states
     const [loading, setLoading] = useState(true);
-    // const [user, setUser] = useState(true);
+    const [userLang, setUserLang] = useState("");
     const [data, setData] = useState([]);
-    const [projectAndTimreportData, setProjectAndTimreportData] = useState([]);
     const [timereportData, setTimereportData] = useState([]);
     const [projectData, setProjectData] = useState([]);
     const [selectedIndex, setSelectedIndex] = useState(null);
@@ -43,21 +42,31 @@ function Home_timereport() {
     const [showConfirmActivityModal, setShowConfirmActivityModal] = useState(false);
 
 
+    // Modal props
     const handleClose = () => setShowConfirmActivityModal(false);
     const handleShow = (index) => {
         setSelectedIndex(index);
         setShowConfirmActivityModal(true);
     };
+    
 
-
+    // Retrieve user_lang from localstorage to set currency
     useEffect(() => {
-      //calculate amount of uncompleted projects in tableData array
+        let user_lang = localStorage.getItem("user_lang");
+        setUserLang(user_lang)
+        console.log('user_lang', user_lang);
+    }, []);
+
+
+    // Calculate amount of uncompleted projects in tableData array
+    useEffect(() => {
         const completedAmount = tableData.filter(item => item.timereport_is_sent === 1);
         console.log('completedAmount', completedAmount);
         setCompletedAmount(completedAmount);
         setDataForFeesChart(completedAmount);
     }, [tableData]);
-    
+
+ 
 
     //load loading bar on load
     useEffect(() => {
@@ -144,7 +153,7 @@ function Home_timereport() {
             // Include projects with their matching timereports
             ...projectData.map(project => {
                 const matchingTimereport = timereportData.find(timereport => timereport.project_id === project.project_id);
-                console.log('matchingTimereport', matchingTimereport);
+                // console.log('matchingTimereport', matchingTimereport);
                 if (matchingTimereport) {
                     return {
                         ...project,  
@@ -245,22 +254,27 @@ function Home_timereport() {
             console.log('response', response);
             if (response.statusCode === 201){
                 getTableData();
-                checkIfMonthFininshed();
+                setTimeout(() => {
+                    checkIfMonthFininshed(data.miles);
+                }, 500);
             }
         } catch (error) {
             console.log('error when sending in job with index:' + index, error);
         }
     }
     // IF COMPLETED === TOTAL then display a fininshedMonthModal
-    const checkIfMonthFininshed = () => {
+    const checkIfMonthFininshed = (miles) => {
         if (completedAmount.length + 1  === tableData.length) {
+            let totalMiles = (Number(sumMiles) + Number(miles));
             Swal.fire({
                 title: "Great!",
-                text: "You have completed all activities for the month!",
+                // text: `You have completed all activities for the month!<br>You have driven ${sumMiles} miles this month.<br>Which is equal to ${getDrivenMilesMessage()}`,
+                html: `You have completed all activities for the month!<br><br> You have driven <b>${totalMiles}</b> miles this month${totalMiles > 0 ? ` which is almost equal to ${getDrivenMilesMessage(totalMiles)}` : "." } `, 
                 imageUrl: "https://media.giphy.com/media/3q7VFETRrjXRTaaWOo/giphy.gif", 
                 // imageUrl: "https://media.giphy.com/media/bJHEzxb2uKtzmSYJgU/giphy.gif", 
+                // imageUrl: "https://media.giphy.com/media/PMV7yRpwGO5y9p3DBx/giphy.gif", 
                 imageWidth: 250,
-                imageHeight: 150,
+                imageHeight: 130,
                 imageAlt: "Congratulations GIF",
                 confirmButtonText: "Awesome!",
                 background: '#fff', 
@@ -273,6 +287,53 @@ function Home_timereport() {
             });
         } 
     };
+
+    const getDrivenMilesMessage = (totalMiles) => {
+        if (totalMiles < 1) {
+            return "";
+        } else if (totalMiles > 0 && totalMiles < 2) {
+            return "<b>the length of a city street!</b>";
+        } else if (totalMiles > 1 && totalMiles < 4) {
+            return "<b>a long distance run!</b>";
+        } else if (totalMiles > 3 && totalMiles < 5) {
+            return "<b>the length of a marathon!</b>";
+        } else if (totalMiles > 7 && totalMiles < 10) {
+            return "<b>the height of Mount Everest!</b>";
+        } else if (totalMiles > 9 && totalMiles < 15) {
+            return "<b>the length of California's Golden Gate Bridge 7 times!</b>";
+        } else if (totalMiles > 14 && totalMiles < 20) {
+            return "<b>the distance between London and London Heathrow Airport!</b>";
+        } else if (totalMiles > 19 && totalMiles < 25) {
+            return "<b>the length of the Great Wall of China!</b>";
+        } else if (totalMiles > 24 && totalMiles < 35) {
+            return "<b>the distance of a scenic national park road trip!</b>";
+        } else if (totalMiles > 34 && totalMiles < 45) {
+            return "<b>the length of a small European country!</b>";
+        } else if (totalMiles > 44 && totalMiles < 55) {
+            return "<b>the distance up and down Mount Everest 3 times!</b>";
+        } else if (totalMiles > 54 && totalMiles < 70) {
+            return "<b>the length of the Alps!</b>";
+        } else if (totalMiles > 69 && totalMiles < 85) {
+            return "<b>the length of Germany!</b>";
+        } else if (totalMiles > 84 && totalMiles < 100) {
+            return "<b>the length of the entire Autobahn in Germany!</b>";
+        } else if (totalMiles > 99 && totalMiles < 130) {
+            return "<b>going from Stockholm to Copenhagen and back!</b>";
+        } else if (totalMiles > 129 && totalMiles < 160) {
+            return "<b>the length of Sweden!</b>";
+        } else if (totalMiles > 159 && totalMiles < 200) {
+            return "<b>the length of Norway!</b>";
+        } else if (totalMiles > 199 && totalMiles < 230) {
+            return "<b>5.5% of the distance around the Earth!</b>";
+        } else if (totalMiles > 229 && totalMiles < 275) {
+            return "<b>0.65% of the distance to the moon!</b>";
+        } else if (totalMiles > 274 && totalMiles < 350) {
+            return "<b>0.1% of the distance from Earth to Mars!</b>";
+        } else if (totalMiles > 349) {
+          return "<b>soon having pain in your butt, but keep driving! ;)</b>";
+        }
+      };
+      
 
 
 
@@ -407,186 +468,198 @@ function Home_timereport() {
                     </div>
 
                     {/* Month toggling buttons */}
-                    <div className="mb-5 month-toggle-tr d-flex justify-content-center">
+                    <div className="mb-4 month-toggle-tr d-flex justify-content-center">
                         <FontAwesomeIcon className="change-month-button" title="Previous Month" icon={faCaretLeft} onClick={handlePreviousMonth} />
                         <span className="mx-4 timeperiod-scope-tr">{`${new Date(year, month).toLocaleString('en-US', { month: 'long' })} ${year}`}</span>
                         <FontAwesomeIcon className="change-month-button" title="Next Month" icon={faCaretRight} onClick={handleNextMonth} />
                     </div>
 
-                    <div className="mt-5 projects-table-tr">
+                    <div className="projects-table-tr">
 
-                    {tableData && (
-                        <div className="mb-5 d-flex">
-                            <div>
-                                <FeesChart dataForFeesChart={dataForFeesChart} />
+                        {tableData && (
+                            <div className="mb-5 tr-statistics-box d-flex">
+                                <div>
+                                    <FeesChart dataForFeesChart={dataForFeesChart} userLang={userLang} />
+                                </div>
+                                <div style={{ marginTop: "1.5em" }}>
+                                    <div className="mb-1">
+                                            <div className={`tr-statistics ${completedAmount.length === tableData.length && tableData.length !== 0 ? "completed-work-box" : "work-box"}`}>
+                                                <h1>Completed:</h1>
+                                                <h2>{completedAmount && completedAmount.length}/{tableData.length} {completedAmount.length === tableData.length && tableData.length !== 0 ? <FontAwesomeIcon icon={faCheck} size="lg" className="ml-2" /> : "" }</h2>
+                                            </div>
+                                    </div>
+                                    <div className="d-flex justify-content-start">
+                                            <div className="tr-statistics">
+                                                <h1>Worked Time:</h1>
+                                                <h2>{sumWorkedHours}</h2>
+                                            </div>  
+                                            <div className="tr-statistics">
+                                                <h1>Total Miles:</h1>
+                                                <h2>{sumMiles} miles</h2>
+                                            </div>
+                                            <div className="tr-statistics">
+                                                <h1>Total Expenses:</h1>
+                                                <h2>{sumExpenses} {userLang === "SE" || userLang === "DK" || userLang === "NO" ? "kr" : "€"}</h2>
+                                            </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="mt-5 tr-statistics-box d-flex justify-content-end">
-                                    <div className="tr-statistics">
-                                        <h1>Worked Hours:</h1>
-                                        <h2>{sumWorkedHours}</h2>
-                                    </div>
-                                    <div className="tr-statistics">
-                                        <h1>Total Miles:</h1>
-                                        <h2>{sumMiles} miles</h2>
-                                    </div>
-                                    <div className="tr-statistics">
-                                        <h1>Total Expenses:</h1>
-                                        <h2>{sumExpenses}</h2>
-                                    </div>
-                            </div>
+                        )}
+
+                        <div className="mb-3">
+                            <h6><b>{`${new Date(year, month).toLocaleString('en-US', { month: 'long' })} ${year}`}</b></h6>
                         </div>
-                    )}
 
-                    <table className="table-tr">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Project Name</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>Break</th>
-                                    <th>Miles</th>
-                                    <th>Tolls</th>
-                                    <th>Park</th>
-                                    <th>Other</th>
-                                    <th style={{ color: "#A74FFF", fontSize: "0.85em" }}>{completedAmount && completedAmount.length}/{tableData.length}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tableData.map((project, index) => (
-                                    <tr key={index} className={`projects-row-tr ${project.timereport_is_sent === 1 ? "is_sent_disable" : ""}`}>
-                                        <td className="table-row-date-tr">{new Date(project.project_date).toLocaleDateString('en-GB', {
-                                            day: "numeric",
-                                            month: "numeric"
-                                            })}
-                                        </td>
-                                        <td className="table-row-title-tr" title={project.projectname}>
-                                            {project.projectname.length > 40 ? project.projectname.substring(5, 40) + "..." : project.projectname}
-                                        </td>
-                                        <td>
-                                            <input
-                                                className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
-                                                type="text"
-                                                value={project.starttime || "00:00"}
-                                                disabled={project.timereport_is_sent === 1}
-                                                onChange={(e) => handleInputChange(e, index, "starttime")}
-                                            />
-                                        </td>
-                                        <td >
-                                            <input
-                                                className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
-                                                type="text"
-                                                value={project.endtime || "00:00"}
-                                                disabled={project.timereport_is_sent === 1}
-                                                onChange={(e) => handleInputChange(e, index, "endtime")}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
-                                                type="text"
-                                                value={project.breaktime || "00:00"}
-                                                disabled={project.timereport_is_sent === 1}
-                                                onChange={(e) => handleInputChange(e, index, "breaktime")}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
-                                                type="number"
-                                                placeholder="0"
-                                                value={project.miles || ""}
-                                                disabled={project.timereport_is_sent === 1}
-                                                onChange={(e) => handleInputChange(e, index, "miles")}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
-                                                type="number"
-                                                placeholder="0"
-                                                value={project.tolls || ""}
-                                                disabled={project.timereport_is_sent === 1}
-                                                onChange={(e) => handleInputChange(e, index, "tolls")}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
-                                                type="number"
-                                                placeholder="0"
-                                                value={project.park || ""}
-                                                disabled={project.timereport_is_sent === 1}
-                                                onChange={(e) => handleInputChange(e, index, "park")}
-                                            />
-                                        </td>
-                                        <td>
-                                            <input
-                                                className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
-                                                type="number"
-                                                placeholder="0"
-                                                value={project.other_fees || ""}
-                                                disabled={project.timereport_is_sent === 1}
-                                                onChange={(e) => handleInputChange(e, index, "other_fees")}
-                                            />
-                                        </td>
-                                        <td>
-                                            <button className={`complete-project-button ${project.timereport_is_sent === 1 ? "disable-button" : ""}`} title={`${project.timereport_is_sent === 1 ? "Completed" : "Complete Activity"}`}
-                                                    // onClick={() => completeProject(index)}
-                                                    // onClick={() => setShowConfirmActivityModal(true)}
-                                                    onClick={() => handleShow(index)}
-                                                    disabled={project.timereport_is_sent === 1}
-                                                >
-                                                <FontAwesomeIcon icon={faCheck} />
-                                            </button>
-                                        </td>
+                        <table className="table-tr">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Project Name</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>Break</th>
+                                        <th>Miles</th>
+                                        <th>Tolls</th>
+                                        <th>Park</th>
+                                        <th>Other</th>
+                                        <th style={{ color: "#A74FFF", fontSize: "0.85em" }}>{completedAmount && completedAmount.length}/{tableData.length}</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {tableData.map((project, index) => (
+                                        <tr key={index} className={`projects-row-tr ${project.timereport_is_sent === 1 ? "is_sent_disable" : ""}`}>
+                                            <td className="table-row-date-tr">{new Date(project.project_date).toLocaleDateString('en-GB', {
+                                                day: "numeric",
+                                                month: "numeric"
+                                                })}
+                                            </td>
+                                            <td className="table-row-title-tr" title={project.projectname}>
+                                                {project.projectname.length > 40 ? project.projectname.substring(5, 40) + "..." : project.projectname}
+                                            </td>
+                                            <td>
+                                                <input
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    type="text"
+                                                    value={project.starttime || "00:00"}
+                                                    disabled={project.timereport_is_sent === 1}
+                                                    onChange={(e) => handleInputChange(e, index, "starttime")}
+                                                />
+                                            </td>
+                                            <td >
+                                                <input
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    type="text"
+                                                    value={project.endtime || "00:00"}
+                                                    disabled={project.timereport_is_sent === 1}
+                                                    onChange={(e) => handleInputChange(e, index, "endtime")}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    type="text"
+                                                    value={project.breaktime || "00:00"}
+                                                    disabled={project.timereport_is_sent === 1}
+                                                    onChange={(e) => handleInputChange(e, index, "breaktime")}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    type="number"
+                                                    placeholder="0"
+                                                    value={project.miles || ""}
+                                                    disabled={project.timereport_is_sent === 1}
+                                                    onChange={(e) => handleInputChange(e, index, "miles")}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    type="number"
+                                                    placeholder="0"
+                                                    value={project.tolls || ""}
+                                                    disabled={project.timereport_is_sent === 1}
+                                                    onChange={(e) => handleInputChange(e, index, "tolls")}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    type="number"
+                                                    placeholder="0"
+                                                    value={project.park || ""}
+                                                    disabled={project.timereport_is_sent === 1}
+                                                    onChange={(e) => handleInputChange(e, index, "park")}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    type="number"
+                                                    placeholder="0"
+                                                    value={project.other_fees || ""}
+                                                    disabled={project.timereport_is_sent === 1}
+                                                    onChange={(e) => handleInputChange(e, index, "other_fees")}
+                                                />
+                                            </td>
+                                            <td>
+                                                <button className={`complete-project-button ${project.timereport_is_sent === 1 ? "disable-button" : ""}`} title={`${project.timereport_is_sent === 1 ? "Completed" : "Complete Activity"}`}
+                                                        // onClick={() => completeProject(index)}
+                                                        // onClick={() => setShowConfirmActivityModal(true)}
+                                                        onClick={() => handleShow(index)}
+                                                        disabled={project.timereport_is_sent === 1}
+                                                    >
+                                                    <FontAwesomeIcon icon={faCheck} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
 
-                        {/* new row */}
-                        <div className="mt-1 d-flex justify-content-between">
-                            <tr className="new-project-row-tr">
-                                <td>
-                                    <input
-                                        style={{ width: "8em" }}
-                                        className="new-input-field-tr"
-                                        type="date"
-                                        name="project_date"
-                                        value={newRowInputs.project_date}
-                                        onChange={handleNewRowInputChange}
-                                    />
-                                </td>
-                                <td>
-                                    <input
-                                        style={{ width: "12em" }}
-                                        className="new-input-field-tr"
-                                        type="text"
-                                        name="projectname"
-                                        placeholder="New Project Name"
-                                        value={newRowInputs.projectname}
-                                        onChange={handleNewRowInputChange}
-                                    />
-                                </td>
-                                <td>
-                                    <button className="add-new-tr-button" onClick={addNewRow}>
-                                       Add Row +
-                                    </button>
-                                </td> 
-                            </tr>
-                            {tableData.length > 0 && (
-                            <div style={{ marginRight: "1em" }} className="completedamount-box">
-                                <h1>{completedAmount && completedAmount.length}/{tableData.length}</h1>
+                            {/* new row */}
+                            <div className="mt-1 d-flex justify-content-between">
+                                <tr className="new-project-row-tr">
+                                    <td>
+                                        <input
+                                            style={{ width: "8em" }}
+                                            className="new-input-field-tr"
+                                            type="date"
+                                            name="project_date"
+                                            value={newRowInputs.project_date}
+                                            onChange={handleNewRowInputChange}
+                                        />
+                                    </td>
+                                    <td>
+                                        <input
+                                            style={{ width: "12em" }}
+                                            className="new-input-field-tr"
+                                            type="text"
+                                            name="projectname"
+                                            placeholder="New Project Name"
+                                            value={newRowInputs.projectname}
+                                            onChange={handleNewRowInputChange}
+                                        />
+                                    </td>
+                                    <td>
+                                        <button className="add-new-tr-button" onClick={addNewRow}>
+                                        Add Row +
+                                        </button>
+                                    </td> 
+                                </tr>
+                                {tableData.length > 0 && (
+                                <div style={{ marginRight: "1em" }} className="completedamount-box">
+                                    <h1>{completedAmount && completedAmount.length}/{tableData.length}</h1>
+                                </div>
+                                )}
                             </div>
-                            )}
-                        </div>
 
+                            {/* Complete month button  */}
+                            <div className="mt-4">
+                                <button className="button complete-month-button" title="Complete Month"><FontAwesomeIcon icon={faCheck} /> Complete Month</button>
+                            </div> 
 
-                        {/* Complete month button  */}
-                        <div className="mt-4">
-                            <button className="button complete-month-button" title="Complete Month"><FontAwesomeIcon icon={faCheck} /> Complete Month</button>
-                        </div> 
                     </div>
 
 
@@ -595,7 +668,8 @@ function Home_timereport() {
                         showConfirmActivityModal={showConfirmActivityModal}
                         handleClose={handleClose}
                         completeProject={completeProject}
-                        index={selectedIndex} />
+                        index={selectedIndex} 
+                    />
                 </>
             )}
 

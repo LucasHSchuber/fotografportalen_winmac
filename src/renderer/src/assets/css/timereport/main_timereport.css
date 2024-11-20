@@ -4,7 +4,7 @@
 /* GENERAL - TIME REPORT */
 
 .timereport-wrapper {
-    padding: 6em 0 10em 0;
+    padding: 6em 0.5em 10em 0.5em;
     color: #323232;
 }
 
@@ -68,17 +68,21 @@
 }
 
 .tr-statistics-box{
-    margin-bottom: 2em;
+   /* border: 1px solid rgb(218, 218, 218); */
+   border: 1px solid rgb(167, 79, 255, 0.4);
+   border-radius: 6px;
+   padding: 1.5em 0;
 }
 .tr-statistics{
-    width: 9em;
+    width: 8.5em;
     height: fit-content;
     background-color: #fbfbfb !important;
     border: 1px solid rgb(167, 79, 255, 0.4);
     color: rgb(50, 50, 50);
     border-radius: 5px;
-    padding: 0.6em 0 0.5em 0.5em;
+    padding: 0.5em 0 0.4em 0.5em;
     margin-right: 0.75em;
+    box-shadow: 0px 2px 6px rgba(87, 87, 87, 0.1); 
 }
 .tr-statistics h1{
     font-size: 0.7em;
@@ -89,11 +93,26 @@
     font-size: 1em;
     font-weight: 600;
 }
+.work-box{
+    border: 1px solid rgb(167, 79, 255, 0.4);
+    font-size: 1.2em;
+    width: 7em;
+    padding: 0.5em 0 0.3em 0.5em;
+}
+.completed-work-box{
+    background-color: #A74FFF !important;
+    color: white;
+    font-size: 1.2em;
+    width: 7em;
+    padding: 0.5em 0 0.2em 0.5em;
+    /* border: 1px solid rgb(255, 255, 255); */
+}
 
 .table-tr{
     width: 100% !important;
-    /* border: 1px solid rgb(226, 226, 226); */
-    border-left: 1px solid rgb(200, 200, 200);
+    /* border-left: 1px solid rgb(200, 200, 200); */
+    border-left: 1px solid rgb(167, 79, 255, 0.4);
+    border-right: 1px solid rgb(167, 79, 255, 0.4);
 }
 .table-tr tbody{
     padding: 1em !important;

@@ -60,67 +60,47 @@
 
 .home-latestproject-box{
     background-color: rgb(255, 255, 255);
-    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
+    box-shadow: 0px 2px 6px rgba(87, 87, 87, 0.1); 
+    border: 1px solid rgb(0, 179, 255, 0.3);
     color: #323232 !important;
     padding: 1em 1em 0 1em;
-    height: 3.5em;
+    height: 3.8em;
     border-radius: 5px;
-    width: 43em;
-    font-size: 0.7em !important;
+    width: fit-content;
+    font-size: 0.75em !important;
 }
 .home-latestproject-box:hover{
-    background-color: #f3f3f3;
-    box-shadow: 0 0 10px 1px rgba(172, 172, 172, 0.1);
+    background-color: #f8f8f8;
+    border: 1px solid rgba(219, 219, 219, 0.3);
+    box-shadow: 0px 2px 6px rgba(87, 87, 87, 0.1); 
     transition: 0.2s;
     cursor: pointer;
 }
 .type-img-latestwork {
     width: 1.4em;
 }
-/* .home-analytics-box {
-    background-color: rgb(255, 255, 255);
-    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
-    width: fit-content;
-    border-radius: 10px;
-    padding: 2.5em 1em;
-}
-.home-analytics {
-    width: 12em;
-}
-.home-analytics p {
-    text-align: center;
-    font-weight: 700;
-    font-size: 0.9em;
-} */
+
 .home-analytics-box {
-    /* background-color: rgb(255, 255, 255); */
-    /* box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2); */
     width: fit-content;
     border-radius: 10px;
-    /* padding: 1.8em 0.8em 0; */
 }
-
 .home-analytics {
-    width: 11.4em;
+    width: 11em;
     margin-right: 0.6em;
-    background-color: rgb(255, 255, 255);
-    box-shadow: 0 0 10px 4px rgba(172, 172, 172, 0.2);
-    padding: 1em 0 0 1.2em;
-    border-radius: 10px
+    background-color: #fbfbfb !important;
+    border: 1px solid rgb(0, 179, 255, 0.3);
+    box-shadow: 0px 2px 6px rgba(87, 87, 87, 0.1); 
+    padding: 0.6em 0 0 0.7em;
+    border-radius: 5px
 }
-
 .home-analytics p {
-    /* text-align: center; */
-    font-weight: 700;
-    font-size: 0.65em;
+    font-size: 0.75em;
 }
-
 .home-analytics-number {
-    color: rgb(60, 60, 60);
-    font-size: 1.1em;
+    color: rgb(47, 47, 47);
+    font-size: 1em;
     font-weight: 700;
-    display: flex;
-    margin: 0 0 1em 0;
+    margin-bottom: 0.5em;
 }
 
 .home-message-box {
