@@ -318,9 +318,14 @@ function Home_filetransfer() {
 
   // Custom styles for the Select component
   const customStyles = {
-    control: (styles) => ({
+    control: (styles, { isFocused }) => ({
       ...styles,
       width: "35em",
+      borderColor: isFocused ? "#ff6f6f" : "#ccc", // Change border color on focus, default to light gray
+      boxShadow: isFocused ? "0 0 0 0.2rem rgba(255, 111, 111, 0.1)" : "none", // Optional: Add a shadow effect when focused
+      "&:hover": {
+        borderColor: isFocused ? "#ff6f6f" : "#ccc", // Ensure hover maintains border color when focused
+      },
     }),
     menu: (base) => ({
       ...base,

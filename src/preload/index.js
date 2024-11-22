@@ -93,9 +93,10 @@ const api = {
   
   // TIME REPORT
   getAllTimereports: (user_id) => ipcRenderer.invoke('getAllTimereports', user_id), // Pass user_id to get all Timereport data
-  getProjectsAndTimereport: (args) => ipcRenderer.invoke('getProjectsAndTimereport', args), // Pass user_id to get all Timereport data
-  markActivityAsCompleted: (data) => ipcRenderer.invoke('markActivityAsCompleted', data),
-
+  // getProjectsAndTimereport: (args) => ipcRenderer.invoke('getProjectsAndTimereport', args), // Pass user_id to get all Timereport data
+  markActivityAsCompleted: (data) => ipcRenderer.invoke('markActivityAsCompleted', data), // insert tupple into timereport table with new data
+  changeCompleted: (data) => ipcRenderer.invoke('changeCompleted', data), // Pass user_id and project_id to update is_sent in timereport table to 0
+  markAsCompletedPermanent: (project_id, user_id) => ipcRenderer.invoke('markAsCompletedPermanent', project_id, user_id), // update is_sent_permantent in timereport table
 
 
 

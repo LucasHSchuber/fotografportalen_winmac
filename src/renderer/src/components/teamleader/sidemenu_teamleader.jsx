@@ -54,21 +54,19 @@ const Sidemenu_teamleader = () => {
                 <div className="link-box">
                     <NavLink exact="true" to="/prevwork_teamleader">
                         <img className="link-img" src={suitcase} alt="suitcase img" />
-                        <p>Previous work</p>
+                        <p>Previous Jobs</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
                     <NavLink exact="true" to="/currwork_teamleader">
                         <img className="link-img" src={flash} alt="flash img" />
-                        <p>Current work</p>
+                        <p>Current Jobs</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
-                    {/* <NavLink exact to="/newproject_teamleader" onClick={handleShow}> */}
-                    {/* <NavLink onClick={handleShow}> */}
                     <NavLink exact="true" to="/newproject_teamleader">
                         <img className="link-img" src={plus} alt="add img" />
-                        <p>New project</p>
+                        <p>New Job</p>
                     </NavLink>
                 </div>
             </ul>

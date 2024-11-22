@@ -202,8 +202,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
         <>
             <Modal className="mt-5" show={showSendProjectModal} onHide={handleCloseProjectModal}>
                 <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h5 className="mb-2" ><b>Send in work</b></h5></Modal.Title>
-                    <h6 className="mb-3">You must log in to be able to send in this work</h6>
+                    <Modal.Title><h5 className="mb-2" ><b>Send in job</b></h5></Modal.Title>
+                    <h6 className="mb-3">You must log in to be able to send in this job</h6>
 
                     <div style={{ textAlign: "left", marginLeft: "3em" }}>
                         {usernameMessage || passwordMessage || errorLogginginMessage ? (
@@ -257,7 +257,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
             <Modal className="mt-5" show={showConfirmationModal} onHide={() => setShowConfirmationModal(false)}>
                 <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h5 className="mb-2" ><b>Are you sure you want to send in the work?</b></h5></Modal.Title>
+                    <Modal.Title><h5 className="mb-2" ><b>Are you sure you want to send in the job?</b></h5></Modal.Title>
                     <h6 className="mb-3" style={{ textDecoration: "underline" }}>This action can not be undone</h6>
 
                     <div className="mt-4">
@@ -265,7 +265,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             Cancel
                         </Button>
                         <Button className="button standard fixed-width" onClick={sendJob}>
-                            Send in work
+                            Send in job
                         </Button>
                     </div>
 

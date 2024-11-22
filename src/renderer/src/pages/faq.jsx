@@ -26,10 +26,10 @@ const faqData = {
 teamleader: {
     categoryName: "Teamleader",
     questions: [
-    { id: 1, image: "", question: "Can I recover a project I have deleted?", answer: "Unfortunately, once a project is deleted, it cannot be recovered. We recommend double-checking before deleting any projects to avoid accidental loss of important work." },
-    { id: 2, image: "", question: "Can I edit a team after I have submitted the project?", answer: "Unfortunately, once a project is submitted, it cannot be edited or modified. Please contact the support if a project is submitted but has information that needs to be edited." },
-    { id: 3, image: "", question: "When submitting a project, when should I check the 'Report anomalies to sales department' checkbox?", answer: "The 'Report anomalies to sales department' should be checked when submitting a project only if the information in the anomaly report might be valueable information for the sales department. This helps ensure that any issues related to the project could be promptly addressed untill next time." },
-    { id: 4, image: controlsheet_button, question: "Can I view Control Sheet after a project is submitted?", answer: "Yes, once a project is submitted you can view all Control Sheets under the 'Previous work' section by pressing the hihglighted 'Sheet' icon to the right in the image below." },
+    { id: 1, image: "", question: "Can I recover a job I have deleted?", answer: "Unfortunately, once a job is deleted, it cannot be recovered. We recommend double-checking before deleting any jobs to avoid accidental loss of important work." },
+    { id: 2, image: "", question: "Can I edit a team after I have submitted the job?", answer: "Unfortunately, once a job is submitted, it cannot be edited or modified. Please contact the support if a job is submitted but has information that needs to be edited." },
+    { id: 3, image: "", question: "When submitting a job, when should I check the 'Report anomalies to sales department' checkbox?", answer: "The 'Report anomalies to sales department' should be checked when submitting a job only if the information in the anomaly report might be valueable information for the sales department. This helps ensure that any issues related to the job could be promptly addressed untill next time." },
+    { id: 4, image: controlsheet_button, question: "Can I view Control Sheet after a job is submitted?", answer: "Yes, once a job is submitted you can view all Control Sheets under the 'Previous job' section by pressing the hihglighted 'Sheet' icon to the right in the image below." },
     { id: 5, image: team_faq, question: "What does the different icons in the teams/classes box means?", answer: (
       <div>
         The different icons and text has different meaning:
@@ -43,19 +43,19 @@ teamleader: {
       </div>
       ) 
     },
-    { id: 3, image: sporttype, question: "What's the difference between 'Portrait' and 'Portrait + Group'?", answer: "The difference between 'Portrait' and 'Portrait + Group' is that 'Portrait + Group' include calendar sale. If you know that your project you're about to create includes group photogrprahy, you would want to choose 'Portrait + Group' to make sure to include calendar sale." },
+    { id: 6, image: sporttype, question: "What's the difference between 'Portrait' and 'Portrait + Group'?", answer: "The difference between 'Portrait' and 'Portrait + Group' is that 'Portrait + Group' include calendar sale. If you know that your job you're about to start includes group photogrprahy, you would want to choose 'Portrait + Group' to make sure to include calendar sale." },
     ],
 },
 filetransfer: {
     categoryName: "Filetransfer",
     questions: [
-    { id: 1, image: "", question: "How to upload large files?", answer: "To upload files in Filetransfer, select a project from the list, choose a file to upload, and click the Upload button." },
-    { id: 2, image: "", question: "What should I do if the Filetransfer upload fails?", answer: (
+    { id: 7, image: "", question: "How to upload large files?", answer: "To upload files in Filetransfer, select a job from the list, choose a file to upload, and click the Upload button." },
+    { id: 8, image: "", question: "What should I do if the Filetransfer upload fails?", answer: (
         <div>
           If you’re having trouble uploading files in Filetransfer, try the following steps:
           <ol>
             <li>Check your internet connection and ensure it's stable.</li>
-            <li>Ensure the file you are trying to upload is a .zip file.</li>
+            <li>Ensure the file you are trying to upload is a .zip, .rar or .pdf file.</li>
             <li>If the issue persists, try closing and reopening the software, or restarting your computer.</li>
           </ol>
         </div>
@@ -66,9 +66,9 @@ filetransfer: {
 general: {
     categoryName: "General",
     questions: [
-    { id: 1, image: "", question: "Can I reset my password?", answer: "No, resetting your password is not possible right now. Please contact the IT team if you have forgotten your password or are unable to log in" },
-    { id: 2, image: "", question: "Can I use the Photographer Portal on multiple devices?", answer: "Yes, you can access the Photographer Portal from multiple devices. Simply connect your account in Photographer Portal from another device and switch user by logging in with your registered account details." },
-    { id: 3, image: connectuser, question: "How do I connect a new photographer to the Photographer Portal?", answer: (
+    { id: 9, image: "", question: "Can I reset my password?", answer: "No, resetting your password is not possible right now. Please contact the IT team if you have forgotten your password or are unable to log in" },
+    { id: 10, image: "", question: "Can I use the Photographer Portal on multiple devices?", answer: "Yes, you can access the Photographer Portal from multiple devices. Simply connect your account in Photographer Portal from another device and switch user by logging in with your registered account details." },
+    { id: 11, image: connectuser, question: "How do I connect a new photographer to the Photographer Portal?", answer: (
         <div>
           You can connect a new photographer by going to the Profile page (profile icon) in the right menu:
           <ol>
@@ -81,9 +81,9 @@ general: {
         </div>
       ) 
     },
-    { id: 4, image: "", question: "How do I update the Photographer Portal software?", answer: "When a new version of the Photographer Portal is available, you will see a Download button on the Home page. Click the button and follow the instructions to download and install the latest version." },
-    { id: 5, image: "", question: "Why is the blender icon in the left menu spinning?", answer: "Then blender icon spinning indicates that you have a stable internet connection. If the blender does not spin, it means you are running the software in an offline mode, and certain function as submitting a project or uploading files in Filetransfer will not work." },
-    { id: 6, image: roger_that, question: "What does the 'Roger That' button under the News & Updates section do?", answer: "Clicking the 'Roger That' button lets Express-Bild know that you've read and understood the news article. This helps the admin track which photographers have acknowledged the news."},      
+    { id: 12, image: "", question: "How do I update the Photographer Portal software?", answer: "When a new version of the Photographer Portal is available, you will see a Download button on the Home page. Click the button and follow the instructions to download and install the latest version." },
+    { id: 13, image: "", question: "Why is the blender icon in the left menu spinning?", answer: "Then blender icon spinning indicates that you have a stable internet connection. If the blender does not spin, it means you are running the software in an offline mode, and certain function as submitting a job or uploading files in Filetransfer will not work." },
+    { id: 14, image: roger_that, question: "What does the 'Roger That' button under the News & Updates section do?", answer: "Clicking the 'Roger That' button lets Express-Bild know that you've read and understood the news article. This helps the admin track which photographers have acknowledged the news."},      
   ],
 },
 };

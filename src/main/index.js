@@ -534,12 +534,14 @@ function createTables() {
           park DECIMAL(5, 2) DEFAULT 0,
           other_fees DECIMAL(5, 2) DEFAULT 0,
           is_sent BOOLEAN DEFAULT 0,
+          is_sent_permanent BOOLEAN DEFAULT 0,
           created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           project_date TEXT NOT NULL,
           user_id INTEGER NOT NULL,
           project_id INTEGER NOT NULL,
-          FOREIGN KEY (user_id) REFERENCES users(user_id)
-          FOREIGN KEY (project_id) REFERENCES projects(project_id)
+          FOREIGN KEY (user_id) REFERENCES users(user_id),
+          FOREIGN KEY (project_id) REFERENCES projects(project_id),
+          UNIQUE (project_id, user_id)
         )
       `
     }
@@ -1164,6 +1166,7 @@ async function hashPassword(password) {
   }
 }
 
+
 //loginUser
 ipcMain.handle("loginUser", async (event, args) => {
   try {
@@ -1178,6 +1181,10 @@ ipcMain.handle("loginUser", async (event, args) => {
     }
     const hashedPassword = await getUserHashedPassword(email);
     log.info(hashedPassword);
+    if (hashedPassword === null) {
+      event.sender.send("loginUser-response", { success: false });
+      return { status: 202, success: false, message: "User with email not found in local database" };
+    }
 
     if (hashedPassword && (await comparePassword(password, hashedPassword))) {
       // If the user exists and the password matches, send success response
@@ -1185,7 +1192,7 @@ ipcMain.handle("loginUser", async (event, args) => {
       log.info(user);
 
       event.sender.send("loginUser-response", { success: true, user });
-      return { success: true, user };
+      return {status: 200, success: true, user };
     } else {
       // If the user doesn't exist or password doesn't match, send error response
       throw new Error("Invalid username or password");
@@ -1227,7 +1234,6 @@ const getUserDetails = (email) => {
     });
   });
 };
-
 const comparePassword = (password, hash) => {
   try {
     return bcrypt.compare(password, hash);
@@ -3512,6 +3518,7 @@ ipcMain.handle("getAllTimereports", async (event, user_id) => {
       park: row.park,
       other_fees: row.other_fees,
       timereport_is_sent: row.is_sent,
+      timereport_is_sent_permanent: row.is_sent_permanent,
       project_id: row.project_id,
       project_date: row.project_date,
       user_id: row.user_id,
@@ -3530,59 +3537,93 @@ ipcMain.handle("getAllTimereports", async (event, user_id) => {
 
 
 
-//Get all projects by user_id and timereport data with left join
-ipcMain.handle("getProjectsAndTimereport", async (event, user_id) => {
-  // const { user_id } = args;
-  if (!user_id) {
-    throw new Error("Missing required data for getProjectsAndTimereport");
-  }
-  const retrieveQuery = `
-    SELECT 
-        p.project_id,
-        p.project_uuid,
-        p.projectname,
-        p.photographername,
-        p.project_date,
-        p.created,
-        p.alert_sale,
-        p.is_deleted,
-        p.is_sent,
-        p.is_sent_id,
-        p.sent_date,
-        t.id AS timereport_id,
-        t.projectname AS timereport_projectname,
-        t.starttime,
-        t.endtime,
-        t.breaktime,
-        t.miles,
-        t.tolls,
-        t.park,
-        t.other_fees,
-        t.project_date AS timereport_project_date,
-        t.is_sent AS timereport_is_sent,
-        t.user_id AS timereport_user_id,
-        t.project_id AS timereport_project_id
-    FROM 
-        projects p
-    LEFT JOIN 
-        timereport t ON p.project_id = t.project_id
-    WHERE 
-        p.user_id = ? AND p.is_deleted != 1;
-  `;
+// //Get all projects by user_id and timereport data with left join
+// ipcMain.handle("getProjectsAndTimereport", async (event, user_id) => {
+//   // const { user_id } = args;
+//   if (!user_id) {
+//     throw new Error("Missing required data for getProjectsAndTimereport");
+//   }
+//   const retrieveQuery = `
+//     SELECT 
+//         p.project_id,
+//         p.project_uuid,
+//         p.projectname,
+//         p.photographername,
+//         p.project_date,
+//         p.created,
+//         p.alert_sale,
+//         p.is_deleted,
+//         p.is_sent,
+//         p.is_sent_id,
+//         p.sent_date,
+//         t.id AS timereport_id,
+//         t.projectname AS timereport_projectname,
+//         t.starttime,
+//         t.endtime,
+//         t.breaktime,
+//         t.miles,
+//         t.tolls,
+//         t.park,
+//         t.other_fees,
+//         t.project_date AS timereport_project_date,
+//         t.is_sent AS timereport_is_sent,
+//         t.is_sent_permanent AS timereport_is_sent_permanent,
+//         t.user_id AS timereport_user_id,
+//         t.project_id AS timereport_project_id
+//     FROM 
+//         projects p
+//     LEFT JOIN 
+//         timereport t ON p.project_id = t.project_id
+//     WHERE 
+//         p.user_id = ? AND p.is_deleted != 1;
+//   `;
   
-  const db = new sqlite3.Database(dbPath);
+//   const db = new sqlite3.Database(dbPath);
   
+//   try {
+//     const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
+//     return { statusCode: 200, data: rows };
+//   } catch (error) {
+//     console.error("Error fetching projects and timereport data:", error);
+//     return { statusCode: 0, errorMessage: error.message };
+//   } finally {
+//     await closeDatabase(db);
+//   }
+// });
+
+
+
+
+
+// set is_sent = 0
+ipcMain.handle("changeCompleted", async (event, args) => {
   try {
-    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
-    return { statusCode: 200, data: rows };
-  } catch (error) {
-    console.error("Error fetching projects and timereport data:", error);
-    return { statusCode: 0, errorMessage: error.message };
-  } finally {
-    await closeDatabase(db);
+    if (!args || typeof args !== "object") {
+      throw new Error("Invalid arguments received for changeCompleted");
+    }
+    const { project_id, user_id } = args;
+
+    if ( !project_id || !user_id ) {
+      throw new Error("Missing required data (project_id, user_id) for changeCompleted");
+    }
+
+      const updateResult = await db.run(
+        `
+        UPDATE timereport SET is_sent = 0 WHERE project_id = ? AND user_id = ?
+        `,
+        [project_id, user_id]
+      );
+
+      console.log(`Updated is_sent to 0 for project_id: ${project_id}`, updateResult);
+      event.sender.send("changeCompleted-response", { statusCode: 200, success: true });
+      return { statusCode: 200, success: true };
+        
+  } catch (err) {
+    console.error("Error inserting timereport:", err.message);
+    event.sender.send("markActivityAsCompleted-response", { error: err.message });
+    return { error: err.message };
   }
 });
-
 
 
 
@@ -3603,6 +3644,18 @@ ipcMain.handle("markActivityAsCompleted", async (event, args) => {
       `
       INSERT INTO timereport (starttime, endtime, breaktime, miles, tolls, park, other_fees, is_sent, project_id, user_id, project_date, projectname)
       VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
+      ON CONFLICT(project_id, user_id) 
+      DO UPDATE SET 
+        starttime = excluded.starttime,
+        endtime = excluded.endtime,
+        breaktime = excluded.breaktime,
+        miles = excluded.miles,
+        tolls = excluded.tolls,
+        park = excluded.park,
+        other_fees = excluded.other_fees,
+        is_sent = 1,
+        project_date = excluded.project_date,
+        projectname = excluded.projectname
       `,
       [starttime, endtime, breaktime, miles, tolls, park, other_fees, project_id, user_id, project_date, projectname],
     );
@@ -3617,6 +3670,33 @@ ipcMain.handle("markActivityAsCompleted", async (event, args) => {
     return { error: err.message };
   }
 });
+
+
+
+ipcMain.handle("markAsCompletedPermanent", async (event, args) => {
+  const { project_id, user_id } = args;
+  log.info("project_id: ", project_id)
+  const updateQuery =
+    `
+    UPDATE timereport SET is_sent_permanent = 1 WHERE project_id = ? AND user_id = ?
+    `;
+  
+  const db = new sqlite3.Database(dbPath);
+
+  try {
+    // Loop through each project_id and update is_sent_permanent
+    const result = await executeUpdateWithRetry(db, updateQuery, [project_id, user_id]);
+    await closeDatabase(db);
+    return { status: 200, result: result, message: "is_sent_permanent was set to 1" };
+  } catch (error) {
+    await closeDatabase(db);
+    console.error("Error setting is_sent_permanent to 1 in timereport table:", error);
+    return { status: 0, errorMessage: error.message };
+  }
+});
+
+
+
 
 
 

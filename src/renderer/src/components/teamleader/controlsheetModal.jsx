@@ -91,7 +91,7 @@ const ControlSheetModal = ({ showControlSheetModal, projectForControlSheet, hand
                     {projectForControlSheet && (
                         <div key={projectForControlSheet.project_id}>
                             <div className="">
-                                <h6><span>Anomaly report:</span></h6>
+                                <h6><span>Anomaly report (to production):</span></h6>
                                 {projectForControlSheet.anomaly && projectForControlSheet.anomaly !== "NULL"
                                     ? <h6>{projectForControlSheet.anomaly}</h6>
                                     : <h6><em>Empty anomaly report</em></h6>}

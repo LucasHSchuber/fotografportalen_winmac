@@ -45,13 +45,11 @@ function Currwork_teamleader() {
                 console.error('Error fetching projects:', error);
                 if (retryCount > 0) {
                     console.log(`Retrying... Attempts left: ${retryCount}`);
-                    // Retry fetching projects after a delay
                     setTimeout(() => {
                         getAllProjects(retryCount - 1);
-                    }, 1000); // Adjust the delay as needed
+                    }, 1000); 
                 } else {
                     console.error('Max retry attempts reached. Failed to fetch projects.');
-                    // Handle maximum retry attempts reached
                 }
             }
         };
@@ -96,7 +94,6 @@ function Currwork_teamleader() {
                 const teamsData = await window.api.getTeamsByProjectId(project.project_id);
                 console.log('Teams:', teamsData.teams);
                 setTeams(teamsData.teams);
-                // setLoading(false); // Set loading to false when data is fetched
             } catch (error) {
                 console.error('Error fetching teams:', error);
             }
@@ -121,22 +118,12 @@ function Currwork_teamleader() {
 
 
 
-    // if (loading) {
-    //     return <div>
-    //         <div className="loading-bar-text">
-    //             <p><b>Loading current work...</b></p>
-    //         </div>
-    //         <div className="loading-bar-container">
-    //             <div className="loading-bar"></div>
-    //         </div>
-    //     </div>;
-    // }
     return (
         <div className="teamleader-wrapper">
             <div className="currwork-teamleader-content">
                 <div className="header">
-                    <h4><img className="title-img" src={flash_black} alt="flash" /> Current work</h4>
-                    <p>This is your current work. If a job is finished and ready to be sent in, press the paper plane icon in order to send the job.</p>
+                    <h4><img className="title-img" src={flash_black} alt="flash" /> Current Jobs</h4>
+                    <p>This are your current jobs. If a job is finished and ready to be sent in, press the paper plane icon in order to send the job.</p>
                 </div>
 
                 <div className="my-5">

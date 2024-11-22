@@ -92,7 +92,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                     {project && (
                         <div key={project.project_id}>
                             <div className="">
-                                <h6><span>Anomaly report:</span></h6>
+                                <h6><span>Anomaly report (to production):</span></h6>
                                 {project.anomaly && project.anomaly !== "NULL"
                                     ? <h6>{project.anomaly}</h6>
                                     : <em>Empty anomaly report</em>}
@@ -109,7 +109,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                 </div>
                 <hr></hr>
                 <div className="checkbox-container mt-4">
-                    <label style={{ marginRight: "9em" }}>
+                    <label style={{ marginTop: "0.1em" }}>
                         <input
                             className="checkmark mr-2"
                             type="checkbox"
@@ -117,7 +117,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                             defaultChecked={false}
                             onChange={() => setAlertSale(!alertSale)}
                         />
-                        Report anomalies to sales department
+                        Also report anomalies to sales department
                     </label>
                 </div>
 
@@ -126,7 +126,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                         Close
                     </Button>
                     <Button className="button standard fixed-width" onClick={confirmJob}>
-                        Send work
+                        Send Job
                     </Button>
                 </div>
 

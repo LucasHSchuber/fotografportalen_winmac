@@ -37,28 +37,28 @@ function Prevwork_teamleader() {
             let feedbackMessage_deletedproject = sessionStorage.getItem("feedbackMessage_deletedproject");
 
             if (feedbackMessage_sentproject) {
-                setTimeout(() => { // Adding a delay using setTimeout
+                setTimeout(() => {
                     setFeedbackMessage(feedbackMessage_sentproject);
                     setTimeout(() => {
                         setFeedbackMessage('');
                         sessionStorage.removeItem("feedbackMessage_sentproject");
                     }, 3000);
-                }, 1300); // Adjust the delay time as needed
+                }, 1300); 
             }
             if (feedbackMessage_deletedproject) {
-                setTimeout(() => { // Adding a delay using setTimeout
+                setTimeout(() => {
                     setFeedbackMessage(feedbackMessage_deletedproject);
                     setTimeout(() => {
                         setFeedbackMessage('');
                         sessionStorage.removeItem("feedbackMessage_deletedproject");
                     }, 3000);
-                }, 1300); // Adjust the delay time as needed
+                }, 1300); 
             }
         };
         updateFeedbackMessage();
         return () => {
-            sessionStorage.removeItem("feedbackMessage_sentproject"); // Remove the item from sessionStorage
-            sessionStorage.removeItem("feedbackMessage_deletedproject"); // Remove the item from sessionStorage
+            sessionStorage.removeItem("feedbackMessage_sentproject"); 
+            sessionStorage.removeItem("feedbackMessage_deletedproject");
         };
     }, []);
 
@@ -98,10 +98,6 @@ function Prevwork_teamleader() {
         //if search exists
         if (searchString !== "") {
             console.log("search entered...");
-            // const data = {
-            //     user_id: user_id,
-            //     search: searchString
-            // }
             try {
                 window.api.getAllPreviousProjectsBySearch(user_id, searchString)
                     .then(projects => {
@@ -115,7 +111,7 @@ function Prevwork_teamleader() {
                 console.error('Error fetching projects:', error);
             }
 
-        } else { //if search not exists
+        } else { 
             console.log("...");
 
             try {
@@ -179,35 +175,22 @@ function Prevwork_teamleader() {
 
 
 
-
-
-
-    // if (loading) {
-    //     return <div>
-    //         <div className="loading-bar-text">
-    //             <p><b>Loading previous work...</b></p>
-    //         </div>
-    //         <div className="loading-bar-container">
-    //             <div className="loading-bar"></div>
-    //         </div>
-    //     </div>;
-    // }
     return (
         <div className="teamleader-wrapper">
             <div className="prevwork-teamleader-content">
 
                 <div className="header">
-                    <h4><img className="title-img" src={suitcase_black} alt="suitcase" /> Previous work</h4>
-                    <p>This is your prevoius work. All the projects are locked since they have been sent in. In case important information have been missed out in one of your previous projects, please contact the office.</p>
+                    <h4><img className="title-img" src={suitcase_black} alt="suitcase" /> Previous Jobs</h4>
+                    <p>This are your prevoius jobs. All the jobs are locked since they have been sent in. In case important information have been missed out in one of your previous jobs, please contact the office.</p>
                 </div>
 
                 <div className="mt-4 mb-5">
                     <div className="mb-3">
                         <div>
-                            <h6>Search for previous work:</h6>
+                            <h6>Search for previous job:</h6>
                         </div>
                         <div>
-                            <input className="form-input-field fixed" placeholder="Search for previous work" value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
+                            <input className="form-input-field fixed" placeholder="Search for previous job.." value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
                         </div>
                     </div>
 
@@ -231,11 +214,11 @@ function Prevwork_teamleader() {
                                 >
                                     <FontAwesomeIcon icon={faNewspaper} />
                                 </div>
-                                <div className="prevwork-box-right mx-2"
+                                {/* <div className="prevwork-box-right mx-2"
                                     title="Report to office"
                                 >
                                     <FontAwesomeIcon icon={farEnvelope} />
-                                </div>
+                                </div> */}
 
                             </div>
                         ))

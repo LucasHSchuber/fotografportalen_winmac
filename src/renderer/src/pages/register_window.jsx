@@ -30,11 +30,13 @@ function Register_window() {
     setUsername(e.target.value);
     console.log("e.target.value");
     setUsernameMessage("");
+    setErrorLogginginMessage("");
   };
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     console.log("e.target.value");
     setPasswordMessage("");
+    setErrorLogginginMessage("");
   };
 
 
@@ -69,7 +71,7 @@ function Register_window() {
       // localStorage.setItem("password", password);
 
       try {
-        console.log("Registring user.... ");
+        console.log("activating user.... ");
         const url = getBaseUrl().url;
         console.log(url);
 
@@ -77,10 +79,10 @@ function Register_window() {
           'email': username,
           'password': password
         });
+
         if (response.status === 200) {
           console.log('User:', response.data);
           console.log('User result:', response.data.result);
-
           try {
             const updatedResult = { ...response.data.result, password };
             console.log(updatedResult);
@@ -89,14 +91,14 @@ function Register_window() {
 
             if (responseData.success === true) {
               console.log("User created successfully");
-              setSuccessRegisterMessage("Account registered successfully. You can now proceed to log in!")
+              setSuccessRegisterMessage("Account activated successfully. You can now proceed to log in!")
               setPassword("");
               setUsername("");
               setErrorLogginginMessage("");
               // navigate("/login_window");
             } else {
               console.log("Error creating user");
-              setErrorLogginginMessage("User already exists");
+              setErrorLogginginMessage("User already exists. Proceed to log in!");
               setSuccessRegisterMessage("");
             }
           } catch (error) {
@@ -107,17 +109,14 @@ function Register_window() {
           return null;
         }
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          if (!error.response) {
-            console.error('Network Error: Please check your internet connection');
-            setErrorLogginginMessage("Network error connection");
-          } else {
-            console.error('Request failed with status code:', error.response.status);
-            setErrorLogginginMessage("Username and password doesn't exists in company database. Contact the office if problem is not resolved.");
-          }
-        } else {
-          console.error('Error fetching projects:', error.message);
-        }
+        if (error.response.status === 403) {
+          console.log('response:', error.response.data.error);
+          setErrorLogginginMessage("Invalid password.");
+       } else if (error.response.status === 401){ // Username does not exists in global database
+          console.log("user does not exists in local database or global database");
+          setErrorLogginginMessage("User not found. Try another email or contact ExpressBild for further help.");
+        return;
+       }
         return null;
       }
     }

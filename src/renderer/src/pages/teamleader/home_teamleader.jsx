@@ -229,7 +229,7 @@ function Home_teamleader() {
                         >
                             <h6 style={{ fontSize: "0.8em", fontWeight: "600" }}>
                                 {/* <img className="title-img" src={flash_black} alt="flash" /> */}
-                                 Shortcut To Latest project:
+                                 Shortcut To Latest Job:
                             </h6>
                             <div key={latestProject.project_id} className="mb-3">
                                 <div className="home-latestproject-box d-flex justify-content-left"

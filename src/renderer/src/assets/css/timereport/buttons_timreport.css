@@ -17,6 +17,7 @@
     color: #ffffff;
     background-color: #A74FFF;
     border: 1px solid #A74FFF;
+    width: 2em;
     border-radius: 3px;
     cursor: pointer;
     transition: 0.1s;
@@ -27,9 +28,38 @@
     border-radius: 3px;
 }
 .complete-project-button:focus{
-    border: 2px solid #A74FFF !important;
+    border: 1px solid #A74FFF !important;
     outline: #A74FFF;
 }
+.open-project-button{
+    color: #A74FFF;
+    background-color: #fff;
+    border: 1px solid #A74FFF;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: 0.1s;
+}
+.open-project-button:hover{
+    color: rgb(255, 255, 255);
+    background-color: #A74FFF;
+    border-radius: 3px;
+}
+.locked-project-button{
+    color: #fff;
+    background-color: #262626;
+    border: 1px solid #262626;
+    border-radius: 3px;
+    cursor: not-allowed;
+}
+.locked-project-button:hover{
+    color: #fff;
+    background-color: #262626;
+    border: 1px solid #262626;
+    border-radius: 3px;
+    cursor: not-allowed;
+}
+
+
 .disable-button{
     cursor: not-allowed;
     color: #A74FFF;
@@ -72,6 +102,15 @@
     color: #A74FFF;
     background-color: #ffffff;
     border: 1px solid #A74FFF;
+}
+.complete-month-button-disable{
+    cursor: not-allowed !important;
+    color: #A74FFF;
+    background-color: #fff;
+    border: 1px solid #A74FFF !important;
+}
+.complete-month-button-disable:focus{
+  outline: #A74FFF;
 }
 
 .complete-activity-button{

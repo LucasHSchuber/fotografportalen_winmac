@@ -189,7 +189,7 @@ function Portal_teamleader() {
             {loading ? (
                 <div>
                     <div className="loading-bar-text">
-                        <p><b>Loading project...</b></p>
+                        <p><b>Loading job...</b></p>
                     </div>
                     <div className="loading-bar-container">
                         <div className="loading-bar"></div>

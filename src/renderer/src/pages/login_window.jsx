@@ -107,13 +107,14 @@ function Login_window() {
         }
 
       } catch (error) {
-         // Username exists in global database BUT incorrect password
+         // Username exists in global database
          if (error.response.status === 403) {
           console.log('response:', error.response.data.error);
-        } else { // Username does not exists in global 
-          console.log('User ' + username + ' does not exists');
-          loginFlag = true; // Flag that user does not exists in global database
-        }
+         } else { // Username does not exists in global database
+          console.log("user does not exists in local database or global database");
+          setErrorLogginginMessage("User not found. Try another email or contact ExpressBild for further help.");
+          return;
+         }
       }
 
       try {
@@ -126,7 +127,7 @@ function Login_window() {
         const responseData = await window.api.loginUser(data);
         console.log(responseData);
 
-        if (responseData.success === true) {
+        if (responseData.status === 200) {
           console.log("Log in successful");
           localStorage.setItem("user_id", responseData.user.user_id);
           localStorage.setItem("username", username);
@@ -136,21 +137,16 @@ function Login_window() {
           setIsLoadingConfirm(true);
           const timeout = setTimeout(() => {
             window.api.createMainWindow();
-            // setIsLoadingConfirm(false);
           }, 2400);
+        } else if (responseData.status === 202) { // User not found in local database
+          console.log("User not found in local database");
+          setErrorLogginginMessage("Activate your account by clicking the 'Activate account' button below.");
         } else {
-          if (loginFlag === true) {
-            console.log("user does not exists in local database or global database");
-            setErrorLogginginMessage("User not found. Activate your account by clicking the 'Activate account' button below.");
-          } else {
-            console.log("Invalid username or/and password");
-            setErrorLogginginMessage("Invalid password");
-          }
+          console.log("Invalid username or/and password");
+          setErrorLogginginMessage("Invalid password.");
         }
       } catch (error) {
-        // console.log("Error logging in");
         console.log("error:", error);
-        
       }
     } else {
       console.error("Password or Username is missing");
