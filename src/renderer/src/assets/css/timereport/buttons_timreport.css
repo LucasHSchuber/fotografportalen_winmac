@@ -23,18 +23,18 @@
     transition: 0.1s;
 }
 .complete-project-button:hover{
-    color: grey;
+    color: #A74FFF;
     background-color: rgb(246, 246, 246);
     border-radius: 3px;
 }
 .complete-project-button:focus{
     border: 1px solid #A74FFF !important;
-    outline: #A74FFF;
+    outline: none !important;
 }
 .open-project-button{
-    color: #A74FFF;
+    color: #262626;
     background-color: #fff;
-    border: 1px solid #A74FFF;
+    border: 1px solid #262626 !important;
     border-radius: 3px;
     cursor: pointer;
     transition: 0.1s;
@@ -42,7 +42,12 @@
 .open-project-button:hover{
     color: rgb(255, 255, 255);
     background-color: #A74FFF;
+    border: 1px solid #A74FFF !important;
     border-radius: 3px;
+}
+.open-project-button:focus{
+    border: 1px solid #262626 !important;
+    outline: none !important;
 }
 .locked-project-button{
     color: #fff;
@@ -91,23 +96,30 @@
 .complete-month-button{
     font-size: 0.9em;
     color: white;
-    background-color: #A74FFF;
-    border: 1px solid #A74FFF !important;
+    background-color: #262626;
+    border: 1px solid #262626 !important;
     float: right;
     border-radius: 3px;
     cursor: pointer;
-    transition: 0.1s;
+    transition: 0.2s;
 }
 .complete-month-button:hover{
-    color: #A74FFF;
-    background-color: #ffffff;
-    border: 1px solid #A74FFF;
+    color:#fff;
+    background-color: #000000;
+    border: 1px solid #262626 !important;
 }
 .complete-month-button-disable{
     cursor: not-allowed !important;
-    color: #A74FFF;
+    color: #262626;
     background-color: #fff;
-    border: 1px solid #A74FFF !important;
+    border: 1px solid #262626 !important;
+    opacity: 0.4;
+}
+.complete-month-button-disable:hover{
+    cursor: not-allowed !important;
+    color: #262626;
+    background-color: #fff;
+    border: 1px solid #262626 !important;
 }
 .complete-month-button-disable:focus{
   outline: #A74FFF;

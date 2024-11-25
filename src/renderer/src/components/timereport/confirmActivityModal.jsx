@@ -20,14 +20,14 @@ const confirmActivitytModal = ({ showConfirmActivityModal, handleClose, complete
     return (
         <Modal className="mt-5" show={showConfirmActivityModal} onHide={handleClose}>
             <Modal.Body className="mt-4 mb-3">
-                <Modal.Title><h5 className="mb-3"><b>Complete Activity</b></h5></Modal.Title>
-                <h6 className="mb-4"><em>Are you sure you want to complete this activity. This action cannot be undone!</em></h6>
+                <Modal.Title><h5 className="mb-3"><b>Complete Job</b></h5></Modal.Title>
+                <h6 className="mb-4">Are you sure you want to complete this job?</h6>
                     
                     <div className="mt-2">
                         <Button className="button cancel mr-1" type="button" onClick={handleClose}>
                             Cancel
                         </Button>
-                        <Button className="button complete-activity-button fixed-width" type="submit" onClick={() => handleComplete()}>
+                        <Button className="button complete-activity-button " type="submit" onClick={() => handleComplete()}>
                             <FontAwesomeIcon icon={faCheck} />{" "}
                             Complete 
                         </Button>

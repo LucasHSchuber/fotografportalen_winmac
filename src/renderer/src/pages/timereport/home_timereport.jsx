@@ -7,8 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretRight, faCaretLeft, faCheck, faLockOpen, faLock } from '@fortawesome/free-solid-svg-icons';
 
 import Sidemenu_timereport from "../../components/timereport/sidemenu_timereport";
-import ConfirmActivityModal from "../../components/timereport/confirmActivityModal"
-import FeesChart from "../../components/timereport/feesChart"
+import ConfirmActivityModal from "../../components/timereport/confirmActivityModal";
+import ConfirmSubmitModal from "../../components/timereport/confirmSubmitModal";
+import FeesChart from "../../components/timereport/feesChart";
 
 import '../../assets/css/timereport/main_timereport.css';
 import '../../assets/css/timereport/buttons_timreport.css';
@@ -41,15 +42,17 @@ function Home_timereport() {
     const [sumWorkedHours, setSumWorkedHours] = useState(0);
 
     const [showConfirmActivityModal, setShowConfirmActivityModal] = useState(false);
+    const [showConfirmSubmitModal, setShowConfirmSubmitModal] = useState(false);
 
 
     // Modal props
-    const handleClose = () => setShowConfirmActivityModal(false);
+    const handleClose = () => {setShowConfirmActivityModal(false), setShowConfirmSubmitModal(false)};
     const handleShow = (index) => {
         console.log('index', index);
         setSelectedIndex(index);
         setShowConfirmActivityModal(true);
     };
+    
     
 
     // Retrieve user_lang from localstorage to set currency
@@ -74,7 +77,6 @@ function Home_timereport() {
     useEffect(() => {
         // Check if the loading bar has been shown before
         const hasHomeTimereportLoadingBarShown = sessionStorage.getItem("hasHomeTimereportLoadingBarShown");
-        // If it has not been shown before, show the loading bar
         if (!hasHomeTimereportLoadingBarShown) {
             const timer = setTimeout(() => {
                 setLoading(false);
@@ -95,10 +97,7 @@ function Home_timereport() {
         const fetchUser = async () => {
             try {
                 const userData = await window.api.getUser(user_id);
-                // console.log('Users Data:', userData);
-
                 if (userData && userData.user) {
-                    // setUser(userData.user.firstname + " " + userData.user.lastname);
                     localStorage.setItem("user_lang", userData.user.lang);
                     localStorage.setItem("user_id", userData.user.user_id);
                 } else {
@@ -155,7 +154,6 @@ function Home_timereport() {
             // Include projects with their matching timereports
             ...projectData.map(project => {
                 const matchingTimereport = timereportData.find(timereport => timereport.project_id === project.project_id);
-                // console.log('matchingTimereport', matchingTimereport);
                 if (matchingTimereport) {
                     return {
                         ...project,  
@@ -296,7 +294,7 @@ function Home_timereport() {
             Swal.fire({
                 title: "Great!",
                 // text: `You have completed all activities for the month!<br>You have driven ${sumMiles} miles this month.<br>Which is equal to ${getDrivenMilesMessage()}`,
-                html: `You have completed all activities for the month!<br><br> You have driven <b>${totalMiles}</b> miles this month${totalMiles > 0 ? ` which is almost equal to ${getDrivenMilesMessage(totalMiles)}` : ` ${getDrivenMilesMessage(totalMiles)}` } <br><br> Don't forget to submit the month!`, 
+                html: `You have completed all activities for the month!<br><br> You have driven <b>${totalMiles}</b> miles this month${totalMiles > 0 ? ` which is almost equal to ${getDrivenMilesMessage(totalMiles)}` : ` ${getDrivenMilesMessage(totalMiles)}` } <br><br> Don't forget to submit & lock the month!`, 
                 imageUrl: "https://media.giphy.com/media/3q7VFETRrjXRTaaWOo/giphy.gif", 
                 // imageUrl: "https://media.giphy.com/media/bJHEzxb2uKtzmSYJgU/giphy.gif", 
                 // imageUrl: "https://media.giphy.com/media/PMV7yRpwGO5y9p3DBx/giphy.gif", 
@@ -547,7 +545,7 @@ function Home_timereport() {
                     <div className="home-timereport-content mb-5">
                         <div className="header">
                             <h4>Welcome to Time Report!</h4>
-                            <p>This is your plattform for reporting your worked time</p>
+                            <p>This is your plattform for reporting your worked time, driven miles and expenses correlated to your jobs</p>
                         </div>
                     </div>
 
@@ -567,9 +565,9 @@ function Home_timereport() {
                                 </div>
                                 <div style={{ marginTop: "1.5em" }}>
                                     <div className="mb-1">
-                                            <div className={`tr-statistics ${completedAmount.length === tableData.length && tableData.length !== 0 ? "completed-work-box" : "work-box"}`}>
+                                            <div className={`tr-statistics ${entireMonthSubmitted && completedAmount.length === tableData.length && tableData.length !== 0 ? "submitted-work-box" : !entireMonthSubmitted && completedAmount.length === tableData.length && tableData.length !== 0 ? "completed-work-box" : "work-box"}`}>
                                                 <h1>Completed:</h1>
-                                                <h2>{completedAmount && completedAmount.length}/{tableData.length} {entireMonthSubmitted && (completedAmount.length === tableData.length && tableData.length !== 0) ? <FontAwesomeIcon icon={faCheck} size="lg" className="ml-2" title="Month Is Submitted" /> : "" }</h2>
+                                                <h2>{completedAmount && completedAmount.length}/{tableData.length} {entireMonthSubmitted && (completedAmount.length === tableData.length && tableData.length !== 0) ? <FontAwesomeIcon icon={faLock} size="sm" className="ml-2" /> : !entireMonthSubmitted && (completedAmount.length === tableData.length && tableData.length !== 0) ? <FontAwesomeIcon icon={faCheck} size="lg" className="ml-2" title="Month Is Submitted" /> : "" }</h2>
                                             </div>
                                     </div>
                                     <div className="d-flex justify-content-start">
@@ -606,7 +604,7 @@ function Home_timereport() {
                                         <th>Tolls</th>
                                         <th>Park</th>
                                         <th>Other</th>
-                                        <th style={{ color: "#A74FFF", fontSize: "0.85em" }}>{completedAmount && completedAmount.length}/{tableData.length}</th>
+                                        <th style={{ color: completedAmount.length === tableData.length && tableData.length !== 0 ? "#262626" : "#A74FFF", fontSize: "0.85em" }}>{completedAmount && completedAmount.length}/{tableData.length}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -688,9 +686,7 @@ function Home_timereport() {
                                                 />
                                             </td>
                                             <td>
-                                                <button className={`complete-project-button ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" :project.timereport_is_sent === 1 ? "open-project-button" : ""}`} title={`${project.timereport_is_sent_permanent === 1 ? "Job Locked" : project.timereport_is_sent === 1 ? "Open Job" : "Complete Job"}`}
-                                                        // onClick={() => completeProject(index)}
-                                                        // onClick={() => setShowConfirmActivityModal(true)}
+                                                <button className={`complete-project-button ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : project.timereport_is_sent === 1 ? "open-project-button" : ""}`} title={`${project.timereport_is_sent_permanent === 1 ? "Job Submitted And Locked" : project.timereport_is_sent === 1 ? "Open Job" : "Complete Job"}`}
                                                         onClick={() =>
                                                             project.timereport_is_sent === 1
                                                               ? setAsUncomplete(project) 
@@ -736,22 +732,23 @@ function Home_timereport() {
                                         </button>
                                     </td> 
                                 </tr>
-                                {tableData.length > 0 && (
-                                    <div style={{ marginRight: "1em" }} className="completedamount-box">
+                                {/* {tableData.length > 0 && (
+                                    <div style={{ marginRight: "1.3em" }} className="completedamount-box">
                                         <h1>{completedAmount && completedAmount.length}/{tableData.length}</h1>
                                     </div>
-                                )}
+                                )} */}
                             </div>
 
                             {/* Complete month button  */}
                             <div className="mt-4">
                                 <button 
-                                    className={`button complete-month-button ${entireMonthSubmitted && (completedAmount.length === tableData.length && tableData.length !== 0) ? "complete-month-button-disable" : ""}`} 
-                                    title={entireMonthSubmitted && (completedAmount.length === tableData.length && tableData.length !== 0) ? "Month Already Submitted" : "Submitt Month" } 
-                                    onClick={() => completeMonthPermanent()}
-                                    disabled={entireMonthSubmitted && (completedAmount.length === tableData.length && tableData.length !== 0)}
+                                    className={`button complete-month-button ${entireMonthSubmitted || completedAmount.length !== tableData.length || tableData.length === 0 ? "complete-month-button-disable" : ""}`} 
+                                    title={entireMonthSubmitted && completedAmount.length === tableData.length && tableData.length !== 0 ? "All Jobs This Month Is Already Submitted & Locked" : !entireMonthSubmitted && completedAmount.length !== tableData.length && tableData.length !== 0 ? "Complete All Jobs Before Being Able To Submit & Lock Month" : tableData.length === 0 ? "No Data To Submit" : "Submit & Lock Month" } 
+                                    // onClick={() => completeMonthPermanent()}
+                                    onClick={() => setShowConfirmSubmitModal(true)}
+                                    disabled={entireMonthSubmitted || completedAmount.length !== tableData.length && tableData.length === 0}
                                 >
-                                <FontAwesomeIcon icon={faCheck} /> Sumbit Month</button>
+                                 Submit & Lock Month <FontAwesomeIcon icon={faLock} /></button>
                             </div> 
 
                     </div>
@@ -763,6 +760,11 @@ function Home_timereport() {
                         handleClose={handleClose}
                         completeProject={completeProject}
                         index={selectedIndex} 
+                    />
+                     <ConfirmSubmitModal   
+                        showConfirmSubmitModal={showConfirmSubmitModal}
+                        handleClose={handleClose}
+                        completeMonthPermanent={completeMonthPermanent}
                     />
                 </>
             )}

@@ -105,6 +105,14 @@
     padding: 0.5em 0 0.2em 0.5em;
     /* border: 1px solid rgb(255, 255, 255); */
 }
+.submitted-work-box{
+    background-color: #262626 !important;
+    color: white;
+    font-size: 1.2em;
+    width: 7em;
+    padding: 0.5em 0 0.2em 0.5em;
+    /* border: 1px solid rgb(255, 255, 255); */
+}
 
 .table-tr{
     width: 100% !important;

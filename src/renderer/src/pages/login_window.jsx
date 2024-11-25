@@ -84,7 +84,6 @@ function Login_window() {
 
     if (password !== "" && username !== "") {
       console.log("password and username entered");
-      let loginFlag = false;
 
       try {
         const data = { 
@@ -92,18 +91,20 @@ function Login_window() {
           password: password 
         };
         console.log(data);
-        // First check user to global database
-        const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, data, {
-          headers: {
-            "Content-Type": "application/json",
-          }
-        });
-        console.log('response', response);
+        // First check user to global database if internet
+        if (navigator.onLine){
+          const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, data, {
+            headers: {
+              "Content-Type": "application/json",
+            }
+          });
+          console.log('response', response);
 
-        if (response.status === 200) {
-          console.log('GLOBAL DATABSE USER OK');
-        } else {
-          console.log('GLOBAL DATABSE USER NOT OK');
+          if (response.status === 200) {
+            console.log('GLOBAL DATABSE USER OK');
+          } else {
+            console.log('GLOBAL DATABSE USER NOT OK');
+          }
         }
 
       } catch (error) {
