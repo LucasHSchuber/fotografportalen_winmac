@@ -450,7 +450,7 @@ function createTables() {
       query: `
         CREATE TABLE IF NOT EXISTS _projects (
           project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
-          project_uuid TEXT NOT NULL,
+          project_uuid TEXT NOT NULL UNIQUE, -- Enforce uniqueness
           projectname TEXT NOT NULL,
           start TEXT NOT NULL,
           lang TEXT NOT NULL
@@ -629,55 +629,74 @@ ipcMain.handle("maximize", () => {
   }
 });
 
+
+
+// Create projects in SQLite database from company database
 ipcMain.handle("create_Projects", async (event, projects) => {
   try {
     if (!Array.isArray(projects)) {
       throw new Error("Invalid data received for create_Projects");
     }
 
-    const db = new sqlite3.Database(dbPath);
+    // Initialize the database
+    const db = new sqlite3.Database(dbPath, (err) => {
+      if (err) {
+        console.error("Error opening database:", err.message);
+        throw err;
+      }
+    });
 
-    await executeUpdateWithRetry("DELETE FROM _projects");
-
-    const batchInsert = async (projectsBatch) => {
-      return new Promise((resolve, reject) => {
-        db.serialize(() => {
-          const stmt = db.prepare(
-            "INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)",
-          );
-          db.run("BEGIN TRANSACTION");
-          for (const project of projectsBatch) {
-            if (!project.project_uuid) {
-              console.error("Error adding project:", "Missing _project_uuid");
-              continue;
-            }
-            stmt.run(
-              project.project_uuid,
-              project.projectname,
-              project.start,
-              project.lang,
-            );
-          }
-          db.run("COMMIT", (err) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve();
-            }
-          });
-          stmt.finalize();
-        });
+    db.serialize(() => {
+      // Delete existing data
+      db.run("DELETE FROM _projects", (err) => {
+        if (err) {
+          console.error("Error deleting old projects:", err.message);
+          throw err;
+        }
+        console.log("Deleted old projects successfully.");
       });
-    };
 
-    const batchSize = 100; // Adjust batch size as needed
-    for (let i = 0; i < projects.length; i += batchSize) {
-      const batch = projects.slice(i, i + batchSize);
-      await batchInsert(batch);
-    }
+      // Insert new data
+      const stmt = db.prepare(
+        "INSERT INTO _projects (project_uuid, projectname, start, lang) VALUES (?, ?, ?, ?)"
+      );
 
-    log.info("Projects added successfully");
-    db.close();
+      for (const project of projects) {
+        if (!project.project_uuid) {
+          console.error("Skipping project with missing project_uuid:", project);
+          continue;
+        }
+        stmt.run(
+          project.project_uuid,
+          project.projectname,
+          project.start,
+          project.lang,
+          (err) => {
+            if (err) {
+              console.error("Error inserting project:", err.message);
+            }
+          }
+        );
+      }
+
+      stmt.finalize((err) => {
+        if (err) {
+          console.error("Error finalizing statement:", err.message);
+        } else {
+          console.log("All projects added successfully.");
+        }
+      });
+    });
+
+    // Close the database connection
+    db.close((err) => {
+      if (err) {
+        console.error("Error closing database:", err.message);
+      } else {
+        console.log("Database connection closed successfully.");
+      }
+    });
+
     return { success: true };
   } catch (err) {
     console.error("Error adding projects:", err.message);
@@ -687,6 +706,7 @@ ipcMain.handle("create_Projects", async (event, projects) => {
     };
   }
 });
+
 
 
 

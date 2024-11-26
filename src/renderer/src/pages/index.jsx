@@ -14,13 +14,12 @@ import { faCheck, faCheckDouble } from "@fortawesome/free-solid-svg-icons";
 import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
 
-import {
-  gdprProtectionMethod,
-  gdprProtectionMethod_teamshistory,
-} from "../assets/js/gdprProtection";
+import { gdprProtectionMethod, gdprProtectionMethod_teamshistory } from "../assets/js/gdprProtection";
 import fetchNews from "../assets/js/fetchNews";
 import env from "../assets/js/env";
 import DOMPurify from "dompurify";
+
+
 
 function Index() {
   //define states

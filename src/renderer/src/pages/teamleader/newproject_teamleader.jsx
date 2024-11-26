@@ -63,9 +63,9 @@ function Newproject_teamleader() {
                     reject(new Error('Request timed out'));
                 }, ms);
             });
+            const token = localStorage.getItem("token");
             try {
-                const projects = await Promise.race([
-                    fetchProjectsByLang(user_lang),
+                const projects = await Promise.race([fetchProjectsByLang(user_lang, token),
                     timeout(2000)
                 ]);
                 set_Projects(projects.result);
@@ -75,7 +75,6 @@ function Newproject_teamleader() {
                 try {
                     const response = await window.api.get_Projects(user_lang);
                     console.log('Projects from SQLite:', response);
-
                     if (response.statusCode === 1) {
                         if (response.projects.length > 0) {
                             set_Projects(response.projects);
@@ -205,11 +204,12 @@ function Newproject_teamleader() {
             setResolveModal(() => resolve);
         });
     };
+
       // Handle modal "Yes" click
     const handleModalConfirm = () => {
         setIsModalVisible(false);
         if (resolveModal) {
-            resolveModal(true); // Resolve the Promise with `true` when confirmed
+            resolveModal(true);
         }
     };
 
@@ -217,10 +217,9 @@ function Newproject_teamleader() {
     const handleModalCancel = () => {
         setIsModalVisible(false);
         if (resolveModal) {
-            resolveModal(false); // Resolve the Promise with `false` when canceled
+            resolveModal(false); 
         }
     };
-
 
 
     // Confirm from ChooseSportTypeModal

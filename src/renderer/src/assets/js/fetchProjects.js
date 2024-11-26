@@ -4,8 +4,14 @@ import axios from 'axios';
 
 
 const fetchProjects = async () => {
+  const token = localStorage.getItem("token");
   try {
-    let response = await axios.get('https://backend.expressbild.org/index.php/rest/teamleader/projects');
+    let response = await axios.get('https://backend.expressbild.org/index.php/rest/teamleader/projects', {
+      headers: {
+        Authorization: `Token ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     if (response && response.data) {
       console.log('Fetched projects:', response.data);

@@ -50,35 +50,38 @@ function Home_teamleader() {
     }, []);
 
 
+    
+
     //fetch all projects from big(express-bild) database
     const fetchData = async () => {
         console.log("fetchdata")
-        const projects = await fetchProjects();
-        console.log('Projects:', projects);
+        const projectsArray = await fetchProjects();
+        console.log('projectsArray:', projectsArray);
 
-        const project = projects.result;
-        const response = await window.api.create_Projects(project);
-        console.log('create_Projects DONE:');
-        console.log('Create Projects Response:', response);
-
-        if (response && response.success) {
-            console.log('Projects added successfully');
-
-        } else {
-            console.error('Error adding projects:', response?.error || 'Unknown error');
+        if (projectsArray.result.length > 0) {
+            const projects = projectsArray.result;
+            console.log('projects', projects);
+            const response = await window.api.create_Projects(projects);
+            console.log('Create Projects Response:', response);
+            if (response && response.success) {
+                console.log('Projects from company database added successfully to local database');
+            } else {
+                console.error('Error adding projects:', response?.error || 'Unknown error');
+            }
         }
     };
-
+    // Only fetch data if it hasn't been fetched yet
     useEffect(() => {
-        // Only fetch data if it hasn't been fetched yet
-        if (!hasFetchedData) {
+        if (!hasFetchedData && navigator.onLine) {
             fetchData();
             setHasFetchedData(true);
         }
     }, [hasFetchedData]);
 
-    //get user data &
-    //get all project and teams by user_id
+
+
+
+    //get user data & get all project and teams by user_id
     useEffect(() => {
         const user_id = localStorage.getItem("user_id");
 
@@ -100,7 +103,6 @@ function Home_teamleader() {
                 console.error('Error fetching users data:', error);
             }
         };
-
         const fetchProjectsAndTeams = async () => {
             try {
                 const data = await window.api.getProjectsAndTeamsByUserId(user_id);
@@ -110,14 +112,17 @@ function Home_teamleader() {
                 console.error('Error fetching data:', error);
             }
         };
-
         const fetchAllCurrentProjects = async () => {
             try {
                 const projects = await window.api.getAllCurrentProjects(user_id);
                 console.log('Projects:', projects.projects);
 
                 if (projects && projects.projects) {
-                    setCurrProjectsArray(projects.projects);
+                        setCurrProjectsArray(projects.projects);
+                        // set latestproject also
+                        const latestProject = projects.projects[projects.projects.length - 1];
+                        console.log('latestProject', latestProject);
+                        setLatestProject(latestProject);
                 } else {
                     console.error('Invalid projects data:', projects);
                 }
@@ -125,7 +130,6 @@ function Home_teamleader() {
                 console.error('Error fetching projects:', error);
             }
         };
-
         const fetchAllPreviousProjects = async () => {
             try {
                 const projects = await window.api.getAllPreviousProjects(user_id);
@@ -140,48 +144,47 @@ function Home_teamleader() {
                 console.error('Error fetching projects:', error);
             }
         };
-
         fetchUser();
         fetchProjectsAndTeams();
         fetchAllCurrentProjects();
         fetchAllPreviousProjects();
-        
     }, []);
 
 
-    //get all projects 
-    useEffect(() => {
-        let user_id = localStorage.getItem("user_id");
-        console.log(user_id);
-        const getAllProjects = async (retryCount = 3) => {
-            try {
-                const projects = await window.api.getAllCurrentProjects(user_id);
-                console.log('Projects:', projects.projects);
-                if (projects && projects.projects) {
-                    const latestProject = projects.projects[projects.projects.length - 1];
-                    console.log('latestProject', latestProject);
-                    setLatestProject(latestProject);
-                } else {
-                    console.error('Invalid projects data:', projects);
-                    getAllProjects();
-                }
 
-            } catch (error) {
-                console.error('Error fetching projects:', error);
-                if (retryCount > 0) {
-                    console.log(`Retrying... Attempts left: ${retryCount}`);
-                    // Retry fetching projects after a delay
-                    setTimeout(() => {
-                        getAllProjects(retryCount - 1);
-                    }, 1000); // Adjust the delay as needed
-                } else {
-                    console.error('Max retry attempts reached. Failed to fetch projects.');
-                    // Handle maximum retry attempts reached
-                }
-            }
-        };
-        getAllProjects();
-    }, []);
+    // //get all projects 
+    // useEffect(() => {
+    //     let user_id = localStorage.getItem("user_id");
+    //     console.log(user_id);
+    //     const getAllProjects = async (retryCount = 3) => {
+    //         try {
+    //             const projects = await window.api.getAllCurrentProjects(user_id);
+    //             console.log('Projects:', projects.projects);
+    //             if (projects && projects.projects) {
+    //                 const latestProject = projects.projects[projects.projects.length - 1];
+    //                 console.log('latestProject', latestProject);
+    //                 setLatestProject(latestProject);
+    //             } else {
+    //                 console.error('Invalid projects data:', projects);
+    //                 getAllProjects();
+    //             }
+
+    //         } catch (error) {
+    //             console.error('Error fetching projects:', error);
+    //             if (retryCount > 0) {
+    //                 console.log(`Retrying... Attempts left: ${retryCount}`);
+    //                 // Retry fetching projects after a delay
+    //                 setTimeout(() => {
+    //                     getAllProjects(retryCount - 1);
+    //                 }, 1000); // Adjust the delay as needed
+    //             } else {
+    //                 console.error('Max retry attempts reached. Failed to fetch projects.');
+    //                 // Handle maximum retry attempts reached
+    //             }
+    //         }
+    //     };
+    //     getAllProjects();
+    // }, []);
 
     
     //enter a project (portal_teamleader)
