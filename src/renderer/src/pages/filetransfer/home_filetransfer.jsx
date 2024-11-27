@@ -30,6 +30,8 @@ function Home_filetransfer() {
   const [projects, setProjects] = useState([]);
   const [FTProjectId, setFTProjectId] = useState("");
 
+  const [isDragging, setIsDragging] = useState(false);
+
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
@@ -82,27 +84,61 @@ function Home_filetransfer() {
   };
 
   // When dropping files in box
+  // const handleDrop = (event) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   const droppedFiles = Array.from(event.dataTransfer.files);
+  //   const zipFiles = droppedFiles.filter((file) => file.name.endsWith(".zip"));
+  //   if (zipFiles.length > 0) {
+  //     setFiles((prevFiles) => [
+  //       ...prevFiles,
+  //       ...Array.from(event.dataTransfer.files),
+  //     ]);
+  //   } else {
+  //     alert("The only valid file format is .zip-files");
+  //   }
+  //   if (inputRef.current) {
+  //     inputRef.current.focus();
+  //   }
+  // };
   const handleDrop = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    const droppedFiles = Array.from(event.dataTransfer.files);
-    const zipFiles = droppedFiles.filter((file) => file.name.endsWith(".zip"));
-    if (zipFiles.length > 0) {
-      setFiles((prevFiles) => [
-        ...prevFiles,
-        ...Array.from(event.dataTransfer.files),
-      ]);
-    } else {
-      alert("The only valid file format is .zip-files");
-    }
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    setIsDragging(false); // Remove highlight
+  
+    const droppedFiles = Array.from(event.dataTransfer.files); // Get files
+    console.log("Dropped files:", droppedFiles);
+  
+    // Allow all files (no filtering)
+    setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
   };
+  
+  // const handleDrop = (event) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   setIsDragging(false); // Remove highlight
+
+  //   const droppedFiles = Array.from(event.dataTransfer.files); // Get files
+  //   console.log("Dropped files:", droppedFiles);
+
+  //   // Filter allowed file types
+  //   const allowedFiles = droppedFiles.filter((file) =>
+  //     [".zip", ".rar", ".pdf"].some((ext) => file.name.endsWith(ext))
+  //   );
+
+  //   if (allowedFiles.length > 0) {
+  //     setFiles((prevFiles) => [...prevFiles, ...allowedFiles]);
+  //   } else {
+  //     alert("Only .zip, .rar, and .pdf files are allowed!");
+  //   }
+  // };
+  
 
   const handleDragOver = (event) => {
     event.preventDefault();
     event.stopPropagation();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDragging(true); 
   };
 
   // deleting files
@@ -110,6 +146,11 @@ function Home_filetransfer() {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+  };
 
 
   // METHOD to sumbit
@@ -321,10 +362,10 @@ function Home_filetransfer() {
     control: (styles, { isFocused }) => ({
       ...styles,
       width: "35em",
-      borderColor: isFocused ? "#ff6f6f" : "#ccc", // Change border color on focus, default to light gray
-      boxShadow: isFocused ? "0 0 0 0.2rem rgba(255, 111, 111, 0.1)" : "none", // Optional: Add a shadow effect when focused
+      borderColor: isFocused ? "#ff6f6f" : "#ccc", 
+      boxShadow: isFocused ? "0 0 0 0.2rem rgba(255, 111, 111, 0.1)" : "none",
       "&:hover": {
-        borderColor: isFocused ? "#ff6f6f" : "#ccc", // Ensure hover maintains border color when focused
+        borderColor: isFocused ? "#ff6f6f" : "#ccc", 
       },
     }),
     menu: (base) => ({
@@ -405,35 +446,27 @@ function Home_filetransfer() {
               </button>
             </div>
 
-            <div style={{}}>
+            <div>
               <div
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                style={{
-                  border:
-                    files.length === 0 ? "1px dashed #ccc" : "1.5px solid #ccc",
-                  padding: "90px",
-                  textAlign: "center",
-                  width: "70%",
-                }}
+                 onDrop={handleDrop}
+                 onDragOver={handleDragOver}
+                 onDragLeave={handleDragLeave}
+                //  className="drop-zone"
+                  style={{
+                    border: isDragging ? "1x solid #98d3f1" : files.length === 0 ? "1px dashed #ccc" : "1px solid #80df70",
+                    padding: "90px",
+                    textAlign: "center",
+                    width: "70%",
+                    cursor: "copy",
+                  }}
               >
-                {files.length === 0 ? (
-                  <h6 style={{ marginRight: "1em" }}>
-                    <em>Drag and drop files here</em>
-                  </h6>
-                ) : (
-                  <h6 style={{ marginRight: "2em" }}>Files ({files.length})</h6>
-                  //   <ul style={{ listStyleType: "none", marginRight: "3em" }}>
-                  //     <span style={{ fontWeight: "800" }}>
-                  //       Files ({files.length}):
-                  //     </span>
-                  //     <span style={{ fontSize: "0.8em" }}>
-                  //     {files.map((file, index) => (
-                  //       <li key={index}>- {file.name}</li>
-                  //     ))}
-                  //     </span>
-                  //   </ul>
-                )}
+                  {files.length === 0 ? (
+                    <h6 style={{ marginRight: "1em" }}>
+                      <em>Drag and drop files here</em>
+                    </h6>
+                  ) : (
+                    <h6 style={{ marginRight: "2em" }}>Files ({files.length})</h6>
+                  )}
               </div>
               <input
                 disabled={isUploading}
@@ -456,9 +489,6 @@ function Home_filetransfer() {
                 )}
                 {files.length > 0 && (
                   <div>
-                    {/* <h6>
-                      <b>Selected files ({files.length}):</b>
-                    </h6> */}
                     <ul>
                       {files.map((file, index) => (
                         <li key={index}>

@@ -97,7 +97,8 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
                         rows="1"
                         defaultValue={merged_teams}
                         onChange={handleMergedTeamsChange}
-                        placeholder="Merged teams"
+                        // placeholder="Merged teams"
+                        placeholder="e.g. 'Team 1 + Team 2 = Team 3'"
                     ></textarea>
                 </div>
                 <button className="button cancel mr-2" onClick={closeAnomalyReport}>Cancel</button>

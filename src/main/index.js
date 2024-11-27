@@ -98,7 +98,7 @@ function createLoginWindow() {
     loginWindow.show();
   });
   loginWindow.on("closed", () => {
-    loginWindow = null; // Ensures that the loginWindow reference is cleaned up when the window is closed
+    loginWindow = null; 
   });
 
   // Open DevTools in development mode
@@ -498,7 +498,10 @@ function createTables() {
           updated_at TEXT,
           is_read BOOLEAN DEFAULT 0,
           is_sent_date TIMESTAMP DEFAULT NULL,
-          deleted BOOLEAN DEFAULT 0
+          deleted BOOLEAN DEFAULT 0,
+          user_id INTEGER NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(user_id),
+          UNIQUE (id, user_id)
         )
       `,
     },
@@ -712,18 +715,22 @@ ipcMain.handle("create_Projects", async (event, projects) => {
 
 
 //add news to SQLlite news table
-ipcMain.handle("create_news", async (event, news) => {
-  log.info(news);
+ipcMain.handle("create_news", async (event, news, user_id) => {
+  log.info("news: ", news);
+  log.info("user_id", user_id);
   try {
     if (!Array.isArray(news)) {
-      throw new Error("Invalid data received for create_news");
+      throw new Error("Invalid data received for create_news,");
+    }
+    if (!user_id) {
+      throw new Error("Missing user_id for create_news");
     }
 
     const db = new sqlite3.Database(dbPath);
 
     // Fetch all existing news records
     const existingNews = await new Promise((resolve, reject) => {
-      db.all("SELECT id, updated_at FROM news", (err, rows) => {
+      db.all("SELECT id, updated_at FROM news WHERE user_id = ?", [user_id], (err, rows) => {
         if (err) {
           reject(err);
         } else {
@@ -750,7 +757,7 @@ ipcMain.handle("create_news", async (event, news) => {
       return new Promise((resolve, reject) => {
         db.serialize(() => {
           const stmt = db.prepare(
-            "INSERT INTO news (id, title, content, author, created_at, updated_at, is_read, deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO news (id, title, content, author, created_at, updated_at, is_read, deleted, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
           );
           db.run("BEGIN TRANSACTION");
           for (const item of NewsBatch) {
@@ -762,7 +769,8 @@ ipcMain.handle("create_news", async (event, news) => {
               item.created_at,
               item.updated_at,
               item.isRead ? 1 : 0,
-              item.deleted || 0
+              item.deleted || 0,
+              user_id
             );
           }
           db.run("COMMIT", (err) => {
@@ -786,8 +794,8 @@ ipcMain.handle("create_news", async (event, news) => {
      const updateReadStatus = async (newsItem) => {
       return new Promise((resolve, reject) => {
         db.run(
-          "UPDATE news SET is_read = ? WHERE id = ?",
-          [newsItem.isRead ? 1 : 0, newsItem.id],
+          "UPDATE news SET is_read = ? WHERE id = ? AND user_id = ?",
+          [newsItem.isRead ? 1 : 0, newsItem.id, user_id],
           (err) => {
             if (err) {
               reject(err);
@@ -808,7 +816,7 @@ ipcMain.handle("create_news", async (event, news) => {
       return new Promise((resolve, reject) => {
         db.serialize(() => {
           const stmt = db.prepare(
-            "UPDATE news SET title = ?, content = ?, author = ?, created_at = ?, updated_at = ?, is_read = ?, is_sent_date = ?, deleted = ? WHERE id = ?"
+            "UPDATE news SET title = ?, content = ?, author = ?, created_at = ?, updated_at = ?, is_read = ?, is_sent_date = ?, deleted = ? WHERE id = ? AND user_id = ?"
           );
           db.run("BEGIN TRANSACTION");
           for (const item of NewsBatch) {
@@ -821,7 +829,8 @@ ipcMain.handle("create_news", async (event, news) => {
               0,
               "NULL",
               item.deleted || 0, 
-              item.id
+              item.id,
+              user_id
             );
           }
           db.run("COMMIT", (err) => {
@@ -848,10 +857,13 @@ ipcMain.handle("create_news", async (event, news) => {
     if (idsToMarkAsDeleted.length > 0) {
       await new Promise((resolve, reject) => {
         db.serialize(() => {
-          const stmt = db.prepare("UPDATE news SET deleted = 1 WHERE id = ?");
+          const stmt = db.prepare("UPDATE news SET deleted = 1 WHERE id = ? AND user_id = ?");
           db.run("BEGIN TRANSACTION");
           for (const id of idsToMarkAsDeleted) {
-            stmt.run(id);
+            stmt.run(
+              id,
+              user_id
+            );
           }
           db.run("COMMIT", (err) => {
             if (err) {
@@ -878,18 +890,21 @@ ipcMain.handle("create_news", async (event, news) => {
 
 
 
-
 //get all news
-ipcMain.handle("get_news", async (event) => {
+ipcMain.handle("get_news", async (event, user_id) => {
+  log.info("user_id: ", user_id);
+  if (!user_id){
+    throw new Error("Missing user_id for get_news")
+  }
   const allNews = [];
 
-  const retrieveQuery = "SELECT * FROM news WHERE deleted IS NULL OR deleted != 1";
+  const retrieveQuery = "SELECT * FROM news WHERE deleted IS NULL OR deleted != 1 AND user_id = ?";
   console.log("SQL Query:", retrieveQuery, "Parameters:", []);
 
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbPath);
 
-    db.each(retrieveQuery, [], (error, row) => {
+    db.each(retrieveQuery, [user_id], (error, row) => {
       if (error != null) {
         db.close();
         reject({ statusCode: 0, errorMessage: error });
@@ -905,29 +920,31 @@ ipcMain.handle("get_news", async (event) => {
         deleted: row.deleted,
         is_read: row.is_read,
         is_sent_date: row.is_sent_date,
+        user_id: user_id
       });
     });
 
     db.close(() => {
-      resolve({ statusCode: 1, news: allNews });
+      resolve({ status: 200, news: allNews, message: "success" });
     });
   });
 });
 
+
 //confirm news and edit news table
-ipcMain.handle("confirmNewsToSqlite", async (event, news_id) => {
+ipcMain.handle("confirmNewsToSqlite", async (event, news_id, user_id) => {
   try {
-    if (!news_id) {
-      throw new Error("Missing required data (id) for confirmNewsToSqlite");
+    if (!news_id || !user_id) {
+      throw new Error("Missing required data (news_id or user_id) for confirmNewsToSqlite");
     }
 
     const result = await db.run(
       `
       UPDATE news
       SET 
-        is_read = 1 WHERE id = ?
+        is_read = 1 WHERE id = ? AND user_id = ?
       `,
-      [news_id],
+      [news_id, user_id],
     );
 
     console.log(`News data updated successfully`);
@@ -939,13 +956,17 @@ ipcMain.handle("confirmNewsToSqlite", async (event, news_id) => {
 });
 
 //getting all unsent news
-ipcMain.handle("getAllUnsentNews", async (event) => {
-  const retrieveQuery = "SELECT * FROM news WHERE is_read = 1 AND is_sent_date IS NULL";
+ipcMain.handle("getAllUnsentNews", async (event, user_id) => {
+  if (!user_id) {
+    throw new Error("Missing required data (user_id) for getAllUnsentNews");
+  }
+
+  const retrieveQuery = "SELECT * FROM news WHERE is_read = 1 AND is_sent_date IS NULL AND user_id = ?";
 
   try {
     const db = new sqlite3.Database(dbPath);
 
-    const rows = await executeQueryWithRetry(db, retrieveQuery);
+    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
     const unsentNews = rows.map((row) => ({
       id: row.id
     }));
@@ -961,23 +982,23 @@ ipcMain.handle("getAllUnsentNews", async (event) => {
 });
 
 //adding date to news table
-ipcMain.handle("addSentDateToNews", async (event, news_id) => {
+ipcMain.handle("addSentDateToNews", async (event, news_id, user_id) => {
   try {
-    if (!news_id) {
-      throw new Error("Missing required data (news_id) for addSentDateToNews");
+    if (!news_id || !user_id) {
+      throw new Error("Missing required data (news_id or user_id) for addSentDateToNews");
     }
 
-    const result = await db.run(
+    await db.run(
       `
       UPDATE news
       SET 
-        is_sent_date = CURRENT_TIMESTAMP WHERE id = ?
+        is_sent_date = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?
       `,
-      [news_id],
+      [news_id, user_id],
     );
 
     console.log(`Date added to news table successfully`);
-    return { success: true };
+    return { status: 200, success: true };
   } catch (err) {
     console.error("Error adding date to news table:", err.message);
     return { error: err.message };
@@ -1966,14 +1987,14 @@ ipcMain.handle("getLatestProject", async (event, user_id, project_uuid) => {
 });
 
 //delete project
-ipcMain.handle("deleteProject", async (event, project_id) => {
-  const updateQuery = "UPDATE projects SET is_deleted = 1 WHERE project_id = ?";
+ipcMain.handle("deleteProject", async (event, project_id, user_id) => {
+  const updateQuery = "UPDATE projects SET is_deleted = 1 WHERE project_id = ? AND user_id = ?";
 
   try {
     const result = await new Promise((resolve, reject) => {
       const db = new sqlite3.Database(dbPath);
 
-      db.run(updateQuery, [project_id], function (error) {
+      db.run(updateQuery, [project_id, user_id], function (error) {
         if (error) {
           db.close();
           reject({ status: 400, statusCode: 0, errorMessage: error });
@@ -2968,6 +2989,7 @@ ipcMain.handle("createMainWindow", async (event, args) => {
         webSecurity: false,
         worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
       },
+      // navigateOnDragDrop: true,
     });
 
     // Open DevTools for the new window

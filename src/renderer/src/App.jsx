@@ -39,18 +39,17 @@ import './assets/css/teamleader/buttons_teamleader.css';
 
 
 function App() {
-  // useEffect(() => {
-  //   const script = document.createElement('script');
+  useEffect(() => {
+    document.addEventListener("dragover", (event) => event.preventDefault());
+    document.addEventListener("drop", (event) => event.preventDefault());
 
-  //   script.src = new URL('./assets/promise.js', import.meta.url).href
-  //   script.async = true;
+    return () => {
+      document.removeEventListener("dragover", (event) => event.preventDefault());
+      document.removeEventListener("drop", (event) => event.preventDefault());
+    };
+  }, []);
 
-  //   document.body.appendChild(script);
-
-  //   return () => {
-  //     document.body.removeChild(script);
-  //   }
-  // })
+  
   return (
     <HashRouter >
 

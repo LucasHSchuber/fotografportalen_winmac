@@ -8,6 +8,7 @@ import '../../assets/css/global.css';
 
 const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
 
+    console.log('projectName', projectName);
     //define states
     const [deleteInputValue, setDeleteInputValue] = useState("");
     const [deleteMessage, setDeleteMessage] = useState("");
@@ -26,37 +27,42 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
     };
 
     const handleDelete = async () => {
-        console.log("deleteInputValue", deleteInputValue.toLocaleLowerCase());
-        console.log("projectName", projectName.toLocaleLowerCase());
-        if (deleteInputValue.toLocaleLowerCase() === projectName.toLocaleLowerCase()) {
-            console.log("Delete");
-            let project_id = localStorage.getItem("project_id");
+        const deleteString = "delete project";
+        const inputValue = deleteInputValue.toLocaleLowerCase();
+        const projectNameLower = projectName.toLocaleLowerCase();
 
-            if (!project_id) {
-                console.error("No project ID found in local storage.");
-                return;
-            }
+        console.log("deleteInputValue", inputValue);
+        console.log("projectName", projectNameLower);
 
-            try {
-                const deleted = await window.api.deleteProject(project_id);
-                console.log('Delete:', deleted);
-                if (deleted.result.status === 200){
-                    setDeleteMessage("");
-                    localStorage.removeItem("project_id");
-                    sessionStorage.setItem("feedbackMessage_deletedproject", "Project successfully deleted");
-                    setTimeout(() => {
-                        navigate("/prevwork_teamleader");
-                    }, 2000);
-                } else{
-                    console.log("Error deleting project")
-                }
-            } catch (error) {
-                console.error('Error deleting project:', error);
-            }
-        } else {
-            console.log("Do not match");
-            setDeleteMessage("Input does not match with project name");
+        if (inputValue !== projectNameLower) {
+            console.log("Input does not match!");
+            setDeleteMessage('Input must match with ' + '"' + projectNameLower + '"');
             return;
+        }
+
+        const project_id = localStorage.getItem("project_id");
+        if (!project_id) {
+            console.error("No project ID found in local storage.");
+            return;
+        }
+
+        const user_id = localStorage.getItem("user_id");
+        try {
+            const deletedResponse = await window.api.deleteProject(project_id, user_id);
+            console.log('deletedResponse:', deletedResponse);
+            // if (deletedResponse && deletedResponse.result.status === 200){
+                if (deletedResponse?.result?.status === 200) {
+                setDeleteMessage("");
+                // localStorage.removeItem("project_id");
+                sessionStorage.setItem("feedbackMessage_deletedproject", "Project successfully deleted");
+                handleClose();
+                setTimeout(() => navigate("/prevwork_teamleader"), 500);
+            } 
+            else{
+                console.log("Error deleting project")
+            }
+        } catch (error) {
+            console.error('Error deleting project:', error);
         }
     };
 
@@ -67,7 +73,7 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
                 <Modal.Title><h5 className="mb-2 error"><b>Delete project</b></h5></Modal.Title>
                 <h6 className="mb-3"><em>Type in "{projectName}" to delete the project </em></h6>
                 {/* <h6 className="mb-4" style={{ color: "red", textDecoration: "underline" }}>This action can not be undone</h6> */}
-                <form>
+                <form onSubmit={(e) => e.preventDefault()}>
                     <input
                         className="form-input-field"
                         placeholder="Project name"

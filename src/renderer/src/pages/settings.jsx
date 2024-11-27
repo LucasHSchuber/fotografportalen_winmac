@@ -8,6 +8,8 @@ import Sidemenu from "../components/sidemenu";
 import Sidemenu_small from "../components/sidemenu_small";
 import FeedbackMessage from "../components/feedbackMessage";
 
+
+
 function Settings() {
   //define states
   const [user, setUser] = useState({});
@@ -46,39 +48,14 @@ function Settings() {
     }, 3000);
   };
 
-  //fethch user data
-  useEffect(() => {
+
+
+  // Fetch user from local table "users"
+  const fetchUser = async () => {
     let user_id = localStorage.getItem("user_id");
-    // fetch user data
-    const fetchUser = async () => {
-      try {
-        const usersData = await window.api.getUser(user_id); // Fetch users data from main process
-        console.log("Users Data:", usersData); // Log the users data
-        setUser(usersData.user);
-        setEmail(usersData.user.email);
-        setFirstname(usersData.user.firstname);
-        setLastname(usersData.user.lastname);
-        setCity(usersData.user.city);
-        setMobile(usersData.user.mobile);
-        setLang(usersData.user.lang);
-        console.log(usersData.user);
-
-        localStorage.setItem("user_lang", usersData.user.lang);
-        console.log(usersData.user.lang);
-      } catch (error) {
-        console.error("Error fetching users data:", error);
-        fetchUser();
-      }
-    };
-    fetchUser();
-  }, []);
-
-  const refreshUser = async () => {
-    let user_id = localStorage.getItem("user_id");
-
     try {
-      const usersData = await window.api.getUser(user_id); // Fetch users data from main process
-      console.log("Users Data:", usersData); // Log the users data
+      const usersData = await window.api.getUser(user_id); 
+      console.log("Users Data:", usersData); 
       setUser(usersData.user);
       setEmail(usersData.user.email);
       setFirstname(usersData.user.firstname);
@@ -94,6 +71,11 @@ function Settings() {
       console.error("Error fetching users data:", error);
     }
   };
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+
 
   const handleEmailChange = () => {
     setErrorMessage({ ...errorMessage, email: false });
@@ -110,6 +92,8 @@ function Settings() {
     setLang(newValue);
     setNewLang(newValue);
   };
+
+
 
   // Function to handle update operation
   const handleUpdate = async (e) => {
@@ -141,14 +125,7 @@ function Settings() {
       console.log(newLastname);
     }
 
-    if (
-      newEmail ||
-      newFirstname ||
-      newLastname ||
-      newCity ||
-      newMobile ||
-      newLang
-    ) {
+    if ( newEmail || newFirstname || newLastname || newCity || newMobile || newLang ) {
       try {
         const response = await window.api.editUser(updatedFields);
         console.log(response);
@@ -159,7 +136,7 @@ function Settings() {
         setNewFirstname("");
         setNewLastname("");
         setNewEmail("");
-        refreshUser();
+        fetchUser();
       } catch (error) {
         console.log("Error updating user data");
       }
@@ -168,6 +145,8 @@ function Settings() {
     }
   };
 
+
+  
   return (
     <div className="settings-wrapper">
       <div className="settings-content">
@@ -268,7 +247,7 @@ function Settings() {
                   id="lang"
                   name="lang"
                   className="form-input-field-fp"
-                  value={lang} // Set the value to user.lang
+                  value={lang} 
                   onChange={(e) => handleChangeNewLang(e.target.value)}
                 >
                   <option value="DK">Danish</option>

@@ -168,7 +168,7 @@ function Account() {
           <div className="my-4 d-flex justify-content-between">
             {allUsers && allUsers.length > 0 ? (
               allUsers.map(user => (
-                <div key={user.user_id} className="user-container">
+                <div key={user.user_id} className="user-container" title="Click To Select User">
                   <div className={`mx-2 d-flex justify-content-between user-account-box ${chosenUserId === user.user_id ? "selected-user-account" : ""}`}
                     onClick={() => { setChosenUserId(user.user_id), setChosenUser(user) }}
                   >
@@ -181,7 +181,7 @@ function Account() {
                   </div>
 
                   <div className="switchuser-button-container">
-                    <button className={`switchuser-button button my-1 ${chosenUserId === user.user_id ? "show-switchuser-button" : ""}`} onClick={switchUser}> <FontAwesomeIcon icon={faArrowsRotate} />  </button>
+                    <button className={`switchuser-button button my-1 ${chosenUserId === user.user_id ? "show-switchuser-button" : ""}`} onClick={switchUser} title="Switch User"> <FontAwesomeIcon icon={faArrowsRotate} />  </button>
                   </div>
 
                 </div>

@@ -32,7 +32,7 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
                 const deletedTeam = await window.api.deleteTeam(teamId);
                 console.log('deletedTeam:', deletedTeam);
 
-                if (deletedTeam.status === 200) {
+                if (deletedTeam?.status === 200) {
                     setDeleteMessage("");
                     handleCancel();
                     updateFeedbackMessage(`${projectType === "school" ? "Class deleted successfully" : "Team deleted successfully"}`);
@@ -62,7 +62,7 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
                 <Modal.Title><h5 className="mb-2 error" ><b>{projectType === "school" ? "Delete class" : "Delete team"}</b></h5></Modal.Title>
                 <h6 className="mb-3"><em>Type in "{teamName}" to delete the {projectType === "school" ? "class" : "team"} </em></h6>
                 {/* <h6 className="mb-4" style={{ color: "red", textDecoration: "underline" }}>This action can not be undone</h6> */}
-                <form>
+                <form onSubmit={(e) => e.preventDefault()}>
                     <input
                         className="form-input-field"
                         placeholder={projectType === "school" ? "Class name" : "Team name"}

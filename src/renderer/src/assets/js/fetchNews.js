@@ -12,22 +12,18 @@ const fetchNews = async () => {
         Authorization: `Token ${token}`
       }
     });
-
-    if (response && response.data) {
-      console.log('Fetched news from endpoint:', response.data);
-
+    console.log('Fetched news from endpoint:', response);
+    if (response.status === 200 && response.data.result.length > 0) {      
       const news = response.data.result;
+      console.log("news", news)
 
       // loop through news and check if news article is read by user or not
       news.forEach((newsItem) => {
         let isRead = false;
         newsItem.read_by.forEach((item) => {
-          // console.log(item.id);
           if (item.id === user_id){
-            // console.log("ok");
             isRead = true;
           } else {
-            // console.log("no");
           }
         })
         newsItem.isRead = isRead;
@@ -35,7 +31,8 @@ const fetchNews = async () => {
       console.log("new news aray - sending to backend", news);
       // Add news to SQLite news table
       try {
-        const responseCreate_news = await window.api.create_news(news);
+        console.log("user_id", user_id);
+        const responseCreate_news = await window.api.create_news(news, user_id);
         if (responseCreate_news.success) {
           console.log("Successfully added news to news table");
         } else {
@@ -44,11 +41,9 @@ const fetchNews = async () => {
       } catch (error) {
         console.log("Error adding news to news table", error);
       }
-      // console.log(response.data)
-      // return response.data;
       return news;
     } else {
-      console.error('Empty news-response received');
+      console.error('Empty news-response received from rest API');
       return null;
     }
   } catch (error) {

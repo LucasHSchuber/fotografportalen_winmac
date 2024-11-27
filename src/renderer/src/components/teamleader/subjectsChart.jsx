@@ -3,12 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'rec
 
 
 const SubjectsChart = ({ data, prevProjectsLength }) => {
-
-
-    // const lastTenJobs = data.slice(-10).map(job => ({
-    //     date: job.created.substring(0, 10),
-    //     amount: job.teams.amount
-    // }));
+    // define states
     const [chartData, setChartData] = useState([]);
     const [userInputChartOne, setUserInputChartOne] = useState(prevProjectsLength);
 
@@ -62,27 +57,33 @@ const SubjectsChart = ({ data, prevProjectsLength }) => {
 
     return (
         <div className="chart-teamleader-wrapper my-3">
-            <div className="chart-container">
-                <div className="d-flex">
-                    <h6 style={{ textDecoration: "none", margin: "0.3em 0.5em 0 0", fontSize: "0.85em" }}>Change scope: </h6>
-                    <select value={userInputChartOne} onChange={(e) => setUserInputChartOne(e.target.value)}>
-                        {prevProjectsLength && [...Array(prevProjectsLength).keys()].map((num) => (
-                            <option key={num + 1} value={num + 1} >
-                                {num + 1}
-                            </option>
-                        ))}
-                    </select>
+                <div className="chart-container">
+                    <div className="d-flex">
+                        <h6 style={{ textDecoration: "none", margin: "0.3em 0.5em 0 0", fontSize: "0.85em" }}>Change scope: </h6>
+                        <select value={userInputChartOne} onChange={(e) => setUserInputChartOne(e.target.value)}>
+                            {prevProjectsLength && [...Array(prevProjectsLength).keys()].map((num) => (
+                                <option key={num + 1} value={num + 1} >
+                                    {num + 1}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <h6 className="my-3"><b>Amount of photographed subjects - last {userInputChartOne} jobs</b></h6>
+                    {data.length > 0 ? (
+                        <BarChart width={500} height={240} data={chartData}>
+                            <CartesianGrid strokeDasharray="0 0" />
+                            <XAxis dataKey="sentDate" tickFormatter={(tick) => tick.substring(5, 10)} label={{ value: 'Sent date', position: 'insideBottom', dy: 10, fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
+                            <YAxis label={{ value: 'Amount', angle: -90, position: 'insideLeft', fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend payload={[{ value: '', type: 'line', id: 'ID01' }]} />
+                            <Bar dataKey="sumAmount" fill="#5B5B5B" name="Amount" />
+                        </BarChart>
+                     ) : (
+                        <div className="chart-container" style={{ width: "500px" }}>
+                            <p style={{ fontSize: "0.85em", fontWeight: "300" }}>Could not load any subject data</p>
+                        </div>
+                    )}
                 </div>
-                <h6 className="my-3"><b>Amount of photographed subjects - last {userInputChartOne} jobs</b></h6>
-                <BarChart width={500} height={240} data={chartData}>
-                    <CartesianGrid strokeDasharray="0 0" />
-                    <XAxis dataKey="sentDate" tickFormatter={(tick) => tick.substring(5, 10)} label={{ value: 'Sent date', position: 'insideBottom', dy: 10, fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
-                    <YAxis label={{ value: 'Amount', angle: -90, position: 'insideLeft', fontSize: '0.8em' }} tick={{ fontSize: '0.8em' }} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend payload={[{ value: '', type: 'line', id: 'ID01' }]} />
-                    <Bar dataKey="sumAmount" fill="#5B5B5B" name="Amount" />
-                </BarChart>
-            </div>
         </div>
     );
 };

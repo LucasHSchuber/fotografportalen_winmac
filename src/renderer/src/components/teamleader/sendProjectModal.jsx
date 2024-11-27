@@ -264,7 +264,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                         <Button className="button cancel fixed-width mr-1" onClick={cancelConfirmation}>
                             Cancel
                         </Button>
-                        <Button className="button standard fixed-width" onClick={sendJob}>
+                        <Button className="button standard fixed-width" onClick={() => sendJob()}>
                             Send in job
                         </Button>
                     </div>

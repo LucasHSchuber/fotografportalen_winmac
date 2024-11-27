@@ -37,11 +37,11 @@ const api = {
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
   get_Projects: (user_lang) => ipcRenderer.invoke('get_Projects', user_lang), // Pass workname to getUser handler in main process
 
-  create_news: news => ipcRenderer.invoke('create_news', news), // Database Call For Create News
-  get_news: (args) => ipcRenderer.invoke('get_news', args), // Database Call For Get News
-  confirmNewsToSqlite: (news_id) => ipcRenderer.invoke('confirmNewsToSqlite', news_id), // Database Call For Confriming News
-  getAllUnsentNews: () => ipcRenderer.invoke('getAllUnsentNews'), // Database Call For getting all unsent news from news table
-  addSentDateToNews: (news_id) => ipcRenderer.invoke('addSentDateToNews', news_id), // Database Call For adding is_sent_date in News table
+  create_news: (news, user_id) => ipcRenderer.invoke('create_news', news, user_id), // Database Call For Create News
+  get_news: user_id => ipcRenderer.invoke('get_news', user_id), // Database Call For Get News
+  confirmNewsToSqlite: (news_id, user_id) => ipcRenderer.invoke('confirmNewsToSqlite', news_id, user_id), // Database Call For Confriming News
+  getAllUnsentNews: user_id => ipcRenderer.invoke('getAllUnsentNews', user_id), // Database Call For getting all unsent news from news table
+  addSentDateToNews: (news_id, user_id) => ipcRenderer.invoke('addSentDateToNews', news_id, user_id), // Database Call For adding is_sent_date in News table
 
   checkProjectExists: (project_uuid, user_id) => ipcRenderer.invoke('checkProjectExists', project_uuid, user_id), // Database Call For Checking if Project Exists
   createNewProject: args => ipcRenderer.invoke('createNewProject', args), // Database Call For Create new Project
@@ -51,7 +51,7 @@ const api = {
   getAllPreviousProjects: (user_id) => ipcRenderer.invoke('getAllPreviousProjects', user_id), // Pass user_id to get all projects by user
   getAllPreviousProjectsBySearch: (user_id, searchString) => ipcRenderer.invoke('getAllPreviousProjectsBySearch', user_id, searchString), // Pass user_id and searchStringto get all projects by user and by search
   getProjectById: (project_id) => ipcRenderer.invoke('getProjectById', project_id), // Pass project_id to get projects by project_id
-  deleteProject: (project_id) => ipcRenderer.invoke('deleteProject', project_id), // Pass project_id to delete projects by project_id
+  deleteProject: (project_id, user_id) => ipcRenderer.invoke('deleteProject', project_id, user_id), // Pass project_id to delete projects by project_id
   sendProjectToDb: (project_id, alertSale, responseId) => ipcRenderer.invoke('sendProjectToDb', project_id, alertSale, responseId), // Pass project_id to sned project to DB
 
   createNewClass: args => ipcRenderer.invoke('createNewClass', args), // Database Call For Create new Class

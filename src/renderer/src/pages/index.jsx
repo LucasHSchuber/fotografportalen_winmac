@@ -202,12 +202,17 @@ function Index() {
     console.log("allnews", allNews);
 
     if (allNews !== null){
+      const user_id = localStorage.getItem("user_id");
       try {
-        const newsFromTable = await window.api.get_news();
+        const newsFromTable = await window.api.get_news(user_id);
         console.log("News from table:", newsFromTable);
-        const sortedNews = newsFromTable.news.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        console.log('sortedNews', sortedNews);
-        setAllNews(sortedNews);
+        if (newsFromTable && newsFromTable.status === 200){
+          const sortedNews = newsFromTable.news.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          console.log('sortedNews', sortedNews);
+          setAllNews(sortedNews);
+        } else {
+          console.log('Could not fetch news from local table');
+        }
       } catch (error) {
         console.log("Error fetching news from table:", error);
       }
@@ -216,72 +221,53 @@ function Index() {
   useEffect(() => {
     fetchAllNews();
   }, []);
+
   
 
-  //scanning news table for unsent news and then sending to db
+  //scanning news table for unsent news and then sending to db if internet connection available
   const scanNewsTable = async () => {
-    // Check for internet connection
-    if (navigator.onLine) {
-      let responseAllUnsentNews;
+      if (!navigator.onLine) {
+        console.log("No internet connection. Unable to scan news table");
+        return;
+      }
+
+      const user_id = localStorage.getItem("user_id");
       try {
-        responseAllUnsentNews = await window.api.getAllUnsentNews();
+        let responseAllUnsentNews = await window.api.getAllUnsentNews(user_id);
         console.log("All unsent news:", responseAllUnsentNews.allUnsentNews);
 
-        const unsentIdArray = responseAllUnsentNews.allUnsentNews.map(
-          (news) => news.id,
-        );
-        console.log(unsentIdArray);
+        const unsentIdArray = responseAllUnsentNews.allUnsentNews.map((news) => news.id);
+        console.log("unsentIdArray", unsentIdArray);
 
         if (unsentIdArray.length > 0) {
           const token = localStorage.getItem("token");
           for (const news_id of unsentIdArray) {
             console.log(news_id);
             try {
-              const responseDb = await axios.post(
-                "https://backend.expressbild.org/index.php/rest/photographer_portal/newsread",
-                { id: news_id },
-                {
+              const responseDb = await axios.post("https://backend.expressbild.org/index.php/rest/photographer_portal/newsread", { id: news_id }, {
                   headers: {
                     Authorization: `Token ${token}`,
                     "Content-Type": "application/json",
-                  },
-                },
+                  }},
               );
-
               console.log("ResponseDb for news_id", news_id, ":", responseDb);
-
               if (responseDb.status === 200) {
-                console.log(
-                  "Successfully sent news_id to the backend:",
-                  news_id,
-                );
+                console.log("Successfully sent news_id to the backend:", news_id );
                 try {
-                  const responseNewsDate =
-                    await window.api.addSentDateToNews(news_id);
-                  console.log(
-                    "is_sent_date added to NEWS table for news_id:",
-                    news_id,
-                    responseNewsDate,
-                  );
+                  const responseNewsDate = await window.api.addSentDateToNews(news_id, user_id);
+                  if (responseNewsDate.status === 200) {
+                    console.log("is_sent_date added to NEWS table for news_id:", news_id, responseNewsDate );
+                  } else {
+                    console.error('Failed to upload local news table is_sent_date with news_id; ', news_id);
+                  }
                 } catch (error) {
-                  console.log(
-                    "Error adding is_sent_date in NEWS table for news_id:",
-                    news_id,
-                    error,
-                  );
+                  console.log("Error adding is_sent_date in NEWS table for news_id:", news_id, error);
                 }
               } else {
-                console.log(
-                  "Error sending news_id to the company database:",
-                  news_id,
-                );
+                console.log("Error sending news_id to the company database:", news_id);
               }
             } catch (error) {
-              console.log(
-                "Could not send news_id to company database:",
-                news_id,
-                error,
-              );
+              console.log("Could not send news_id to company database:", news_id, error);
             }
           }
         } else {
@@ -290,50 +276,48 @@ function Index() {
       } catch (error) {
         console.log("Error getting all news from news table", error);
       }
-    } else {
-      console.log("No internet connection. Unable to scan news table");
-    }
   };
   useEffect(() => {
     scanNewsTable();
   }, []);
 
+
+
   //confirming news and updating news table
   const confirmNews = async (news_id) => {
     console.log("Confirm news!", news_id);
-    let token = localStorage.getItem("token");
+    const user_id = localStorage.getItem("user_id");
     try {
-      const responseSqlite = await window.api.confirmNewsToSqlite(news_id);
+      const responseSqlite = await window.api.confirmNewsToSqlite(news_id, user_id);
       console.log("confirm news successfully updated", responseSqlite);
 
       if (responseSqlite.success !== true) {
-        console.log('error confirming news to sqlite table');
+        console.log('error confirming news to sqlite table (confirmNewsToSqlite)');
         return;
-      }else {  
-      // Check for internet connection
+      } else {  
+        // Check for internet connection
         if (navigator.onLine) {
           console.log("Sending news id to db:", news_id);
+          let token = localStorage.getItem("token");
           try {
-            const responseDb = await axios.post(
-              "https://backend.expressbild.org/index.php/rest/photographer_portal/newsread",
-              { id: news_id },
-              {
+            const responseDb = await axios.post("https://backend.expressbild.org/index.php/rest/photographer_portal/newsread", { id: news_id }, {
                 headers: {
                   Authorization: `Token ${token}`,
                   "Content-Type": "application/json",
-                },
-              },
+                }},
             );
             console.log("ResponseDb:", responseDb);
-
             // Check if the response status is 200
             if (responseDb.status === 200) {
-              console.log(
-                "Trigger method to update is_sent_date timestamp column in table NEWS",
-              );
+              console.log("Trigger method to update is_sent_date timestamp column in table NEWS",);
               try {
-                const responseNewsDate = await window.api.addSentDateToNews(news_id);
+                const responseNewsDate = await window.api.addSentDateToNews(news_id, user_id);
                 console.log("is_sent_date added to NEWS table", responseNewsDate);
+                if (responseNewsDate.status === 200) {
+                  setTimeout(() => {
+                    fetchAllNews();  
+                  }, 1000);
+                }
               } catch (error) {
                 console.log("Error adding is_sent_date in NEWS table", error);
               }
@@ -342,12 +326,10 @@ function Index() {
             console.log("error when sending news id to company database");
             console.log("error:", error);
           }
-        }
-
-        setTimeout(() => {
+        } else {
+          console.log('No internet connection');
           fetchAllNews();  
-        }, 1000);
-        
+        }
       }
     } catch (error) {
       console.log("error updatating news", error);
@@ -356,19 +338,20 @@ function Index() {
 
 
 
+
   // ----------- GET ALL CURRENT PROJECTS BY USER -----------
 
-  //get all current projects with user_id
-  useEffect(() => {
-    let user_id = localStorage.getItem("user_id");
-    const getAllProjects = async () => {
-      try {
-        const projects = await window.api.getAllCurrentProjects(user_id);
-        console.log("Projects:", projects.projects);
-        setProjectsArray(projects.projects);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
+    //get all current projects with user_id
+    useEffect(() => {
+      let user_id = localStorage.getItem("user_id");
+      const getAllProjects = async () => {
+        try {
+          const projects = await window.api.getAllCurrentProjects(user_id);
+          console.log("Projects:", projects.projects);
+          setProjectsArray(projects.projects);
+        } catch (error) {
+          console.error("Error fetching projects:", error);
+        }
     };
 
 
@@ -449,6 +432,7 @@ function Index() {
         confirmButtonText: 'Close',
       });
   };
+
 
 
 
@@ -568,19 +552,18 @@ function Index() {
         <hr style={{ width: "80%" }} className="hr"></hr>
 
         <div className="index-box">
-          {allNews &&
-            allNews.map((news) => (
+          {allNews && allNews.map((news) => (
               <div key={news.id} className="mb-4">
                 <div className="d-flex">
                   <h6>
                     <b>{news.title}</b>
                   </h6>
-                  {news.is_read === 1 && news.is_sent_date === null ? (
+                  {news && news.is_read === 1 && news.is_sent_date === null ? (
                     <h6 className="ml-2 confirmed-box" style={{ color: "green" }}>
                       <span style={{ fontSize: "0.75em" }}>Confirmed</span>
                       <FontAwesomeIcon icon={faCheck} title="Confirmed" style={{ fontSize: "0.75em" }} className="ml-1"/>
                     </h6>
-                  ) : news.is_read === 1 && news.is_sent_date !== null ? (
+                  ) : news && news.is_read === 1 && news.is_sent_date !== null ? (
                     <h6 className="ml-2 confirmed-box" style={{ color: "green" }}>
                       <span style={{ fontSize: "0.75em" }}>Confirmed & sent</span>
                       <FontAwesomeIcon icon={faCheckDouble} title="Confirmed & sent" style={{ fontSize: "0.75em" }} className="ml-1"/>
