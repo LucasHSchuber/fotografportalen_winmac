@@ -2034,7 +2034,7 @@ ipcMain.handle(
 
       await closeDatabase(db);
 
-      return { statusCode: 1, result };
+      return { status: 200, statusCode: 1, result };
     } catch (error) {
       console.error("Error sending project to db:", error);
       return { statusCode: 0, errorMessage: error.message };

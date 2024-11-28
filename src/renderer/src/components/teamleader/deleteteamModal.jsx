@@ -25,33 +25,34 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
         e.preventDefault();
         console.log("deleteInputValue", deleteInputValue.toLocaleLowerCase());
         console.log("teamName", teamName.toLocaleLowerCase());
-        if (deleteInputValue.toLocaleLowerCase() === teamName.toLocaleLowerCase()) {
-            console.log("Delete");
-            console.log(teamId);
-            try {
-                const deletedTeam = await window.api.deleteTeam(teamId);
-                console.log('deletedTeam:', deletedTeam);
+        const inputValue = deleteInputValue.toLocaleLowerCase();
+        const teamNameLower = teamName.toLocaleLowerCase();
 
-                if (deletedTeam?.status === 200) {
-                    setDeleteMessage("");
-                    handleCancel();
-                    updateFeedbackMessage(`${projectType === "school" ? "Class deleted successfully" : "Team deleted successfully"}`);
-                    refreshTeamData(); //refresh team data in parent
-                    localStorage.removeItem("team_id");
-                } else {
-                    console.log("Error when deleting team");
-                    updateFeedbackMessage(`${projectType === "school" ? "Error when deleting class" : "Error when deleting team"}`);
-
-                }
-                
-            } catch (error) {
-                console.error('Error deleting team:', error);
-            }
-
-        } else {
-            console.log("Do not match");
-            setDeleteMessage(projectType === "school" ? "Input does not match with class name" : "Input does not match with team name");
+        if (inputValue !== teamNameLower) {
+            console.log("Input does not match!");
+            // setDeleteMessage('Input must match with ' + '"' + teamNameLower + '"');
+            setDeleteMessage("Input must match with " + "'" + teamName + "'");
             return;
+        }
+     
+        try {
+            const deletedTeam = await window.api.deleteTeam(teamId);
+            console.log('deletedTeam:', deletedTeam);
+
+            if (deletedTeam?.status === 200) {
+                setDeleteMessage("");
+                handleCancel();
+                updateFeedbackMessage(`${projectType === "school" ? "Class deleted successfully" : "Team deleted successfully"}`);
+                refreshTeamData(); 
+                localStorage.removeItem("team_id");
+            } else {
+                console.log("Error when deleting team");
+                updateFeedbackMessage(`${projectType === "school" ? "Error when deleting class" : "Error when deleting team"}`);
+
+            }
+            
+        } catch (error) {
+            console.error('Error deleting team:', error);
         }
     };
 

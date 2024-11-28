@@ -41,6 +41,7 @@ function Home_filetransfer() {
 
   console.log("File:", files);
 
+
   //load loading bar on load
   useEffect(() => {
     // Check if the loading bar has been shown before
@@ -101,45 +102,26 @@ function Home_filetransfer() {
   //     inputRef.current.focus();
   //   }
   // };
-  const handleDrop = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setIsDragging(false); // Remove highlight
-  
-    const droppedFiles = Array.from(event.dataTransfer.files); // Get files
-    console.log("Dropped files:", droppedFiles);
-  
-    // Allow all files (no filtering)
-    setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
-  };
-  
+
   // const handleDrop = (event) => {
   //   event.preventDefault();
   //   event.stopPropagation();
-  //   setIsDragging(false); // Remove highlight
-
-  //   const droppedFiles = Array.from(event.dataTransfer.files); // Get files
+  //   setIsDragging(false); 
+  
+  //   const droppedFiles = Array.from(event.dataTransfer.files); 
   //   console.log("Dropped files:", droppedFiles);
-
-  //   // Filter allowed file types
-  //   const allowedFiles = droppedFiles.filter((file) =>
-  //     [".zip", ".rar", ".pdf"].some((ext) => file.name.endsWith(ext))
-  //   );
-
-  //   if (allowedFiles.length > 0) {
-  //     setFiles((prevFiles) => [...prevFiles, ...allowedFiles]);
-  //   } else {
-  //     alert("Only .zip, .rar, and .pdf files are allowed!");
-  //   }
+  
+  //   setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
   // };
+
   
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.dataTransfer.dropEffect = "copy";
-    setIsDragging(true); 
-  };
+  // const handleDragOver = (event) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   event.dataTransfer.dropEffect = "copy";
+  //   setIsDragging(true); 
+  // };
 
   // deleting files
   const handleDelete = (index) => {
@@ -355,6 +337,7 @@ function Home_filetransfer() {
   };
 
 
+  
 
 
   // Custom styles for the Select component
@@ -417,7 +400,7 @@ function Home_filetransfer() {
                     }))
                   }
                   isClearable
-                  placeholder="Choose project from list"
+                  placeholder="Select a job"
                   styles={customStyles}
                 />
               </div>
@@ -430,7 +413,7 @@ function Home_filetransfer() {
                   border: "1px solid #CACACA",
                   paddingLeft: "0.6em",
                 }}
-                placeholder="Create your own project name for upload"
+                placeholder="Create your own job name for upload"
                 onChange={(e) => handleProjectChangeNew(e.target.value)}
               />
               <button
@@ -441,17 +424,18 @@ function Home_filetransfer() {
                 }}
                 className="ml-2"
                 onClick={newProjectName}
+                title="Create your own job name for upload"
               >
                 <FontAwesomeIcon icon={faRepeat} />
               </button>
             </div>
 
             <div>
-              <div
+              {/* <div
                  onDrop={handleDrop}
                  onDragOver={handleDragOver}
                  onDragLeave={handleDragLeave}
-                //  className="drop-zone"
+                 id="drop-zone"
                   style={{
                     border: isDragging ? "1x solid #98d3f1" : files.length === 0 ? "1px dashed #ccc" : "1px solid #80df70",
                     padding: "90px",
@@ -467,20 +451,20 @@ function Home_filetransfer() {
                   ) : (
                     <h6 style={{ marginRight: "2em" }}>Files ({files.length})</h6>
                   )}
-              </div>
+              </div> */}
               <input
-                disabled={isUploading}
-                className="mt-3"
-                type="file"
-                onChange={handleFileChange}
-                multiple
-                placeholder="sdfsdf"
-                accept=".zip, .rar, .pdf"
-                style={{ color: "white" }}
+                  disabled={isUploading}
+                  className="mt-3"
+                  type="file"
+                  onChange={handleFileChange}
+                  multiple
+                  placeholder="sdfsdf"
+                  accept=".zip, .rar, .pdf"
+                  style={{ color: "white" }}
               />
               <div
-                className="my-4"
-                style={{ borderLeft: "1.5px solid #ccc", paddingLeft: "1em" }}
+                  className="my-4"
+                  style={{ borderLeft: "1.5px solid #ccc", paddingLeft: "1em" }}
               >
                 {chosenProjectName && (
                   <div>

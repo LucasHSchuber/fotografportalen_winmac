@@ -103,9 +103,15 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
             },
           }
         );
-        setLoading(false);
         console.log("response", response.data.result);
-        setData(response.data.result)
+        if (response.data.result.length > 0) {
+          setData(response.data.result)
+          setLoading(false);
+        } else {
+          console.log("No data in knowledgebase from API endpoint")
+          setLoading(false);
+        }
+        
       } catch (err) {
         console.error("Error fetching data:", err);
         setLoading(false);
@@ -214,11 +220,11 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
                   <h6 style={{ fontSize: "0.9em" }}>Search in knowledge base:</h6>
               </div>
               <div style={{ position: "relative" }}>
-                  <input className="form-input-field-fp" placeholder="Search..." value={searchString} onChange={(e) => handleSearchString(e.target.value)} style={{ fontSize: "0.85em", width: "30em" }} ></input>
+                  <input className="form-search-fp" placeholder="Search..." value={searchString} onChange={(e) => handleSearchString(e.target.value)} style={{ fontSize: "0.85em", width: "30em" }} ></input>
                   {searchString && (
                   <button 
                     title="Remove Search String"
-                    style={{ position: "absolute", left: "20.3em",  top: "50%",transform: "translateY(-50%)",border: "none",background: "transparent",cursor: "pointer",fontSize: "1.2em",color: "#888",padding: "0 0 0.4em 0",  outline: "none"}}
+                    style={{ position: "absolute", left: "20.1em",  top: "65%",transform: "translateY(-50%)",border: "none",background: "transparent",cursor: "pointer",fontSize: "1.2em",color: "#000",padding: "0 0 0.4em 0",  outline: "none"}}
                     onClick={() => handleSearchString("")}
                   >
                     &times;

@@ -187,10 +187,10 @@ function Prevwork_teamleader() {
                 <div className="mt-4 mb-5">
                     <div className="mb-3">
                         <div>
-                            <h6>Search for previous job:</h6>
+                            <h6 style={{ fontSize: "0.9em" }}>Search for previous job:</h6>
                         </div>
                         <div>
-                            <input className="form-input-field fixed" placeholder="Search for previous job.." value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
+                            <input className="form-input-field form-search-teamleader fixed" placeholder="Search.." value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
                         </div>
                     </div>
 

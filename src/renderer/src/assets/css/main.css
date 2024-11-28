@@ -356,6 +356,18 @@ background-color: rgb(227, 227, 227);
   padding: 4em 0 6em 4em;
   margin: 0 0 0 0;
 }
+
+.form-search-fp{
+  border-radius: 30px !important;
+  padding-left: 0.7em !important;
+  height: 2.2em !important;
+  border: 1px solid rgb(159, 159, 159) !important;
+}
+.form-search-fp:focus{
+  border: 1px solid rgb(0, 0, 0) !important;
+  outline: none;
+}
+
 .knowledgebase-box-left {
   max-width: 30% !important;
   /* width: 25%; */

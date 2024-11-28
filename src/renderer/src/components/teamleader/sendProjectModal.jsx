@@ -16,6 +16,8 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
     const [usernameMessage, setUsernameMessage] = useState("")
     const [errorLogginginMessage, setErrorLogginginMessage] = useState("");
 
+    const [uploadingJob, setUploadingJob] = useState(false);
+
     const navigate = useNavigate();
 
     // console.log(teams);
@@ -130,6 +132,7 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     //send job to database
     const sendJob = async () => {
+        setUploadingJob(true);
         const token = localStorage.getItem("token");
         console.log("token", token);
         console.log(alertSale);
@@ -175,25 +178,32 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
             console.log("Response:", response.data);
             console.log(response.data.project_id);
             const responseId = response.data.project_id;
-            
-            try {
-                const sentProject = await window.api.sendProjectToDb(project_id, alertSale, responseId);
-                console.log('Sent:', sentProject);
-                console.log(project_id);
-                console.log(alertSale);
-                console.log(responseId);
 
-                setShowConfirmationModal(false);
-                sessionStorage.setItem("feedbackMessage_sentproject", "Job successfully sent");
-                navigate("/prevwork_teamleader");
-            } catch (error) {
-                console.error('Error sending project:', error);
-                console.log("Job could not be sent");
+            if (response && responseId) {
+                try {
+                    const sentProject = await window.api.sendProjectToDb(project_id, alertSale, responseId);
+                    console.log('Sent:', sentProject);
+                    
+                    if (sentProject.status === 200){
+                        setShowConfirmationModal(false);
+                        sessionStorage.setItem("feedbackMessage_sentproject", "Job successfully sent");
+                        setUploadingJob(false);
+                        navigate("/prevwork_teamleader");
+                    } else {
+                        console.error("Error when adding responseId to projects table in local database");
+                    }
+                } catch (error) {
+                    console.error('Error sending project:', error);
+                    console.log("Job could not be sent");
+                    setUploadingJob(false);
+                }
+            } else {
+                console.error("No response_id sent from rest/teamleader/Upload - could not insert team/class data into local database")
             }
-
         }catch(error){
             console.log("error when sending data to company database");
             console.log("error:", error);
+            setUploadingJob(false);
         }   
     }
 
@@ -255,20 +265,19 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
             </Modal>
 
 
-            <Modal className="mt-5" show={showConfirmationModal} onHide={() => setShowConfirmationModal(false)}>
+            <Modal className="mt-5" show={showConfirmationModal} onHide={() => { if (!uploadingJob) {setShowConfirmationModal(false)}}}>
                 <Modal.Body className="mt-3 mb-3">
                     <Modal.Title><h5 className="mb-2" ><b>Are you sure you want to send in the job?</b></h5></Modal.Title>
                     <h6 className="mb-3" style={{ textDecoration: "underline" }}>This action can not be undone</h6>
 
                     <div className="mt-4">
-                        <Button className="button cancel fixed-width mr-1" onClick={cancelConfirmation}>
+                        <Button disabled={uploadingJob} className="button cancel fixed-width mr-1" onClick={cancelConfirmation}>
                             Cancel
                         </Button>
-                        <Button className="button standard fixed-width" onClick={() => sendJob()}>
+                        <Button disabled={uploadingJob} className="button standard fixed-width" style={{ cursor: uploadingJob ? "not-allowed" : "default"  }} onClick={() => sendJob()}>
                             Send in job
                         </Button>
                     </div>
-
                 </Modal.Body>
             </Modal>
         </>

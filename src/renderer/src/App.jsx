@@ -39,17 +39,9 @@ import './assets/css/teamleader/buttons_teamleader.css';
 
 
 function App() {
-  useEffect(() => {
-    document.addEventListener("dragover", (event) => event.preventDefault());
-    document.addEventListener("drop", (event) => event.preventDefault());
 
-    return () => {
-      document.removeEventListener("dragover", (event) => event.preventDefault());
-      document.removeEventListener("drop", (event) => event.preventDefault());
-    };
-  }, []);
 
-  
+
   return (
     <HashRouter >
 

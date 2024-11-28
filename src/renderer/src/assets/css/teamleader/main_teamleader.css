@@ -141,6 +141,12 @@
 
 /* PREV WORK */
 
+.form-search-teamleader{
+    border-radius: 30px !important;
+    padding-left: 0.7em !important;
+    height: 2.2em !important;
+}
+
 .prevwork-box-left,
 .prevwork-box-mid,
 .prevwork-box-right {
