@@ -136,19 +136,12 @@ app.whenReady().then(() => {
   app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
   });
-
-  // mainWindow.webContents.send("app-version", version); // Send the application version to the renderer process
-  // electronApp.setAppUserModelId("com.electron.app");
-
-  // app.on("browser-window-created", (_, window) => {
-  //   optimizer.watchWindowShortcuts(window);
-  // });
 });
 
 
 
 
-//send app version to front end
+// Send app version to front end
 ipcMain.handle("getCurrentAppVersion", async (event) => {
   log.info("Getting current version to front end");
   const version = app.getVersion();
@@ -259,12 +252,12 @@ function downloadFile(fileUrl, dest) {
             `Failed to download file: Status code ${response.statusCode}`,
           ),
         );
-        return response.resume(); // Consume response data to free up memory
+        return response.resume(); 
       }
 
       response.pipe(file);
       file.on("finish", () => {
-        file.close(() => resolve(dest)); // close() is async, call resolve after close completes.
+        file.close(() => resolve(dest));
       });
     }
 
@@ -272,12 +265,12 @@ function downloadFile(fileUrl, dest) {
     options.headers = { "User-Agent": "Mozilla/5.0" };
 
     https.get(options, handleRedirect).on("error", (err) => {
-      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
+      fs.unlink(dest, () => reject(err)); 
     });
 
     file.on("error", (err) => {
       // Handle errors on file write.
-      fs.unlink(dest, () => reject(err)); // Delete the file async. (Ignore result)
+      fs.unlink(dest, () => reject(err)); 
     });
   });
 }
@@ -303,7 +296,10 @@ process.on("uncaughtException", (error) => {
 
 log.info(process.resourcesPath);
 
-// DATABASE
+
+
+
+// ------ DATABASE -----
 
 //Database Connection And Instance
 // Construct the absolute path to the SQLite database file
@@ -320,13 +316,32 @@ if (isDev) {
 }
 
 // Create or open SQLite database
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(dbPath, async (err) => {
   if (err) {
     console.log("Database path:", dbPath);
     console.error("Error opening database:", err.message);
   } else {
     console.log("Connected to SQLite database");
-    createTables(); // Call the function to create tables
+  
+    try {
+      // Drop tables (if needed), then create and alter tables
+      // await dropTables();
+      await createTables();
+      // await alterTable();
+
+      // Add constraints and foreign keys
+      const currentVersion = await getCurrentSchemaVersion();
+      log.info("currentVersion: ", currentVersion);
+
+      await alterTable(currentVersion);
+      console.log("alterTable updates applied successfully");
+
+      // Apply schema updates
+      await applySchemaUpdates(currentVersion);
+      console.log("Schema updates applied successfully");
+    } catch (err) {
+      console.error("Error during table operations:", err);
+    }
   }
 });
 // Enable WAL mode
@@ -339,7 +354,32 @@ db.exec("PRAGMA journal_mode=WAL;", (err) => {
 });
 
 
+// // Function to drop tables
+// function dropTables() {
+//   const tablesToDrop = [];
+//   let remainingDrops = tablesToDrop.length;
 
+//   return new Promise((resolve, reject) => {
+//     if (tablesToDrop.length > 0) {
+//       tablesToDrop.forEach((table) => {
+//         db.run(`DROP TABLE IF EXISTS ${table};`, (err) => {
+//           if (err) {
+//             reject(`Error dropping ${table} table: ${err.message}`);
+//           } else {
+//             console.log(`${table} table dropped successfully.`);
+//             remainingDrops--;
+//             if (remainingDrops === 0) {
+//               resolve();
+//             }
+//           }
+//         });
+//       });
+//     } else {
+//       console.log("No tables to drop")
+//       resolve();
+//     }
+//   });
+// }
 
 // Function to create tables
 function createTables() {
@@ -450,10 +490,11 @@ function createTables() {
       query: `
         CREATE TABLE IF NOT EXISTS _projects (
           project_id_ INTEGER PRIMARY KEY AUTOINCREMENT,
-          project_uuid TEXT NOT NULL UNIQUE, -- Enforce uniqueness
+          project_uuid TEXT NOT NULL, 
           projectname TEXT NOT NULL,
           start TEXT NOT NULL,
           lang TEXT NOT NULL
+          -- UNIQUE project_uuid
         )
       `,
     },
@@ -498,10 +539,10 @@ function createTables() {
           updated_at TEXT,
           is_read BOOLEAN DEFAULT 0,
           is_sent_date TIMESTAMP DEFAULT NULL,
-          deleted BOOLEAN DEFAULT 0,
-          user_id INTEGER NOT NULL,
-          FOREIGN KEY (user_id) REFERENCES users(user_id),
-          UNIQUE (id, user_id)
+          deleted BOOLEAN DEFAULT 0
+          -- user_id INTEGER NOT NULL,
+          -- FOREIGN KEY (user_id) REFERENCES users(user_id),
+          -- UNIQUE (id, user_id)
         )
       `,
     },
@@ -529,68 +570,207 @@ function createTables() {
       CREATE TABLE IF NOT EXISTS timereport (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           projectname TEXT NOT NULL,
-          starttime TIME NOT NULL,
-          endtime TIME NOT NULL,
-          breaktime TIME DEFAULT '0,5',
-          miles DECIMAL(5, 2) DEFAULT 0,
-          tolls DECIMAL(5, 2) DEFAULT 0,
-          park DECIMAL(5, 2) DEFAULT 0,
-          other_fees DECIMAL(5, 2) DEFAULT 0,
+          starttime TEXT NOT NULL, -- Changed TIME to TEXT
+          endtime TEXT NOT NULL, -- Changed TIME to TEXT
+          breaktime REAL DEFAULT 0.5, -- Use REAL for decimal numbers
+          miles REAL DEFAULT 0, -- Use REAL for decimal numbers
+          tolls REAL DEFAULT 0, -- Use REAL for decimal numbers
+          park REAL DEFAULT 0, -- Use REAL for decimal numbers
+          other_fees REAL DEFAULT 0, -- Use REAL for decimal numbers
           is_sent BOOLEAN DEFAULT 0,
-          is_sent_permanent BOOLEAN DEFAULT 0,
           created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           project_date TEXT NOT NULL,
           user_id INTEGER NOT NULL,
-          project_id INTEGER NOT NULL,
-          FOREIGN KEY (user_id) REFERENCES users(user_id),
-          FOREIGN KEY (project_id) REFERENCES projects(project_id),
-          UNIQUE (project_id, user_id)
+          project_id INTEGER NOT NULL
+          -- is_sent_permanent BOOLEAN DEFAULT 0,
+          -- FOREIGN KEY (user_id) REFERENCES users(user_id),
+          -- FOREIGN KEY (project_id) REFERENCES projects(project_id),
+          -- UNIQUE (project_id, user_id)
+        )
+      `
+    },
+    {
+      name: "schema_version",
+      query: `
+      CREATE TABLE IF NOT EXISTS schema_version (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          version INTEGER NOT NULL,
+          applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
       `
     }
   ];
 
-  tableDefinitions.forEach(({ name, query }) => {
-    db.run(query, (err) => {
+  return new Promise((resolve, reject) => {
+    let createdTables = 0;
+    tableDefinitions.forEach(({ name, query }) => {
+      db.run(query, (err) => {
+        if (err) {
+          reject(`Error creating ${name} table: ${err.message}`);
+        } else {
+          console.log(`${name} table created successfully`);
+          createdTables++;
+          if (createdTables === tableDefinitions.length) {
+            resolve();
+          }
+        }
+      });
+    });
+  });
+}
+
+
+
+
+// Get latest version from schema_version table
+function getCurrentSchemaVersion() {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT MAX(version) as version FROM schema_version;`, (err, row) => {
       if (err) {
-        console.error(`Error creating ${name} table:`, err.message);
+        console.error("Error fetching schema version:", err.message);
+        reject(err);
       } else {
-        console.log(`${name} table created successfully`);
+        resolve(row?.version || 0); // Default to 0 if no rows exist
       }
     });
   });
 }
 
-// // Function to insert data into tables
-// function insertDataToTables() {
-//   db.run(
-//     `
-//   INSERT INTO users (email, firstname, lastname, city, lang, token) 
-//   VALUES ('user@example.com', 'John', 'Doe', 'New York', 'SE', '123xyz')
-//   `,
-//     (err) => {
-//       if (err) {
-//         console.error("Error inserting user:", err.message);
-//       } else {
-//         console.log("User inserted successfully");
-//       }
-//     },
-//   );
 
-//   db.run(
-//     `
-//   INSERT INTO users (email, firstname, lastname, city, lang, token) 
-//   VALUES ('lucas@example.com', 'Lucas', 'Schuber', 'Stockholm', 'SE', 'abc098')
-//   `,
-//     (err) => {
-//       if (err) {
-//         console.error("Error inserting user:", err.message);
-//       } else {
-//         console.log("User inserted successfully");
-//       }
-//     },
-//   );
-// }
+
+function alterTable(currentVersion) {
+  const updates = [
+    {
+      version: 102.1,
+      query: `ALTER TABLE news ADD COLUMN user_id INTEGER;`,
+    },
+    {
+      version: 102.2,
+      query: `ALTER TABLE timereport ADD COLUMN is_sent_permanent BOOLEAN DEFAULT 0;`,
+    },
+  ];
+
+  // Sort updates by version to ensure correct order
+  const sortedUpdates = updates.filter((update) => update.version > currentVersion);
+
+  // Map updates to Promises
+  const updatePromises = sortedUpdates.map((update) => {
+    return new Promise((resolve, reject) => {
+      db.run(update.query, (err) => {
+        if (err) {
+          console.error(`Error applying update to version ${update.version}:`, err.message);
+          reject(err);
+        } else {
+          console.log(`Successfully applied schema update to version ${update.version}`);
+          // Update schema version in the database
+          db.run(
+            `INSERT INTO schema_version (version) VALUES (?)`,
+            [update.version],
+            (insertErr) => {
+              if (insertErr) {
+                console.error("Error updating schema version:", insertErr.message);
+                reject(insertErr); // Reject if version update fails
+              } else {
+                console.log(`Schema version updated to ${update.version}`);
+                resolve(); // Resolve when everything is successful
+              }
+            }
+          );
+        }
+      });
+    });
+  });
+
+  // Return Promise.all for aggregated results
+  return Promise.all(updatePromises)
+    .then(() => {
+      console.log("All schema updates have been applied successfully.");
+    })
+    .catch((err) => {
+      console.error("One or more schema updates failed:", err.message);
+    });
+}
+
+
+
+// Aplly updates based on version
+function applySchemaUpdates(currentVersion) {
+  const updates = [
+    {
+      version: 102.3,
+      query: `
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_uuid ON _projects (project_uuid);
+      `,
+    },
+    {
+      version: 102.4,
+      query: `
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_news_id_user_id ON news (id, user_id);
+      `,
+    }
+  ];
+
+  // Filter updates that need to be applied
+  const updatesToApply = updates.filter((update) => update.version > currentVersion);
+
+  // Map updates to Promises
+  const updatePromises = updatesToApply.map((update) => {
+    return new Promise((resolve, reject) => {
+      db.run(update.query, (err) => {
+        if (err) {
+          console.error(`Error applying update to version ${update.version}:`, err.message);
+          reject(err); // Reject if error occurs
+        } else {
+          console.log(`Applied schema update to version ${update.version}`);
+
+          // Update schema version in the database
+          db.run(
+            `INSERT INTO schema_version (version) VALUES (?)`,
+            [update.version],
+            (insertErr) => {
+              if (insertErr) {
+                console.error("Error updating schema version:", insertErr.message);
+                reject(insertErr); // Reject if version update fails
+              } else {
+                console.log(`Schema version updated to ${update.version}`);
+                resolve(); // Resolve when everything is successful
+              }
+            }
+          );
+        }
+      });
+    });
+  });
+
+  // Use Promise.all to ensure all updates are applied
+  return Promise.all(updatePromises)
+    .then(() => {
+      console.log("All schema updates have been successfully applied.");
+    })
+    .catch((err) => {
+      console.error("One or more schema updates failed:", err.message);
+    });
+}
+
+
+
+  // add UNIQUE to project_uuid in _projects table
+
+  // add user_id to news table
+  // FOREIGN KEY (user_id) REFERENCES users(user_id) to news table
+  // UNIQUE (id, user_id) to news table
+
+  // add is_sent_permanent BOOLEAN DEFAULT 0 to timereport table
+  // FOREIGN KEY (user_id) REFERENCES users(user_id) to timereport table
+  // FOREIGN KEY (project_id) REFERENCES projects(project_id) to timereport table
+  // UNIQUE (project_id, user_id) to timereport table
+
+
+
+
+
+
+
 
 //Get user token
 ipcMain.handle("updateUserToken", async (event, token, user_id) => {

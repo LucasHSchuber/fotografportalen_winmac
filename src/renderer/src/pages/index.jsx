@@ -23,6 +23,8 @@ import DOMPurify from "dompurify";
 
 function Index() {
   //define states
+  const [loadingNews, setLoadingNews] = useState(false);
+
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState("");
   const [projectsArray, setProjectsArray] = useState([]);
@@ -196,12 +198,13 @@ function Index() {
 
   // ---------- NEWS METHODS ---------- 
 
-  //fetch all news from company database
+  //fetch all news from company database and displaying news in interface from local database 
   const fetchAllNews = async () => {
+    setLoadingNews(true);
     const allNews = await fetchNews();
     console.log("allnews", allNews);
 
-    if (allNews !== null){
+    // if (allNews !== null){
       const user_id = localStorage.getItem("user_id");
       try {
         const newsFromTable = await window.api.get_news(user_id);
@@ -210,13 +213,16 @@ function Index() {
           const sortedNews = newsFromTable.news.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           console.log('sortedNews', sortedNews);
           setAllNews(sortedNews);
+          setLoadingNews(false);
         } else {
           console.log('Could not fetch news from local table');
+          setLoadingNews(false);
         }
       } catch (error) {
         console.log("Error fetching news from table:", error);
+        setLoadingNews(false);
       }
-    }
+    // }
   };
   useEffect(() => {
     fetchAllNews();
@@ -552,7 +558,10 @@ function Index() {
         <hr style={{ width: "80%" }} className="hr"></hr>
 
         <div className="index-box">
-          {allNews && allNews.map((news) => (
+          {loadingNews ? (
+            <div><p>Please wait while loading news...</p></div>
+          ) : 
+            allNews && allNews.map((news) => (
               <div key={news.id} className="mb-4">
                 <div className="d-flex">
                   <h6>
