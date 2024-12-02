@@ -81,7 +81,7 @@ function Home_timereport() {
             const timer = setTimeout(() => {
                 setLoading(false);
                 sessionStorage.setItem("hasHomeTimereportLoadingBarShown", "true");
-            }, 2000);
+            }, 1950);
 
             return () => clearTimeout(timer);
         } else {

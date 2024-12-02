@@ -41,7 +41,7 @@ function Home_teamleader() {
             const timer = setTimeout(() => {
                 setLoading(false);
                 sessionStorage.setItem("hasHomeTeamleaderLoadingBarShown", "true");
-            }, 2000);
+            }, 1950);
 
             return () => clearTimeout(timer);
         } else {

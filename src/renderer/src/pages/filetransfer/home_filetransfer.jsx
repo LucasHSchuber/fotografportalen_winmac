@@ -53,7 +53,7 @@ function Home_filetransfer() {
       const timer = setTimeout(() => {
         setLoading(false);
         sessionStorage.setItem("hasHomeFiletransferLoadingBarShown", "true");
-      }, 2000);
+      }, 1950);
 
       return () => clearTimeout(timer);
     } else {
