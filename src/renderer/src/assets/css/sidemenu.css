@@ -21,7 +21,7 @@
     padding: 10px;
 }
 
-.link-box:hover .link-img {
+.link-img:hover {
     transform: rotate(5deg);
 }
 

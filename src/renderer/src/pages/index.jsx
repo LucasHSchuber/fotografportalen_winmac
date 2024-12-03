@@ -293,6 +293,12 @@ function Index() {
   const confirmNews = async (news_id) => {
     console.log("Confirm news!", news_id);
     const user_id = localStorage.getItem("user_id");
+
+    if (!news_id || !user_id) {
+      console.log("Missing news_id or user_id.");
+      return;
+    }
+
     try {
       const responseSqlite = await window.api.confirmNewsToSqlite(news_id, user_id);
       console.log("confirm news successfully updated", responseSqlite);
@@ -322,7 +328,7 @@ function Index() {
                 if (responseNewsDate.status === 200) {
                   setTimeout(() => {
                     fetchAllNews();  
-                  }, 1000);
+                  }, 100);
                 }
               } catch (error) {
                 console.log("Error adding is_sent_date in NEWS table", error);

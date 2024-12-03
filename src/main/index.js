@@ -1085,16 +1085,12 @@ ipcMain.handle("get_news", async (event, user_id) => {
 
 //confirm news and edit news table
 ipcMain.handle("confirmNewsToSqlite", async (event, news_id, user_id) => {
+  if (!news_id || !user_id) {
+    throw new Error("Missing required data (news_id or user_id) for confirmNewsToSqlite");
+  }
   try {
-    if (!news_id || !user_id) {
-      throw new Error("Missing required data (news_id or user_id) for confirmNewsToSqlite");
-    }
-
-    const result = await db.run(
-      `
-      UPDATE news
-      SET 
-        is_read = 1 WHERE id = ? AND user_id = ?
+    await db.run(
+      `UPDATE news SET is_read = 1 WHERE id = ? AND user_id = ?
       `,
       [news_id, user_id],
     );
@@ -1102,7 +1098,7 @@ ipcMain.handle("confirmNewsToSqlite", async (event, news_id, user_id) => {
     console.log(`News data updated successfully`);
     return { success: true };
   } catch (err) {
-    console.error("Error updating confirm news:", err.message);
+    console.error("Error updating confirm news in SQLite:", err.message);
     return { error: err.message };
   }
 });
