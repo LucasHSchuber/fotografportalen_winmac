@@ -70,13 +70,13 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
     return (
         <Modal className="mt-5" show={showDeleteModal} onHide={handleClose}>
             <Modal.Body className="mt-3 mb-3">
-                <Modal.Title><h5 className="mb-2 error"><b>Delete project</b></h5></Modal.Title>
-                <h6 className="mb-3"><em>Type in "{projectName}" to delete the project </em></h6>
+                <Modal.Title><h5 className="mb-2 error"><b>Delete Job</b></h5></Modal.Title>
+                <h6 className="mb-3"><em>Type in "<b>{projectName}</b>" to delete the job </em></h6>
                 {/* <h6 className="mb-4" style={{ color: "red", textDecoration: "underline" }}>This action can not be undone</h6> */}
                 <form onSubmit={(e) => e.preventDefault()}>
                     <input
                         className="form-input-field"
-                        placeholder="Project name"
+                        placeholder="Enter job name.."
                         style={{ border: "1px solid red", width: "20em" }}
                         value={deleteInputValue}
                         onChange={handleInputChange}
@@ -90,12 +90,12 @@ const DeleteProjectModal = ({ showDeleteModal, handleClose, projectName }) => {
                         )}
                     </div>
                     
-                    <div className="mt-2">
+                    <div className="mt-4">
                         <Button className="button cancel fixed-width mr-1" type="button" onClick={handleCancel}>
                             Cancel
                         </Button>
                         <Button className="button delete fixed-width" type="submit" onClick={handleDelete}>
-                            Delete project
+                            Delete Job
                         </Button>
                     </div>
                 </form>

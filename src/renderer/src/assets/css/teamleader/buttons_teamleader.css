@@ -35,7 +35,18 @@
 .close {
     background-color: inherit;
     color: black !important;
+    padding: 0 0.3em !important;
+    transition: 0.1s;
 }
+.close:hover {
+    padding: 0 0.3em !important;
+    border-radius: 50%;
+    background-color: rgb(215, 215, 215);
+}
+.close:focus {
+    outline: none;
+}
+
 .close-circle {
     background-color: inherit;
     color: black !important;

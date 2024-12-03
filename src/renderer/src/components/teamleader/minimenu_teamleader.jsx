@@ -82,26 +82,26 @@ const Minimenu_teamleader = ({ project_type, project_id, project_name, toggleAno
                     style={{ marginBottom: "18em", marginTop: "1em" }}
                     onClick={() => deleteProject()}
                 >
-                    <span className="button-title button-title-delete">Delete project</span>
+                    <span className="button-title button-title-delete">Delete Job</span>
                     <FontAwesomeIcon icon={faTrashAlt} />
                 </button>
 
                 <button className="minimenu-button"
                     onClick={() => createNewTeam()}
                 >
-                    <span className="button-title button-title-createnew">{project_type === "school" ? "Create new class" : "Create new team"}</span>
+                    <span className="button-title button-title-createnew">{project_type === "school" ? "Create New Class" : "Create New Team"}</span>
                     <FontAwesomeIcon icon={faPlus} />
                 </button>
                 <button className="minimenu-button"
                     onClick={() => openConfirmControlSheetModal()}
                 >
-                    <span className="button-title button-title-sendjob">Send job</span>
+                    <span className="button-title button-title-sendjob">Submit Job</span>
                     <FontAwesomeIcon icon={faPaperPlane} />
                 </button>
                 <button className="minimenu-button"
                     onClick={toggleAnomalyReport}
                 >
-                    <span className="button-title button-title-toggleanomalyreport">Open anomaly report</span>
+                    <span className="button-title button-title-toggleanomalyreport">Open Anomaly Report</span>
                     <FontAwesomeIcon icon={faFlag} />
                 </button>
             </div>

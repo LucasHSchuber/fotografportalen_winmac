@@ -3,7 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 // import "../../assets/css/teamleader/newprojectModal.css";
 
@@ -43,7 +43,7 @@ const ControlSheetModal = ({ showControlSheetModal, projectForControlSheet, hand
                 {projectForControlSheet && (
                     <div key={projectForControlSheet.project_id} className="controlsheet-modal-info-box" >
                         <h6><span>Photographer:</span> {projectForControlSheet.photographername}</h6>
-                        <h6><span>Project name:</span> {projectForControlSheet.projectname}</h6>
+                        <h6><span>Job name:</span> {projectForControlSheet.projectname}</h6>
                         <h6><span>Created:</span> {projectForControlSheet.created}</h6>
                         <h6><span>Sent:</span> {projectForControlSheet.sent_date}</h6>
                     </div>
@@ -105,7 +105,7 @@ const ControlSheetModal = ({ showControlSheetModal, projectForControlSheet, hand
                             <div className="mt-4 d-flex">
                                 {/* <h6><span>Alert sale</span></h6> */}
                                 {projectForControlSheet.alert_sale && projectForControlSheet.alert_sale === 1
-                                    ? <h6><FontAwesomeIcon icon={faCheck} color="green" className="mx-1" /> <em>Sales alerted</em></h6> : <h6><em>Sales not alerted</em></h6>}
+                                    ? <h6><FontAwesomeIcon icon={faCheck} color="green" className="mx-1" /> <em>Sales alerted</em></h6> : <h6><FontAwesomeIcon icon={faXmark} color="red" className="mx-1" /><em>Sales not alerted</em></h6>}
                             </div>
                         </div>
                     )}

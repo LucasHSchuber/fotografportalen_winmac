@@ -45,7 +45,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                 {project && (
                     <div key={project.project_id} className="controlsheet-modal-info-box" >
                         <h6><span>Photographer:</span> {project.photographername}</h6>
-                        <h6><span>Project name:</span> {project.projectname}</h6>
+                        <h6><span>Job name:</span> {project.projectname}</h6>
                         <h6><span>Created:</span> {project.created}</h6>
                     </div>
                 )}
@@ -126,7 +126,7 @@ const ConfirmControlSheetModal = ({ showConfirmControlSheetModal, handleCloseCon
                         Close
                     </Button>
                     <Button className="button standard fixed-width" onClick={confirmJob}>
-                        Send Job
+                        Submit Job
                     </Button>
                 </div>
 

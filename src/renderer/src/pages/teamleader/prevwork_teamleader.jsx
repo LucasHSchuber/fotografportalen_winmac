@@ -181,7 +181,7 @@ function Prevwork_teamleader() {
 
                 <div className="header">
                     <h4><img className="title-img" src={suitcase_black} alt="suitcase" /> Previous Jobs</h4>
-                    <p>This are your prevoius jobs. All the jobs are locked since they have been sent in. In case important information have been missed out in one of your previous jobs, please contact the office.</p>
+                    <p>This are your prevoius jobs. All the jobs are locked since they have been submitted. In case important information have been missed out in one of your previous jobs, please contact the office.</p>
                 </div>
 
                 <div className="mt-4 mb-5">
@@ -197,15 +197,15 @@ function Prevwork_teamleader() {
                     {projectsArray && projectsArray.length > 0 ? (
                         projectsArray.sort((a, b) => new Date(b.sent_date) - new Date(a.sent_date)).map(project => (
                             <div key={project.project_id} className="prevwork-box d-flex mb-2">
-                                <div className="prevwork-box-left d-flex justify-content-between" title={project.projectname}>
+                                <div className="prevwork-box-left d-flex justify-content-between" title={`Job name: ${project.projectname}`}>
                                     <div className="d-flex">
                                         <p className="ml-2">{project.type === "school" ? <img className="type-img-currwork" src={academic_gray} alt="academic"></img> : <img className="type-img-currwork" src={running_gray} alt="running"></img>}</p>
                                         <p className="ml-3">{project.projectname.length > 73 ? project.projectname.substring(0, 73) + "..." : project.projectname}</p>
                                     </div>
-                                    <FontAwesomeIcon className="mt-1" icon={faLock} />
+                                    <FontAwesomeIcon className="mt-1" icon={faLock} title={`Job locked`} />
                                 </div>
 
-                                <div className="prevwork-box-mid mx-2" title="Sent date">
+                                <div className="prevwork-box-mid mx-2" title="Submitted date">
                                     <p className="ml-2"> <FontAwesomeIcon icon={faPaperPlane} /> {project.sent_date.substring(0, 10)}</p>
                                 </div>
                                 <div className="prevwork-box-right"
@@ -224,7 +224,7 @@ function Prevwork_teamleader() {
                         ))
                     ) : (
                         <div>
-                            <p>No projects found.</p>
+                            <p>No jobs found.</p>
                             <a style={{ textDecoration: "underline" }} href="#" onClick={() => window.location.reload()}>Reload page</a>
                         </div>
                     )}

@@ -300,6 +300,9 @@ log.info(process.resourcesPath);
 
 
 // ------ DATABASE -----
+// Import external db files
+import alterTable from "./alterTable_db"
+import applySchemaUpdates from "./applySchemaUpdates_db"
 
 //Database Connection And Instance
 // Construct the absolute path to the SQLite database file
@@ -332,11 +335,11 @@ const db = new sqlite3.Database(dbPath, async (err) => {
       log.info("currentVersion: ", currentVersion);
 
       // Add columns to tables
-      await alterTable(currentVersion);
+      await alterTable(db, currentVersion);
       console.log("alterTable updates applied successfully");
 
       // Add constraints and foreign keys
-      await applySchemaUpdates(currentVersion);
+      await applySchemaUpdates(db, currentVersion);
       console.log("Schema updates applied successfully");
     } catch (err) {
       console.error("Error during table operations:", err);
@@ -352,33 +355,19 @@ db.exec("PRAGMA journal_mode=WAL;", (err) => {
   }
 });
 
-
-// // Function to drop tables
-// function dropTables() {
-//   const tablesToDrop = [];
-//   let remainingDrops = tablesToDrop.length;
-
-//   return new Promise((resolve, reject) => {
-//     if (tablesToDrop.length > 0) {
-//       tablesToDrop.forEach((table) => {
-//         db.run(`DROP TABLE IF EXISTS ${table};`, (err) => {
-//           if (err) {
-//             reject(`Error dropping ${table} table: ${err.message}`);
-//           } else {
-//             console.log(`${table} table dropped successfully.`);
-//             remainingDrops--;
-//             if (remainingDrops === 0) {
-//               resolve();
-//             }
-//           }
-//         });
-//       });
-//     } else {
-//       console.log("No tables to drop")
-//       resolve();
-//     }
-//   });
-// }
+// Get latest version from schema_version table
+function getCurrentSchemaVersion() {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT MAX(version) as version FROM schema_version;`, (err, row) => {
+      if (err) {
+        console.error("Error fetching schema version:", err.message);
+        reject(err);
+      } else {
+        resolve(row?.version || 0); 
+      }
+    });
+  });
+}
 
 // Function to create tables
 function createTables() {
@@ -592,7 +581,6 @@ function createTables() {
       `
     }
   ];
-
   return new Promise((resolve, reject) => {
     let createdTables = 0;
     tableDefinitions.forEach(({ name, query }) => {
@@ -611,135 +599,147 @@ function createTables() {
   });
 }
 
+// // Function to drop tables
+// function dropTables() {
+//   const tablesToDrop = [];
+//   let remainingDrops = tablesToDrop.length;
 
-// Get latest version from schema_version table
-function getCurrentSchemaVersion() {
-  return new Promise((resolve, reject) => {
-    db.get(`SELECT MAX(version) as version FROM schema_version;`, (err, row) => {
-      if (err) {
-        console.error("Error fetching schema version:", err.message);
-        reject(err);
-      } else {
-        resolve(row?.version || 0); 
-      }
-    });
-  });
-}
-
-
-function alterTable(currentVersion) {
-  const updates = [
-    {
-      version: 102.1,
-      query: `ALTER TABLE news ADD COLUMN user_id INTEGER;`,
-    },
-    {
-      version: 102.2,
-      query: `ALTER TABLE timereport ADD COLUMN is_sent_permanent BOOLEAN DEFAULT 0;`,
-    },
-  ];
-
-  // Sort updates by version to ensure correct order
-  const sortedUpdates = updates.filter((update) => update.version > currentVersion);
-
-  // Map updates to Promises
-  const updatePromises = sortedUpdates.map((update) => {
-    return new Promise((resolve, reject) => {
-      db.run(update.query, (err) => {
-        if (err) {
-          console.error(`Error applying update to version ${update.version}:`, err.message);
-          reject(err);
-        } else {
-          console.log(`Successfully applied schema update to version ${update.version}`);
-          db.run(
-            `INSERT INTO schema_version (version) VALUES (?)`,
-            [update.version],
-            (insertErr) => {
-              if (insertErr) {
-                console.error("Error updating schema version:", insertErr.message);
-                reject(insertErr); 
-              } else {
-                console.log(`Schema version updated to ${update.version}`);
-                resolve(); 
-              }
-            }
-          );
-        }
-      });
-    });
-  });
-
-  // Return Promise.all for aggregated results
-  return Promise.all(updatePromises)
-    .then(() => {
-      console.log("All schema updates have been applied successfully.");
-    })
-    .catch((err) => {
-      console.error("One or more schema updates failed:", err.message);
-    });
-}
+//   return new Promise((resolve, reject) => {
+//     if (tablesToDrop.length > 0) {
+//       tablesToDrop.forEach((table) => {
+//         db.run(`DROP TABLE IF EXISTS ${table};`, (err) => {
+//           if (err) {
+//             reject(`Error dropping ${table} table: ${err.message}`);
+//           } else {
+//             console.log(`${table} table dropped successfully.`);
+//             remainingDrops--;
+//             if (remainingDrops === 0) {
+//               resolve();
+//             }
+//           }
+//         });
+//       });
+//     } else {
+//       console.log("No tables to drop")
+//       resolve();
+//     }
+//   });
+// }
 
 
+// function alterTable(currentVersion) {
+//   const updates = [
+//     {
+//       version: 102.1,
+//       query: `ALTER TABLE news ADD COLUMN user_id INTEGER;`,
+//     },
+//     {
+//       version: 102.2,
+//       query: `ALTER TABLE timereport ADD COLUMN is_sent_permanent BOOLEAN DEFAULT 0;`,
+//     },
+//   ];
 
-// Aplly updates based on version
-function applySchemaUpdates(currentVersion) {
-  const updates = [
-    {
-      version: 102.3,
-      query: `
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_uuid ON _projects (project_uuid);
-      `,
-    },
-    {
-      version: 102.4,
-      query: `
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_news_id_user_id ON news (id, user_id);
-      `,
-    },
-    {
-      version: 102.5,
-      query: `
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_user ON timereport (project_id, user_id);
-      `,
-    }
-  ];
-  // Filter updates that need to be applied
-  const updatesToApply = updates.filter((update) => update.version > currentVersion);
-  const updatePromises = updatesToApply.map((update) => {
-    return new Promise((resolve, reject) => {
-      db.run(update.query, (err) => {
-        if (err) {
-          console.error(`Error applying update to version ${update.version}:`, err.message);
-          reject(err); 
-        } else {
-          console.log(`Applied schema update to version ${update.version}`);
-          db.run(
-            `INSERT INTO schema_version (version) VALUES (?)`,
-            [update.version],
-            (insertErr) => {
-              if (insertErr) {
-                console.error("Error updating schema version:", insertErr.message);
-                reject(insertErr);
-              } else {
-                console.log(`Schema version updated to ${update.version}`);
-                resolve(); 
-              }
-            }
-          );
-        }
-      });
-    });
-  });
+//   // Sort updates by version to ensure correct order
+//   const sortedUpdates = updates.filter((update) => update.version > currentVersion);
 
-  // Use Promise.all to ensure all updates are applied
-  return Promise.all(updatePromises)
-    .then(() => {
-      console.log("All schema updates have been successfully applied.");
-    })
-    .catch((err) => {
-      console.error("One or more schema updates failed:", err.message);
-    });
-}
+//   // Map updates to Promises
+//   const updatePromises = sortedUpdates.map((update) => {
+//     return new Promise((resolve, reject) => {
+//       db.run(update.query, (err) => {
+//         if (err) {
+//           console.error(`Error applying update to version ${update.version}:`, err.message);
+//           reject(err);
+//         } else {
+//           console.log(`Successfully applied schema update to version ${update.version}`);
+//           db.run(
+//             `INSERT INTO schema_version (version) VALUES (?)`,
+//             [update.version],
+//             (insertErr) => {
+//               if (insertErr) {
+//                 console.error("Error updating schema version:", insertErr.message);
+//                 reject(insertErr); 
+//               } else {
+//                 console.log(`Schema version updated to ${update.version}`);
+//                 resolve(); 
+//               }
+//             }
+//           );
+//         }
+//       });
+//     });
+//   });
+
+//   // Return Promise.all for aggregated results
+//   return Promise.all(updatePromises)
+//     .then(() => {
+//       console.log("All schema updates have been applied successfully.");
+//     })
+//     .catch((err) => {
+//       console.error("One or more schema updates failed:", err.message);
+//     });
+// }
+
+
+
+// // Aplly updates based on version
+// function applySchemaUpdates(currentVersion) {
+//   const updates = [
+//     {
+//       version: 102.3,
+//       query: `
+//         CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_uuid ON _projects (project_uuid);
+//       `,
+//     },
+//     {
+//       version: 102.4,
+//       query: `
+//         CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_news_id_user_id ON news (id, user_id);
+//       `,
+//     },
+//     {
+//       version: 102.5,
+//       query: `
+//         CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_user ON timereport (project_id, user_id);
+//       `,
+//     }
+//   ];
+//   // Filter updates that need to be applied
+//   const updatesToApply = updates.filter((update) => update.version > currentVersion);
+//   const updatePromises = updatesToApply.map((update) => {
+//     return new Promise((resolve, reject) => {
+//       db.run(update.query, (err) => {
+//         if (err) {
+//           console.error(`Error applying update to version ${update.version}:`, err.message);
+//           reject(err); 
+//         } else {
+//           console.log(`Applied schema update to version ${update.version}`);
+//           db.run(
+//             `INSERT INTO schema_version (version) VALUES (?)`,
+//             [update.version],
+//             (insertErr) => {
+//               if (insertErr) {
+//                 console.error("Error updating schema version:", insertErr.message);
+//                 reject(insertErr);
+//               } else {
+//                 console.log(`Schema version updated to ${update.version}`);
+//                 resolve(); 
+//               }
+//             }
+//           );
+//         }
+//       });
+//     });
+//   });
+
+//   // Use Promise.all to ensure all updates are applied
+//   return Promise.all(updatePromises)
+//     .then(() => {
+//       console.log("All schema updates have been successfully applied.");
+//     })
+//     .catch((err) => {
+//       console.error("One or more schema updates failed:", err.message);
+//     });
+// }
 
 
 

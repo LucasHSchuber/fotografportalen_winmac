@@ -123,7 +123,7 @@ function Currwork_teamleader() {
             <div className="currwork-teamleader-content">
                 <div className="header">
                     <h4><img className="title-img" src={flash_black} alt="flash" /> Current Jobs</h4>
-                    <p>This are your current jobs. If a job is finished and ready to be sent in, press the paper plane icon in order to send the job.</p>
+                    <p>These are your current jobs that are still in progress. Press the job name to manage or keep working on the job. If a job is finished and ready to be submitted, press the paper plane icon in order to submit the job.</p>
                 </div>
 
                 <div className="my-5">
@@ -142,7 +142,7 @@ function Currwork_teamleader() {
                                 <div className="currwork-box-right mx-2"
                                     value={project.project_id}
                                     onClick={() => sendProject(project)}
-                                    title={`Send job: ${project.projectname}`}
+                                    title={`Submit Job: ${project.projectname}`}
                                 >
                                     <FontAwesomeIcon icon={faPaperPlane} />
                                 </div>

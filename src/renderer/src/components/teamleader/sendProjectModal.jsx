@@ -210,10 +210,11 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
 
     return (
         <>
+            {/* Send Modal */}
             <Modal className="mt-5" show={showSendProjectModal} onHide={handleCloseProjectModal}>
                 <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h5 className="mb-2" ><b>Send in job</b></h5></Modal.Title>
-                    <h6 className="mb-3">You must log in to be able to send in this job</h6>
+                    <Modal.Title><h5 className="mb-2" ><b>Submit Job</b></h5></Modal.Title>
+                    <h6 className="mb-3">You must verify your credentials to be able to submit this job</h6>
 
                     <div style={{ textAlign: "left", marginLeft: "3em" }}>
                         {usernameMessage || passwordMessage || errorLogginginMessage ? (
@@ -227,7 +228,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             </>
                         )}
                     </div>
-
                     <div>
                         <input
                             className="form-input-field"
@@ -251,7 +251,6 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             }}
                         />
                     </div>
-
                     <div className="mt-3">
                         <Button className="button cancel fixed-width mr-1" onClick={closeModal}>
                             Cancel
@@ -260,22 +259,23 @@ const sendProjectModal = ({ showSendProjectModal, project_id, handleCloseProject
                             Log in
                         </Button>
                     </div>
-
                 </Modal.Body>
             </Modal>
 
 
+
+            {/* Confirm modal */}
             <Modal className="mt-5" show={showConfirmationModal} onHide={() => { if (!uploadingJob) {setShowConfirmationModal(false)}}}>
                 <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h5 className="mb-2" ><b>Are you sure you want to send in the job?</b></h5></Modal.Title>
+                    <Modal.Title><h5 className="mb-2" ><b>Are you sure you want to submit this job?</b></h5></Modal.Title>
                     <h6 className="mb-3" style={{ textDecoration: "underline" }}>This action can not be undone</h6>
 
                     <div className="mt-4">
                         <Button disabled={uploadingJob} className="button cancel fixed-width mr-1" onClick={cancelConfirmation}>
                             Cancel
                         </Button>
-                        <Button disabled={uploadingJob} className="button standard fixed-width" style={{ cursor: uploadingJob ? "not-allowed" : "default"  }} onClick={() => sendJob()}>
-                            Send in job
+                        <Button disabled={uploadingJob} className="button standard fixed-width" style={{ cursor: uploadingJob ? "wait" : "default"  }} onClick={() => sendJob()}>
+                            Submit Job
                         </Button>
                     </div>
                 </Modal.Body>
