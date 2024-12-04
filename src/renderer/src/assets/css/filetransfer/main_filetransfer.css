@@ -33,6 +33,18 @@
 .form-input-field-ft:focus {
     border-color: #767676;
 }
+.form-search-ft{
+    width: 30em;
+    font-size: 0.9em;
+    border: 1px solid rgb(198, 198, 198);
+    border-radius: 30px !important;
+    padding-left: 0.7em !important;
+    height: 2.4em !important;
+}
+.form-search-ft:focus{
+    border: 1px solid rgb(49, 49, 49) !important;
+    outline: 1px !important;
+}
 
 
 
@@ -92,6 +104,7 @@
 }
 
 
+  
 
   
 
@@ -109,4 +122,7 @@
 .filetransfer-history-box h6{
     font-size: 1em;
     font-weight: 600;
+}
+.filetransfer-history-box ul li{
+    font-size: 0.9em;
 }

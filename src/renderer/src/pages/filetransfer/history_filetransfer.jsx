@@ -78,15 +78,15 @@ function History_filetransfer() {
           />{" "}
           History
         </h4>
-        <p>This is your history of uploaded files to each project</p>
+        <p>This is your history of uploaded files in each job</p>
       </div>
     
       <div className="mb-3">
             <div>
-                <h6>Search for uploaded projects:</h6>
+                <h6>Search for uploaded jobs:</h6>
             </div>
             <div>
-                <input className="form-input-field form-input-field-ft fixed" placeholder="Search for uploaded projects" value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
+                <input className="form-input-field-ft form-search-ft fixed" placeholder="Search.." value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
             </div>
         </div>
     {allFTData && allFTData.length === 0 ? (

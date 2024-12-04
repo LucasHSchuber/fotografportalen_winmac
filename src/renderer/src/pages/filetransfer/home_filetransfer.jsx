@@ -35,11 +35,12 @@ function Home_filetransfer() {
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
+  const [uploadPercentage, setUploadPercentage] = useState(0);
+  const [uploadFile, setUploadFile] = useState("");
+  const [finishedUploading, setFinishedUploading] = useState([]);
 
   const inputRef = useRef(null);
 
-
-  console.log("File:", files);
 
 
   //load loading bar on load
@@ -128,11 +129,26 @@ function Home_filetransfer() {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
-  const handleDragLeave = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setIsDragging(false);
-  };
+  // const handleDragLeave = (event) => {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   setIsDragging(false);
+  // };
+
+
+  useEffect(() => {
+    const handleUploadProgress = (event, { percentage }) => {
+      console.log(`${percentage}%`);
+      setUploadPercentage(percentage);
+    };
+    window.api.on("upload-progress", handleUploadProgress);
+    return () => {
+      window.api.removeAllListeners("upload-progress");
+    };
+  }, []);
+  // console.log(window.api);
+
+
 
 
   // METHOD to sumbit
@@ -190,6 +206,7 @@ function Home_filetransfer() {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         //upload files to FTP-server
+        setUploadFile(file.name);
         try {
             const response = await window.api.uploadFile(
               file.path,
@@ -231,6 +248,10 @@ function Home_filetransfer() {
                     try{
                       let FTfile_response = await window.api.addFTFile(fileData);
                       console.log("FT file response:", FTfile_response);
+                      if (FTfile_response.status === 201){
+                        console.log('addFTFile completed', FTfile_response.filename);
+                        setFinishedUploading(FTfile_response);
+                      }
                     }catch (error){
                       console.log("error creating FT file", error);
                     }
@@ -382,7 +403,7 @@ function Home_filetransfer() {
           <div className="home-filetransfer-content">
             <div className="header mb-5">
               <h4>Welcome to Filetransfer!</h4>
-              <p>This is your program for uploading and sending your images</p>
+              <p>This is your program for uploading images and keeping track of already uploaded files</p>
             </div>
 
             <div className="d-flex mb-3">
@@ -472,7 +493,7 @@ function Home_filetransfer() {
                   </div>
                 )}
                 {files.length > 0 && (
-                  <div>
+                  <div style={{ fontSize: "0.85em" }}>
                     <ul>
                       {files.map((file, index) => (
                         <li key={index}>
@@ -507,7 +528,7 @@ function Home_filetransfer() {
 
           <Sidemenu_filetransfer />
           {isUploading && (
-          <Loadingbar_filetransfer uploadProgress={uploadProgress} />
+            <Loadingbar_filetransfer files={files} uploadProgress={uploadProgress} uploadPercentage={uploadPercentage} uploadFile={uploadFile} finishedUploading={finishedUploading} />
           )}
 
         </div>

@@ -3442,12 +3442,7 @@ ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
 
   try {
     log.info("starting file upload");
-    const result = await uploadFileToFTP(
-      filePath,
-      ftpConfig,
-      country,
-      filesize,
-    );
+    const result = await uploadFileToFTP(event, filePath, ftpConfig, country, filesize);
     log.info("result uploadFileToFTP:", result);
     return { statusCode: 200, status: "success", message: result };
   } catch (error) {
@@ -3456,8 +3451,9 @@ ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
     return { statusCode: 400, status: "failure", message: error.message };
   }
 });
+
 //uploadfiletoFTP method
-async function uploadFileToFTP(filePath, ftpConfig, country, filesize) {
+async function uploadFileToFTP(event, filePath, ftpConfig, country, filesize) {
   const client = new ftp.Client();
   client.ftp.verbose = true;
   try {
@@ -3482,6 +3478,7 @@ async function uploadFileToFTP(filePath, ftpConfig, country, filesize) {
       console.log("Transferred Overall", info.bytesOverall);
       const percentage = ((info.bytesOverall / filesize) * 100).toFixed(2);
       console.log(`Upload Progress: ${percentage}%`);
+      event.sender.send("upload-progress", { percentage });
     });
 
     await client.uploadFrom(filePath, remotePath);
@@ -3494,6 +3491,8 @@ async function uploadFileToFTP(filePath, ftpConfig, country, filesize) {
     client.close();
   }
 }
+
+
 
 //create new FT project
 ipcMain.handle("createNewFTProject", async (event, data) => {
@@ -3561,7 +3560,7 @@ ipcMain.handle("addFTFile", async (event, fileData) => {
           reject({status: 400, error: err.message });
         } else {
           log.info(`addFTFile added successfully`);
-          resolve({ status: 201, success: true, message: "success" });
+          resolve({ status: 201, success: true, message: "success", filename: filename });
         }
       });
     } catch (err) {

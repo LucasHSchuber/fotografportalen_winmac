@@ -100,7 +100,17 @@ const api = {
 
 
 
+  on: (channel, callback) => {
+    const validChannels = ["upload-progress"]; 
+    if (validChannels.includes(channel)) {
+      ipcRenderer.on(channel, callback);
+    }
+  },
+  removeAllListeners: (channel) => { ipcRenderer.removeAllListeners(channel);},
+  
+
 }
+
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
