@@ -121,13 +121,46 @@ function createLoginWindow() {
   }
 }
 
-app.whenReady().then(() => {
+
+
+// app.whenReady().then(() => {
+//   log.info("Ready!!");
+//   log.info("User Data Path:", app.getPath("userData"));
+//   const programsFolder = path.join(os.homedir(), "Applications");
+//   log.info("Programs folder:", programsFolder);
+//   //Log latest version
+//   const version = app.getVersion();
+//   log.info("Current App Version:", version);
+
+//   createLoginWindow();
+
+//   app.on("activate", function () {
+//     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
+//   });
+// });
+
+autoUpdater.setFeedURL({
+  provider: 'github',
+  owner: 'LucasHSchuber',
+  repo: 'fotografportalen_winmac',
+  // token: 'your-github-token' 
+});
+
+app.on("ready", () => {
   log.info("Ready!!");
   log.info("User Data Path:", app.getPath("userData"));
-
   const programsFolder = path.join(os.homedir(), "Applications");
   log.info("Programs folder:", programsFolder);
-  //get latest version
+
+  // autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdates()
+  .then(() => {
+    // Handle success
+  })
+  .catch(error => {
+    console.error('Update check failed:', error);
+  });
+  // Log latest version
   const version = app.getVersion();
   log.info("Current App Version:", version);
 
@@ -137,6 +170,42 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
   });
 });
+
+
+autoUpdater.on("checking-for-update", () => {
+  log.info("Checking for application updates...");
+});
+
+autoUpdater.on("update-available", (event, info) => {
+  log.info("Update available:", info);
+  // event.sender.send("updateAvailable", { info });
+});
+
+autoUpdater.on("update-not-available", () => {
+  log.info("No updates available");
+});
+
+autoUpdater.on("error", (err) => {
+  log.error("Error while checking for updates:", err);
+
+});
+
+autoUpdater.on("download-progress", (progress) => {
+  log.info(
+    `Download progress: ${progress.percent}% (${progress.transferred}/${progress.total} bytes)`
+  );
+  // event.sender.send("applicatioUpdateProgress", { progress.percent });
+});
+
+autoUpdater.on("update-downloaded", (info) => {
+  log.info("Update downloaded:", info);
+  // event.sender.send("applicatioUpdateFinished", { info });
+  setTimeout(() => {
+    autoUpdater.quitAndInstall();
+  }, 2000);
+});
+
+
 
 
 
@@ -332,7 +401,7 @@ const db = new sqlite3.Database(dbPath, async (err) => {
       await createTables();
 
       const currentVersion = await getCurrentSchemaVersion();
-      log.info("currentVersion: ", currentVersion);
+      log.info("Current Schema Version: ", currentVersion);
 
       // Add columns to tables
       await alterTable(db, currentVersion);

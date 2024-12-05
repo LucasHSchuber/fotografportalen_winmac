@@ -1,7 +1,7 @@
 {
   "name": "photographerportal",
   "productName": "Photographer Portal",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Photographer Portal Application",
   "main": "./out/main/index.js",
   "author": "Photographer Portal",
@@ -15,7 +15,7 @@
     "postinstall": "electron-builder install-app-deps",
     "rebuild": "electron-rebuild -f -w sqlite3 --verbose",
     "tag": "git tag $(node -pe \"require('./package.json').version\") && git push --tags",
-    "build:win": "npm run build && electron-builder --win --config electron-builder.yml -p always",
+    "build:win": "npm run build && electron-builder --win --config electron-builder.yml -p always && node post-build.js",
     "build:mac": "npm run build && electron-builder --mac --config electron-builder.yml -p always",
     "build:linux": "npm run build && electron-builder --linux --config"
   },
@@ -25,6 +25,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
+    "@octokit/rest": "^21.0.2",
     "apexcharts": "^3.54.1",
     "axios": "^1.6.8",
     "basic-ftp": "^5.0.5",
