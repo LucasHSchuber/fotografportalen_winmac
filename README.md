@@ -32,5 +32,8 @@ To run the software on your local machine, follow these steps:
 3. Run the command `npm install` to download all necessary npm packages.
 4. Once the installation is complete, run the command `npm run dev` to start the application in development mode.
 
+## Secret files:
+ - create-app-updater-yml.js (in root)
+ - env.js (in /src/renderer/src/assets/js/)
 
 

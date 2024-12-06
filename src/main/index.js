@@ -51,34 +51,28 @@ if (isDev) {
   // console.log('GitHub Token loaded:', process.env.GH_TOKEN ? 'Yes' : 'No');
 }
 
-autoUpdater.logger = log;
-autoUpdater.logger.transports.file.level = "info";
 
+
+// create instances of each window
 let loginWindow;
 let mainWindow;
+let updateApplicationWindow;
 
-// Set autoDownload option to true to enable automatic downloading of updates
-// autoUpdater.autoDownload = true;
-
-function createLoginWindow() {
+// Method to create updatewindow
+function createUpdateWindow() {
   if (!is.dev) {
     const exApp = express();
     exApp.use(express.static(path.join(__dirname, "../renderer/")));
     exApp.listen(5173);
   }
   // Create the browser window.
-  loginWindow = new BrowserWindow({
+  updateApplicationWindow = new BrowserWindow({
     // parent: mainWindow, // Set the parent window if needed
     // modal: true, // Example: Open as a modal window
     width: 350,
-    height: 460,
+    height: 310,
     resizable: false,
-    // frame: false,
-    // show: false,
     autoHideMenuBar: true,
-    // ...(process.platform === 'linux' ? { icon } : {}),
-    // icon: iconPath,
-    // icon: path.join(__dirname, '../../resources/icon2.png'),
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
@@ -91,54 +85,46 @@ function createLoginWindow() {
     },
   });
 
-  // Hide the menu bar
-  // mainWindow.setMenuBarVisibility(false);
-
-  loginWindow.on("ready-to-show", () => {
-    loginWindow.show();
-  });
-  loginWindow.on("closed", () => {
-    loginWindow = null; 
+  // Listen for when the DOM is ready
+  updateApplicationWindow.webContents.on("dom-ready", () => {
+    autoUpdater.checkForUpdates()
+      .then(() => console.log('Update check completed successfully.'))
+      .catch((error) => console.error('Update check failed:', error));
   });
 
-  // Open DevTools in development mode
+  updateApplicationWindow.on("ready-to-show", () => {
+    updateApplicationWindow.show();
+  });
+
+  updateApplicationWindow.on("closed", () => {
+    updateApplicationWindow = null; 
+  });
+
   if (isDev) {
-    loginWindow.webContents.openDevTools({ mode: "detach" });
+    updateApplicationWindow.webContents.openDevTools({ mode: "detach" });
   }
 
-  loginWindow.webContents.setWindowOpenHandler((details) => {
+  updateApplicationWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url);
     return { action: "deny" };
   });
   log.info(path.join(__dirname, "../preload/index.js"));
 
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-    loginWindow.loadURL("http://localhost:5173/#/login_window");
+    updateApplicationWindow.loadURL("http://localhost:5173/#/updateapplication_window");
   } else {
-    loginWindow.loadURL(
-      `file://${path.join(__dirname, "../renderer/index.html")}#/login_window`,
+    updateApplicationWindow.loadURL(
+      `file://${path.join(__dirname, "../renderer/index.html")}#/updateapplication_window`,
     );
   }
 }
 
+// --------- AUTO UPDATE METHODS --------
 
-
-// app.whenReady().then(() => {
-//   log.info("Ready!!");
-//   log.info("User Data Path:", app.getPath("userData"));
-//   const programsFolder = path.join(os.homedir(), "Applications");
-//   log.info("Programs folder:", programsFolder);
-//   //Log latest version
-//   const version = app.getVersion();
-//   log.info("Current App Version:", version);
-
-//   createLoginWindow();
-
-//   app.on("activate", function () {
-//     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
-//   });
-// });
-
+// Set autoDownload option to true to enable automatic downloading of updates
+// autoUpdater.autoDownload = true;
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = "info";
 autoUpdater.setFeedURL({
   provider: 'github',
   owner: 'LucasHSchuber',
@@ -147,30 +133,21 @@ autoUpdater.setFeedURL({
 });
 
 app.on("ready", () => {
-  log.info("Ready!!");
-  log.info("User Data Path:", app.getPath("userData"));
-  const programsFolder = path.join(os.homedir(), "Applications");
-  log.info("Programs folder:", programsFolder);
+    log.info("Ready!!");
+    log.info("User Data Path:", app.getPath("userData"));
+    const programsFolder = path.join(os.homedir(), "Applications");
+    log.info("Programs folder:", programsFolder);
 
-  // autoUpdater.checkForUpdatesAndNotify();
-  autoUpdater.checkForUpdates()
-  .then(() => {
-    // Handle success
-  })
-  .catch(error => {
-    console.error('Update check failed:', error);
-  });
-  // Log latest version
-  const version = app.getVersion();
-  log.info("Current App Version:", version);
+    // Log latest version
+    const version = app.getVersion();
+    log.info("Current App Version:", version);
 
-  createLoginWindow();
-
+    createUpdateWindow();
+    
   app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createUpdateWindow();
   });
 });
-
 
 autoUpdater.on("checking-for-update", () => {
   log.info("Checking for application updates...");
@@ -178,37 +155,158 @@ autoUpdater.on("checking-for-update", () => {
 
 autoUpdater.on("update-available", (event, info) => {
   log.info("Update available:", info);
-  // event.sender.send("updateAvailable", { info });
-});
-
-autoUpdater.on("update-not-available", () => {
-  log.info("No updates available");
-});
-
-autoUpdater.on("error", (err) => {
-  log.error("Error while checking for updates:", err);
-
+  updateApplicationWindow.webContents.send("update-available", { message: "A new update was found" });
 });
 
 autoUpdater.on("download-progress", (progress) => {
-  log.info(
-    `Download progress: ${progress.percent}% (${progress.transferred}/${progress.total} bytes)`
-  );
-  // event.sender.send("applicatioUpdateProgress", { progress.percent });
+  log.info(`Download progress: ${progress.percent}% (${progress.transferred}/${progress.total} bytes)`);
+  updateApplicationWindow.webContents.send("download-progress", { message: "Downloading update..", progress: progress.percent });
 });
 
 autoUpdater.on("update-downloaded", (info) => {
   log.info("Update downloaded:", info);
-  // event.sender.send("applicatioUpdateFinished", { info });
+  updateApplicationWindow.webContents.send("update-downloaded", { message: "Download completed! Preparing for restart." });
   setTimeout(() => {
     autoUpdater.quitAndInstall();
-  }, 2000);
+  }, 3000);
+});
+
+autoUpdater.on("error", (err) => {
+  log.error("Error while checking for updates:", err);
+  updateApplicationWindow.webContents.send("update-error", { message: "Error while checking for updates" });
+});
+
+autoUpdater.on("update-not-available", (event) => {
+  log.info("No updates available");
+
+  if (updateApplicationWindow && updateApplicationWindow.webContents) {
+      updateApplicationWindow.webContents.send("update-not-available", { message: "No update found" });
+  } else {
+    log.error("updateApplicationWindow or its webContents is not available");
+  }
 });
 
 
 
+// ------ Create Windows -------
+
+//crate login window & close appilicationupdate window
+ipcMain.handle("createLoginWindow", async (event, args) => {
+  updateApplicationWindow.close();
+  try {
+    // Create the loginWindow
+    loginWindow = new BrowserWindow({
+      width: 350,
+      height: 460,
+      resizable: false,
+      // frame: false,
+      // show: false,
+      autoHideMenuBar: true,
+      webPreferences: {
+        preload: path.join(__dirname, "../preload/index.js"),
+        sandbox: false,
+        contextIsolation: true,
+        nodeIntegration: false,
+        // webSecurity: false,
+        worldSafeExecuteJavaScript: true,
+        enableRemoteModule: false,
+        worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
+      },
+    });
+    // Open DevTools for the new window
+    if (isDev) {
+      loginWindow.webContents.openDevTools({ mode: "detach" });
+    }
+
+    loginWindow.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url);
+      return { action: "deny" };
+    });
+    log.info(path.join(__dirname, "../preload/index.js"));
+  
+    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+      loginWindow.loadURL("http://localhost:5173/#/login_window");
+    } else {
+      loginWindow.loadURL(
+        `file://${path.join(__dirname, "../renderer/index.html")}#/login_window`,
+      );
+    }
+    // Show the loginWindow when it's ready
+    loginWindow.once("ready-to-show", () => {
+      loginWindow.show();
+    });
+
+    // Optionally return some data back to the renderer process
+    return { success: true, message: "Login window created successfully" };
+  } catch (error) {
+    // Handle any errors that occur while creating the new window
+    console.error("Error creating login window:", error);
+    throw new Error("Failed to create login window");
+  }
+});
 
 
+
+//crate main window & close login window
+ipcMain.handle("createMainWindow", async (event, args) => {
+  loginWindow.close();
+  try {
+    // Create the MainWindow
+    const mainWindow = new BrowserWindow({
+      width: 1150,
+      height: 750,
+      minWidth: 820,
+      minHeight: 550,
+      show: false,
+      autoHideMenuBar: true,
+      // icon: iconPath,
+      webPreferences: {
+        preload: path.join(__dirname, "../preload/index.js"),
+        sandbox: false,
+        contextIsolation: true,
+        nodeIntegration: false,
+        webSecurity: false,
+        worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
+      },
+      // navigateOnDragDrop: true,
+    });
+
+    // Open DevTools for the new window
+    if (isDev) {
+      mainWindow.webContents.openDevTools({ mode: "detach" });
+    }
+
+    // Load the URL for the MainWindow
+    // mainWindow.loadURL(
+    //   isDev
+    //       ? "http://localhost:5173/"
+    //       : `file://${path.join(__dirname, "../build/index.html")}`
+    // );
+    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+      mainWindow.loadURL("http://localhost:5173/");
+    } else {
+      mainWindow.loadURL(
+        `file://${path.join(__dirname, "../renderer/index.html")}`,
+      );
+    }
+
+    // Show the MainWindow when it's ready
+    mainWindow.once("ready-to-show", () => {
+      mainWindow.show();
+    });
+
+    // Optionally return some data back to the renderer process
+    return { success: true, message: "Main window created successfully" };
+  } catch (error) {
+    // Handle any errors that occur while creating the new window
+    console.error("Error creating main window:", error);
+    throw new Error("Failed to create main window");
+  }
+});
+
+
+
+// ------ Manual update downlaod -------
 
 // Send app version to front end
 ipcMain.handle("getCurrentAppVersion", async (event) => {
@@ -369,6 +467,7 @@ log.info(process.resourcesPath);
 
 
 // ------ DATABASE -----
+
 // Import external db files
 import alterTable from "./alterTable_db"
 import applySchemaUpdates from "./applySchemaUpdates_db"
@@ -3185,62 +3284,7 @@ async function executeUpdateWithRetry(
 //   }
 // });
 
-//crate main window & close login window
-ipcMain.handle("createMainWindow", async (event, args) => {
-  loginWindow.close();
-  try {
-    // Create the MainWindow
-    const mainWindow = new BrowserWindow({
-      width: 1150,
-      height: 750,
-      minWidth: 820,
-      minHeight: 550,
-      show: false,
-      autoHideMenuBar: true,
-      // icon: iconPath,
-      webPreferences: {
-        preload: path.join(__dirname, "../preload/index.js"),
-        sandbox: false,
-        contextIsolation: true,
-        nodeIntegration: false,
-        webSecurity: false,
-        worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
-      },
-      // navigateOnDragDrop: true,
-    });
 
-    // Open DevTools for the new window
-    if (isDev) {
-      mainWindow.webContents.openDevTools({ mode: "detach" });
-    }
-
-    // Load the URL for the MainWindow
-    // mainWindow.loadURL(
-    //   isDev
-    //       ? "http://localhost:5173/"
-    //       : `file://${path.join(__dirname, "../build/index.html")}`
-    // );
-    if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-      mainWindow.loadURL("http://localhost:5173/");
-    } else {
-      mainWindow.loadURL(
-        `file://${path.join(__dirname, "../renderer/index.html")}`,
-      );
-    }
-
-    // Show the MainWindow when it's ready
-    mainWindow.once("ready-to-show", () => {
-      mainWindow.show();
-    });
-
-    // Optionally return some data back to the renderer process
-    return { success: true, message: "Main window created successfully" };
-  } catch (error) {
-    // Handle any errors that occur while creating the new window
-    console.error("Error creating main window:", error);
-    throw new Error("Failed to create main window");
-  }
-});
 
 
 //Creating window for showing file in knowledge base

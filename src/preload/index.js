@@ -101,7 +101,7 @@ const api = {
 
 
   on: (channel, callback) => {
-    const validChannels = ["upload-progress"]; 
+    const validChannels = ["upload-progress", "update-not-available", "update-available", "download-progress", "update-downloaded", "update-error"]; 
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, callback);
     }

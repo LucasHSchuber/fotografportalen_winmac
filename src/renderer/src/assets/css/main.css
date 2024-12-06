@@ -1,5 +1,21 @@
 /* main css */
 
+
+.header {
+  width: 75%;
+}
+.header h4 {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+.header h5 {
+  font-size: 1.15em;
+  font-weight: 700;
+}
+.header p {
+  font-size: 0.9em !important;
+}
+
 .page-loading-login {
   text-align: center;
   margin-left: 3em;
@@ -29,9 +45,8 @@
   text-align: center;
   margin-bottom: 2em;
 }
-
 .spinning-logo-login img {
-  width: 3.5em;
+  width: 3.2em;
   justify-content: center;
   text-align: center;
   margin: 8em 0 1em 0;
@@ -116,20 +131,28 @@
 
 
 
-.header {
-  width: 75%;
+/* UPDATEVERSION WINDOW */
+
+.updateapplication_window-wrapper{
+  background-color: #232323;
+  min-height: 100vh !important;
 }
-.header h4 {
-  font-size: 1.2em;
-  font-weight: 700;
+.updateapplicationspinning-logo-login {
+  text-align: center;
+  margin-bottom: 2em;
 }
-.header h5 {
-  font-size: 1.15em;
-  font-weight: 700;
+.updateapplicationspinning-logo-login img{
+  width: 3em;
+  justify-content: center;
+  text-align: center;
+  margin-top: 4.5em;
+  animation: spin 2.5s ease-in-out infinite;
 }
-.header p {
-  font-size: 0.9em !important;
+.updateapplicationspinning-logo-login p{
+  color: rgb(251, 251, 251);
 }
+
+
 
 /* LOGIN_WINDOW */
 
@@ -269,7 +292,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Center children horizontally */
   margin-right: 6em;
 }
 
@@ -287,8 +309,6 @@
   background-color: #291919;
   display: flex;
   justify-content: center;
-  /* Horizontally center the content */
-
 }
 
 .profile-picture-account {

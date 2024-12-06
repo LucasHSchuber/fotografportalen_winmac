@@ -9,6 +9,7 @@ import Account from "./pages/account";
 import Knowledgebase from "./pages/knowledgebase"
 import Faq from "./pages/faq";
 import Login_window from "./pages/login_window";
+import UpdateApplication_window from "./pages/updateApplication_window";
 import Register_window from "./pages/register_window";
 
 import Home_teamleader from "./pages/teamleader/home_teamleader";
@@ -70,6 +71,10 @@ function App() {
           </div>
 
         </div>
+      </div>
+
+      <div className="">
+        <Routes><Route path="/updateapplication_window" element={<UpdateApplication_window />} /></Routes>
       </div>
 
       <div className="">
