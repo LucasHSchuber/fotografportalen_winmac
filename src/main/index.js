@@ -129,12 +129,17 @@ autoUpdater.autoDownload = false;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
 
+// SETFEEDURL WHEN TESTING UPDATES 
 autoUpdater.setFeedURL({
-  provider: 'github',
-  owner: 'LucasHSchuber',
-  repo: 'fotografportalen_winmac',
-  // token: 'your-github-token' 
+  provider: 'generic',
+  url: 'http://localhost:3000',
 });
+// UPDATE SETFEEDURL WHEN IN PRODUCTION 
+// autoUpdater.setFeedURL({
+//   provider: 'github',
+//   owner: 'LucasHSchuber',
+//   repo: 'fotografportalen_winmac'
+// });
 
 app.on("ready", async () => {
   try {

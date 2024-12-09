@@ -26,7 +26,7 @@ src/renderer/src/assets/js/env.js
 
 .env
 /.env
-create-app-updater-yml.js
+# create-app-updater-yml.js
 
 
 npm-debug.log*

@@ -33,7 +33,7 @@ To run the software on your local machine, follow these steps:
 4. Once the installation is complete, run the command `npm run dev` to start the application in development mode.
 
 ## Secret files:
- - create-app-updater-yml.js (in root)
+- .env (in root) containg github token (_token_) and github url (https://api.github.com/repos/LucasHSchuber/fotografportalen_winmac/releases)
  - env.js (in /src/renderer/src/assets/js/)
 
 
