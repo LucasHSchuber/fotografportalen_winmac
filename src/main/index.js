@@ -53,47 +53,57 @@ if (isDev) {
 
 
 
+
 // create instances of each window
 let loginWindow;
 let mainWindow;
 let updateApplicationWindow;
 
 // Method to create updatewindow
-function createUpdateWindow() {
-  if (!is.dev) {
-    const exApp = express();
-    exApp.use(express.static(path.join(__dirname, "../renderer/")));
-    exApp.listen(5173);
-  }
+function createUpdateWindow(callback) {
+  if (updateApplicationWindow) return;
+
   // Create the browser window.
   updateApplicationWindow = new BrowserWindow({
     // parent: mainWindow, // Set the parent window if needed
     // modal: true, // Example: Open as a modal window
-    width: 350,
-    height: 310,
+    width: 360,
+    height: 300,
     resizable: false,
     autoHideMenuBar: true,
+    show: true,
+    // backgroundColor: '#232323',
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
       contextIsolation: true,
-      nodeIntegration: false,
-      // webSecurity: false,
-      worldSafeExecuteJavaScript: true,
-      enableRemoteModule: false,
-      worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
+      // nodeIntegration: false,
+      // // webSecurity: false,
+      // worldSafeExecuteJavaScript: true,
+      // enableRemoteModule: false,
+      // worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
     },
   });
 
   // Listen for when the DOM is ready
-  updateApplicationWindow.webContents.on("dom-ready", () => {
-    autoUpdater.checkForUpdates()
-      .then(() => console.log('Update check completed successfully.'))
-      .catch((error) => console.error('Update check failed:', error));
-  });
+  // updateApplicationWindow.webContents.on("dom-ready", () => {
+  //   autoUpdater.checkForUpdatesAndNotify()
+  //     .then(() => console.log('Update check completed successfully.'))
+  //     .catch((error) => console.error('Update check failed:', error));
+  // });
+  
+
+  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+    updateApplicationWindow.loadURL("http://localhost:5173/#/updateapplication_window");
+  } else {
+    updateApplicationWindow.loadURL(
+      `file://${path.join(__dirname, "../renderer/index.html")}#/updateapplication_window`,
+    );
+  }
 
   updateApplicationWindow.on("ready-to-show", () => {
     updateApplicationWindow.show();
+    callback?.();
   });
 
   updateApplicationWindow.on("closed", () => {
@@ -104,27 +114,21 @@ function createUpdateWindow() {
     updateApplicationWindow.webContents.openDevTools({ mode: "detach" });
   }
 
-  updateApplicationWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url);
-    return { action: "deny" };
-  });
-  log.info(path.join(__dirname, "../preload/index.js"));
-
-  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
-    updateApplicationWindow.loadURL("http://localhost:5173/#/updateapplication_window");
-  } else {
-    updateApplicationWindow.loadURL(
-      `file://${path.join(__dirname, "../renderer/index.html")}#/updateapplication_window`,
-    );
-  }
+  // updateApplicationWindow.webContents.setWindowOpenHandler((details) => {
+  //   shell.openExternal(details.url);
+  //   return { action: "deny" };
+  // });
+  // log.info(path.join(__dirname, "../preload/index.js"));
 }
+
 
 // --------- AUTO UPDATE METHODS --------
 
 // Set autoDownload option to true to enable automatic downloading of updates
-// autoUpdater.autoDownload = true;
+autoUpdater.autoDownload = false;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
+
 autoUpdater.setFeedURL({
   provider: 'github',
   owner: 'LucasHSchuber',
@@ -132,21 +136,39 @@ autoUpdater.setFeedURL({
   // token: 'your-github-token' 
 });
 
-app.on("ready", () => {
+app.on("ready", async () => {
+  try {
+    if (!is.dev) {
+      const exApp = express();
+      exApp.use(express.static(path.join(__dirname, "../renderer/")));
+      exApp.listen(5173);
+    }
+
     log.info("Ready!!");
     log.info("User Data Path:", app.getPath("userData"));
-    const programsFolder = path.join(os.homedir(), "Applications");
-    log.info("Programs folder:", programsFolder);
+    // const programsFolder = path.join(os.homedir(), "Applications");
+    // log.info("Programs folder:", programsFolder);
+    log.info("Current App Version:", app.getVersion());
 
-    // Log latest version
-    const version = app.getVersion();
-    log.info("Current App Version:", version);
+    if (!loginWindow && !updateApplicationWindow) {
+    createUpdateWindow(() => {
+      autoUpdater.checkForUpdates();
+    });
+  }
 
-    createUpdateWindow();
-    
-  app.on("activate", function () {
-    if (BrowserWindow.getAllWindows().length === 0) createUpdateWindow();
-  });
+    // Checking for updates
+    // autoUpdater.checkForUpdatesAndNotify();
+    // await autoUpdater.checkForUpdatesAndNotify(); 
+
+    // setTimeout(() => {
+    //   if (!loginWindow && !updateApplicationWindow) {
+    //     log.info("No update events received. Creating login window.");
+    //     createLoginWindow();
+    //   }
+    // }, 6000);  
+  } catch (error) {
+    log.error("Error in app initialization:", error); 
+  }
 });
 
 autoUpdater.on("checking-for-update", () => {
@@ -155,12 +177,23 @@ autoUpdater.on("checking-for-update", () => {
 
 autoUpdater.on("update-available", (event, info) => {
   log.info("Update available:", info);
-  updateApplicationWindow.webContents.send("update-available", { message: "A new update was found" });
+  // updateApplicationWindow.webContents.send("update-available", { message: "A new update was found" });
+  // If an update was found - create Update window
+  // createUpdateWindow(() => {
+  setTimeout(() => {
+    updateApplicationWindow.webContents.send("update-available", { message: "A new update was found" });
+    setTimeout(() => {
+      // starting the download
+      autoUpdater.downloadUpdate(); 
+    }, 2000);
+  }, 1500); 
 });
 
 autoUpdater.on("download-progress", (progress) => {
-  log.info(`Download progress: ${progress.percent}% (${progress.transferred}/${progress.total} bytes)`);
-  updateApplicationWindow.webContents.send("download-progress", { message: "Downloading update..", progress: progress.percent });
+  log.info(`Download progress: ${progress.percent}%`);
+  // if (updateApplicationWindow?.webContents) {
+    updateApplicationWindow.webContents.send("download-progress", { message: "Downloading update...", progress: progress.percent });
+  // }
 });
 
 autoUpdater.on("update-downloaded", (info) => {
@@ -171,19 +204,33 @@ autoUpdater.on("update-downloaded", (info) => {
   }, 3000);
 });
 
+// autoUpdater.on("error", (err) => {
+//   log.error("Error while checking for updates:", err);
+//   updateApplicationWindow.webContents.send("update-error", { message: "Error while checking for updates" });
+//   // createLoginWindow();
+// });
 autoUpdater.on("error", (err) => {
   log.error("Error while checking for updates:", err);
-  updateApplicationWindow.webContents.send("update-error", { message: "Error while checking for updates" });
+  updateApplicationWindow.webContents.send("update-error", {
+    message: `Update error: ${err.message || "Unknown error occurred"}`,
+  });
 });
+
 
 autoUpdater.on("update-not-available", (event) => {
   log.info("No updates available");
+  updateApplicationWindow.webContents.send("update-not-available", { message: "Starting..." });
 
-  if (updateApplicationWindow && updateApplicationWindow.webContents) {
-      updateApplicationWindow.webContents.send("update-not-available", { message: "No update found" });
-  } else {
-    log.error("updateApplicationWindow or its webContents is not available");
-  }
+  // If no update was found - create Login window
+  // createLoginWindow();
+
+  // If no update was found - create Login window
+  // setTimeout(() => {
+  //   updateApplicationWindow.webContents.send("update-not-available", { message: "Starting..." });
+  //   setTimeout(() => {
+  //     createLoginWindow();
+  //   }, 3000);
+  // }, 3000);
 });
 
 
@@ -191,38 +238,32 @@ autoUpdater.on("update-not-available", (event) => {
 // ------ Create Windows -------
 
 //crate login window & close appilicationupdate window
-ipcMain.handle("createLoginWindow", async (event, args) => {
-  updateApplicationWindow.close();
+function createLoginWindow() {
+
+  if (loginWindow) return;
   try {
     // Create the loginWindow
     loginWindow = new BrowserWindow({
       width: 350,
       height: 460,
       resizable: false,
-      // frame: false,
-      // show: false,
+      show: false,
       autoHideMenuBar: true,
       webPreferences: {
         preload: path.join(__dirname, "../preload/index.js"),
         sandbox: false,
         contextIsolation: true,
-        nodeIntegration: false,
-        // webSecurity: false,
-        worldSafeExecuteJavaScript: true,
-        enableRemoteModule: false,
-        worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
+        // nodeIntegration: false,
+        // // webSecurity: false,
+        // worldSafeExecuteJavaScript: true,
+        // enableRemoteModule: false,
+        // worldSafeExecuteJavaScript: true //good extra security measure to ensure that JavaScript code executes in a safe context.
       },
     });
     // Open DevTools for the new window
     if (isDev) {
       loginWindow.webContents.openDevTools({ mode: "detach" });
     }
-
-    loginWindow.webContents.setWindowOpenHandler((details) => {
-      shell.openExternal(details.url);
-      return { action: "deny" };
-    });
-    log.info(path.join(__dirname, "../preload/index.js"));
   
     if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
       loginWindow.loadURL("http://localhost:5173/#/login_window");
@@ -236,6 +277,15 @@ ipcMain.handle("createLoginWindow", async (event, args) => {
       loginWindow.show();
     });
 
+    loginWindow.on("closed", () => {
+      loginWindow = null; 
+    });
+
+     // Listen for when the DOM is ready
+     loginWindow.webContents.on("dom-ready", () => {
+      updateApplicationWindow.close();
+    });
+
     // Optionally return some data back to the renderer process
     return { success: true, message: "Login window created successfully" };
   } catch (error) {
@@ -243,6 +293,11 @@ ipcMain.handle("createLoginWindow", async (event, args) => {
     console.error("Error creating login window:", error);
     throw new Error("Failed to create login window");
   }
+}
+
+ipcMain.handle("createLoginWindow", async (event, args) => {
+  // updateApplicationWindow.close();
+  createLoginWindow()
 });
 
 
@@ -250,6 +305,9 @@ ipcMain.handle("createLoginWindow", async (event, args) => {
 //crate main window & close login window
 ipcMain.handle("createMainWindow", async (event, args) => {
   loginWindow.close();
+
+  if (mainWindow) return;
+
   try {
     // Create the MainWindow
     const mainWindow = new BrowserWindow({
@@ -276,12 +334,6 @@ ipcMain.handle("createMainWindow", async (event, args) => {
       mainWindow.webContents.openDevTools({ mode: "detach" });
     }
 
-    // Load the URL for the MainWindow
-    // mainWindow.loadURL(
-    //   isDev
-    //       ? "http://localhost:5173/"
-    //       : `file://${path.join(__dirname, "../build/index.html")}`
-    // );
     if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
       mainWindow.loadURL("http://localhost:5173/");
     } else {
@@ -290,9 +342,18 @@ ipcMain.handle("createMainWindow", async (event, args) => {
       );
     }
 
+    // // Listen for when the DOM is ready
+    // mainWindow.webContents.on("dom-ready", () => {
+    //   loginWindow.close();
+    // });
+
     // Show the MainWindow when it's ready
     mainWindow.once("ready-to-show", () => {
       mainWindow.show();
+    });
+
+    mainWindow.on("closed", () => {
+      mainWindow = null; 
     });
 
     // Optionally return some data back to the renderer process
@@ -304,6 +365,14 @@ ipcMain.handle("createMainWindow", async (event, args) => {
   }
 });
 
+
+
+
+// Restart application
+ipcMain.handle("restartApplication", () => {
+  app.relaunch();
+  app.quit();
+})
 
 
 // ------ Manual update downlaod -------
@@ -3838,65 +3907,6 @@ ipcMain.handle("getAllTimereports", async (event, user_id) => {
 });
 
 
-
-// //Get all projects by user_id and timereport data with left join
-// ipcMain.handle("getProjectsAndTimereport", async (event, user_id) => {
-//   // const { user_id } = args;
-//   if (!user_id) {
-//     throw new Error("Missing required data for getProjectsAndTimereport");
-//   }
-//   const retrieveQuery = `
-//     SELECT 
-//         p.project_id,
-//         p.project_uuid,
-//         p.projectname,
-//         p.photographername,
-//         p.project_date,
-//         p.created,
-//         p.alert_sale,
-//         p.is_deleted,
-//         p.is_sent,
-//         p.is_sent_id,
-//         p.sent_date,
-//         t.id AS timereport_id,
-//         t.projectname AS timereport_projectname,
-//         t.starttime,
-//         t.endtime,
-//         t.breaktime,
-//         t.miles,
-//         t.tolls,
-//         t.park,
-//         t.other_fees,
-//         t.project_date AS timereport_project_date,
-//         t.is_sent AS timereport_is_sent,
-//         t.is_sent_permanent AS timereport_is_sent_permanent,
-//         t.user_id AS timereport_user_id,
-//         t.project_id AS timereport_project_id
-//     FROM 
-//         projects p
-//     LEFT JOIN 
-//         timereport t ON p.project_id = t.project_id
-//     WHERE 
-//         p.user_id = ? AND p.is_deleted != 1;
-//   `;
-  
-//   const db = new sqlite3.Database(dbPath);
-  
-//   try {
-//     const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
-//     return { statusCode: 200, data: rows };
-//   } catch (error) {
-//     console.error("Error fetching projects and timereport data:", error);
-//     return { statusCode: 0, errorMessage: error.message };
-//   } finally {
-//     await closeDatabase(db);
-//   }
-// });
-
-
-
-
-
 // set is_sent = 0
 ipcMain.handle("changeCompleted", async (event, args) => {
   try {
@@ -3974,7 +3984,7 @@ ipcMain.handle("markActivityAsCompleted", async (event, args) => {
 });
 
 
-
+// Mark all jobs in time span as completed by setting is_sent_permanent = 1
 ipcMain.handle("markAsCompletedPermanent", async (event, args) => {
   const { project_id, user_id } = args;
   log.info("project_id: ", project_id)

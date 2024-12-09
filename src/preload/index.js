@@ -12,12 +12,15 @@ const api = {
   //TOKEN 
   updateUserToken: (token, user_id) => ipcRenderer.invoke('updateUserToken', token, user_id), 
 
-  //PLTTFORM
+  //PLATTFORM
   getPlatform: () => os.platform(), //NOT EXIST??
   homeDir: () => os.homedir(),
   shell: () => shell.shell(),
   app: () => app.getVersion(),
   quit: () => ipcRenderer.invoke("quit"),
+
+  // RESTART
+  restartApplication: () => ipcRenderer.invoke("restartApplication"),
 
   //UPDATES TEAMLEADER
   applyUpdates: (downloadUrl) => ipcRenderer.invoke("applyUpdates", downloadUrl),

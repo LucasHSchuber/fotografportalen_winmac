@@ -152,6 +152,27 @@
   color: rgb(251, 251, 251);
 }
 
+/* Progress bar (percentage) */
+.progress-bar-updatewindow {
+  /* margin-top: 1.5em; */
+  width: 30% !important;
+}
+.progress-bar-updatewindow {
+  height: 0.3em !important;
+  border-radius: 50px !important;
+  background-color: #bdbdbd;
+  border-color: #ffffff !important;
+  appearance: none;
+}
+.progress-bar-updatewindow::-webkit-progress-bar {
+  background-color: #bdbdbd;
+  border-radius: 50px !important;
+}
+.progress-bar-updatewindow::-webkit-progress-value {
+  background-color: #ffffff; 
+  border-radius: 50px !important;
+}
+
 
 
 /* LOGIN_WINDOW */

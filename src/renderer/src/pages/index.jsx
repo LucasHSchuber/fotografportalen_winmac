@@ -41,6 +41,14 @@ function Index() {
   const [loading, setLoading] = useState(false);
 
 
+  const restartApplication = () => {
+    try {
+      window.api.restartApplication();
+    } catch (error) {
+      console.log('Error restarting application');
+    }
+  }
+
   // ---------- CHECK FOR UPDATES AND UPDATES METHODS ---------- 
 
   // check if there is a new APP-release
@@ -538,16 +546,11 @@ function Index() {
               <p>{releaseNotes}</p>
             </div>
             )}
-            {/* <p style={{ marginTop: "-1em" }}>
-              Get the latest updates from the button below
-            </p> */}
-            {/* <p style={{ marginTop: "-1em" }}>
-              Download version 'Photographer Portal v
-              {latestVersion}' here:
-            </p> */}
-            <button className="button normal" onClick={downloadLatestVersion}>
+            <h6 style={{fontSize: "1em"}} >Restart the application to update to new version: {latestVersion}</h6>
+              <button className="button normal" onClick={restartApplication}>Restart Application</button>
+            {/* <button className="button normal" onClick={downloadLatestVersion}>
               Download {latestVersion}
-            </button>
+            </button> */}
           </div>
         ) : (
           <>

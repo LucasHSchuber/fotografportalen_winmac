@@ -1,7 +1,7 @@
 {
   "name": "photographerportal",
   "productName": "Photographer Portal",
-  "version": "1.0.3",
+  "version": "1.0.10",
   "description": "Photographer Portal Application",
   "main": "./out/main/index.js",
   "author": "Photographer Portal",

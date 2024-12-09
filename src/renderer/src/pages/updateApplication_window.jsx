@@ -4,22 +4,20 @@ import React, { useEffect, useState } from "react";
 import fp from "../assets/images/logo_white.png";
 
 
-
 function UpdateApplication_window() {
   //define states
   const [message, setMessage] = useState("Checking for updates..");
-  const [downloadProgress, setDownloadProgress] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [downloadProgress, setDownloadProgress] = useState("0");
+  const [updateAvailable, setUpdateAvailable] = useState(false);
   console.log(window.api);
-
 
 
   useEffect(() => {
     const handleUpdateNotAvailable = (event, data) => {
         console.log("Message from main process (update-not-available):", data.message);
         setMessage(data.message);
-        setTimeout(() => {
-            window.api.createLoginWindow();
-          }, 3000);
+        window.api.createLoginWindow();
       };
 
     const handleUpdateAvailable = (event, data) => {
@@ -30,6 +28,7 @@ function UpdateApplication_window() {
     const handleDownloadProgress = (event, data) => {
       console.log("Message from main process (download-progress):", data.message);
       console.log(`Download Progress: ${data.progress}%`);
+      setUpdateAvailable(true);
       setMessage(`${data.message}`);
       setDownloadProgress(`${data.progress.toFixed(2)}`);
     };
@@ -37,19 +36,19 @@ function UpdateApplication_window() {
     const handleUpdateDownloaded = (event, data) => {
       console.log("Message from main process (update-downloaded):", data.message);
       setDownloadProgress("");
+      setUpdateAvailable(false);
       setMessage(data.message);
-    //   setTimeout(() => {
-    //     window.api.createLoginWindow();
-    //   }, 3000);
     };
 
     const handleUpdateError = (event, data) => {
         console.log("Error while checking for updates (update-error):", data.message);
-        setMessage(data.message);
+        setErrorMessage(data.message);
         setTimeout(() => {
+          setErrorMessage("");
+          setMessage("Starting..");
           window.api.createLoginWindow();
-        }, 3000);
-      };
+        }, 5000);
+    };
   
     // Add listeners for all events
     window.api.on("update-not-available", handleUpdateNotAvailable);
@@ -65,21 +64,30 @@ function UpdateApplication_window() {
       window.api.removeAllListeners("download-progress");
       window.api.removeAllListeners("update-downloaded");
       window.api.removeAllListeners("update-error");
-
     };
   }, []);
   
-  
-
 
   return (
     <div className="updateapplication_window-wrapper">
        <div className="updateapplicationspinning-logo-login">
+
           <img src={fp} alt="fotografportalen" />
-          <p className="mt-3"><em>{message}</em></p>
-          {downloadProgress && (
-            <p className="mt-3"><em>{downloadProgress}%</em></p>
+
+          <p className="mt-3"><em>{!errorMessage ? message : ""}</em></p>
+          <p style={{ fontSize: "0.5em" }}>{errorMessage ? errorMessage : ""}</p>
+
+          {updateAvailable && (
+            <div className="d-flex justify-content-center mt-4">
+              <progress
+                className="progress-bar-updatewindow"
+                value={downloadProgress}
+                max="100"
+              ></progress>
+              <p style={{ fontSize: "0.85em", marginTop: "-0.6em", marginLeft: "0.6em" }}><em>{downloadProgress}%</em></p>
+            </div>
           )}
+
         </div>
     </div>
   );
