@@ -37,3 +37,4 @@ To run the software on your local machine, follow these steps:
  - env.js (in /src/renderer/src/assets/js/)
 
 
+

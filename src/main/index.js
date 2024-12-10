@@ -62,7 +62,6 @@ let updateApplicationWindow;
 // Method to create updatewindow
 function createUpdateWindow(callback) {
   if (updateApplicationWindow) return;
-
   // Create the browser window.
   updateApplicationWindow = new BrowserWindow({
     // parent: mainWindow, // Set the parent window if needed
@@ -91,7 +90,6 @@ function createUpdateWindow(callback) {
   //     .then(() => console.log('Update check completed successfully.'))
   //     .catch((error) => console.error('Update check failed:', error));
   // });
-  
 
   if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     updateApplicationWindow.loadURL("http://localhost:5173/#/updateapplication_window");
@@ -122,6 +120,7 @@ function createUpdateWindow(callback) {
 }
 
 
+
 // --------- AUTO UPDATE METHODS --------
 
 // Set autoDownload option to true to enable automatic downloading of updates
@@ -129,17 +128,22 @@ autoUpdater.autoDownload = false;
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
 
-// SETFEEDURL WHEN TESTING UPDATES 
-autoUpdater.setFeedURL({
-  provider: 'generic',
-  url: 'http://localhost:3000',
-});
-// UPDATE SETFEEDURL WHEN IN PRODUCTION 
-// autoUpdater.setFeedURL({
-//   provider: 'github',
-//   owner: 'LucasHSchuber',
-//   repo: 'fotografportalen_winmac'
-// });
+import _env from "../renderer/src/assets/js/env"
+console.log("_env", _env);
+if (_env.production){
+ // UPDATE SETFEEDURL WHEN IN PRODUCTION 
+  autoUpdater.setFeedURL({
+    provider: _env.provider,
+    owner: _env.owner,
+    repo: _env.repo
+  });
+} else {
+  // SETFEEDURL WHEN TESTING UPDATES 
+  autoUpdater.setFeedURL({
+    provider: _env.provider,
+    url: _env.url,
+  });
+}
 
 app.on("ready", async () => {
   try {
@@ -159,22 +163,12 @@ app.on("ready", async () => {
     createUpdateWindow(() => {
       autoUpdater.checkForUpdates();
     });
-  }
-
-    // Checking for updates
-    // autoUpdater.checkForUpdatesAndNotify();
-    // await autoUpdater.checkForUpdatesAndNotify(); 
-
-    // setTimeout(() => {
-    //   if (!loginWindow && !updateApplicationWindow) {
-    //     log.info("No update events received. Creating login window.");
-    //     createLoginWindow();
-    //   }
-    // }, 6000);  
+  }  
   } catch (error) {
     log.error("Error in app initialization:", error); 
   }
 });
+
 
 autoUpdater.on("checking-for-update", () => {
   log.info("Checking for application updates...");
@@ -182,15 +176,12 @@ autoUpdater.on("checking-for-update", () => {
 
 autoUpdater.on("update-available", (event, info) => {
   log.info("Update available:", info);
-  // updateApplicationWindow.webContents.send("update-available", { message: "A new update was found" });
-  // If an update was found - create Update window
-  // createUpdateWindow(() => {
   setTimeout(() => {
     updateApplicationWindow.webContents.send("update-available", { message: "A new update was found" });
     setTimeout(() => {
       // starting the download
       autoUpdater.downloadUpdate(); 
-    }, 2000);
+    }, 500);
   }, 1500); 
 });
 
@@ -206,14 +197,9 @@ autoUpdater.on("update-downloaded", (info) => {
   updateApplicationWindow.webContents.send("update-downloaded", { message: "Download completed! Preparing for restart." });
   setTimeout(() => {
     autoUpdater.quitAndInstall();
-  }, 3000);
+  }, 2500);
 });
 
-// autoUpdater.on("error", (err) => {
-//   log.error("Error while checking for updates:", err);
-//   updateApplicationWindow.webContents.send("update-error", { message: "Error while checking for updates" });
-//   // createLoginWindow();
-// });
 autoUpdater.on("error", (err) => {
   log.error("Error while checking for updates:", err);
   updateApplicationWindow.webContents.send("update-error", {
@@ -221,21 +207,9 @@ autoUpdater.on("error", (err) => {
   });
 });
 
-
 autoUpdater.on("update-not-available", (event) => {
   log.info("No updates available");
   updateApplicationWindow.webContents.send("update-not-available", { message: "Starting..." });
-
-  // If no update was found - create Login window
-  // createLoginWindow();
-
-  // If no update was found - create Login window
-  // setTimeout(() => {
-  //   updateApplicationWindow.webContents.send("update-not-available", { message: "Starting..." });
-  //   setTimeout(() => {
-  //     createLoginWindow();
-  //   }, 3000);
-  // }, 3000);
 });
 
 
@@ -244,7 +218,6 @@ autoUpdater.on("update-not-available", (event) => {
 
 //crate login window & close appilicationupdate window
 function createLoginWindow() {
-
   if (loginWindow) return;
   try {
     // Create the loginWindow

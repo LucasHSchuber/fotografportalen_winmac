@@ -40,9 +40,6 @@ import './assets/css/teamleader/buttons_teamleader.css';
 
 
 function App() {
-
-
-
   return (
     <HashRouter >
 
@@ -158,7 +155,6 @@ function App() {
 
           </div>
         </div>
-
 
     </HashRouter >
   );
