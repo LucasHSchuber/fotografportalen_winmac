@@ -28,6 +28,14 @@ function Home_timereport() {
     const [completedAmount, setCompletedAmount] = useState("");
     const [entireMonthSubmitted, setEntireMonthSubmitted] = useState(false);
 
+    const [validateInputFlag, setValidateInputFlag] = useState(false);
+    const [validateInputError, setValidateInputError] = useState({});
+    // const [inputStatus, setInputStatus] = useState({
+    //     starttime: false,
+    //     endtime: false,
+    //     breaktime: false,
+    // });
+
     const [month, setMonth] = useState(new Date().getMonth()); 
     const [year, setYear] = useState(new Date().getFullYear());
 
@@ -47,8 +55,32 @@ function Home_timereport() {
 
     // Modal props
     const handleClose = () => {setShowConfirmActivityModal(false), setShowConfirmSubmitModal(false)};
-    const handleShow = (index) => {
+
+    const setAsCompleted = (index) => {
         console.log('index', index);
+        console.log("tableData[index]: ",tableData[index]);
+        // MAKE SURE DIGITS ARE ENTERED CORRECLTY 
+        const validateCheck = validateInputError[index];
+        console.log('validateCheck', validateCheck);
+        const hasWarnings = Object.values(validateCheck).some(value => value === 'WARNING');
+        if (hasWarnings) {
+            console.log("There are warnings!");
+            if (validateCheck.starttime === "WARNING"){
+                console.log('warning starttime');
+                // setInputStatus((prevStatus) => ({...prevStatus, starttime: true,}));
+            }
+            if (validateCheck.endtime === "WARNING"){
+                console.log('warning endtime');
+                // setInputStatus((prevStatus) => ({...prevStatus, endtime: true,}));
+            }
+            if (validateCheck.breaktime === "WARNING"){
+                console.log('warning breaktime');
+                // setInputStatus((prevStatus) => ({...prevStatus, breaktime: true,}));
+            }
+            return;
+        } else {
+            console.log("No warnings found.");
+        }
         setSelectedIndex(index);
         setShowConfirmActivityModal(true);
     };
@@ -209,6 +241,32 @@ function Home_timereport() {
     const handleInputChange = (e, index, field) => {
         console.log('e:', e.target.value, "index:", index, "field:", field);
         const updatedData = [...tableData];
+
+        // Validate the input, if not validated then set the flag to false so method setAsCompleted will warn user
+        const validateInput = validateTimeFormat(e.target.value);
+        console.log('validateInput: ', validateInput);
+        setValidateInputFlag(validateInput);
+        if (validateInput !== true){
+            // setValidateInputError(index, field);
+            setValidateInputError(prev => ({
+                ...prev,
+                [index]: {
+                    ...prev[index],
+                    [field]: "WARNING"
+                }
+            }));
+            console.warn("Invalid format " + e.target.value + " for " + field )
+        }else {
+            // Clear error when input becomes valid
+            setValidateInputError(prev => ({
+                ...prev,
+                [index]: {
+                    ...prev[index],
+                    [field]: "OK"
+                }
+            }));
+      
+        }
         // Check if the project at the given index exists before updating
         if (updatedData[index]) {
             updatedData[index][field] = e.target.value;
@@ -226,6 +284,32 @@ function Home_timereport() {
         }));
     };
 
+    const validateTimeFormat = (timeString) => {
+        const timeFormatRegex = /^([0-9]{2}):([0-9]{2})$/;
+        if (!timeFormatRegex.test(timeString)) {
+            console.warn("Invalid time format. Use HH:MM format")
+            // throw new Error('Invalid time format. Use HH:MM format (e.g., "14:30")');
+            return false;
+        }
+        const [hours, minutes] = timeString.split(":").map(Number);
+        // validate hours
+        if (hours < 0 || hours > 23) {
+            console.warn("Hours must be between 00 and 23")
+            // throw new Error('Hours must be between 00 and 23');
+            return false;
+        }
+        // validate minutes
+        if (minutes < 0 || minutes > 59) {
+            console.warn("Minutes must be between 00 and 59")
+            // throw new Error('Minutes must be between 00 and 59');
+            return false;
+        }
+
+        return true;
+    }
+    useEffect(() => {
+      console.log('validateInputError: ', validateInputError);
+    }, [validateInputError]);
     
 
     // method to unlock job - Set is_sent to 0 in table
@@ -596,7 +680,7 @@ function Home_timereport() {
                                 <thead>
                                     <tr>
                                         <th>Date</th>
-                                        <th>Project Name</th>
+                                        <th>Job Name</th>
                                         <th>Start</th>
                                         <th>End</th>
                                         <th>Break</th>
@@ -620,7 +704,7 @@ function Home_timereport() {
                                             </td>
                                             <td>
                                                 <input
-                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""} ${validateInputError[index]?.starttime === "WARNING" ? "error-border" : ""}`}
                                                     type="text"
                                                     value={project.starttime || "00:00"}
                                                     disabled={project.timereport_is_sent === 1}
@@ -629,7 +713,7 @@ function Home_timereport() {
                                             </td>
                                             <td >
                                                 <input
-                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""} ${validateInputError[index]?.endtime === "WARNING" ? "error-border" : ""}`}
                                                     type="text"
                                                     value={project.endtime || "00:00"}
                                                     disabled={project.timereport_is_sent === 1}
@@ -638,7 +722,7 @@ function Home_timereport() {
                                             </td>
                                             <td>
                                                 <input
-                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""}`}
+                                                    className={`input-field-tr ${project.timereport_is_sent === 1 ? "input-field-tr-disable" : ""} ${validateInputError[index]?.breaktime === "WARNING" ? "error-border" : ""}`}
                                                     type="text"
                                                     value={project.breaktime || "00:00"}
                                                     disabled={project.timereport_is_sent === 1}
@@ -690,7 +774,7 @@ function Home_timereport() {
                                                         onClick={() =>
                                                             project.timereport_is_sent === 1
                                                               ? setAsUncomplete(project) 
-                                                              : handleShow(index) 
+                                                              : setAsCompleted(index) 
                                                           }
                                                         disabled={project.timereport_is_sent_permanent === 1}
                                                     >
