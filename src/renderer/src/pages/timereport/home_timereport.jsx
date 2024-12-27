@@ -4,7 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretRight, faCaretLeft, faCheck, faLockOpen, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faCaretRight, faCaretLeft, faCheck, faLockOpen, faLock, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 import Sidemenu_timereport from "../../components/timereport/sidemenu_timereport";
 import ConfirmActivityModal from "../../components/timereport/confirmActivityModal";
@@ -28,13 +28,7 @@ function Home_timereport() {
     const [completedAmount, setCompletedAmount] = useState("");
     const [entireMonthSubmitted, setEntireMonthSubmitted] = useState(false);
 
-    const [validateInputFlag, setValidateInputFlag] = useState(false);
     const [validateInputError, setValidateInputError] = useState({});
-    // const [inputStatus, setInputStatus] = useState({
-    //     starttime: false,
-    //     endtime: false,
-    //     breaktime: false,
-    // });
 
     const [month, setMonth] = useState(new Date().getMonth()); 
     const [year, setYear] = useState(new Date().getFullYear());
@@ -217,6 +211,9 @@ function Home_timereport() {
 
     // Function to go to the previous month
     const handlePreviousMonth = () => {
+        // clear validationinputerror and tabledata
+        setValidateInputError({})
+        getTableData()
         setMonth(prev => {
             if (prev === 0) {
                 setYear(year - 1);
@@ -225,9 +222,11 @@ function Home_timereport() {
             return prev - 1;
         });
     };
-
     // Function to go to the next month
     const handleNextMonth = () => {
+         // clear validationinputerror and tabledata
+         setValidateInputError({})
+         getTableData()
         setMonth(prev => {
             if (prev === 11) {
                 setYear(year + 1);
@@ -242,30 +241,31 @@ function Home_timereport() {
         console.log('e:', e.target.value, "index:", index, "field:", field);
         const updatedData = [...tableData];
 
-        // Validate the input, if not validated then set the flag to false so method setAsCompleted will warn user
-        const validateInput = validateTimeFormat(e.target.value);
-        console.log('validateInput: ', validateInput);
-        setValidateInputFlag(validateInput);
-        if (validateInput !== true){
-            // setValidateInputError(index, field);
-            setValidateInputError(prev => ({
-                ...prev,
-                [index]: {
-                    ...prev[index],
-                    [field]: "WARNING"
-                }
-            }));
-            console.warn("Invalid format " + e.target.value + " for " + field )
-        }else {
-            // Clear error when input becomes valid
-            setValidateInputError(prev => ({
-                ...prev,
-                [index]: {
-                    ...prev[index],
-                    [field]: "OK"
-                }
-            }));
-      
+        // Validate starttime, endtime and breaktime input
+        if (field === "starttime" || field === "endtime" || field === "breaktime"){
+            const validateInput = validateTimeFormat(e.target.value);
+            console.log('validateInput: ', validateInput);
+            if (validateInput !== true){
+                // setValidateInputError(index, field);
+                setValidateInputError(prev => ({
+                    ...prev,
+                    [index]: {
+                        ...prev[index],
+                        [field]: "WARNING"
+                    }
+                }));
+                console.warn("Invalid format " + e.target.value + " for " + field )
+            }else {
+                // Clear error when input becomes valid
+                setValidateInputError(prev => ({
+                    ...prev,
+                    [index]: {
+                        ...prev[index],
+                        [field]: "OK"
+                    }
+                }));
+        
+            }
         }
         // Check if the project at the given index exists before updating
         if (updatedData[index]) {
@@ -736,7 +736,13 @@ function Home_timereport() {
                                                     placeholder="0"
                                                     value={project.miles || ""}
                                                     disabled={project.timereport_is_sent === 1}
-                                                    onChange={(e) => handleInputChange(e, index, "miles")}
+                                                    // onChange={(e) => handleInputChange(e, index, "miles")}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        if (value === "" || Number(value) >= 0) {
+                                                            handleInputChange(e, index, "miles");
+                                                        }
+                                                    }}
                                                 />
                                             </td>
                                             <td>
@@ -746,7 +752,13 @@ function Home_timereport() {
                                                     placeholder="0"
                                                     value={project.tolls || ""}
                                                     disabled={project.timereport_is_sent === 1}
-                                                    onChange={(e) => handleInputChange(e, index, "tolls")}
+                                                    // onChange={(e) => handleInputChange(e, index, "tolls")}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        if (value === "" || Number(value) >= 0) {
+                                                            handleInputChange(e, index, "tolls");
+                                                        }
+                                                    }}
                                                 />
                                             </td>
                                             <td>
@@ -756,7 +768,13 @@ function Home_timereport() {
                                                     placeholder="0"
                                                     value={project.park || ""}
                                                     disabled={project.timereport_is_sent === 1}
-                                                    onChange={(e) => handleInputChange(e, index, "park")}
+                                                    // onChange={(e) => handleInputChange(e, index, "park")}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        if (value === "" || Number(value) >= 0) {
+                                                            handleInputChange(e, index, "park");
+                                                        }
+                                                    }}
                                                 />
                                             </td>
                                             <td>
@@ -766,11 +784,17 @@ function Home_timereport() {
                                                     placeholder="0"
                                                     value={project.other_fees || ""}
                                                     disabled={project.timereport_is_sent === 1}
-                                                    onChange={(e) => handleInputChange(e, index, "other_fees")}
+                                                    // onChange={(e) => handleInputChange(e, index, "other_fees")}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        if (value === "" || Number(value) >= 0) {
+                                                            handleInputChange(e, index, "other_fees");
+                                                        }
+                                                    }}
                                                 />
                                             </td>
                                             <td>
-                                                <button className={`complete-project-button ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : project.timereport_is_sent === 1 ? "open-project-button" : ""}`} title={`${project.timereport_is_sent_permanent === 1 ? "Job Submitted And Locked" : project.timereport_is_sent === 1 ? "Open Job" : "Complete Job"}`}
+                                                {/* <button className={`complete-project-button ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : project.timereport_is_sent === 1 ? "open-project-button" : ""}`} title={`${project.timereport_is_sent_permanent === 1 ? "Job Submitted And Locked" : project.timereport_is_sent === 1 ? "Open Job" : "Complete Job"}`}
                                                         onClick={() =>
                                                             project.timereport_is_sent === 1
                                                               ? setAsUncomplete(project) 
@@ -778,7 +802,46 @@ function Home_timereport() {
                                                           }
                                                         disabled={project.timereport_is_sent_permanent === 1}
                                                     >
-                                                    {project.timereport_is_sent_permanent === 1 ?  <FontAwesomeIcon icon={faLock} size="sm" /> : project.timereport_is_sent === 1 ? <FontAwesomeIcon icon={faLockOpen} size="sm" /> : <FontAwesomeIcon icon={faCheck} /> }
+                                                    {validateInputError[index]?.starttime === "WARNING" || validateInputError[index]?.endtime === "WARNING" || validateInputError[index]?.breaktime === "WARNING"? <FontAwesomeIcon icon={faXmark} size="sm" /> : ""}
+                                                    {project.timereport_is_sent_permanent === 1 ? <FontAwesomeIcon icon={faLock} size="sm" /> : project.timereport_is_sent === 1 ? <FontAwesomeIcon icon={faLockOpen} size="sm" /> : <FontAwesomeIcon icon={faCheck} /> }
+                                                </button> */}
+                                                <button
+                                                    className={`complete-project-button 
+                                                                ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : project.timereport_is_sent === 1 ? "open-project-button" : ""}`}
+                                                    title={`${
+                                                        validateInputError[index]?.starttime === "WARNING" ||
+                                                        validateInputError[index]?.endtime === "WARNING" ||
+                                                        validateInputError[index]?.breaktime === "WARNING"
+                                                            ? "Fix Warnings"
+                                                            : project.timereport_is_sent_permanent === 1
+                                                            ? "Job Submitted And Locked"
+                                                            : project.timereport_is_sent === 1
+                                                            ? "Open Job"
+                                                            : "Complete Job"
+                                                    }`}
+                                                    onClick={() =>
+                                                        project.timereport_is_sent === 1
+                                                            ? setAsUncomplete(project)
+                                                            : setAsCompleted(index)
+                                                    }
+                                                    disabled={
+                                                        project.timereport_is_sent_permanent === 1 ||
+                                                        validateInputError[index]?.starttime === "WARNING" ||
+                                                        validateInputError[index]?.endtime === "WARNING" ||
+                                                        validateInputError[index]?.breaktime === "WARNING"
+                                                    }
+                                                >
+                                                    {validateInputError[index]?.starttime === "WARNING" ||
+                                                    validateInputError[index]?.endtime === "WARNING" ||
+                                                    validateInputError[index]?.breaktime === "WARNING" ? (
+                                                        <FontAwesomeIcon icon={faXmark} size="sm" />
+                                                    ) : project.timereport_is_sent_permanent === 1 ? (
+                                                        <FontAwesomeIcon icon={faLock} size="sm" />
+                                                    ) : project.timereport_is_sent === 1 ? (
+                                                        <FontAwesomeIcon icon={faLockOpen} size="sm" />
+                                                    ) : (
+                                                        <FontAwesomeIcon icon={faCheck} />
+                                                    )}
                                                 </button>
                                             </td>
                                         </tr>
