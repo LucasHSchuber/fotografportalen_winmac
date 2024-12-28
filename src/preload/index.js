@@ -100,6 +100,7 @@ const api = {
   markActivityAsCompleted: (data) => ipcRenderer.invoke('markActivityAsCompleted', data), // insert tupple into timereport table with new data
   changeCompleted: (data) => ipcRenderer.invoke('changeCompleted', data), // Pass user_id and project_id to update is_sent in timereport table to 0
   markAsCompletedPermanent: (project_id, user_id) => ipcRenderer.invoke('markAsCompletedPermanent', project_id, user_id), // update is_sent_permantent in timereport table
+  deleteTimereportRow: (project_id, user_id) => ipcRenderer.invoke('deleteTimereportRow', { project_id, user_id }),
 
 
 

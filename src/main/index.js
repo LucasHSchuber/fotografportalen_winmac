@@ -3848,7 +3848,7 @@ ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
 
 //get all current projects by user_id
 ipcMain.handle("getAllTimereports", async (event, user_id) => {
-  const retrieveQuery = "SELECT * FROM timereport WHERE user_id = ?";
+  const retrieveQuery = "SELECT * FROM timereport WHERE user_id = ? AND is_deleted = 0";
   console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
   const db = new sqlite3.Database(dbPath);
@@ -3984,6 +3984,38 @@ ipcMain.handle("markAsCompletedPermanent", async (event, args) => {
     return { status: 0, errorMessage: error.message };
   }
 });
+
+
+// delete row in timereport table
+ipcMain.handle("deleteTimereportRow", async (event, args) => {
+  const { project_id, user_id } = args;
+  log.info("project_id: ", project_id);
+
+  const updateQuery = `
+    UPDATE timereport SET is_deleted = 1 WHERE project_id = ? AND user_id = ?
+  `;
+
+  const db = new sqlite3.Database(dbPath);
+
+  try {
+    const result = await executeUpdateWithRetry(db, updateQuery, [project_id, user_id]);
+    log.info("Row updated successfully: ", result);
+
+    return { status: 200, result: result, message: "Deleted", project_id: project_id };
+  } catch (error) {
+    console.error("Error deleting row in timereport table:", error);
+    return { status: 0, errorMessage: error.message };
+  } finally {
+    db.close((err) => {
+      if (err) {
+        console.error("Error closing the database:", err.message);
+      } else {
+        log.info("Database connection closed.");
+      }
+    });
+  }
+});
+
 
 
 

@@ -4,7 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretRight, faCaretLeft, faCheck, faLockOpen, faLock, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCaretRight, faCaretLeft, faCheck, faLockOpen, faLock, faXmark, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 import Sidemenu_timereport from "../../components/timereport/sidemenu_timereport";
 import ConfirmActivityModal from "../../components/timereport/confirmActivityModal";
@@ -56,8 +56,10 @@ function Home_timereport() {
         // MAKE SURE DIGITS ARE ENTERED CORRECLTY 
         const validateCheck = validateInputError[index];
         console.log('validateCheck', validateCheck);
-        const hasWarnings = Object.values(validateCheck).some(value => value === 'WARNING');
-        if (hasWarnings) {
+        const hasWarnings = validateCheck && typeof validateCheck === 'object' 
+        ? Object.values(validateCheck).some(value => value === 'WARNING') 
+        : false;
+            if (hasWarnings) {
             console.log("There are warnings!");
             if (validateCheck.starttime === "WARNING"){
                 console.log('warning starttime');
@@ -369,7 +371,8 @@ function Home_timereport() {
     }
     // Function to generate a random int
     function generateRandomInt(min = 10000000, max = 10000000000) {
-        return Math.floor(Math.random() * (max - min + 1)) + min; 
+        const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min; 
+        return `temp_${randomNumber}`;
     }
     // IF COMPLETED === TOTAL then display a fininshedMonthModal
     const checkIfMonthFininshed = (miles) => {
@@ -413,7 +416,7 @@ function Home_timereport() {
         } else if (totalMiles > 14 && totalMiles < 20) {
             return "<b>the distance between London and London Heathrow Airport!</b>";
         } else if (totalMiles > 19 && totalMiles < 25) {
-            return "<b>the length of the Great Wall of China!</b>";
+            return "<b>the length of four marathons!</b>";
         } else if (totalMiles > 24 && totalMiles < 35) {
             return "<b>the distance of a scenic national park road trip!</b>";
         } else if (totalMiles > 34 && totalMiles < 45) {
@@ -600,16 +603,33 @@ function Home_timereport() {
       
 
 
+    const deleteAddedRow = async (project_id) => {
+        console.log('project_id', project_id);
+        const user_id = localStorage.getItem("user_id");
+        console.log('user_id', user_id);
+        try {
+            const response = await window.api.deleteTimereportRow(project_id, user_id);
+            console.log('response', response);
+            if (response.status === 200) {
+                console.log('Row deleted successfully');
+                getTableData()
+            } else {
+                console.warn('Error deleting row');
+            }
+        } catch (error) {
+            console.log('error deleting added row', error);
+        }
+    }
 
 
 
-    useEffect(() => {
-      console.log('tableData', tableData);
-    }, [tableData]);
+    // useEffect(() => {
+    //   console.log('tableData', tableData);
+    // }, [tableData]);
 
-    useEffect(() => {
-        console.log('entireMonthSubmitted', entireMonthSubmitted);
-      }, [entireMonthSubmitted]);
+    // useEffect(() => {
+    //     console.log('entireMonthSubmitted', entireMonthSubmitted);
+    //   }, [entireMonthSubmitted]);
   
 
     return (
@@ -793,19 +813,9 @@ function Home_timereport() {
                                                     }}
                                                 />
                                             </td>
-                                            <td>
-                                                {/* <button className={`complete-project-button ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : project.timereport_is_sent === 1 ? "open-project-button" : ""}`} title={`${project.timereport_is_sent_permanent === 1 ? "Job Submitted And Locked" : project.timereport_is_sent === 1 ? "Open Job" : "Complete Job"}`}
-                                                        onClick={() =>
-                                                            project.timereport_is_sent === 1
-                                                              ? setAsUncomplete(project) 
-                                                              : setAsCompleted(index) 
-                                                          }
-                                                        disabled={project.timereport_is_sent_permanent === 1}
-                                                    >
-                                                    {validateInputError[index]?.starttime === "WARNING" || validateInputError[index]?.endtime === "WARNING" || validateInputError[index]?.breaktime === "WARNING"? <FontAwesomeIcon icon={faXmark} size="sm" /> : ""}
-                                                    {project.timereport_is_sent_permanent === 1 ? <FontAwesomeIcon icon={faLock} size="sm" /> : project.timereport_is_sent === 1 ? <FontAwesomeIcon icon={faLockOpen} size="sm" /> : <FontAwesomeIcon icon={faCheck} /> }
-                                                </button> */}
+                                            <td className="d-flex">
                                                 <button
+                                                    style={{marginTop: "0.2em"}}
                                                     className={`complete-project-button 
                                                                 ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : project.timereport_is_sent === 1 ? "open-project-button" : ""}`}
                                                     title={`${
@@ -843,7 +853,23 @@ function Home_timereport() {
                                                         <FontAwesomeIcon icon={faCheck} />
                                                     )}
                                                 </button>
+                                                {/* delete row button */}
+                                                {typeof project.project_id === "string" && project.project_id.substring(0, 4) === "temp" ? (
+                                                    <button
+                                                        style={{marginTop: "0.2em"}}
+                                                        className={`ml-1 delete-project-button ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : ""}`}
+                                                        title={`${project.timereport_is_sent_permanent === 1 ? "Button Locked" : "Delete Row"}`}
+                                                        onClick={() => deleteAddedRow(project.project_id)}
+                                                        disabled={
+                                                            project.timereport_is_sent_permanent === 1
+                                                        }
+                                                    >
+                                                       {project.timereport_is_sent_permanent === 1 ? <FontAwesomeIcon icon={faLock} size="sm" /> :  <FontAwesomeIcon icon={faTrashCan} size="sm" />}
+                                                    </button>
+                                                ) : null}
+
                                             </td>
+                                            
                                         </tr>
                                     ))}
                                 </tbody>
@@ -868,14 +894,14 @@ function Home_timereport() {
                                             className="new-input-field-tr"
                                             type="text"
                                             name="projectname"
-                                            placeholder="New Project Name"
+                                            placeholder="New Job Name"
                                             value={newRowInputs.projectname}
                                             onChange={handleNewRowInputChange}
                                         />
                                     </td>
                                     <td>
-                                        <button className="add-new-tr-button" onClick={addNewRow}>
-                                        Add Row +
+                                        <button className="add-new-tr-button" title="Add Row" onClick={addNewRow}>
+                                            Add Row +
                                         </button>
                                     </td> 
                                 </tr>
