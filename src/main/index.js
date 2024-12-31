@@ -3844,9 +3844,7 @@ ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
 
 // FILE REPORT
 
-// Get all data from timereport
-
-//get all current projects by user_id
+//get all currents in timereport table by user_id
 ipcMain.handle("getAllTimereports", async (event, user_id) => {
   const retrieveQuery = "SELECT * FROM timereport WHERE user_id = ? AND is_deleted = 0";
   console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
@@ -3881,6 +3879,96 @@ ipcMain.handle("getAllTimereports", async (event, user_id) => {
     await closeDatabase(db);
     console.error("Error fetching data (getAllTimereports):", error);
     return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+
+//get all currents in timereport table by user_id
+ipcMain.handle("getUnsubmittedTimeReport", async (event, user_id) => {
+  const retrieveQuery = `
+  SELECT * FROM timereport 
+    WHERE user_id = ? 
+    AND is_deleted = 0 
+    AND is_sent_permanent = 0 
+    AND project_date >= strftime('%Y-%m-%d %H:%M:%S', 'now', '-1 month')
+    AND project_date < strftime('%Y-%m-%d %H:%M:%S', 'now');
+    `;
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
+
+  const db = new sqlite3.Database(dbPath);
+
+  try {
+    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
+
+    const UnsubmittedTimeReport = rows.map((row) => ({
+      id: row.id,
+      projectname: row.projectname,
+      starttime: row.starttime,
+      endtime: row.endtime,
+      breaktime: row.breaktime,
+      miles: row.miles,
+      tolls: row.tolls,
+      park: row.park,
+      other_fees: row.other_fees,
+      timereport_is_sent: row.is_sent,
+      timereport_is_sent_permanent: row.is_sent_permanent,
+      project_id: row.project_id,
+      project_date: row.project_date,
+      user_id: row.user_id,
+      created: row.created,
+    }));
+    log.info("UnsubmittedTimeReport", UnsubmittedTimeReport)
+
+    await closeDatabase(db);
+    return { statusCode: 200, data: UnsubmittedTimeReport };
+  } catch (error) {
+    await closeDatabase(db);
+    console.error("Error fetching data (getUnsubmittedTimeReport):", error);
+    return { statusCode: 0, errorMessage: error.message };
+  }
+});
+
+
+//get projects from lastr report period by user_id
+ipcMain.handle("getLastReportPeriodProjects", async (event, user_id) => {
+  const retrieveQuery = `
+    SELECT * FROM projects 
+    WHERE user_id = ? 
+      AND is_deleted = 0 
+      AND project_date >= strftime('%Y-%m-%d %H:%M:%S', 'now', '-1 month')
+      AND project_date < strftime('%Y-%m-%d %H:%M:%S', 'now');
+  `;
+  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
+
+  const db = new sqlite3.Database(dbPath);
+
+  try {
+    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
+
+    const previousProjects = rows.map((row) => ({
+      project_id: row.project_id,
+      project_uuid: row.project_uuid,
+      projectname: row.projectname,
+      type: row.type,
+      anomaly: row.anomaly,
+      merged_teams: row.merged_teams,
+      unit: row.unit,
+      lang: row.lang,
+      alert_sale: row.alert_sale,
+      is_deleted: row.is_deleted,
+      is_sent: row.is_sent,
+      sent_date: row.sent_date,
+      user_id: row.user_id,
+      project_date: row.project_date,
+      created: row.created,
+    }));
+    return { statusCode: 1, projects: previousProjects };
+  } catch (error) {
+    console.error("Error fetching projects (getLastReportPeriodProjects):", error);
+    return { statusCode: 0, errorMessage: error.message };
+  } finally {
+    await closeDatabase(db);
   }
 });
 

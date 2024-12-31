@@ -18,6 +18,7 @@ import { gdprProtectionMethod, gdprProtectionMethod_teamshistory } from "../asse
 import fetchNews from "../assets/js/fetchNews";
 import env from "../assets/js/env";
 import DOMPurify from "dompurify";
+import { elements } from "chart.js";
 
 
 
@@ -28,7 +29,9 @@ function Index() {
   const [user, setUser] = useState({});
   const [homeDir, setHomeDir] = useState("");
   const [projectsArray, setProjectsArray] = useState([]);
-  const [unsentNewsArray, setUnsentNewsArray] = useState([]);
+  const [unsubmittedTimeReportProjects, setUnsubmittedTimeReportProjects] = useState([]);
+  const [previousPeriodProjects, setPreviousPeriodProjects] = useState([]);
+  // const [unsentNewsArray, setUnsentNewsArray] = useState([]);
 
   const [githubURL, setGithubURL] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
@@ -358,11 +361,9 @@ function Index() {
 
 
 
-
-  // ----------- GET ALL CURRENT PROJECTS BY USER -----------
-
-    //get all current projects with user_id
     useEffect(() => {
+      // ----------- GET ALL CURRENT PROJECTS BY USER -----------
+      //get all current projects with user_id
       let user_id = localStorage.getItem("user_id");
       const getAllProjects = async () => {
         try {
@@ -372,75 +373,118 @@ function Index() {
         } catch (error) {
           console.error("Error fetching projects:", error);
         }
-    };
-
-
-
-    // ----------- FETCH USER DATA -----------
-
-    // fetch user data
-    const fetchUser = async () => {
-      try {
-        const usersData = await window.api.getUser(user_id); 
-        console.log("Users Data:", usersData);
-        setUser(usersData.user);
-        console.log(usersData.user);
-        localStorage.setItem(
-          "user_name",
-          usersData.user.firstname + " " + usersData.user.lastname,
-        );
-        localStorage.setItem("user_lang", usersData.user.lang);
-        localStorage.setItem("token", usersData.user.token);
-      } catch (error) {
-        console.error("Error fetching users data:", error);
-      }
-    };
-
-
-
-    // ----------- GDPR -----------
-
-    //clear data - GDPR
-    const runGdprProtection = async () => {
-      try {
-        const response = await gdprProtectionMethod();
-        console.log("GDPR response:", response);
-
-        if (response && response.statusCode === 1) {
-          console.log("GDPR data cleared successfully");
-        } else {
-          console.error(
-            "Error clearing GDPR data:",
-            response?.errorMessage || "Unknown error",
-          );
+      };
+      // ----------- GET ALL UNSUBMITTED IN TIMEREPORT TABLE BY USER -----------
+      //get all current projects with user_id
+      const getAllUnsubmittedProjects = async () => {
+        try {
+          const unsubmittedProjects = await window.api.getUnsubmittedTimeReport(user_id);
+          console.log("Unsubmitted Projects:", unsubmittedProjects.data);
+          setUnsubmittedTimeReportProjects(unsubmittedProjects.data);
+        } catch (error) {
+          console.error("Error fetching projects:", error);
         }
-      } catch (error) {
-        console.error("Error clearing GDPR data:", error);
-      }
-
-      try {
-        const response = await gdprProtectionMethod_teamshistory();
-        console.log("GDPR response:", response);
-
-        if (response && response.statusCode === 1) {
-          console.log("GDPR data cleared successfully in teams_history");
-        } else {
-          console.error(
-            "Error clearing GDPR data in teams_history:",
-            response?.errorMessage || "Unknown error",
-          );
+      };
+      // ----------- GET ALL UNSUBMITTED IN TIMEREPORT TABLE BY USER -----------
+      //get all current projects with user_id
+      const getLastReportPeriodProjects = async () => {
+        try {
+          const lastReportPeriodProjects = await window.api.getLastReportPeriodProjects(user_id);
+          console.log("Prevoius Period Projects:", lastReportPeriodProjects.projects);
+          setPreviousPeriodProjects(lastReportPeriodProjects.projects);
+        } catch (error) {
+          console.error("Error fetching projects:", error);
         }
-      } catch (error) {
-        console.error("Error clearing GDPR data in teams_history:", error);
-      }
-    };
-    fetchUser();
-    getAllProjects();
-    runGdprProtection();
+      };
+      // ----------- FETCH USER DATA -----------
+      // fetch user data
+      const fetchUser = async () => {
+        try {
+          const usersData = await window.api.getUser(user_id); 
+          console.log("Users Data:", usersData);
+          setUser(usersData.user);
+          console.log(usersData.user);
+          localStorage.setItem(
+            "user_name",
+            usersData.user.firstname + " " + usersData.user.lastname,
+          );
+          localStorage.setItem("user_lang", usersData.user.lang);
+          localStorage.setItem("token", usersData.user.token);
+        } catch (error) {
+          console.error("Error fetching users data:", error);
+        }
+      };
+      // ----------- GDPR -----------
+      //clear data - GDPR
+      const runGdprProtection = async () => {
+        try {
+          const response = await gdprProtectionMethod();
+          console.log("GDPR response:", response);
+
+          if (response && response.statusCode === 1) {
+            console.log("GDPR data cleared successfully");
+          } else {
+            console.error(
+              "Error clearing GDPR data:",
+              response?.errorMessage || "Unknown error",
+            );
+          }
+        } catch (error) {
+          console.error("Error clearing GDPR data:", error);
+        }
+
+        try {
+          const response = await gdprProtectionMethod_teamshistory();
+          console.log("GDPR response:", response);
+
+          if (response && response.statusCode === 1) {
+            console.log("GDPR data cleared successfully in teams_history");
+          } else {
+            console.error(
+              "Error clearing GDPR data in teams_history:",
+              response?.errorMessage || "Unknown error",
+            );
+          }
+        } catch (error) {
+          console.error("Error clearing GDPR data in teams_history:", error);
+        }
+      };
+      fetchUser();
+      getAllUnsubmittedProjects();
+      getLastReportPeriodProjects();
+      getAllProjects();
+      runGdprProtection();
   }, []);
   console.log(
     `Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`,
   );
+
+
+  // combine previousPeriodProjects with unsubmittedTimeReportProjects
+  useEffect(() => {
+    if (!previousPeriodProjects && !unsubmittedTimeReportProjects) {return} else {
+    console.log("unsubmittedTimeReportProjects:", unsubmittedTimeReportProjects);
+    console.log("previousPeriodProjects:", previousPeriodProjects);
+  
+    // Filter out projects from previousPeriodProjects that do not exist in unsubmittedTimeReportProjects
+    const filteredProjects = previousPeriodProjects.filter(element =>
+      unsubmittedTimeReportProjects.some(unsubmitted => unsubmitted.project_id === element.project_id)
+    );
+  
+    // Filter unsubmittedTimeReportProjects to get only the ones with project_id starting with "temp_"
+    const tempProjects = unsubmittedTimeReportProjects.filter(element =>
+      String(element.project_id).startsWith("temp_")
+    );
+  
+    // Combine the arrays
+    const combinedArray = [...filteredProjects, ...tempProjects];
+  
+    console.log("Filtered Projects:", filteredProjects);
+    console.log("Temp Projects:", tempProjects);
+    console.log("Combined Array:", combinedArray);
+    }
+  }, [previousPeriodProjects, unsubmittedTimeReportProjects]);
+  
 
   
   // SweetAlert2 error modal
@@ -499,9 +543,10 @@ function Index() {
 
         <hr style={{ width: "75%" }} className="hr"></hr>
 
+        {/* Alerts teamleader   */}
         {projectsArray && projectsArray.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title two">Alerts</h1>
+            <h1 className="index-title two">Alerts <em>Teamleader</em></h1>
             <h6>
               <b>
                 You have{" "}
@@ -524,6 +569,33 @@ function Index() {
             </ul>
           </div>
         )}
+        {/* Alerts timereport  */}
+        {/* {unsubmittedTimeReportProjects && unsubmittedTimeReportProjects.length > 0 && (
+          <div className="index-box">
+            <h1 className="index-title two">Alerts <em>Time Report</em></h1>
+            <h6>
+              <b>
+                You have{" "}
+                {unsubmittedTimeReportProjects && unsubmittedTimeReportProjects.length > 0
+                  ? unsubmittedTimeReportProjects.length
+                  : 0}{" "}
+                unsent job{unsubmittedTimeReportProjects.length > 1 ? "s" : ""}
+              </b>
+            </h6>
+            <ul>
+              {unsubmittedTimeReportProjects && unsubmittedTimeReportProjects.length > 0 ? (
+                unsubmittedTimeReportProjects.map((project) => (
+                  <div key={project.project_id}>
+                    <li>{project.projectname}</li>
+                  </div>
+                ))
+              ) : (
+                <h6> </h6>
+              )}
+            </ul>
+          </div>
+        )} */}
+
       </div>
 
       <div className="index-box-right">
