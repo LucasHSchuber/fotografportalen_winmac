@@ -278,13 +278,33 @@ function Home_timereport() {
         setTableData(updatedData);
     };
 
+    // const handleNewRowInputChange = (e) => {
+    //     console.log('value', e);
+    //     const { name, value } = e.target;
+    //     setNewRowInputs(prevInputs => ({
+    //         ...prevInputs,
+    //         [name]: value,
+    //     }));
+    // };
     const handleNewRowInputChange = (e) => {
         const { name, value } = e.target;
-        setNewRowInputs(prevInputs => ({
-            ...prevInputs,
-            [name]: value,
-        }));
+    
+        // If the input is the datetime-local, convert it to the format "YYYY-MM-DD HH:MM:SS"
+        if (name === "project_date") {
+            // Replace 'T' with a space and add ":00" for the seconds part
+            setNewRowInputs(prevInputs => ({
+                ...prevInputs,
+                [name]: value.replace("T", " ") + ":00", // Add ":00" for seconds
+            }));
+        } else {
+            // For the other inputs, just update the value
+            setNewRowInputs(prevInputs => ({
+                ...prevInputs,
+                [name]: value,
+            }));
+        }
     };
+    
 
     const validateTimeFormat = (timeString) => {
         const timeFormatRegex = /^([0-9]{2}):([0-9]{2})$/;
@@ -880,11 +900,11 @@ function Home_timereport() {
                                 <tr className="new-project-row-tr">
                                     <td>
                                         <input
-                                            style={{ width: "8em" }}
+                                            style={{ width: "11em" }}
                                             className="new-input-field-tr"
-                                            type="date"
+                                            type="datetime-local"
                                             name="project_date"
-                                            value={newRowInputs.project_date}
+                                            value={newRowInputs.project_date ? newRowInputs.project_date.replace(" ", "T").slice(0, 16) : ""}  // Format the value correctly
                                             onChange={handleNewRowInputChange}
                                         />
                                     </td>

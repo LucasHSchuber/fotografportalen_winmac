@@ -92,13 +92,12 @@ const api = {
   addFTFile: (fileData) => ipcRenderer.invoke('addFTFile', fileData),
   getAllFTData: (user_id) => ipcRenderer.invoke('getAllFTData', user_id), // Pass user_id to get all FT projects and files by user
   getAllFTDataBySearch: (user_id ,searchString) => ipcRenderer.invoke('getAllFTDataBySearch', user_id, searchString), // Pass user_id to get all FT projects and files by user and search
+  getUnsentFTProjects: (user_id) => ipcRenderer.invoke('getUnsentFTProjects', user_id), // Pass user_id to get all unsent Filestransfer projects
 
-  
   // TIME REPORT
   getAllTimereports: (user_id) => ipcRenderer.invoke('getAllTimereports', user_id), // Pass user_id to get all Timereport data
   getUnsubmittedTimeReport: (user_id) => ipcRenderer.invoke('getUnsubmittedTimeReport', user_id), // Pass user_id to get all Timereport data where is_sent_permanent = 0
   getLastReportPeriodProjects: (user_id) => ipcRenderer.invoke('getLastReportPeriodProjects', user_id), // Pass user_id to get all projects from last time report period
-  // getProjectsAndTimereport: (args) => ipcRenderer.invoke('getProjectsAndTimereport', args), // Pass user_id to get all Timereport data
   markActivityAsCompleted: (data) => ipcRenderer.invoke('markActivityAsCompleted', data), // insert tupple into timereport table with new data
   changeCompleted: (data) => ipcRenderer.invoke('changeCompleted', data), // Pass user_id and project_id to update is_sent in timereport table to 0
   markAsCompletedPermanent: (project_id, user_id) => ipcRenderer.invoke('markAsCompletedPermanent', project_id, user_id), // update is_sent_permantent in timereport table

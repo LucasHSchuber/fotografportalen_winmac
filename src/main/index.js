@@ -3783,9 +3783,9 @@ ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
   const retrieveQuery = `
         SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, 
                f.ft_file_id, f.filename, f.filepath, f.uploaded_at
-        FROM ft_projects p
-        INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
-        WHERE p.user_id = ? AND p.projectname LIKE ?
+               FROM ft_projects p
+               INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
+               WHERE p.user_id = ? AND p.projectname LIKE ?
       `;
 
   console.log("SQL Query:", retrieveQuery, "Parameters:", [
@@ -3840,6 +3840,44 @@ ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
 });
 
 
+// get all unsent ft data with project_date > 3 days ago
+ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
+  log.info("user_id", user_id)
+  const retrieveQuery = `
+    SELECT p.*
+    FROM projects p
+    LEFT JOIN ft_projects ftp ON p.project_id = ftp.project_id
+    WHERE 
+      p.project_date < DATE('now', '-3 days')
+      AND ftp.project_id IS NULL
+      AND p.user_id = ?;
+  `;
+  // console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
+  const db = new sqlite3.Database(dbPath);
+
+  try {
+    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
+
+    const unsentFTdata = rows.map((row) => ({
+          ft_project_id: row.ft_project_id,
+          project_uuid: row.project_uuid,
+          projectname: row.projectname,
+          is_sent: row.is_sent,
+          created: row.created,
+          user_id: row.user_id,
+          project_id: row.project_id
+    }));
+    log.info("unsentFTdata", unsentFTdata)
+    return { statusCode: 200, data: unsentFTdata };
+  } catch (error) {
+    console.error("Error fetching data (getAllTimereports):", error);
+    return { statusCode: 0, errorMessage: error.message };
+  } finally{
+    await closeDatabase(db);
+  }
+});
+
+
 
 
 // FILE REPORT
@@ -3886,20 +3924,33 @@ ipcMain.handle("getAllTimereports", async (event, user_id) => {
 
 //get all currents in timereport table by user_id
 ipcMain.handle("getUnsubmittedTimeReport", async (event, user_id) => {
+  const now = new Date();
+  // Get the start of this month
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  startOfThisMonth.setHours(0, 0, 0, 0);
+  // Get the start of last month
+  const startOfLastMonth = new Date(startOfThisMonth);
+  startOfLastMonth.setMonth(startOfThisMonth.getMonth() - 1);
+  startOfLastMonth.setHours(0, 0, 0, 0); 
+
+  const startOfLastMonthISO = startOfLastMonth.toISOString().slice(0, 19).replace('T', ' ');
+  const startOfThisMonthISO = startOfThisMonth.toISOString().slice(0, 19).replace('T', ' ');
+  console.log("Start of last month:", startOfLastMonthISO);
+  console.log("Start of this month:", startOfThisMonthISO);
+
+  // SQL query with dynamic date range
   const retrieveQuery = `
-  SELECT * FROM timereport 
-    WHERE user_id = ? 
-    AND is_deleted = 0 
-    AND is_sent_permanent = 0 
-    AND project_date >= strftime('%Y-%m-%d %H:%M:%S', 'now', '-1 month')
-    AND project_date < strftime('%Y-%m-%d %H:%M:%S', 'now');
-    `;
-  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
+    SELECT * FROM timereport
+    WHERE user_id = ?
+      AND is_deleted = 0
+      AND project_date >= ? 
+      AND project_date < ?;
+  `;
 
   const db = new sqlite3.Database(dbPath);
 
   try {
-    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
+    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id, startOfLastMonthISO, startOfThisMonthISO]);
 
     const UnsubmittedTimeReport = rows.map((row) => ({
       id: row.id,
@@ -3918,8 +3969,8 @@ ipcMain.handle("getUnsubmittedTimeReport", async (event, user_id) => {
       user_id: row.user_id,
       created: row.created,
     }));
-    log.info("UnsubmittedTimeReport", UnsubmittedTimeReport)
 
+    console.log("Unsubmitted Time Report:", UnsubmittedTimeReport);
     await closeDatabase(db);
     return { statusCode: 200, data: UnsubmittedTimeReport };
   } catch (error) {
@@ -3930,21 +3981,35 @@ ipcMain.handle("getUnsubmittedTimeReport", async (event, user_id) => {
 });
 
 
+
 //get projects from lastr report period by user_id
 ipcMain.handle("getLastReportPeriodProjects", async (event, user_id) => {
+  const now = new Date();
+  // Get the start of this month
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  startOfThisMonth.setHours(0, 0, 0, 0); 
+  // Get the start of last month
+  const startOfLastMonth = new Date(startOfThisMonth);
+  startOfLastMonth.setMonth(startOfThisMonth.getMonth() - 1);
+  startOfLastMonth.setHours(0, 0, 0, 0); 
+  // Convert to ISO string to match the format of your `project_date` field
+  const startOfLastMonthISO = startOfLastMonth.toISOString().slice(0, 19).replace('T', ' ');
+  const startOfThisMonthISO = startOfThisMonth.toISOString().slice(0, 19).replace('T', ' ');
+  console.log("Start of last month:", startOfLastMonthISO);
+  console.log("Start of this month:", startOfThisMonthISO);
+
   const retrieveQuery = `
-    SELECT * FROM projects 
-    WHERE user_id = ? 
+    SELECT * FROM projects
+    WHERE user_id = ?
       AND is_deleted = 0 
-      AND project_date >= strftime('%Y-%m-%d %H:%M:%S', 'now', '-1 month')
-      AND project_date < strftime('%Y-%m-%d %H:%M:%S', 'now');
+      AND project_date >= ? 
+      AND project_date < ?;
   `;
-  console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
   const db = new sqlite3.Database(dbPath);
 
   try {
-    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
+    const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id, startOfLastMonthISO, startOfThisMonthISO]);
 
     const previousProjects = rows.map((row) => ({
       project_id: row.project_id,
@@ -3963,9 +4028,10 @@ ipcMain.handle("getLastReportPeriodProjects", async (event, user_id) => {
       project_date: row.project_date,
       created: row.created,
     }));
+    
     return { statusCode: 1, projects: previousProjects };
   } catch (error) {
-    console.error("Error fetching projects (getLastReportPeriodProjects):", error);
+    console.error("Error fetching projects:", error);
     return { statusCode: 0, errorMessage: error.message };
   } finally {
     await closeDatabase(db);

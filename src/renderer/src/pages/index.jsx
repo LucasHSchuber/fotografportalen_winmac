@@ -31,7 +31,7 @@ function Index() {
   const [projectsArray, setProjectsArray] = useState([]);
   const [unsubmittedTimeReportProjects, setUnsubmittedTimeReportProjects] = useState([]);
   const [previousPeriodProjects, setPreviousPeriodProjects] = useState([]);
-  // const [unsentNewsArray, setUnsentNewsArray] = useState([]);
+  const [combinedUnsubmittedArray, setCombinedUnsubmittedArray] = useState([]);
 
   const [githubURL, setGithubURL] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
@@ -240,7 +240,6 @@ function Index() {
   }, []);
 
   
-
   //scanning news table for unsent news and then sending to db if internet connection available
   const scanNewsTable = async () => {
       if (!navigator.onLine) {
@@ -297,7 +296,6 @@ function Index() {
   useEffect(() => {
     scanNewsTable();
   }, []);
-
 
 
   //confirming news and updating news table
@@ -361,6 +359,7 @@ function Index() {
 
 
 
+
     useEffect(() => {
       // ----------- GET ALL CURRENT PROJECTS BY USER -----------
       //get all current projects with user_id
@@ -379,7 +378,7 @@ function Index() {
       const getAllUnsubmittedProjects = async () => {
         try {
           const unsubmittedProjects = await window.api.getUnsubmittedTimeReport(user_id);
-          console.log("Unsubmitted Projects:", unsubmittedProjects.data);
+          console.log("Last Period Projects:", unsubmittedProjects.data);
           setUnsubmittedTimeReportProjects(unsubmittedProjects.data);
         } catch (error) {
           console.error("Error fetching projects:", error);
@@ -394,6 +393,16 @@ function Index() {
           setPreviousPeriodProjects(lastReportPeriodProjects.projects);
         } catch (error) {
           console.error("Error fetching projects:", error);
+        }
+      };
+      //FETCHING DATA FOR FILETRANSFER ALERT
+      const getUnsentFTProjects = async () => {
+        try {
+          const unsentFTProjects = await window.api.getUnsentFTProjects(user_id);
+          console.log("Unsent FT Projects:", unsentFTProjects.data);
+          
+        } catch (error) {
+          console.error("Error fetching unsent FT projects:", error);
         }
       };
       // ----------- FETCH USER DATA -----------
@@ -452,38 +461,45 @@ function Index() {
       fetchUser();
       getAllUnsubmittedProjects();
       getLastReportPeriodProjects();
+      getUnsentFTProjects();
       getAllProjects();
       runGdprProtection();
   }, []);
-  console.log(
-    `Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`,
-  );
+  console.log(`Comparing versions, Current: ${currentVersion}, Latest: ${latestVersion}`);
+  
 
 
   // combine previousPeriodProjects with unsubmittedTimeReportProjects
   useEffect(() => {
-    if (!previousPeriodProjects && !unsubmittedTimeReportProjects) {return} else {
-    console.log("unsubmittedTimeReportProjects:", unsubmittedTimeReportProjects);
+    // Ensure both arrays are truthy before proceeding
+    if (!previousPeriodProjects || !unsubmittedTimeReportProjects) return;
+  
+    console.log("LastMonthsTimeReportProjects:", unsubmittedTimeReportProjects);
     console.log("previousPeriodProjects:", previousPeriodProjects);
   
-    // Filter out projects from previousPeriodProjects that do not exist in unsubmittedTimeReportProjects
+    // Filter out submitted projects from unsubmittedTimeReportProjects
+    const filteredOutSubmitted = unsubmittedTimeReportProjects.filter(item => item.timereport_is_sent_permanent === 0);
+    console.log("filteredOutSubmitted:", filteredOutSubmitted);
+  
+    // Filter previousPeriodProjects to remove items already in unsubmittedTimeReportProjects
     const filteredProjects = previousPeriodProjects.filter(element =>
-      unsubmittedTimeReportProjects.some(unsubmitted => unsubmitted.project_id === element.project_id)
+      !unsubmittedTimeReportProjects.some(unsubmitted => unsubmitted.project_id === element.project_id)
     );
   
-    // Filter unsubmittedTimeReportProjects to get only the ones with project_id starting with "temp_"
-    const tempProjects = unsubmittedTimeReportProjects.filter(element =>
-      String(element.project_id).startsWith("temp_")
-    );
+    // Log the projects from previousPeriodProjects not in unsubmittedTimeReportProjects
+    filteredProjects.forEach(project => {
+      console.log("Project from previousPeriodProjects not in unsubmittedTimeReportProjects:", project);
+    });
   
-    // Combine the arrays
-    const combinedArray = [...filteredProjects, ...tempProjects];
-  
-    console.log("Filtered Projects:", filteredProjects);
-    console.log("Temp Projects:", tempProjects);
+    // Combine filtered previousPeriodProjects and filteredOutSubmitted
+    const combinedArray = [...filteredProjects, ...filteredOutSubmitted];
     console.log("Combined Array:", combinedArray);
-    }
+    setCombinedUnsubmittedArray(combinedArray)
+    
+  
   }, [previousPeriodProjects, unsubmittedTimeReportProjects]);
+  
+  
   
 
   
@@ -546,14 +562,14 @@ function Index() {
         {/* Alerts teamleader   */}
         {projectsArray && projectsArray.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title two">Alerts <em>Teamleader</em></h1>
+            <h1 className="index-title two">Alerts - <em>Teamleader</em></h1>
             <h6>
               <b>
                 You have{" "}
                 {projectsArray && projectsArray.length > 0
                   ? projectsArray.length
                   : 0}{" "}
-                unsent job{projectsArray.length > 1 ? "s" : ""}
+                unsent job{projectsArray.length > 1 ? "s" : ""}:
               </b>
             </h6>
             <ul>
@@ -570,21 +586,21 @@ function Index() {
           </div>
         )}
         {/* Alerts timereport  */}
-        {/* {unsubmittedTimeReportProjects && unsubmittedTimeReportProjects.length > 0 && (
+        {combinedUnsubmittedArray && combinedUnsubmittedArray.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title two">Alerts <em>Time Report</em></h1>
+            <h1 className="index-title two">Alerts - <em>Time Report</em></h1>
             <h6>
               <b>
                 You have{" "}
-                {unsubmittedTimeReportProjects && unsubmittedTimeReportProjects.length > 0
-                  ? unsubmittedTimeReportProjects.length
+                {combinedUnsubmittedArray && combinedUnsubmittedArray.length > 0
+                  ? combinedUnsubmittedArray.length
                   : 0}{" "}
-                unsent job{unsubmittedTimeReportProjects.length > 1 ? "s" : ""}
+                unsubmitted job{combinedUnsubmittedArray.length > 1 ? "s" : ""} from last report period:
               </b>
             </h6>
             <ul>
-              {unsubmittedTimeReportProjects && unsubmittedTimeReportProjects.length > 0 ? (
-                unsubmittedTimeReportProjects.map((project) => (
+              {combinedUnsubmittedArray && combinedUnsubmittedArray.length > 0 ? (
+                combinedUnsubmittedArray.map((project) => (
                   <div key={project.project_id}>
                     <li>{project.projectname}</li>
                   </div>
@@ -594,7 +610,7 @@ function Index() {
               )}
             </ul>
           </div>
-        )} */}
+        )}
 
       </div>
 
