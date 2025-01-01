@@ -32,6 +32,7 @@ function Index() {
   const [unsubmittedTimeReportProjects, setUnsubmittedTimeReportProjects] = useState([]);
   const [previousPeriodProjects, setPreviousPeriodProjects] = useState([]);
   const [combinedUnsubmittedArray, setCombinedUnsubmittedArray] = useState([]);
+  const [unsentFTProjects, setUnsentFTProjects] = useState([]);
 
   const [githubURL, setGithubURL] = useState("");
   const [currentVersion, setCurrentVersion] = useState("");
@@ -400,7 +401,7 @@ function Index() {
         try {
           const unsentFTProjects = await window.api.getUnsentFTProjects(user_id);
           console.log("Unsent FT Projects:", unsentFTProjects.data);
-          
+          setUnsentFTProjects(unsentFTProjects.data)
         } catch (error) {
           console.error("Error fetching unsent FT projects:", error);
         }
@@ -585,6 +586,32 @@ function Index() {
             </ul>
           </div>
         )}
+        {/* Alerts filetransfer  */}
+        {unsentFTProjects && unsentFTProjects.length > 0 && (
+          <div className="index-box">
+            <h1 className="index-title two">Alerts - <em>Filetransfer</em></h1>
+            <h6>
+              <b>
+                3 days due - You have{" "}
+                {unsentFTProjects && unsentFTProjects.length > 0
+                  ? unsentFTProjects.length
+                  : 0}{" "}
+                job{unsentFTProjects.length > 1 ? "s" : ""} that is missing its images. Please upload files in the following job{unsentFTProjects.length > 1 ? "s" : ""}:
+              </b>
+            </h6>
+            <ul>
+              {unsentFTProjects && unsentFTProjects.length > 0 ? (
+                unsentFTProjects.map((project) => (
+                  <div key={project.project_id}>
+                    <li>{project.projectname}</li>
+                  </div>
+                ))
+              ) : (
+                <h6> </h6>
+              )}
+            </ul>
+          </div>
+        )}
         {/* Alerts timereport  */}
         {combinedUnsubmittedArray && combinedUnsubmittedArray.length > 0 && (
           <div className="index-box">
@@ -643,7 +670,7 @@ function Index() {
         ) : (
           <>
             <div className="index-box">
-              <h1 className="index-title three">News & updates</h1>
+              <h1 className="index-title three">Application updates</h1>
               <h6>
                 <b>You're running the application on the latest version - v{currentVersion}</b>
               </h6>
@@ -655,6 +682,7 @@ function Index() {
         <hr style={{ width: "80%" }} className="hr"></hr>
 
         <div className="index-box">
+          <h1 className="index-title one">News articles</h1>
           {loadingNews ? (
             <div><p>Please wait while loading news...</p></div>
           ) : 

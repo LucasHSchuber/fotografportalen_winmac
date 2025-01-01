@@ -728,7 +728,7 @@ function Home_timereport() {
                                         <th>Tolls</th>
                                         <th>Park</th>
                                         <th>Other</th>
-                                        <th style={{ color: completedAmount.length === tableData.length && tableData.length !== 0 ? "#262626" : "#A74FFF", fontSize: "0.85em" }}>{completedAmount && completedAmount.length}/{tableData.length}</th>
+                                        <th style={{ color: entireMonthSubmitted && (completedAmount.length === tableData.length && tableData.length !== 0) ? "#262626" : "#A74FFF", fontSize: "0.85em" }}>{completedAmount && completedAmount.length}/{tableData.length}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
