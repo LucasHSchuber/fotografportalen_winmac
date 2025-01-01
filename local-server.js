@@ -10,6 +10,10 @@ const updateFilesPath = path.join(__dirname, 'dist');
 console.log("updateFilesPath: ", updateFilesPath)
 app.use(express.static(updateFilesPath));
 
+app.get('/', (req, res) => {
+  res.send('Up and running!');
+});
+
 app.get('/app-update.yml', (req, res) => {
   const filePath = path.join(updateFilesPath, 'app-update.yml');
   fs.readFile(filePath, (err, data) => {

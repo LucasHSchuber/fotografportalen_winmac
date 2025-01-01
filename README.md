@@ -1,8 +1,7 @@
 
 ## Software - Express Bild
-## Fotografportal
+## Photographer Portal
 ## Programmer - Lucas Schuber
-## Express Bild Software
 
 ## Introduction
 Welcome to the Express Bild software repository. This software is designed to centralize and streamline the workflow for employees at Express Bild. 
@@ -11,7 +10,7 @@ Welcome to the Express Bild software repository. This software is designed to ce
 This is an Express Bild software currently consists of three programs integrated into this desktop platform.
 1. Teamleader
 2. Filetransfer
-3. Time Report. A program where users can report their worked time and correlating data
+3. Time Report
 These programs are designed to digitalize and streamline photographer work into a single centralized platform.
 
 ## Software Description
@@ -19,11 +18,18 @@ The software includes an integrated SQLITE database with several tablea to store
 
 ## Database Description
 The SQLITE database used in the software comprises several tables, each serving a specific purpose:
-- **Users:** Stores information about users, including their email, name, password, and other relevant details.
-- **_Projects:** Contains data related to projects, such as project UUID, name, start date, and language.
-- **Projects:** Stores detailed information about each project, including project UUID, project name, photographer name, project date, type, and other project-specific details.
-- **Teams:** Stores data about teams, including team name, leader information, team size, and other relevant details.
-- **Teams_history:** Keeps track of historical data related to teams, allowing users to view past team configurations and changes.
+- **users:** Stores information about users
+- **_projects:** Contains projects/jobs fetched from the company database and stored in this table locally for user to being able to see the projects/jobs even when offline.
+- **projects:** Stores detailed information about each project
+- **teams:** Stores data about teams, including team name, leader information, team size, and other relevant details.
+- **teams_history:** Keeps track of historical data related to teams, allowing users to view past team configurations and changes.
+- **ft_projects:** Tracks projects that have files thats's been uploaded to the FTP server
+- **ft_files:** A table that stores all files that have been uploading to the FTP server for each corresponding table.
+- **news:** Manages news entries, including their content and read status.
+- **knowledgebase:** Stores different kind of files (e.g. .pdf) for user to open and download in the application in offline mode.
+- **timereport:** Logs time reports for projects, including details on start and end times, expenses, and user association.
+- **schema_version:** Tracks database schema versions and their application timestamps fot the autoupdater to keep track of which updates have be applied to the database and not.
+
 
 ## Run software locally
 To run the software on your local machine, follow these steps:

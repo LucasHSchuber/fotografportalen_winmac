@@ -85,18 +85,19 @@ function Login_window() {
     if (password !== "" && username !== "") {
       console.log("password and username entered");
 
+      const data = { 
+        email: username, 
+        password: password 
+      };
+      console.log(data);
       try {
-        const data = { 
-          email: username, 
-          password: password 
-        };
-        console.log(data);
         // First check user to global database if internet
         if (navigator.onLine){
           const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, data, {
             headers: {
               "Content-Type": "application/json",
-            }
+            },
+            timeout: 10000,
           });
           console.log('response', response);
 

@@ -3910,13 +3910,12 @@ ipcMain.handle("getAllTimereports", async (event, user_id) => {
       created: row.created,
     }));
     log.info("allTimeReport", allTimeReport)
-
-    await closeDatabase(db);
     return { statusCode: 200, data: allTimeReport };
   } catch (error) {
-    await closeDatabase(db);
     console.error("Error fetching data (getAllTimereports):", error);
     return { statusCode: 0, errorMessage: error.message };
+  } finally {
+    await closeDatabase(db);
   }
 });
 
@@ -3971,18 +3970,18 @@ ipcMain.handle("getUnsubmittedTimeReport", async (event, user_id) => {
     }));
 
     console.log("Unsubmitted Time Report:", UnsubmittedTimeReport);
-    await closeDatabase(db);
     return { statusCode: 200, data: UnsubmittedTimeReport };
   } catch (error) {
-    await closeDatabase(db);
     console.error("Error fetching data (getUnsubmittedTimeReport):", error);
     return { statusCode: 0, errorMessage: error.message };
+  } finally {
+    await closeDatabase(db);
   }
 });
 
 
 
-//get projects from lastr report period by user_id
+// //get projects from lastr report period by user_id
 ipcMain.handle("getLastReportPeriodProjects", async (event, user_id) => {
   const now = new Date();
   // Get the start of this month

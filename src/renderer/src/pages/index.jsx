@@ -496,8 +496,6 @@ function Index() {
     const combinedArray = [...filteredProjects, ...filteredOutSubmitted];
     console.log("Combined Array:", combinedArray);
     setCombinedUnsubmittedArray(combinedArray)
-    
-  
   }, [previousPeriodProjects, unsubmittedTimeReportProjects]);
   
   
@@ -563,7 +561,7 @@ function Index() {
         {/* Alerts teamleader   */}
         {projectsArray && projectsArray.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title two">Alerts - <em>Teamleader</em></h1>
+            <h1 className="index-title red">Alerts - <em>Teamleader</em></h1>
             <h6>
               <b>
                 You have{" "}
@@ -589,7 +587,7 @@ function Index() {
         {/* Alerts filetransfer  */}
         {unsentFTProjects && unsentFTProjects.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title two">Alerts - <em>Filetransfer</em></h1>
+            <h1 className="index-title red">Alerts - <em>Filetransfer</em></h1>
             <h6>
               <b>
                 3 days due - You have{" "}
@@ -615,7 +613,7 @@ function Index() {
         {/* Alerts timereport  */}
         {combinedUnsubmittedArray && combinedUnsubmittedArray.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title two">Alerts - <em>Time Report</em></h1>
+            <h1 className="index-title red">Alerts - <em>Time Report</em></h1>
             <h6>
               <b>
                 You have{" "}
@@ -647,7 +645,7 @@ function Index() {
         currentVersion &&
         semver.gt(latestVersion, currentVersion) ? (
           <div className="index-box">
-            <h1 className="index-title three">News & updates</h1>
+            <h1 className="index-title blue">Application updates</h1>
             <h6>
               <b>New updates for Photographer Portal</b>
             </h6>
@@ -670,7 +668,7 @@ function Index() {
         ) : (
           <>
             <div className="index-box">
-              <h1 className="index-title three">Application updates</h1>
+              <h1 className="index-title blue">Application updates</h1>
               <h6>
                 <b>You're running the application on the latest version - v{currentVersion}</b>
               </h6>
@@ -682,7 +680,7 @@ function Index() {
         <hr style={{ width: "80%" }} className="hr"></hr>
 
         <div className="index-box">
-          <h1 className="index-title one">News articles</h1>
+          <h1 className="index-title green">News articles</h1>
           {loadingNews ? (
             <div><p>Please wait while loading news...</p></div>
           ) : 
