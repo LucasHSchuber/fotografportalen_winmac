@@ -3859,9 +3859,10 @@ ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
     const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
 
     const unsentFTdata = rows.map((row) => ({
-          ft_project_id: row.ft_project_id,
           project_uuid: row.project_uuid,
           projectname: row.projectname,
+          project_date: row.project_date,
+          created: row.created,
           is_sent: row.is_sent,
           created: row.created,
           user_id: row.user_id,

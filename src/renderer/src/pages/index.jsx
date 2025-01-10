@@ -481,17 +481,14 @@ function Index() {
     // Filter out submitted projects from unsubmittedTimeReportProjects
     const filteredOutSubmitted = unsubmittedTimeReportProjects.filter(item => item.timereport_is_sent_permanent === 0);
     console.log("filteredOutSubmitted:", filteredOutSubmitted);
-  
     // Filter previousPeriodProjects to remove items already in unsubmittedTimeReportProjects
     const filteredProjects = previousPeriodProjects.filter(element =>
       !unsubmittedTimeReportProjects.some(unsubmitted => unsubmitted.project_id === element.project_id)
     );
-  
     // Log the projects from previousPeriodProjects not in unsubmittedTimeReportProjects
     filteredProjects.forEach(project => {
       console.log("Project from previousPeriodProjects not in unsubmittedTimeReportProjects:", project);
     });
-  
     // Combine filtered previousPeriodProjects and filteredOutSubmitted
     const combinedArray = [...filteredProjects, ...filteredOutSubmitted];
     console.log("Combined Array:", combinedArray);
@@ -499,6 +496,30 @@ function Index() {
   }, [previousPeriodProjects, unsubmittedTimeReportProjects]);
   
   
+
+  // Method to calculate the diff between the jobs project_date and the current datetime
+  const getDaysSinceTimestamp = (project_date) => {
+    const currentDateTime = getCurrentDateTime() // call method
+    const projectDate = new Date(project_date)
+    const currentDate = new Date(currentDateTime)
+    const diffms = currentDate - projectDate;
+    const diffInDays = Math.floor(diffms / (1000 * 60 * 60 * 24));
+    return diffInDays;
+  }
+  // Method to return current datetime
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); 
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+
+
   
 
   
@@ -576,6 +597,7 @@ function Index() {
                 projectsArray.map((project) => (
                   <div key={project.project_id}>
                     <li>{project.projectname}</li>
+                    <span style={{ color: "red", fontWeight: "700"}}> -{getDaysSinceTimestamp(project.project_date)} days late</span>
                   </div>
                 ))
               ) : (
@@ -601,7 +623,8 @@ function Index() {
               {unsentFTProjects && unsentFTProjects.length > 0 ? (
                 unsentFTProjects.map((project) => (
                   <div key={project.project_id}>
-                    <li>{project.projectname}</li>
+                    <li>{project.projectname} </li>
+                    <span style={{ color: "red", fontWeight: "700"}}> -{getDaysSinceTimestamp(project.project_date)} days late</span>
                   </div>
                 ))
               ) : (
@@ -628,6 +651,7 @@ function Index() {
                 combinedUnsubmittedArray.map((project) => (
                   <div key={project.project_id}>
                     <li>{project.projectname}</li>
+                    <span style={{ color: "red", fontWeight: "700"}}> -{getDaysSinceTimestamp(project.project_date)} days late</span>
                   </div>
                 ))
               ) : (
