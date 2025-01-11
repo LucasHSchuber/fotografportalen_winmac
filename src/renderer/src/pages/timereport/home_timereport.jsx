@@ -412,7 +412,7 @@ function Home_timereport() {
                 background: '#fff', 
                 padding: '20px', 
                 customClass: {
-                    confirmButton: 'custom-confirm-button',
+                    confirmButton: 'tr-swal-fire-confirmbutton',
                     title: 'custom-title',                 
                     content: 'custom-text'                 
                 }
@@ -878,7 +878,7 @@ function Home_timereport() {
                                                     <button
                                                         style={{marginTop: "0.2em"}}
                                                         className={`ml-1 delete-project-button ${project.timereport_is_sent_permanent === 1 ? "locked-project-button" : ""}`}
-                                                        title={`${project.timereport_is_sent_permanent === 1 ? "Button Locked" : "Delete Row"}`}
+                                                        title={`${project.timereport_is_sent_permanent === 1 ? "Delete Button Locked" : "Delete Row"}`}
                                                         onClick={() => deleteAddedRow(project.project_id)}
                                                         disabled={
                                                             project.timereport_is_sent_permanent === 1

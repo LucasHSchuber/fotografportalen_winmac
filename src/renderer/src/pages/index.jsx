@@ -402,6 +402,9 @@ function Index() {
           const unsentFTProjects = await window.api.getUnsentFTProjects(user_id);
           console.log("Unsent FT Projects:", unsentFTProjects.data);
           setUnsentFTProjects(unsentFTProjects.data)
+            if (unsentFTProjects.data.length > 0) {
+                triggerSwalFire("Filetransfer!", "You have images that needs to be sent in.");
+            }
         } catch (error) {
           console.error("Error fetching unsent FT projects:", error);
         }
@@ -493,6 +496,9 @@ function Index() {
     const combinedArray = [...filteredProjects, ...filteredOutSubmitted];
     console.log("Combined Array:", combinedArray);
     setCombinedUnsubmittedArray(combinedArray)
+    if (combinedArray.length > 0) {
+      triggerSwalFire("Time Report!", "You have jobs from last report period that needs to be submitted.");
+    }
   }, [previousPeriodProjects, unsubmittedTimeReportProjects]);
   
   
@@ -519,6 +525,31 @@ function Index() {
 };
 
 
+// Method to trigger swal fire 
+const triggerSwalFire = (title, text) => {
+  MySwal.fire({
+    title: title,
+    text: text, 
+    icon: 'warning',
+    confirmButtonText: 'Ok',
+    customClass: {
+      confirmButton: 'index-swal-fire-button',
+      icon: 'index-swal-fire-icon',
+    },
+    didOpen: () => {
+      // Style the title
+      const title = document.querySelector('.swal2-title');
+      if (title) {
+        title.style.fontSize = '1.2em';  
+      }
+      // Style the content text
+      const content = document.querySelector('.swal2-html-container');
+      if (content) {
+        content.style.fontSize = '0.9em';  
+      }
+    }
+  });
+}
 
   
 
@@ -597,7 +628,7 @@ function Index() {
                 projectsArray.map((project) => (
                   <div key={project.project_id}>
                     <li>{project.projectname}</li>
-                    <span style={{ color: "red", fontWeight: "700"}}> -{getDaysSinceTimestamp(project.project_date)} days late</span>
+                    <span style={{ color: "red", fontWeight: "700"}}> <em>- {getDaysSinceTimestamp(project.project_date)} days late</em></span>
                   </div>
                 ))
               ) : (
@@ -624,7 +655,7 @@ function Index() {
                 unsentFTProjects.map((project) => (
                   <div key={project.project_id}>
                     <li>{project.projectname} </li>
-                    <span style={{ color: "red", fontWeight: "700"}}> -{getDaysSinceTimestamp(project.project_date)} days late</span>
+                    <span style={{ color: "red", fontWeight: "700"}}> <em>- {getDaysSinceTimestamp(project.project_date)} days late</em></span>
                   </div>
                 ))
               ) : (
@@ -651,7 +682,7 @@ function Index() {
                 combinedUnsubmittedArray.map((project) => (
                   <div key={project.project_id}>
                     <li>{project.projectname}</li>
-                    <span style={{ color: "red", fontWeight: "700"}}> -{getDaysSinceTimestamp(project.project_date)} days late</span>
+                    <span style={{ color: "red", fontWeight: "700"}}> <em>- {getDaysSinceTimestamp(project.project_date)} days late</em></span>
                   </div>
                 ))
               ) : (

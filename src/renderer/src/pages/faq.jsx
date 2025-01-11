@@ -84,12 +84,13 @@ general: {
     { id: 12, image: "", question: "How do I update the Photographer Portal software?", answer: "When a new version of the Photographer Portal is available, you will see a Download button on the Home page. Click the button and follow the instructions to download and install the latest version." },
     { id: 13, image: "", question: "Why is the blender icon in the left menu spinning?", answer: "Then blender icon spinning indicates that you have a stable internet connection. If the blender does not spin, it means you are running the software in an offline mode, and certain function as submitting a job or uploading files in Filetransfer will not work." },
     { id: 14, image: roger_that, question: "What does the 'Roger That' button under the News & Updates section do?", answer: "Clicking the 'Roger That' button lets Express-Bild know that you've read and understood the news article. This helps the admin track which photographers have acknowledged the news."},      
+    { id: 15, image: "", question: "Can I use Photographer Portal without internet connection?", answer: "Yes, you can use the application without internet connection. Altohugh, some functionalities like submitting a job in Teamleader will not be working in offline mode."},      
   ],
 },
 };
 
 const handleQuestionClick = (question) => {
-setSelectedQuestion(question);
+  setSelectedQuestion(question);
 };
 
 
@@ -124,7 +125,7 @@ const filteredFaqData = Object.keys(faqData)
         <div className="faq-container d-flex mt-5">
             {/* Left-side menu with categories and questions */}
             <div className="faq-box-left">
-              <input className="mb-3 faq-searchbox" placeholder="Search.." onChange={(e) => handleSearch(e.target.value)}>
+              <input className="mb-3 faq-searchbox" placeholder="Search for a question.." onChange={(e) => handleSearch(e.target.value)}>
               </input>
                 
             {filteredFaqData.map((category) => (
