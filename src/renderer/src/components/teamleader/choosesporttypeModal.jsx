@@ -17,6 +17,7 @@ const ChooseSportTypeModal = ({
   //define states
   const [isSelectedSportType1, setIsSelectedSportType1] = useState(false);
   const [isSelectedSportType2, setIsSelectedSportType2] = useState(false);
+  const [isSelectedSportType3, setIsSelectedSportType3] = useState(false);
   const [sportType, setSportType] = useState("");
 
   const [errorSportType, setErrorSportType] = useState(false);
@@ -44,9 +45,15 @@ const ChooseSportTypeModal = ({
     if (SportType === "Sport") {
       setIsSelectedSportType1(true);
       setIsSelectedSportType2(false);
-    } else {
+      setIsSelectedSportType3(false);
+    } else if (SportType === "Sport_portrait") {
       setIsSelectedSportType1(false);
       setIsSelectedSportType2(true);
+      setIsSelectedSportType3(false);
+    } else {
+      setIsSelectedSportType1(false);
+      setIsSelectedSportType2(false);
+      setIsSelectedSportType3(true);
     }
     console.log(SportType);
   };
@@ -59,9 +66,14 @@ const ChooseSportTypeModal = ({
       setErrorSportType("You must choose a sport type");
       return;
     } else {
-      console.log("Ok");
       handleCloseChooseSportTypeModal();
-      confirmChooseSportType(sportType);
+      let chosenSportType;
+      if (sportType === "Sport_portrait") {
+        chosenSportType = "Sport_portrait"
+      } else {
+        chosenSportType = "Sport"
+      }
+      confirmChooseSportType(chosenSportType);
     }
   };
 
@@ -83,16 +95,25 @@ const ChooseSportTypeModal = ({
                     className={`sport-type-button ${isSelectedSportType2 ? "selected-sporttype" : ""}`}
                     type="button"
                     onClick={() => handleSportType("Sport_portrait")}
-                    style={{ width: "9em"}}
+                    style={{ width: "8.5em"}}
                 >
                     <FontAwesomeIcon icon={faUser} style={{ fontSize: "1.2em" }} />
                     <p className="mt-1" style={{ fontSize: "0.85em" }}>Portrait</p>
                 </div>
                 <div
+                    className={`sport-type-button ${isSelectedSportType3 ? "selected-sporttype" : ""}`}
+                    type="button"
+                    onClick={() => handleSportType("Sport_group")}
+                    style={{ width: "8.5em" }}
+                >
+                    <FontAwesomeIcon icon={faPeopleGroup} style={{ fontSize: "1.2em" }} />
+                    <p className="mt-1" style={{ fontSize: "0.85em" }}>Group</p>
+                </div>
+                <div
                     className={`sport-type-button ${isSelectedSportType1 ? "selected-sporttype" : ""}`}
                     type="button"
                     onClick={() => handleSportType("Sport")}
-                    style={{ width: "9em" }}
+                    style={{ width: "8.5em" }}
                 >
                     <FontAwesomeIcon icon={faUser} style={{ fontSize: "1.2em" }}/> <b className="mx-2"> + </b>{" "}
                     <FontAwesomeIcon icon={faPeopleGroup} style={{ fontSize: "1.2em" }} />

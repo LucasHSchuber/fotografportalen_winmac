@@ -1311,10 +1311,10 @@ ipcMain.handle("confirmNewsToSqlite", async (event, news_id, user_id) => {
     );
 
     console.log(`News data updated successfully`);
-    return { success: true };
+    return { status: 200, success: true };
   } catch (err) {
     console.error("Error updating confirm news in SQLite:", err.message);
-    return { error: err.message };
+    return { status: 0, error: err.message };
   }
 });
 
@@ -3848,7 +3848,8 @@ ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
     FROM projects p
     LEFT JOIN ft_projects ftp ON p.project_id = ftp.project_id
     WHERE 
-      p.project_date < DATE('now', '-3 days')
+      p.is_deleted = 0
+      AND p.project_date < DATE('now', '-3 days')
       AND ftp.project_id IS NULL
       AND p.user_id = ?;
   `;

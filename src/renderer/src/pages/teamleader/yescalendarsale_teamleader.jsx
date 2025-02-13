@@ -88,7 +88,6 @@ function Calendarsale_teamleader() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     // Set error messages
     let errors = {};
     if (!formData.calendar_amount) errors.calendar_amount = true;
@@ -110,12 +109,6 @@ function Calendarsale_teamleader() {
       setShowTermsAndConditionModal(true);
       console.log('Terms And Conditions are not checked');
       return;
-      // const confirmResponse = window.confirm("You must accept the terms.");
-      // if (!confirmResponse) {
-      //   return;
-      // } else {
-      //   return;
-      // }
     }
 
     let calendar_sale = localStorage.getItem("calendar_sale");
@@ -146,10 +139,6 @@ function Calendarsale_teamleader() {
   };
 
   const confirmCalendar = async () => {
-    // let team_id = localStorage.getItem("team_id");
-    // console.log(team_id);
-    //method to add data to table
-
     let project_id = localStorage.getItem("project_id");
     console.log(project_id);
     let newteam_teamname = localStorage.getItem("newteam_teamname");
@@ -208,6 +197,7 @@ function Calendarsale_teamleader() {
   return (
     <div className="teamleader-wrapper">
       <div className="calendarsale-teamleader-content">
+        {/* breadcrumbs */}
         <div className="breadcrumbs d-flex mb-4">
           <div className="breadcrumbs-box ">{languageTexts?.breadcrumb1}</div>
           <div className="breadcrumbs-box">{languageTexts?.breadcrumb2}</div>
@@ -249,35 +239,33 @@ function Calendarsale_teamleader() {
               <h6 style={{ fontSize: "0.9em" }}>
                 {languageTexts?.calendaramounttext}
               </h6>
-              {/* <div>
-                {formData.calendar_amount && (
-                  <div>
-                    <h6>Total income: {(formData.calendar_amount * 3) * languageTexts.calendarPrice} {languageTexts.currency}</h6>
-                  </div>
-                )}
-              </div> */}
             </div>
+             {/* only show SSN input if SWEDISH OR GERMAN */}
+            {user_lang && (user_lang === "SE" || user_lang === "DE") && (
+              <div style={{}}>
+                <input
+                  className={`form-input-field ${errorMessage.leader_ssn ? "error-border" : ""}`}
+                  type="number"
+                  name="leader_ssn"
+                  value={formData.leader_ssn}
+                  onChange={handleChange}
+                  placeholder={languageTexts?.ssn}
+                  onWheel={(event) => event.target.blur()}
+                  onKeyDown={(event) => {
+                    // Prevents changing value by arrow keys
+                    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                      event.preventDefault();
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
-          {/* only show SSN input if SWEDISH OR GERMAN */}
-          {user_lang && (user_lang === "SE" || user_lang === "DE") && (
-            <div style={{}}>
-              <input
-                className={`form-input-field ${errorMessage.leader_ssn ? "error-border" : ""}`}
-                type="number"
-                name="leader_ssn"
-                value={formData.leader_ssn}
-                onChange={handleChange}
-                placeholder={languageTexts?.ssn}
-                onWheel={(event) => event.target.blur()}
-                onKeyDown={(event) => {
-                  // Prevents changing value by arrow keys
-                  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    event.preventDefault();
-                  }
-                }}
-              />
-            </div>
-          )}
+
+          <div className="mt-3 header">
+                <h6><b>{languageTexts?.deliveryheader}:</b></h6>
+          </div>
+
           <div>
             <input
               className={`form-input-field ${errorMessage.leader_address ? "error-border" : ""}`}

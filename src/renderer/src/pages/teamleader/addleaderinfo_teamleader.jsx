@@ -233,7 +233,7 @@ function Addleaderinfo_teamleader() {
                         <input className={`form-input-field ${errorMessage.teamname ? "error-border" : ""}`} type="text" name="teamname" value={formData.teamname} onChange={handleChange} placeholder={languageTexts?.teamname} />
                     </div>
                     <br></br>
-                    <h6><b>Team leader info:</b></h6>
+                    <h6><b>Team leader information:</b></h6>
                     <div>
                         <input className={`form-input-field ${errorMessage.leader_firstname ? "error-border" : ""}`} type="text" name="leader_firstname" value={formData.leader_firstname} onChange={handleChange} placeholder={languageTexts?.firstname} />
                     </div>

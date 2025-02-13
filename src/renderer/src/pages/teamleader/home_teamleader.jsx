@@ -200,7 +200,7 @@ function Home_teamleader() {
             {loading ? (
                 <div>
                     <div className="loading-bar-text">
-                        <p><b>Teamleader</b></p>
+                        <p><b>Workspace</b></p>
                     </div>
                     <div className="loading-bar-container">
                         <div className="loading-bar"></div>
@@ -211,7 +211,7 @@ function Home_teamleader() {
                 <>
                     <div className="home-teamleader-content mb-5">
                         <div className="header">
-                            <h4>Welcome to Teamleader, {user}!</h4>
+                            <h4>Welcome to Workspace, {user}!</h4>
                             <p>This is your plattform for keeping track of your jobs, working progress and control sheet</p>
                         </div>
                     </div>

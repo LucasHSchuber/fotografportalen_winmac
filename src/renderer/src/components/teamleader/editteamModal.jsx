@@ -742,7 +742,7 @@ const EditTeamModal = ({
                     />
                   </div>
                   <div>
-                    <label>Calendar amount: *</label>
+                    <label>Amount of players that require calendars *</label>
                     <input
                       className={`form-input-field ${errorMessageSport.calendar_amount ? "error-border" : ""}`}
                       type=""

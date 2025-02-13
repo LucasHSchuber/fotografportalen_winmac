@@ -8,7 +8,7 @@ Welcome to the Express Bild software repository. This software is designed to ce
 
 ## Overview
 This is an Express Bild software currently consists of three programs integrated into this desktop platform.
-1. Teamleader
+1. Workspace
 2. Filetransfer
 3. Time Report
 These programs are designed to digitalize and streamline photographer work into a single centralized platform.

@@ -310,48 +310,48 @@ function Index() {
     }
 
     try {
+      console.log("Sending news_id and user_id to confirmNewsToSqlite in main-process..");
       const responseSqlite = await window.api.confirmNewsToSqlite(news_id, user_id);
       console.log("confirm news successfully updated", responseSqlite);
-
-      if (responseSqlite.success !== true) {
+      
+      if (responseSqlite.status !== 200) {
         console.log('error confirming news to sqlite table (confirmNewsToSqlite)');
         return;
-      } else {  
-        // Check for internet connection
-        if (navigator.onLine) {
-          console.log("Sending news id to db:", news_id);
-          let token = localStorage.getItem("token");
-          try {
-            const responseDb = await axios.post("https://backend.expressbild.org/index.php/rest/photographer_portal/newsread", { id: news_id }, {
-                headers: {
-                  Authorization: `Token ${token}`,
-                  "Content-Type": "application/json",
-                }},
-            );
-            console.log("ResponseDb:", responseDb);
-            // Check if the response status is 200
-            if (responseDb.status === 200) {
-              console.log("Trigger method to update is_sent_date timestamp column in table NEWS",);
-              try {
-                const responseNewsDate = await window.api.addSentDateToNews(news_id, user_id);
-                console.log("is_sent_date added to NEWS table", responseNewsDate);
-                if (responseNewsDate.status === 200) {
-                  setTimeout(() => {
-                    fetchAllNews();  
-                  }, 100);
-                }
-              } catch (error) {
-                console.log("Error adding is_sent_date in NEWS table", error);
+      }   
+      // Check for internet connection
+      if (navigator.onLine && responseSqlite.status === 200) {
+        console.log("Sending news id to db:", news_id);
+        let token = localStorage.getItem("token");
+        try {
+          const responseDb = await axios.post("https://backend.expressbild.org/index.php/rest/photographer_portal/newsread", { id: news_id }, {
+              headers: {
+                Authorization: `Token ${token}`,
+                "Content-Type": "application/json",
+              }},
+          );
+          console.log("ResponseDb:", responseDb);
+          // Check if the response status is 200
+          if (responseDb.status === 200) {
+            console.log("Trigger method to update is_sent_date timestamp column in table NEWS",);
+            try {
+              const responseNewsDate = await window.api.addSentDateToNews(news_id, user_id);
+              console.log("is_sent_date added to NEWS table", responseNewsDate);
+              if (responseNewsDate.status === 200) {
+                setTimeout(() => {
+                  fetchAllNews();  
+                }, 100);
               }
+            } catch (error) {
+              console.log("Error adding is_sent_date in NEWS table", error);
             }
-          } catch (error) {
-            console.log("error when sending news id to company database");
-            console.log("error:", error);
           }
-        } else {
-          console.log('No internet connection');
-          fetchAllNews();  
+        } catch (error) {
+          console.log("error when sending news id to company database");
+          console.log("error:", error);
         }
+      } else {
+        console.log('No internet connection');
+        fetchAllNews();  
       }
     } catch (error) {
       console.log("error updatating news", error);
@@ -403,7 +403,7 @@ function Index() {
           console.log("Unsent FT Projects:", unsentFTProjects.data);
           setUnsentFTProjects(unsentFTProjects.data)
             if (unsentFTProjects.data.length > 0) {
-                triggerSwalFire("Filetransfer!", "You have images that needs to be sent in.");
+                // triggerSwalFire("Filetransfer!", "You have images that needs to be sent in.");
             }
         } catch (error) {
           console.error("Error fetching unsent FT projects:", error);
@@ -497,7 +497,7 @@ function Index() {
     console.log("Combined Array:", combinedArray);
     setCombinedUnsubmittedArray(combinedArray)
     if (combinedArray.length > 0) {
-      triggerSwalFire("Time Report!", "You have jobs from last report period that needs to be submitted.");
+      // triggerSwalFire("Time Report!", "You have jobs from last report period that needs to be submitted.");
     }
   }, [previousPeriodProjects, unsubmittedTimeReportProjects]);
   
@@ -613,7 +613,7 @@ const triggerSwalFire = (title, text) => {
         {/* Alerts teamleader   */}
         {projectsArray && projectsArray.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title red">Alerts - <em>Teamleader</em></h1>
+            <h1 className="index-title red">Alerts - <em>Worksapce</em></h1>
             <h6>
               <b>
                 You have{" "}
@@ -665,7 +665,7 @@ const triggerSwalFire = (title, text) => {
           </div>
         )}
         {/* Alerts timereport  */}
-        {combinedUnsubmittedArray && combinedUnsubmittedArray.length > 0 && (
+        {/* {combinedUnsubmittedArray && combinedUnsubmittedArray.length > 0 && (
           <div className="index-box">
             <h1 className="index-title red">Alerts - <em>Time Report</em></h1>
             <h6>
@@ -690,7 +690,7 @@ const triggerSwalFire = (title, text) => {
               )}
             </ul>
           </div>
-        )}
+        )} */}
 
       </div>
 

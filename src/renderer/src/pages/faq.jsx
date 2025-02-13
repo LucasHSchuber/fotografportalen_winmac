@@ -23,8 +23,8 @@ const [searchString, setSearchString] = useState("");
 
 // FAQ data
 const faqData = {
-teamleader: {
-    categoryName: "Teamleader",
+Workspace: {
+    categoryName: "Workspace",
     questions: [
     { id: 1, image: "", question: "Can I recover a job I have deleted?", answer: "Unfortunately, once a job is deleted, it cannot be recovered. We recommend double-checking before deleting any jobs to avoid accidental loss of important work." },
     { id: 2, image: "", question: "Can I edit a team after I have submitted the job?", answer: "Unfortunately, once a job is submitted, it cannot be edited or modified. Please contact the support if a job is submitted but has information that needs to be edited." },
@@ -84,7 +84,7 @@ general: {
     { id: 12, image: "", question: "How do I update the Photographer Portal software?", answer: "When a new version of the Photographer Portal is available, you will see a Download button on the Home page. Click the button and follow the instructions to download and install the latest version." },
     { id: 13, image: "", question: "Why is the blender icon in the left menu spinning?", answer: "Then blender icon spinning indicates that you have a stable internet connection. If the blender does not spin, it means you are running the software in an offline mode, and certain function as submitting a job or uploading files in Filetransfer will not work." },
     { id: 14, image: roger_that, question: "What does the 'Roger That' button under the News & Updates section do?", answer: "Clicking the 'Roger That' button lets Express-Bild know that you've read and understood the news article. This helps the admin track which photographers have acknowledged the news."},      
-    { id: 15, image: "", question: "Can I use Photographer Portal without internet connection?", answer: "Yes, you can use the application without internet connection. Altohugh, some functionalities like submitting a job in Teamleader will not be working in offline mode."},      
+    { id: 15, image: "", question: "Can I use Photographer Portal without internet connection?", answer: "Yes, you can use the application without internet connection. Altohugh, some functionalities like submitting a job in Workspace will not be working in offline mode."},      
   ],
 },
 };

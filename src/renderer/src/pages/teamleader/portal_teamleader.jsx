@@ -33,13 +33,12 @@ function Portal_teamleader() {
 
     const [loading, setLoading] = useState(true);
 
-    const [showAnomalyReport, setShowAnomalyReport] = useState(false); // State for toggling Anomalyreport visibility
+    const [showAnomalyReport, setShowAnomalyReport] = useState(false); 
     const [showDeleteTeamModal, setShowDeleteTeamModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
 
     const [feedbackMessage, setFeedbackMessage] = useState('');
 
-    // Accessing the projectId from URL parameters
     const { project_id } = useParams();
     // Accessing feedbackMessage from query parameters 
     // const searchParams = new URLSearchParams(location.search);
@@ -238,7 +237,7 @@ function Portal_teamleader() {
                                                     <p className="mx-4 " title="Group photo taken">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     <p style={{ cursor: "default" }} className="ml-4 mr-2">{data.amount}st</p>
                                                     {projectType === "sport" ? (
-                                                        <p className="mx-4" title="Sold calendar">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon icon={faCalendarPlus} /> : <FontAwesomeIcon icon={faCalendarMinus} /> : ""}</p>
+                                                        <p className="mx-4" title="Sold calendar">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon style={{ color: "#30c427" }} icon={faCalendarPlus} /> : <FontAwesomeIcon style={{ color: "#ff5050" }} icon={faCalendarMinus} /> : ""}</p>
                                                     ) : (
                                                         <>
                                                         </>
@@ -265,7 +264,7 @@ function Portal_teamleader() {
                                     )}
                                 </div>
 
-                                <button className="button standard mt-2" title="Create new team"
+                                <button className="button standard mt-2" title={project.type === "school" ? "Create new class" : "Create new team"}
                                     onClick={() => createNewTeam()}>
                                     <FontAwesomeIcon icon={faPlus} 
                                 />
@@ -309,7 +308,7 @@ function Portal_teamleader() {
 
                     <Minimenu_teamleader project_type={projectType} project_id={project_id} project_name={projectName} toggleAnomalyReport={toggleAnomalyReport} project={project} teams={teams} />
                     <Sidemenu_teamleader />
-                    {showAnomalyReport && <Anomalyreport toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} merged_teams={projectMergedTeams} refreshAnomalyData={refreshAnomalyData} updateFeedbackMessage={updateFeedbackMessage} />}
+                    {showAnomalyReport && <Anomalyreport projectType={projectType} toggleAnomalyReport={toggleAnomalyReport} project_anomaly={projectAnomaly} merged_teams={projectMergedTeams} refreshAnomalyData={refreshAnomalyData} updateFeedbackMessage={updateFeedbackMessage} />}
                     <DeleteTeam showDeleteTeamModal={showDeleteTeamModal} handleClose={handleClose} projectType={projectType} teamName={teamName} teamId={teamId} refreshTeamData={refreshTeamData} updateFeedbackMessage={updateFeedbackMessage} />
                     <EditTeam showEditModal={showEditModal} handleCloseEditModal={handleCloseEditModal} projectType={projectType} teamData={editTeam} teamId={teamId} refreshTeamData={refreshTeamData} updateFeedbackMessage={updateFeedbackMessage} />
                     <FeedbackMessage feedbackMessage={feedbackMessage} />

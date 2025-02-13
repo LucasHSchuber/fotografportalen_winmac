@@ -7,8 +7,9 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 // import "../../assets/css/teamleader/newprojectModal.css";
 
 
-const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, refreshAnomalyData, updateFeedbackMessage }) => {
+const Anomalyreport = ({ projectType, toggleAnomalyReport, project_anomaly, merged_teams, refreshAnomalyData, updateFeedbackMessage }) => {
 
+    console.log('projectType', projectType);
     //define states
     const [anomaly, setAnomaly] = useState("");
     const [mergedTeams, setMergedTeams] = useState("");
@@ -90,7 +91,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
                         placeholder="Describe anomaly"
                     ></textarea>
                 </div>
-                <h6> <b>Merged teams</b></h6>
+                <h6> <b>{projectType === "school" ? "Merged classes" : "Merged teams"}</b></h6>
                 <div className="form-group">
                     <textarea
                         className="form-control textarea"
@@ -98,7 +99,7 @@ const Anomalyreport = ({ toggleAnomalyReport, project_anomaly, merged_teams, ref
                         defaultValue={merged_teams}
                         onChange={handleMergedTeamsChange}
                         // placeholder="Merged teams"
-                        placeholder="e.g. 'team 1 + team 2 = team 3'"
+                        placeholder={projectType === "school" ? "e.g. 'class 1 + class 2 = class 3'" : "e.g. 'team 1 + team 2 = team 3'"}
                     ></textarea>
                 </div>
                 <button className="button cancel mr-2" onClick={closeAnomalyReport}>Cancel</button>
