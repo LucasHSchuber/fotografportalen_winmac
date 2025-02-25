@@ -56,14 +56,12 @@ const Anomalyreport = ({ projectType, toggleAnomalyReport, project_anomaly, merg
                 project_id: project_id
             });
             console.log('Anomaly report updated');
-            //close anomaly report
             toggleAnomalyReport();
-            //update feedback message
             updateFeedbackMessage(`Anomaly report updated successfully`);
-            //referesh anomaly report in parent data
             refreshAnomalyData();
         } else {
             console.log("Anomaly report saved but not updated");
+            toggleAnomalyReport();
         }
 
     };

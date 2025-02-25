@@ -94,6 +94,12 @@ const api = {
   getAllFTDataBySearch: (user_id ,searchString) => ipcRenderer.invoke('getAllFTDataBySearch', user_id, searchString), // Pass user_id to get all FT projects and files by user and search
   getUnsentFTProjects: (user_id) => ipcRenderer.invoke('getUnsentFTProjects', user_id), // Pass user_id to get all unsent Filestransfer projects
 
+  // BACKUPTRANSFER
+  uploadFileToTus: (filePath, fileName, fileSize, projectUuid, token) => ipcRenderer.invoke("uploadFileToTus", { filePath, fileName, fileSize, projectUuid, token }),
+  createNewBTProject: (data) => ipcRenderer.invoke('createNewBTProject', data),
+  createNewBTFile: (fileData) => ipcRenderer.invoke('createNewBTFile', fileData),
+  getBackuptransferData: (user_id) => ipcRenderer.invoke('getBackuptransferData', user_id),
+
   // TIME REPORT
   getAllTimereports: (user_id) => ipcRenderer.invoke('getAllTimereports', user_id), // Pass user_id to get all Timereport data
   getUnsubmittedTimeReport: (user_id) => ipcRenderer.invoke('getUnsubmittedTimeReport', user_id), // Pass user_id to get all Timereport data where is_sent_permanent = 0
@@ -106,14 +112,12 @@ const api = {
 
 
   on: (channel, callback) => {
-    const validChannels = ["upload-progress", "update-not-available", "update-available", "download-progress", "update-downloaded", "update-error"]; 
+    const validChannels = ["upload-progress", "update-not-available", "update-available", "download-progress", "update-downloaded", "update-error", "upload-error"]; 
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, callback);
     }
   },
   removeAllListeners: (channel) => { ipcRenderer.removeAllListeners(channel);},
-  
-
 }
 
 

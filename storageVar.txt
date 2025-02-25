@@ -2,6 +2,7 @@ ALL STORAGE VARIABLES:
 ------------------------------------
 
 LOCAL STORAGE:
+token
 user_id
 user_name
 user_lang
@@ -16,3 +17,5 @@ calendar_sale - (0/1)
 SESSION STORAGE:
 hasLoginLoadingBarShown
 hasHomeTeamleaderLoadingBarShown
+hasHomeFiletransferLoadingBarShown
+hasHomeBackuptransferLoadingBarShown

@@ -10,7 +10,7 @@ import no from '../../assets/language/no.json'; // Norweigan
 import de from '../../assets/language/de.json'; // German
 
 const CalendarConfirmModal = ({ showCalendarConfirmModal, handleClose, confirmCalendar, teamData }) => {
-
+    console.log('teamData', teamData);
     //define states
     const [languageTexts, setLanguageTexts] = useState({});
 
@@ -74,10 +74,17 @@ const CalendarConfirmModal = ({ showCalendarConfirmModal, handleClose, confirmCa
                         <>
                             <hr></hr>
                             <h6 ><b>{languageTexts?.confirm_teamname} </b> {teamData.teamname} </h6>
+                            <div>
+                                <h6 ><b>{languageTexts?.calendaramount}: </b> {teamData.calendaramount} </h6>
+                                <h6 style={{ fontSize: "0.8em" }}>{languageTexts?.calendaramounttext}: ({teamData.calendaramount + "x3"}) = {teamData.calendaramount * 3} </h6>
+                            </div>
                             <h6><b>{languageTexts?.confirm_name} </b> {teamData.firstname} {teamData.lastname}</h6>
                             <h6><b>{languageTexts?.confirm_email} </b> {teamData.email}</h6>
                             <h6><b>{languageTexts?.confirm_mobile} </b> {teamData.mobile}</h6>
                             <h6><b>{languageTexts?.confirm_ssn} </b> {teamData.ssn}</h6>
+                            {/* <hr></hr>
+                            <h6><b>{languageTexts?.deliveryheader}:</b></h6>
+                            <h6><b>{languageTexts?.confirm_name} </b> {teamData.delivery_first_name + " " + teamData.delivery_last_name} </h6> */}
                             <h6><b>{languageTexts?.confirm_address} </b> {teamData.address} </h6>
                             <h6><b>{languageTexts?.confirm_postalcode}</b> {teamData.postalcode} </h6>
                             <h6><b>{languageTexts?.confirm_county} </b> {teamData.county}</h6>

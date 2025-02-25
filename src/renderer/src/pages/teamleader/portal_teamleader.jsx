@@ -212,7 +212,6 @@ function Portal_teamleader() {
                                         {project.projectname || "Loading project name..."}{" "}
                                         {/* <em>({project.created && project.created.length > 0 ? project.created.substring(0, 10) : ""})</em> */}
                                     </h5>
-
                                     {/* <h6 className=""><em>{project.created.substring(0, 10)}</em></h6> */}
                                 </div>
 
@@ -222,19 +221,17 @@ function Portal_teamleader() {
                                     {teams && teams.length > 0 ? (
                                         teams.sort((a, b) => new Date(b.created) - new Date(a.created)).map(data => (
                                             <div key={data.team_id} className="d-flex">
-                                                <div className={`d-flex justify-content-between mb-2 ${projectType === "school" ? "portal-class-box" : "portal-team-box"}`}
-                                                >
+                                                <div className={`d-flex justify-content-between mb-2 ${projectType === "school" ? "portal-class-box" : "portal-team-box"}`}>
                                                     <p style={{ cursor: "default" }} className="ml-2 mr-2">{data.teamname.length > 15 ? data.teamname.substring(0, 15) + "..." : data.teamname}</p>
-                                                    {data.protected_id === 1 ? (
+                                                    {/* {data.protected_id === 1 ? ( */}
                                                         <div className="d-flex">
-                                                            <p className="ml-4" title="Portrait taken">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
-                                                            <p className="ml-1 mr-3" title="Protected id">{data.protected_id === 1 ? <FontAwesomeIcon icon={faUserShield} /> : ""}</p>
+                                                            <p className="ml-4" title="Portrait">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
+                                                            <p className="ml-1 mr-3" title="Protected id">{data.protected_id === 1 ? <FontAwesomeIcon icon={faUserShield} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                         </div>
-                                                    ) : (
-                                                        <p className="mx-4" title="Portrait taken">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
-                                                    )}
-
-                                                    <p className="mx-4 " title="Group photo taken">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
+                                                    {/* ) : (
+                                                        <p className="mx-4" title="Portrait">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
+                                                    )} */}
+                                                    <p className="mx-4 " title="Group photo">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     <p style={{ cursor: "default" }} className="ml-4 mr-2">{data.amount}st</p>
                                                     {projectType === "sport" ? (
                                                         <p className="mx-4" title="Sold calendar">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon style={{ color: "#30c427" }} icon={faCalendarPlus} /> : <FontAwesomeIcon style={{ color: "#ff5050" }} icon={faCalendarMinus} /> : ""}</p>
@@ -242,7 +239,6 @@ function Portal_teamleader() {
                                                         <>
                                                         </>
                                                     )}
-
                                                 </div>
                                                 <div className="portal-edit-box ml-2" title={`${projectType === "sport" ? "Edit team" : "Edit class"}`}
                                                     onClick={() => openEditModal(data.team_id, data)}

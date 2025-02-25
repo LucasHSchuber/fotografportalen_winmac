@@ -24,7 +24,18 @@ const https = require("https");
 const url = require("url");
 const ftp = require("basic-ftp");
 const bcrypt = require("bcrypt");
+// const tus = require("tus-js-client");
 const saltRounds = 10;
+import * as tus from "tus-js-client";
+const uploadCacheDir = path.join(__dirname, "upload-cache.json");
+
+// // using electron-reloader in dev mode only
+// if (isDev) {
+//   try {
+//     require("electron-reloader")(module);
+//   } catch (_) {}
+// }
+
 
 import express from "express";
 
@@ -731,6 +742,35 @@ function createTables() {
       `,
     },
     {
+      name: "bt_projects",
+      query: `
+        CREATE TABLE IF NOT EXISTS bt_projects (
+          bt_project_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          project_uuid TEXT, 
+          projectname TEXT,
+          user_id INTEGER,
+          created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+      `,
+    },
+    {
+      name: "bt_files",
+      query: `
+        CREATE TABLE IF NOT EXISTS bt_files (
+          bt_file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          bt_project_id INTEGER,
+          project_uuid TEXT,
+          filename TEXT NOT NULL,
+          file_path TEXT,     
+          file_size INTEGER,
+          uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (bt_project_id) REFERENCES bt_projects(bt_project_id),
+          FOREIGN KEY (project_uuid) REFERENCES bt_projects(project_uuid) ON DELETE CASCADE
+        )
+      `,
+    },
+    {
       name: "news",
       query: `
         CREATE TABLE IF NOT EXISTS news (
@@ -1083,8 +1123,8 @@ ipcMain.handle("create_Projects", async (event, projects) => {
 
 //add news to SQLlite news table
 ipcMain.handle("create_news", async (event, news, user_id) => {
-  log.info("news: ", news);
-  log.info("user_id", user_id);
+  // log.info("news: ", news);
+  // log.info("user_id", user_id);
   try {
     if (!Array.isArray(news)) {
       throw new Error("Invalid data received for create_news,");
@@ -3653,7 +3693,6 @@ async function uploadFileToFTP(event, filePath, ftpConfig, country, filesize) {
 }
 
 
-
 //create new FT project
 ipcMain.handle("createNewFTProject", async (event, data) => {
   log.info("createNewFTProject triggered");
@@ -3778,6 +3817,7 @@ ipcMain.handle("getAllFTData", async (event, user_id) => {
   });
 });
 
+
 //get all previous projects by user_id
 ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
   const retrieveQuery = `
@@ -3882,6 +3922,203 @@ ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
 
 
 
+// BACKUP TRANSFER
+
+//upload files to tus.io server
+ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, fileSize, projectUuid, token}) => {
+  log.info("uploadFileToTus triggered in Main Process")
+  return new Promise((resolve, reject) => {
+    try {
+      log.info("uploadFileToTus triggered in Main Process2")
+      const fileStream = fs.createReadStream(filePath);
+      log.info("File stream created for:", filePath);
+      log.info("File path:", filePath);
+      if (!fs.existsSync(filePath)) {
+        log.error("File does not exist:", filePath);
+      } else {
+        log.info("File exists. Proceeding with upload...");
+      }
+      log.info("File stream:", fileStream);
+
+
+      let upload = new tus.Upload(fileStream, {
+        endpoint: "https://backuptransfer.ebx.nu/",
+        retryDelays: [0, 3000, 5000, 10000], 
+        metadata: { filename: fileName, project_uuid: projectUuid, filetype: "application/octet-stream" },
+        chunkSize: 5 * 1024 * 1024, 
+        headers: {
+          Authorization: `Token ${token}`,  
+        },
+        urlStorage: new tus.FileUrlStorage(uploadCacheDir),
+        onProgress: (bytesUploaded, bytesTotal) => {
+          log.info("uploadFileToTus onProgress")
+          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+          console.log(`Uploading ${fileName}: ${percentage}%`);
+          event.sender.send("upload-progress", { fileName, percentage });
+        },
+        onError: (error) => {
+          log.info("uploadFileToTus onError")
+          console.error("Tus upload failed:", error);
+          log.info("uploadFileToTus upload error: ", error)
+          event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
+          reject(new Error(`Upload failed: ${error.message}`));
+        },
+        onSuccess: () => {
+          log.info("uploadFileToTus onSuccess")
+          console.log(`File ${fileName} uploaded successfully.`);
+          resolve({ status: "success", filename: fileName });
+        },
+      });
+      
+      // upload.findPreviousUploads().then((previousUploads) => {
+      //   if (previousUploads.length > 0) {
+      //     // Keep uploading from previous upload if cancelled
+      //     upload.resumeFromPreviousUpload(previousUploads[0]);
+      //   }
+        log.info("Upload object:", upload);
+        log.info("Starting upload...");
+        upload.start();
+      // });
+    } catch (error) {
+      console.error("Error in uploadFileToTus:", error);
+      log.info("uploadFileToTus upload error: ", error)
+      event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
+      reject(new Error("Upload error: " + error.message));
+    }
+  });
+});
+
+
+
+//create new BT project
+ipcMain.handle("createNewBTProject", async (event, data) => {
+  log.info("createNewBTProject triggered");
+  return new Promise((resolve, reject) => {
+    try {
+      if (!data || typeof data !== "object") {
+        throw new Error("Invalid arguments received for createNewBTProject");
+      }
+      const { project_uuid, projectname, user_id } = data;
+      if (!project_uuid || !projectname || !user_id) {
+        throw new Error("Missing required data for createNewBTProject");
+      }
+
+      const query = `
+          INSERT INTO bt_projects (
+              project_uuid, projectname, user_id 
+          )
+          VALUES (?, ?, ?)
+        `;
+      const params = [project_uuid, projectname, user_id];
+
+      db.run(query, params, function (err) {
+        if (err) {
+          log.error("Error adding new createNewBTProject:", err.message);
+          reject({ status: 400, error: err.message });
+        } else {
+          const bt_project_id = this.lastID;
+          log.info(
+            `createNewBTProject added successfully with id ${bt_project_id}`,
+          );
+          resolve({ status: 201, success: true, bt_project_id });
+        }
+      });
+    } catch (err) {
+      log.error("Error adding new createNewBTProject:", err.message);
+      reject({ error: err.message });
+    }
+  });
+});
+
+
+//add new BT file
+ipcMain.handle("createNewBTFile", async (event, fileData) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!fileData || typeof fileData !== "object") {
+        throw new Error("Invalid arguments received for createNewFTFile");
+      }
+      const { filename, bt_project_id, file_path, project_uuid, file_size } = fileData;
+      if (!filename || !bt_project_id || !project_uuid) {
+        throw new Error("Missing required data for createNewFTFile");
+      }
+
+      const query = `
+            INSERT INTO bt_files (
+              project_uuid, filename, bt_project_id, file_path, file_size 
+            )
+            VALUES (?, ?, ?, ?, ?)
+          `;
+      const params = [project_uuid, filename, bt_project_id, file_path, file_size];
+
+      db.run(query, params, function (err) {
+        if (err) {
+          log.error("Error adding new createNewFTFile:", err.message);
+          reject({status: 400, error: err.message });
+        } else {
+          log.info(`createNewFTFile added successfully`);
+          resolve({ status: 201, success: true, message: "success", filename: filename });
+        }
+      });
+    } catch (err) {
+      log.error("Error adding new createNewFTFile:", err.message);
+      reject({ status: 400, error: err.message });
+    }
+  });
+});
+
+
+// Get backuptransfer data, bt_projects with bt_files on left join
+ipcMain.handle("getBackuptransferData", async (event, user_id) => {
+  if (!user_id) { throw new Error("Missing user_id for getBackuptransferData")}
+  const query = `
+    SELECT btp.*, btf.* 
+    FROM bt_projects btp
+    LEFT JOIN bt_files btf ON btp.bt_project_id = btf.bt_project_id
+    WHERE btp.user_id = ?
+  `;
+  const db = new sqlite3.Database(dbPath);
+  try {
+    const rows = await executeQueryWithRetry(db, query, [user_id]);
+    if (rows.length > 0) {
+      
+      const projects = [];
+      rows.forEach(row => {
+        let project = projects.find(p => p.bt_project_id === row.bt_project_id);
+        if (!project){
+          project = {
+            ...row, 
+            files: [] 
+          };
+          projects.push(project);
+        }
+        if (row.bt_file_id) {
+          project.files.push({
+            bt_file_id: row.bt_file_id,
+            project_uuid: row.project_uuid,
+            filename: row.filename,
+            file_path: row.file_path,
+            file_size: row.file_size,
+            uploaded_at: row.uploaded_at
+          });
+        }
+      });
+
+
+      return { status: 200, success: true, message: "success", data: projects }
+    } else {
+      return { status: 204, success: true, message: "No data" } 
+    }
+  } catch (error) {
+    log.info("Error fetching data (getBackuptransferData)");
+    return { status: 500, errorMessage: error.message }
+  } finally {
+    await closeDatabase(db);
+  }
+})
+
+
+
 // FILE REPORT
 
 //get all currents in timereport table by user_id
@@ -3983,17 +4220,17 @@ ipcMain.handle("getUnsubmittedTimeReport", async (event, user_id) => {
 
 
 
-// //get projects from lastr report period by user_id
+// //get projects from last report period by user_id
 ipcMain.handle("getLastReportPeriodProjects", async (event, user_id) => {
   const now = new Date();
-  // Get the start of this month
+  //get the start of this month
   const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   startOfThisMonth.setHours(0, 0, 0, 0); 
-  // Get the start of last month
+  //get the start of last month
   const startOfLastMonth = new Date(startOfThisMonth);
   startOfLastMonth.setMonth(startOfThisMonth.getMonth() - 1);
   startOfLastMonth.setHours(0, 0, 0, 0); 
-  // Convert to ISO string to match the format of your `project_date` field
+  
   const startOfLastMonthISO = startOfLastMonth.toISOString().slice(0, 19).replace('T', ' ');
   const startOfThisMonthISO = startOfThisMonth.toISOString().slice(0, 19).replace('T', ' ');
   console.log("Start of last month:", startOfLastMonthISO);

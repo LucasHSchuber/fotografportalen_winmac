@@ -223,14 +223,15 @@
 /* CHART */
 
 .chart-teamleader-wrapper {
-    background-color: #fbfbfb !important;
-    border: 1px solid rgb(0, 179, 255, 0.3);
+    /* background-color: #fbfbfb !important; */
+    /* border: 1px solid rgb(0, 179, 255, 0.3); */
     box-shadow: 0px 2px 6px rgba(87, 87, 87, 0.1); 
     border-radius: 5px;
-    padding: 2.5em 2em 1.5em 2em;
-    width: fit-content;
+    padding: 1.25em 2em 0.5em 2em;
+    /* width: fit-content; */
+    width: 85%;
+    min-width: 34em;
 }
-
 .custom-tooltip {
     background-color: white;
     border: 1px solid #ccc;
@@ -239,26 +240,23 @@
     font-size: 0.8em;
     border-radius: 5px;
 }
-
 .custom-tooltip p {
     margin: 1px 0;
 }
-
 .chart-container h6 {
-    text-decoration: underline;
-    font-size: 0.9em;
+    /* text-decoration: underline; */
+    font-size: 0.8em;
 }
-
 .chart-container select {
     /* background-color: rgb(255, 255, 255); */
     background-color: inherit;
     color: #333333;
     border-radius: 3px;
     border: 1px solid #d8d8d8;
-    padding: 0.1em;
-    height: 1.5em !important;
+    /* padding: 0.1em; */
+    height: 1.3em !important;
     font-size: 0.9em;
-    margin-top: 0.2em !important;
+    /* margin-top: 0.2em !important; */
 }
 
 

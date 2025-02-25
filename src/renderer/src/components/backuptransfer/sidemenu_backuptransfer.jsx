@@ -7,10 +7,10 @@ import fp from "../../assets/images/diaphragm.png";
 import house from "../../assets/images/house.png";
 import uploadedfile from "../../assets/images/uploadedfile.png";
 
-import '../../assets/css/filetransfer/components_filetransfer.css'
+import '../../assets/css/backuptransfer/components_backuptransfer.css'
 
 
-const Sidemenu_filetransfer = () => {
+const Sidemenu_backuptransfer = () => {
 
     //define states
     const [showModal, setShowModal] = useState(false);
@@ -35,7 +35,7 @@ const Sidemenu_filetransfer = () => {
 
 
     return (
-        <div className="sidemenu-filetransfer">
+        <div className="sidemenu-backuptransfer">
             {/* Alert user if no internet connection */}
             {!internetAccess && (
                 <div className="nointernet-box d-flex justify-content-center">
@@ -50,15 +50,15 @@ const Sidemenu_filetransfer = () => {
             </div>
             <ul className="menu">
                 <div className="link-box">
-                    <NavLink exact="true" to="/home_filetransfer">
+                    <NavLink exact="true" to="/home_backuptransfer">
                         <img className="link-img" src={house} alt="house img" />
                         <p>Home</p>
                     </NavLink>
                 </div>
                 <div className="link-box">
-                    <NavLink exact="true" to="/history_filetransfer">
+                    <NavLink exact="true" to="/history_backuptransfer">
                         <img className="link-img" src={uploadedfile} alt="uploaded files img" style={{ marginLeft: "42px" }} />
-                        <p>History</p>
+                        <p>Backup History</p>
                     </NavLink>
                 </div>
             </ul>
@@ -67,4 +67,4 @@ const Sidemenu_filetransfer = () => {
     );
 }
 
-export default Sidemenu_filetransfer;
+export default Sidemenu_backuptransfer;

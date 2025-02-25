@@ -9,16 +9,19 @@ import AcceptTermsModal from "../../components/teamleader/accepttermsModal";
 
 import "../../assets/css/teamleader/main_teamleader.css";
 
-// Import language texts for each supported language
-import se from "../../assets/language/se.json"; // Swedish
-import dk from "../../assets/language/dk.json"; // Daninsh
-import fi from "../../assets/language/fi.json"; // Finnihs
-import no from "../../assets/language/no.json"; // Norweigan
-import de from "../../assets/language/de.json"; // German
+import se from "../../assets/language/se.json"; 
+import dk from "../../assets/language/dk.json"; 
+import fi from "../../assets/language/fi.json"; 
+import no from "../../assets/language/no.json"; 
+import de from "../../assets/language/de.json"; 
 
 function Calendarsale_teamleader() {
   // Define states
+  const [deliveryFirstName, setDeliveryFirstName] = useState("");
+  const [deliveryLastName, setDeliveryLastName] = useState("");
   const [formData, setFormData] = useState({
+    // delivery_first_name: "",
+    // delivery_last_name: "",
     calendar_amount: "",
     leader_address: "",
     leader_postalcode: "",
@@ -27,6 +30,8 @@ function Calendarsale_teamleader() {
     terms: false,
   });
   const [errorMessage, setErrorMessage] = useState({
+    // delivery_first_name: false,
+    // delivery_last_name: false,
     calendar_amount: false,
     leader_address: false,
     leader_postalcode: false,
@@ -41,9 +46,26 @@ function Calendarsale_teamleader() {
   const [languageTexts, setLanguageTexts] = useState({});
   const [user_lang, setUser_lang] = useState("");
 
+  const navigate = useNavigate();
+
   const handleClose = () => {
     setShowCalendarConfirmModal(false);
   };
+  const handleConfirm = () => {
+    setShowTermsAndConditionModal(false);
+  };
+
+  // // Get full name from local storage on mount
+  // useEffect(() => {
+  //   let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname",);
+  //   let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
+  //   // setSavedName(newteam_leaderfirstname + " " + newteam_leaderlastname);
+  //   setFormData((prevState) => ({
+  //     ...prevState,
+  //     delivery_first_name: newteam_leaderfirstname, 
+  //     delivery_last_name: newteam_leaderlastname, 
+  //   }));
+  // }, []);
 
   useEffect(() => {
     // Determine the language from sessionStorage
@@ -72,11 +94,13 @@ function Calendarsale_teamleader() {
     setLanguageTexts(selectedLang);
   }, []);
 
-  const navigate = useNavigate();
+
+  // Method to go back 
   const handleBack = () => {
     navigate(`/calendarsale_teamleader`);
   };
 
+  // handle change
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
     setFormData((prevState) => ({
@@ -88,8 +112,9 @@ function Calendarsale_teamleader() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Set error messages
     let errors = {};
+    // if (!formData.delivery_first_name) errors.delivery_first_name = true;
+    // if (!formData.delivery_last_name) errors.delivery_last_name = true;
     if (!formData.calendar_amount) errors.calendar_amount = true;
     if (!formData.leader_address) errors.leader_address = true;
     if (!formData.leader_postalcode) errors.leader_postalcode = true;
@@ -111,16 +136,20 @@ function Calendarsale_teamleader() {
       return;
     }
 
+    // let delivery_first_name = formData.delivery_first_name;
+    // let delivery_last_name = formData.delivery_last_name;
     let calendar_sale = localStorage.getItem("calendar_sale");
     let newteam_teamname = localStorage.getItem("newteam_teamname");
-    let newteam_leaderfirstname = localStorage.getItem(
-      "newteam_leaderfirstname",
-    );
+    let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname",);
     let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
     let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
     let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
+    // setDeliveryFirstName(delivery_first_name)
+    // setDeliveryLastName(delivery_last_name) 
 
     const leaderData = {
+      // delivery_first_name: delivery_first_name,
+      // delivery_last_name: delivery_last_name,
       calendar: calendar_sale,
       teamname: newteam_teamname,
       firstname: newteam_leaderfirstname,
@@ -134,17 +163,16 @@ function Calendarsale_teamleader() {
       ssn: formData.leader_ssn,
     };
     setTeamData(leaderData);
-
     setShowCalendarConfirmModal(true);
   };
 
+
+  // method to confirm calendar and add data to db 
   const confirmCalendar = async () => {
     let project_id = localStorage.getItem("project_id");
     console.log(project_id);
     let newteam_teamname = localStorage.getItem("newteam_teamname");
-    let newteam_leaderfirstname = localStorage.getItem(
-      "newteam_leaderfirstname",
-    );
+    let newteam_leaderfirstname = localStorage.getItem("newteam_leaderfirstname");
     let newteam_leaderlastname = localStorage.getItem("newteam_leaderlastname");
     let newteam_leaderemail = localStorage.getItem("newteam_leaderemail");
     let newteam_leadermobile = localStorage.getItem("newteam_leadermobile");
@@ -152,8 +180,9 @@ function Calendarsale_teamleader() {
     try {
       const teamData = await window.api.createNewTeam({
         ...formData,
-        // team_id: team_id
         teamname: newteam_teamname,
+        // leader_firstname: deliveryFirstName,
+        // leader_lastname: deliveryLastName,
         leader_firstname: newteam_leaderfirstname,
         leader_lastname: newteam_leaderlastname,
         leader_email: newteam_leaderemail,
@@ -163,6 +192,8 @@ function Calendarsale_teamleader() {
       console.log("Teams:", teamData.teams);
 
       setFormData({
+        // delivery_first_name: "",
+        // delivery_last_name: "",
         calendar_amount: "",
         leader_address: "",
         leader_postalcode: "",
@@ -177,11 +208,6 @@ function Calendarsale_teamleader() {
   };
 
 
-  const handleConfirm = () => {
-    setShowTermsAndConditionModal(false);
-  };
-
-
 
   useEffect(() => {
     function handleResize() {
@@ -193,6 +219,8 @@ function Calendarsale_teamleader() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+
 
   return (
     <div className="teamleader-wrapper">
@@ -262,10 +290,30 @@ function Calendarsale_teamleader() {
             )}
           </div>
 
-          <div className="mt-3 header">
+          {/* <div className="mt-3 header">
                 <h6><b>{languageTexts?.deliveryheader}:</b></h6>
-          </div>
+          </div> */}
 
+          {/* <div>
+            <input
+              className={`form-input-field ${errorMessage.delivery_first_name ? "error-border" : ""}`}
+              type="text"
+              name="delivery_first_name"
+              defaultValue={formData.delivery_first_name}
+              onChange={handleChange}
+              placeholder={languageTexts?.deliveryfirstname}
+            />
+          </div>
+          <div>
+            <input
+              className={`form-input-field ${errorMessage.delivery_last_name ? "error-border" : ""}`}
+              type="text"
+              name="delivery_last_name"
+              defaultValue={formData.delivery_last_name}
+              onChange={handleChange}
+              placeholder={languageTexts?.deliverylastname}
+            />
+          </div> */}
           <div>
             <input
               className={`form-input-field ${errorMessage.leader_address ? "error-border" : ""}`}

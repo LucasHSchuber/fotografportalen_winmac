@@ -241,7 +241,7 @@ function Settings() {
               </div>
             </div>
             <div>
-              <label>Language:</label>
+              <label>Country:</label>
               <div style={{ width: "20em" }}>
                 <select
                   id="lang"
@@ -250,11 +250,11 @@ function Settings() {
                   value={lang} 
                   onChange={(e) => handleChangeNewLang(e.target.value)}
                 >
-                  <option value="DK">Danish</option>
-                  <option value="FI">Finnish</option>
-                  <option value="DE">German</option>
-                  <option value="NO">Norwegian</option>
-                  <option value="SE">Swedish</option>
+                  <option value="DK">Denmark</option>
+                  <option value="FI">Finland</option>
+                  <option value="DE">Germany</option>
+                  <option value="NO">Norway</option>
+                  <option value="SE">Sweden</option>
                 </select>
               </div>
             </div>

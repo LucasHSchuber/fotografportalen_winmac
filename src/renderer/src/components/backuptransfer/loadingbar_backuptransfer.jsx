@@ -6,9 +6,9 @@ import { Bars } from "react-loader-spinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faCloudArrowUp, faCircle } from "@fortawesome/free-solid-svg-icons";
 
-import "../../assets/css/filetransfer/components_filetransfer.css";
+import "../../assets/css/backuptransfer/components_backuptransfer.css";
 
-const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading }) => {
+const Loadingbar_backuptransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading }) => {
   //define states
   const [uploadedFilesArray, setUploadedFilesArray] = useState([]);
 
@@ -23,10 +23,8 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
     files.forEach(file => {
       if (finishedUploading.filename === file.name) {
         console.log("Uploading:", file.name)
-        
           if (!uploadedFilesArray.includes(file.name)) {
             setUploadedFilesArray((prevArray) => [...prevArray, file.name]);
-
         }
       }
     });
@@ -40,7 +38,7 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
   
 
   return (
-    <div className="loadingbar-filetransfer">
+    <div className="loadingbar-backuptransfer">
 
         <div style={{ marginLeft: "5em" }}>
           <h6 className="mb-3" style={{ fontWeight: "700" }}>Uploading files:</h6>
@@ -68,44 +66,8 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
             </div>
           ))}
       </div>
-
-
-      {/* <div className="">
-
-          <div>
-              <h6 style={{ fontSize: "0.85em"}}>Files uploaded:</h6>
-              <p style={{ fontWeight: "700", fontSize: "1.25em"}}>{uploadProgress && uploadProgress.uploaded}/{uploadProgress && uploadProgress.total}</p>
-          </div>
-
-          <hr style={{ width: "65%" }}></hr>
-
-          <div>
-              <p style={{ fontSize: "0.8em"}}><span style={{ fontWeight: "700" }}>({uploadFile})</span></p>
-            
-              <div className="progress-container">
-                <progress
-                  className="progress-bar"
-                  value={uploadPercentage}
-                  max="100"
-                  style={{ width: "100%", height: "20px" }}
-                ></progress>
-                <h6 style={{ marginTop: "0.4em", fontSize: "0.8em", }}>{uploadPercentage}%</h6>
-              </div>
-          </div>
-
-      </div> */}
-
-      {/* <div className="tailspin">
-        <Bars
-          height="30"
-          width="40"
-          color="red"
-          ariaLabel="bars-loading"
-          visible={true}
-        />
-      </div> */}
     </div>
   );
 };
 
-export default Loadingbar_filetransfer;
+export default Loadingbar_backuptransfer;

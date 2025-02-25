@@ -62,6 +62,7 @@ function Login_window() {
     setErrorLogginginMessage("");
   };
 
+  
   const loginUser = async () => {
     if (password === "" && username === "") {
       console.log("Enter username and password");
@@ -109,6 +110,7 @@ function Login_window() {
         }
 
       } catch (error) {
+        console.log('response:', error.response.data.error);
          // Username exists in global database
          if (error.response.status === 403) {
           console.log('response:', error.response.data.error);

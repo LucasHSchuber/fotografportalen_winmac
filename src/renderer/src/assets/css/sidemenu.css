@@ -19,6 +19,10 @@
     margin-top: 1em;
     width: 4.5em;
     padding: 10px;
+    transition: 0.2s;
+}
+.logo:hover img{
+    padding: 11.2px;
 }
 
 .link-img:hover {
@@ -54,5 +58,14 @@
     /* text-decoration: none; */
     color: white;
     transition: 0.2s ease;
+}
+
+.nointernet-box{
+    position: absolute;
+    padding: 0.2em 0 0 0;
+    width: 100%;
+    height: 1.2em;
+    color: rgb(255, 255, 255);
+    background-color: red;
 }
 

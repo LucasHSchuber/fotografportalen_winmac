@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 
 //importing pages and components
+//Home
 import Index from "./pages/index";
 import Settings from "./pages/settings";
 import Account from "./pages/account";
@@ -11,7 +12,7 @@ import Faq from "./pages/faq";
 import Login_window from "./pages/login_window";
 import UpdateApplication_window from "./pages/updateApplication_window";
 import Register_window from "./pages/register_window";
-
+//Workspace
 import Home_teamleader from "./pages/teamleader/home_teamleader";
 import Prevwork_teamleader from "./pages/teamleader/prevwork_teamleader";
 import Currwork_teamleader from "./pages/teamleader/currwork_teamleader";
@@ -21,10 +22,13 @@ import Addleaderinfo_teamleader from "./pages/teamleader/addleaderinfo_teamleade
 import Newteam_teamleader from "./pages/teamleader/newteam_teamleader";
 import Calendarsale_teamleader from "./pages/teamleader/calendarsale_teamleader";
 import Yescalendarsale_teamleader from "./pages/teamleader/yescalendarsale_teamleader";
-
+//Filetransfer
 import Home_filetransfer from "./pages/filetransfer/home_filetransfer";
 import History_filetransfer from "./pages/filetransfer/history_filetransfer";
-
+//Backuptransfer
+import Home_backuptransfer from "./pages/backuptransfer/home_backuptransfer";
+import History_backuptransfer from "./pages/backuptransfer/history_backuptransfer";
+//Timereport
 import Home_timereport from "./pages/timereport/home_timereport";
 
 //importing css styles
@@ -138,6 +142,22 @@ function App() {
 
             <div className="route-layout">
               <Routes> <Route path="/history_filetransfer" element={<History_filetransfer />} /></Routes>
+            </div>
+
+          </div>
+        </div>
+
+        {/* BACKUPTRANSFER */}
+        {/* .main-content for margin/padding left to make room for sidebar */}
+        <div className="main-content">
+          <div className="content">
+
+            <div className="route-layout">
+              <Routes> <Route path="/home_backuptransfer" element={<Home_backuptransfer />} /></Routes>
+            </div>
+
+            <div className="route-layout">
+              <Routes> <Route path="/history_backuptransfer" element={<History_backuptransfer />} /></Routes>
             </div>
 
           </div>

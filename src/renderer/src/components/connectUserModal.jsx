@@ -122,7 +122,7 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
         <>
             <Modal className="mt-5" show={showConnectUserModal} onHide={handleCloseConnectUserModal}>
                 <Modal.Body className="mt-3 mb-3">
-                    <Modal.Title><h5 className="mb-4" ><b>Connect new photographer</b></h5></Modal.Title>
+                    <Modal.Title><h5 className="mb-4" ><b>Add photographer</b></h5></Modal.Title>
                     {/* <h6 className="mb-3">You must log in to be able to send in this work</h6> */}
 
                     <div style={{ textAlign: "left", marginLeft: "3em", width: "23em" }}>
@@ -162,7 +162,7 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
                             Cancel
                         </Button>
                         <Button className="button normal fixed-width" onClick={connectUser}>
-                            Connect
+                            Add
                         </Button>
                     </div>
 

@@ -41,9 +41,7 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
   // Download files in Knowledge Base to locale computer
   useEffect(() => {
       const downloadKnowledgeBaseFilesToComputer = async () => {
-        console.log('downloadKnowledgeBaseFilesToComputer triggered!');
         console.log('data', data);
-
             const filesArray = [];
             try {
               const response = await axios.get(`https://fs.ebx.nu/list`)
@@ -90,7 +88,7 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
 
 
   // Fetching all knowledge base data from REST API 
-    const fetchKnowledgebase = async () => {
+  const fetchKnowledgebase = async () => {
       let user_lang = localStorage.getItem("user_lang");
       let token = localStorage.getItem("token");
       console.log('user_lang', user_lang);
@@ -111,14 +109,13 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
           console.log("No data in knowledgebase from API endpoint")
           setLoading(false);
         }
-        
       } catch (err) {
         console.error("Error fetching data:", err);
         setLoading(false);
       }
   }
-    // Fetching all knowledge base data from db table
-    const fetchKnowledgebaseFromTable = async () => {
+  // Fetching all knowledge base data from db table
+  const fetchKnowledgebaseFromTable = async () => {
       let user_lang = localStorage.getItem("user_lang");
       console.log('user_lang', user_lang);
       try {
@@ -167,12 +164,9 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
         data.tags.forEach(tag => {
             if (tagsCount[tag]) {
                 tagsCount[tag] +=1
-                console.log("has");
             }else{
-                console.log("has not");
                 tagsCount[tag] = 1
             }
-
             if (!tagsArray.includes(tag)) {
                 tagsArray.push(tag);
             }
@@ -190,16 +184,13 @@ const [errorFetchingDataFromTable, setErrorFetchingDataFromTable] = useState(fal
   const handleKnowledgeModal = (show, item) => {
     setShowKnowledgeModal(show);
     setSelectedItem(item);
-    console.log('item selected', item);
   };
 
   const handleKnowledgeClick = (tag) => {
-    console.log('tag', tag);
     setSelectedTag(tag);
   }
 
   const handleSearchString = (e) => {
-    console.log(e);
     setSearchString(e);
   }
 

@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faWifi } from '@fortawesome/free-solid-svg-icons';
+
 import fp from "../../assets/images/diaphragm.png";
 import house from "../../assets/images/house.png";
 import flash from "../../assets/images/flash.png";
@@ -17,7 +20,7 @@ const Sidemenu_teamleader = () => {
 
     //define states
     const [showModal, setShowModal] = useState(false);
-    const [internetAccess, setInternetAccess] = useState(false);
+    const [internetAccess, setInternetAccess] = useState(true);
 
     const handleClose = () => setShowModal(false);
     // const handleShow = () => setShowModal(true);
@@ -33,12 +36,21 @@ const Sidemenu_teamleader = () => {
             }
         };
         checkInternetConnection();
+        const intervalId = setInterval(checkInternetConnection, 15000); // run every 20 sec to make sure internet connection is still available
+        return () => clearInterval(intervalId);
     }, [])
 
 
 
     return (
         <div className="sidemenu-teamleader">
+            {/* Alert user if no internet connection */}
+            {!internetAccess && (
+                <div className="nointernet-box d-flex justify-content-center">
+                    <FontAwesomeIcon className="mr-1" icon={faWifi} size="xs"/>
+                    <h6 style={{ fontSize: "0.7em" }}>No connection</h6>
+                </div>
+            )}
             <div className={`logo ${internetAccess ? "logo-spin": ""}`}>
                 <NavLink to="/" exact="true">
                     <img src={fp} alt="Logo" />

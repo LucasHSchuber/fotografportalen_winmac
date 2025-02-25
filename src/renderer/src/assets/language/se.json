@@ -32,6 +32,8 @@
   "calendaramounttext": "* Varje spelar får tre kalendrar",
   "deliveryheader": "Leveransuppgifter",
   "ssn": "Personnummer (YYYYMMDDXXXX)",
+  "deliveryfirstname": "Förnamn",
+  "deliverylastname": "Efternamn",
   "address": "Adress",
   "postalcode": "Postnummer",
   "county": "Stad",

@@ -343,7 +343,7 @@ const EditTeamModal = ({
       let errorsSport = {};
       if (!updatedFields.teamname) errorsSport.teamname = true;
       if (!updatedFields.amount) errorsSport.amount = true;
-      if (formData.portrait === 0 && (formData.reason_not_portrait === null || formData.reason_not_portrait === "")) errors.reason_not_portrait = true;
+      if (formData.portrait === 0 && (formData.reason_not_portrait === null || formData.reason_not_portrait === "")) errorsSport.reason_not_portrait = true;
 
       if (showInputFields) {
         if (!updatedFields.leader_firstname)
@@ -619,61 +619,9 @@ const EditTeamModal = ({
 
               {showInputFields && (
                 <div className="mt-4">
-                  {/* <hr className="my-4"></hr> */}
-                  <h6 style={{ fontSize: "0.9em" }}>
-                    <em>* Required information for calendar sales</em>
-                  </h6>
-                  <div>
-                    <label>Leader firstname: *</label>
-                    <input
-                      className={`form-input-field ${errorMessageSport.leader_firstname ? "error-border" : ""}`}
-                      type="text"
-                      name="leader_firstname"
-                      placeholder="Leader First Name"
-                      style={{ width: "20em" }}
-                      defaultValue={teamData.leader_firstname}
-                      onChange={handleLeaderFirstnameChange}
-                    />
-                  </div>
-                  <div>
-                    <label>Leader lastname: * </label>
-                    <input
-                      className={`form-input-field ${errorMessageSport.leader_lastname ? "error-border" : ""}`}
-                      type="text"
-                      name="leader_lastname"
-                      placeholder="Leader Last Name"
-                      style={{ width: "20em" }}
-                      defaultValue={teamData.leader_lastname}
-                      onChange={handleLeaderLastnameChange}
-                    />
-                  </div>
-                  <div>
-                    <label>Leader email: *</label>
-                    <input
-                      className={`form-input-field ${errorMessageSport.leader_email ? "error-border" : ""}`}
-                      type="email"
-                      name="leader_email"
-                      placeholder="Leader Email"
-                      style={{ width: "20em" }}
-                      defaultValue={teamData.leader_email}
-                      onChange={handleLeaderEmailChange}
-                    />
-                  </div>
-                  <div>
-                    <label>Leader mobile: *</label>
-                    <input
-                      className={`form-input-field ${errorMessageSport.leader_mobile ? "error-border" : ""}`}
-                      type="text"
-                      name="leader_mobile"
-                      placeholder="Leader Mobile"
-                      style={{ width: "20em" }}
-                      defaultValue={teamData.leader_mobile}
-                      onChange={handleLeaderMobileChange}
-                    />
-                  </div>
                   {user_lang && (user_lang === "SE" || user_lang === "DE") && (
                     <div>
-                      <label>Leader social security number: *</label>
+                      <label>Leader social security number:</label>
                       <input
                         className={`form-input-field ${errorMessageSport.leader_ssn ? "error-border" : ""}`}
                         type="number"
@@ -695,51 +643,117 @@ const EditTeamModal = ({
                       />
                     </div>
                   )}
+                  <h6 className="mt-3" style={{ fontSize: "0.9em" }}>
+                    <h6 style={{ fontSize: "1.1em" }}><b>Calendar delivery information:</b></h6>
+                    <h6 style={{ fontSize: "0.9em" }}><em>* Required information for calendar sales</em></h6>
+                  </h6>
                   <div>
-                    <label>Leader address: *</label>
-                    <input
-                      className={`form-input-field ${errorMessageSport.leader_address ? "error-border" : ""}`}
-                      type="text"
-                      name="leader_address"
-                      placeholder="Leader Address"
-                      style={{ width: "20em" }}
-                      defaultValue={teamData.leader_address}
-                      onChange={handleLeaderAddressChange}
-                    />
+                    <label>Firstname: *</label>
+                    <div>
+                      <input
+                        className={`form-input-field ${errorMessageSport.leader_firstname ? "error-border" : ""}`}
+                        type="text"
+                        name="leader_firstname"
+                        placeholder="Leader First Name"
+                        style={{ width: "20em" }}
+                        defaultValue={teamData.leader_firstname}
+                        onChange={handleLeaderFirstnameChange}
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label>Leader postalcode: *</label>
-                    <input
-                      className={`form-input-field ${errorMessageSport.leader_postalcode ? "error-border" : ""}`}
-                      type="number"
-                      name="leader_postalcode"
-                      placeholder="Leader Postal Code"
-                      style={{ width: "20em" }}
-                      defaultValue={teamData.leader_postalcode}
-                      onChange={handleLeaderPostalcodeChange}
-                      onWheel={(event) => event.target.blur()}
-                      onKeyDown={(event) => {
-                        // Prevents changing value by arrow keys
-                        if (
-                          event.key === "ArrowUp" ||
-                          event.key === "ArrowDown"
-                        ) {
-                          event.preventDefault();
-                        }
-                      }}
-                    />
+                    <label>Lastname: * </label>
+                    <div>
+                      <input
+                        className={`form-input-field ${errorMessageSport.leader_lastname ? "error-border" : ""}`}
+                        type="text"
+                        name="leader_lastname"
+                        placeholder="Leader Last Name"
+                        style={{ width: "20em" }}
+                        defaultValue={teamData.leader_lastname}
+                        onChange={handleLeaderLastnameChange}
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label>Leader city: *</label>
-                    <input
-                      className={`form-input-field ${errorMessageSport.leader_county ? "error-border" : ""}`}
-                      type="text"
-                      name="leader_county"
-                      placeholder="Leader City"
-                      style={{ width: "20em" }}
-                      defaultValue={teamData.leader_county}
-                      onChange={handleLeaderCountyChange}
-                    />
+                    <label>Email: *</label>
+                    <div>
+                      <input
+                        className={`form-input-field ${errorMessageSport.leader_email ? "error-border" : ""}`}
+                        type="email"
+                        name="leader_email"
+                        placeholder="Leader Email"
+                        style={{ width: "20em" }}
+                        defaultValue={teamData.leader_email}
+                        onChange={handleLeaderEmailChange}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Mobile: *</label>
+                    <div>
+                      <input
+                        className={`form-input-field ${errorMessageSport.leader_mobile ? "error-border" : ""}`}
+                        type="text"
+                        name="leader_mobile"
+                        placeholder="Leader Mobile"
+                        style={{ width: "20em" }}
+                        defaultValue={teamData.leader_mobile}
+                        onChange={handleLeaderMobileChange}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Address: *</label>
+                    <div>
+                      <input
+                        className={`form-input-field ${errorMessageSport.leader_address ? "error-border" : ""}`}
+                        type="text"
+                        name="leader_address"
+                        placeholder="Leader Address"
+                        style={{ width: "20em" }}
+                        defaultValue={teamData.leader_address}
+                        onChange={handleLeaderAddressChange}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Postalcode: *</label>
+                    <div>
+                        <input
+                          className={`form-input-field ${errorMessageSport.leader_postalcode ? "error-border" : ""}`}
+                          type="number"
+                          name="leader_postalcode"
+                          placeholder="Leader Postal Code"
+                          style={{ width: "20em" }}
+                          defaultValue={teamData.leader_postalcode}
+                          onChange={handleLeaderPostalcodeChange}
+                          onWheel={(event) => event.target.blur()}
+                          onKeyDown={(event) => {
+                            // Prevents changing value by arrow keys
+                            if (
+                              event.key === "ArrowUp" ||
+                              event.key === "ArrowDown"
+                            ) {
+                              event.preventDefault();
+                            }
+                          }}
+                        />
+                    </div>    
+                  </div>
+                  <div>
+                    <label>City: *</label>
+                    <div>
+                      <input
+                        className={`form-input-field ${errorMessageSport.leader_county ? "error-border" : ""}`}
+                        type="text"
+                        name="leader_county"
+                        placeholder="Leader City"
+                        style={{ width: "20em" }}
+                        defaultValue={teamData.leader_county}
+                        onChange={handleLeaderCountyChange}
+                      />
+                    </div>
                   </div>
                   <div>
                     <label>Amount of players that require calendars *</label>

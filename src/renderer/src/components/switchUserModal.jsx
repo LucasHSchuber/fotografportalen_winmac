@@ -4,18 +4,13 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 
 
-
 const switchUserModal = ({ handleCloseSwitchUserModal, showSwitchUserModal, chosenUser, refreshUser, updateFeedbackMessage }) => {
-
     //define states
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-
     const [passwordMessage, setPasswordMessage] = useState("")
     const [usernameMessage, setUsernameMessage] = useState("")
     const [errorLogginginMessage, setErrorLogginginMessage] = useState("");
-
-
 
     //when closing modal
     const closeModal = () => {
@@ -43,16 +38,13 @@ const switchUserModal = ({ handleCloseSwitchUserModal, showSwitchUserModal, chos
         } else {
             setPasswordMessage("");
         }
-
         if (password !== "" && chosenUser.email !== "") {
             console.log("password and username entered");
-
             try {
                 const data = { email: chosenUser.email, password: password };
                 console.log(data);
                 const responseData = await window.api.loginUser(data);
                 console.log(responseData);
-
                 if (responseData.success === true) {
                     console.log("Log in successful");
                     localStorage.removeItem("user_id");
@@ -76,10 +68,6 @@ const switchUserModal = ({ handleCloseSwitchUserModal, showSwitchUserModal, chos
             return null;
         }
     };
-
-
-
-
 
 
     return (

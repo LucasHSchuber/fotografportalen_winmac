@@ -161,7 +161,7 @@ function Account() {
 
           <div className="mt-4 mb-3">
             <div>
-              <button style={{ margin: "0", width: "16em" }} className="button normal" onClick={connectUser}> Connect new photographer </button>
+              <button style={{ margin: "0", width: "16em" }} className="button normal" onClick={connectUser}> Add photographer </button>
             </div>
           </div>
 
@@ -195,7 +195,6 @@ function Account() {
           <div>
             <button style={{ margin: "0", width: "8em" }} className={`switchuser-button button normal mb-3 ${chosenUserId !== user.user_id ? "show-switchuser-button" : ""}`} onClick={chosenUserId !== user.user_id ? switchUser : handleCloseSwitchUserModal}>Switch <FontAwesomeIcon icon={faArrowsRotate} />  </button>
           </div> */}
-
         </div>
 
       </div>

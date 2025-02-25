@@ -61,7 +61,7 @@ const DeleteTeamModal = ({ showDeleteTeamModal, handleClose, projectType, teamNa
         <Modal className="mt-5" show={showDeleteTeamModal} onHide={handleClose}>
             <Modal.Body className="mt-3 mb-3">
                 <Modal.Title><h5 className="mb-2 error" ><b>{projectType === "school" ? "Delete class" : "Delete team"}</b></h5></Modal.Title>
-                <h6 className="mb-3"><em>Type in "{teamName}" to delete the {projectType === "school" ? "class" : "team"} </em></h6>
+                <h6 className="mb-3"><em>Type in "<b>{teamName}</b>" to delete the {projectType === "school" ? "class" : "team"} </em></h6>
                 {/* <h6 className="mb-4" style={{ color: "red", textDecoration: "underline" }}>This action can not be undone</h6> */}
                 <form onSubmit={(e) => e.preventDefault()}>
                     <input

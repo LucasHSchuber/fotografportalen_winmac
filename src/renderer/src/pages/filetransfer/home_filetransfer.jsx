@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { faRepeat } from "@fortawesome/free-solid-svg-icons";
+import { faRepeat, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
 import { TailSpin } from "react-loader-spinner";
 import Swal from 'sweetalert2';
@@ -22,15 +22,16 @@ function Home_filetransfer() {
   const [loading, setLoading] = useState(true);
   const [chooseNewProjectName, setChooseNewProjectName] = useState("");
   const [files, setFiles] = useState([]);
-  const [projectName, setProjectName] = useState("");
+  // const [projectName, setProjectName] = useState("");
   const [chosenProjectName, setChosenProjectName] = useState("");
   const [chosenProjectUuid, setChosenProjectUuid] = useState("");
   const [chosenProjectLang, setChosenProjectLang] = useState("");
   const [chosenProject_id, setChosenProject_id] = useState("");
   const [projects, setProjects] = useState([]);
   const [FTProjectId, setFTProjectId] = useState("");
+  const [unsentFTProjects, setUnsentFTProjects] = useState([]);
 
-  const [isDragging, setIsDragging] = useState(false);
+  // const [isDragging, setIsDragging] = useState(false);
 
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -40,6 +41,11 @@ function Home_filetransfer() {
   const [finishedUploading, setFinishedUploading] = useState([]);
 
   const inputRef = useRef(null);
+
+
+  useEffect(() => {
+    console.log('finishedUploading', finishedUploading);
+  }, [finishedUploading]);
 
 
 
@@ -64,6 +70,24 @@ function Home_filetransfer() {
 
 
 
+  //Fetching unsent filetransfer data
+  const getUnsentFTProjects = async () => {
+    let user_id = localStorage.getItem("user_id");
+    try {
+      const unsentFTProjects = await window.api.getUnsentFTProjects(user_id);
+      console.log("Unsent FT Projects:", unsentFTProjects.data);
+        if (unsentFTProjects.data.length > 0) {
+          setUnsentFTProjects(unsentFTProjects.data)
+        }
+    } catch (error) {
+      console.error("Error fetching unsent FT projects:", error);
+    }
+  };
+  useEffect(() => {
+    getUnsentFTProjects();
+  }, []);
+
+
   //get all projects
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
@@ -80,60 +104,16 @@ function Home_filetransfer() {
     fetchAllProjects();
   }, []);
 
+
   // handle file change
   const handleFileChange = (event) => {
     setFiles((prevFiles) => [...prevFiles, ...Array.from(event.target.files)]);
   };
 
-  // When dropping files in box
-  // const handleDrop = (event) => {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   const droppedFiles = Array.from(event.dataTransfer.files);
-  //   const zipFiles = droppedFiles.filter((file) => file.name.endsWith(".zip"));
-  //   if (zipFiles.length > 0) {
-  //     setFiles((prevFiles) => [
-  //       ...prevFiles,
-  //       ...Array.from(event.dataTransfer.files),
-  //     ]);
-  //   } else {
-  //     alert("The only valid file format is .zip-files");
-  //   }
-  //   if (inputRef.current) {
-  //     inputRef.current.focus();
-  //   }
-  // };
-
-  // const handleDrop = (event) => {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   setIsDragging(false); 
-  
-  //   const droppedFiles = Array.from(event.dataTransfer.files); 
-  //   console.log("Dropped files:", droppedFiles);
-  
-  //   setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
-  // };
-
-  
-
-  // const handleDragOver = (event) => {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   event.dataTransfer.dropEffect = "copy";
-  //   setIsDragging(true); 
-  // };
-
   // deleting files
   const handleDelete = (index) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
-
-  // const handleDragLeave = (event) => {
-  //   event.preventDefault();
-  //   event.stopPropagation();
-  //   setIsDragging(false);
-  // };
 
 
   useEffect(() => {
@@ -146,7 +126,6 @@ function Home_filetransfer() {
       window.api.removeAllListeners("upload-progress");
     };
   }, []);
-  // console.log(window.api);
 
 
 
@@ -173,15 +152,14 @@ function Home_filetransfer() {
           user_id: user_id,
           project_id: chosenProject_id
       }
-      console.log(projectData);
+      console.log("projectData: ", projectData);
       try{
-          let FT_response = await window.api.createNewFTProject(projectData);
+          let FT_response = await window.api.createNewFTProject(projectData); // creating new row in ft_projects
           console.log("FT response:", FT_response);
-          // IF NOT 200 return
           if (FT_response.status !== 200) {
             MySwal.fire({
               title: 'Error',
-              text: `Failed when adding data to local database`,
+              text: `Failed when creating new filetransfer data to local database`,
               icon: 'error',
               confirmButtonText: 'Close',
               customClass: {
@@ -194,7 +172,6 @@ function Home_filetransfer() {
             setIsUploading(false);
             return;
           }
-
           const ft_project_id = FT_response.ft_project_id;
           setFTProjectId(ft_project_id);
           sessionStorage.setItem("ft_project_id", ft_project_id);
@@ -208,11 +185,7 @@ function Home_filetransfer() {
         //upload files to FTP-server
         setUploadFile(file.name);
         try {
-            const response = await window.api.uploadFile(
-              file.path,
-              chosenProjectLang,
-              file.size
-            );
+            const response = await window.api.uploadFile(file.path, chosenProjectLang, file.size); // uploading tile to ftp server
             console.log("response uploadFile:", response);
             
             if (response.statusCode === 200) {
@@ -232,8 +205,8 @@ function Home_filetransfer() {
                     Authorization: `Token ${token}`,
                   }
                 });
-                console.log('response', response);
-
+                console.log('response', response);  
+        
                 //Create new FT-file in database
                 if (response.status === 200) {
                     console.log(FTProjectId);
@@ -246,7 +219,7 @@ function Home_filetransfer() {
                     }
                     console.log(fileData);
                     try{
-                      let FTfile_response = await window.api.addFTFile(fileData);
+                      let FTfile_response = await window.api.addFTFile(fileData); // creating new row in ft_files
                       console.log("FT file response:", FTfile_response);
                       if (FTfile_response.status === 201){
                         console.log('addFTFile completed', FTfile_response.filename);
@@ -269,7 +242,6 @@ function Home_filetransfer() {
                       }
                     });
                 }
-                
           } else {
                 MySwal.fire({
                   title: 'Upload Failed',
@@ -319,39 +291,47 @@ function Home_filetransfer() {
       setIsUploading(false);
       setChooseNewProjectName("");
       setChosenProjectName("");
-      setProjectName("");
       setFiles([]);
+      getUnsentFTProjects();
     }
   };
 
 
 
-
+  // Method for when selecting project in list
   const handleProjectChange = (selectedOption) => {
+    console.log('selectedOption', selectedOption);
     if (selectedOption) {
       setChosenProjectName(selectedOption.label);
       setChosenProjectUuid(selectedOption.value);
       setChosenProjectLang(selectedOption.lang);
       setChosenProject_id(selectedOption.project_id);
-      setProjectName(selectedOption);
-      console.log(selectedOption);
-      console.log(selectedOption.label);
-      console.log(selectedOption.lang);
-      console.log(selectedOption.project_id);
+      // setProjectName(selectedOption);
     } else {
       setChosenProjectName("");
-      setProjectName("");
+      // setProjectName("");
       setChosenProjectUuid("");
       console.log("No project selected");
     }
   };
-
-  const handleProjectChangeNew = (e) => {
-    setChosenProjectName(e);
-    setChosenProjectUuid("abc");
-    setProjectName(e);
-    console.log(e);
+  // Method to set project_uuid and projectname when create custom project name
+  const handleProjectChangeNew = (value) => {
+    console.log('value', value);
+    const uuid = "b2df9ade-e080-4f09-b6c3-39a2ea622bed";
+    setChosenProjectName(value);
+    setChosenProjectUuid(uuid);
+    let _project_id = generateRandomNumber("123");
+    console.log('_project_id', _project_id);
+    setChosenProject_id(_project_id);
+    // setProjectName(e);
   };
+    // Method to generate random uuid for when user creates an own projectname
+    const generateRandomNumber = (prefix) => {
+      const prefixNumber = parseInt(prefix, 10)
+      const randomPart = Math.floor(Math.random() * 100000);  
+      const randomNumber = prefixNumber * 100000 + randomPart;
+      return randomNumber;
+    };
 
   const newProjectName = () => {
     setChooseNewProjectName((prevState) => !prevState);
@@ -372,6 +352,10 @@ function Home_filetransfer() {
         borderColor: isFocused ? "#ff6f6f" : "#ccc", 
       },
     }),
+    option: (provided) => ({
+      ...provided,
+      fontSize: '0.9em',
+    }),
     menu: (base) => ({
       ...base,
       width: "35em",
@@ -382,7 +366,6 @@ function Home_filetransfer() {
       textAlign: "center",
     }),
   };
-
 
 
   return (
@@ -406,10 +389,27 @@ function Home_filetransfer() {
               <p>This is your program for uploading images and keeping track of already uploaded files</p>
             </div>
 
+            {/* Alert */}
+            {unsentFTProjects.length > 0 && (
+                <div className="mb-4 home-message-box">
+                    <div className="d-flex">
+                      <h6> <FontAwesomeIcon icon={faExclamationCircle} color="red" /> &nbsp;<b> Alert: </b> &nbsp; </h6>
+                      <h6> You have <b>{unsentFTProjects.length > 0 ? unsentFTProjects.length : "0"}</b> job{unsentFTProjects.length > 1 ? "s":""} that is three days due and it's missing images:</h6>
+                    </div> 
+                    <ul style={{ fontSize: "0.75em" }}>
+                      {unsentFTProjects.map((job) => (
+                        <li key={job.project_uuid}>
+                          {job.projectname}
+                        </li>
+                      ))}
+                    </ul>
+                </div>
+            )}
+
             <div className="d-flex mb-3">
               <div style={{  display: chooseNewProjectName ? "none" : "block" }}>
                 <Select
-                  value={projectName}
+                  // value={projectName}
                   onChange={handleProjectChange}
                   options={
                     projects &&
@@ -452,27 +452,6 @@ function Home_filetransfer() {
             </div>
 
             <div>
-              {/* <div
-                 onDrop={handleDrop}
-                 onDragOver={handleDragOver}
-                 onDragLeave={handleDragLeave}
-                 id="drop-zone"
-                  style={{
-                    border: isDragging ? "1x solid #98d3f1" : files.length === 0 ? "1px dashed #ccc" : "1px solid #80df70",
-                    padding: "90px",
-                    textAlign: "center",
-                    width: "70%",
-                    cursor: "copy",
-                  }}
-              >
-                  {files.length === 0 ? (
-                    <h6 style={{ marginRight: "1em" }}>
-                      <em>Drag and drop files here</em>
-                    </h6>
-                  ) : (
-                    <h6 style={{ marginRight: "2em" }}>Files ({files.length})</h6>
-                  )}
-              </div> */}
               <input
                   disabled={isUploading}
                   className="mt-3"

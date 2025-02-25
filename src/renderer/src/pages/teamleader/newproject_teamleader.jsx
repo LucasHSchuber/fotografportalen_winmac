@@ -156,13 +156,8 @@ function Newproject_teamleader() {
             console.log('confirmed', confirmed);
             if (!confirmed) {
                 console.log("Operation canceled by the user");
-                return; // Exit the function if user cancels
+                return;
             }
-            // const confirm = window.confirm(`Hang on! You are about to create a ${isSelectedType1 ? "sport" : "school"} photography to a ${isSelectedType1 ? 'school' : 'sport'} job. Are you sure you want to continue?`);
-            // if (!confirm) {
-            //     console.log("Cancel");
-            //     return;
-            // }
         } 
 
         console.log('Selected project:', projectName ? projectName.label : null);
@@ -171,7 +166,7 @@ function Newproject_teamleader() {
         console.log(selectedProject);
 
         let _uuid = selectedProject.project_uuid;
-        setProject_uuid(_uuid); //set uuid
+        setProject_uuid(_uuid); 
         setProjectDate(selectedProject.start ? selectedProject.start : selectedProject.project_date); 
 
         console.log('Selected project:', projectName);
@@ -187,7 +182,7 @@ function Newproject_teamleader() {
 
     // METHOD - verify projectname and photo type based on country
     const verifyProjectnameToType = () => {
-            if ((chosenProjectName.toLocaleLowerCase().includes("-idrott") || chosenProjectName.toLocaleLowerCase().includes("idrott-")) && type === "School") {
+            if ((chosenProjectName.toLocaleLowerCase().includes("-idrott") || chosenProjectName.toLocaleLowerCase().includes("idrott-") || chosenProjectName.toLocaleLowerCase().includes("-sport") || chosenProjectName.toLocaleLowerCase().includes("sport-")) && type === "School") {
                 console.log("OPS")
                 return true;
             } else if ((chosenProjectName.toLocaleLowerCase().includes("-skol") || chosenProjectName.toLocaleLowerCase().includes("skol-") || chosenProjectName.toLocaleLowerCase().includes("-student") || chosenProjectName.toLocaleLowerCase().includes("-skole")  || chosenProjectName.toLocaleLowerCase().includes("skole-") || chosenProjectName.toLocaleLowerCase().includes("-school") || chosenProjectName.toLocaleLowerCase().includes("school-"))  && type === "Sport") {
@@ -316,10 +311,10 @@ function Newproject_teamleader() {
             display: 'flex',
             alignItems: 'center', 
             fontSize: '0.9em',
-            borderColor: isFocused ? "#00b3ff" : "#ccc", // Change border color on focus, default to light gray
+            borderColor: isFocused ? "#00b3ff" : "#ccc", 
             boxShadow: isFocused ? "0 0 0 0.2rem rgba(0, 179, 255, 0.1)" : "none",
             "&:hover": {
-                borderColor: isFocused ? "#00b3ff" : "#ccc", // Ensure hover maintains border color when focused
+                borderColor: isFocused ? "#00b3ff" : "#ccc", 
             },
         }),
         menu: base => ({

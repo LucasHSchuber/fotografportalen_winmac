@@ -96,12 +96,15 @@ function History_filetransfer() {
         {/* <h6 className="mb-4" style={{ textDecoration: "underline" }}><b>Uploaded projects:</b></h6> */}
         {allFTData && allFTData.map(data => (
             <div key={data.ft_project_id} className="mb-1 filetransfer-history-box">
-                <h6>{data.projectname}</h6>
-                <ul>
-                  {data.files.map(file => (
-                      <li key={file.ft_file_id}>{file.filename} <em>(uploaded: {file && file.uploaded_at})</em></li>
-                  ))}
-                </ul>
+              <div className="d-flex justify-content-between">
+                <h6><b>{data.projectname}</b></h6> 
+                <h6><em>Created: {data.created}</em></h6>
+              </div>
+              <ul>
+                {data.files.map(file => (
+                    <li key={file.ft_file_id}>{file.filename} <em>(uploaded: {file && file.uploaded_at})</em></li>
+                ))}
+              </ul>
             </div>
         ))}
       </div>

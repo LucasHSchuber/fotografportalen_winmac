@@ -10,6 +10,8 @@ import academic_black from "../../assets/images/academic_black.png";
 import Sidemenu_teamleader from "../../components/teamleader/sidemenu_teamleader";
 import SubjectsChart from "../../components/teamleader/subjectsChart";
 import TeamsChart from "../../components/teamleader/teamsChart";
+import PhotoTypePieChart from "../../components/teamleader/photoTypePieChart";
+import ProjectsHeatmap from "../../components/teamleader/projectsHeatmap";
 
 import '../../assets/css/teamleader/main_teamleader.css';
 
@@ -282,13 +284,22 @@ function Home_teamleader() {
                         </div>
                     </div>
 
+                    {/* charts */}
+                    <div className="my-3 d-flex chart-teamleader-wrapper">
+                        <div>
+                            <h6 style={{ textAlign: "center", fontSize: "0.75em", fontWeight: "600" }}>Submitted jobs by photo type</h6>
+                            <PhotoTypePieChart data={data} />
+                        </div>
+                        <div className="mx-2">
+                            <h6 style={{ textAlign: "center", fontSize: "0.75em", fontWeight: "600" }}>Amount of submitted jobs per month</h6>
+                            <ProjectsHeatmap data={data} />
+                        </div>
+                    </div>
                     <SubjectsChart data={data} prevProjectsLength={prevProjectsArray.length} />
                     <TeamsChart data={data} prevProjectsLength={prevProjectsArray.length} />
                     <Sidemenu_teamleader />
                 </>
             )}
-
-
         </div>
     );
 }
