@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faRepeat, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
-import { TailSpin } from "react-loader-spinner";
+// import { TailSpin } from "react-loader-spinner";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
@@ -86,6 +86,9 @@ function Home_filetransfer() {
   useEffect(() => {
     getUnsentFTProjects();
   }, []);
+  useEffect(() => {
+    console.log('useeffect unsentFTProjects: ', unsentFTProjects);
+  }, [unsentFTProjects]);
 
 
   //get all projects
@@ -374,7 +377,7 @@ function Home_filetransfer() {
         <div>
           <div className="loading-bar-text">
             <p>
-              <b>Filetransfer</b>
+              <b>FileTransfer</b>
             </p>
           </div>
           <div className="loading-bar-container">
@@ -385,7 +388,7 @@ function Home_filetransfer() {
         <div>
           <div className="home-filetransfer-content">
             <div className="header mb-5">
-              <h4>Welcome to Filetransfer!</h4>
+              <h4>Welcome to FileTransfer!</h4>
               <p>This is your program for uploading images and keeping track of already uploaded files</p>
             </div>
 

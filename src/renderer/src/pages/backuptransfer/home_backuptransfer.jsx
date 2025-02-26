@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faRepeat, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
-import { TailSpin } from "react-loader-spinner";
+// import { TailSpin } from "react-loader-spinner";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
 import Sidemenu_backuptransfer from "../../components/backuptransfer/sidemenu_backuptransfer";
-import Loadingbar_backuptransfer from "../../components/filetransfer/loadingbar_filetransfer";
+import Loadingbar_backuptransfer from "../../components/backuptransfer/loadingbar_backuptransfer";
 
 import "../../assets/css/backuptransfer/main_backuptransfer.css";
 import "../../assets/css/backuptransfer/buttons_backuptransfer.css";
@@ -27,11 +27,9 @@ function Home_backuptransfer() {
   const [chosenProjectLang, setChosenProjectLang] = useState("");
 //   const [chosenProject_id, setChosenProject_id] = useState("");
   const [projects, setProjects] = useState([]);
-  const [FTProjectId, setFTProjectId] = useState("");
-
-  const [isDragging, setIsDragging] = useState(false);
-
-  const [progress, setProgress] = useState(0);
+//   const [FTProjectId, setFTProjectId] = useState("");
+//   const [isDragging, setIsDragging] = useState(false);
+//   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
   const [uploadPercentage, setUploadPercentage] = useState(0);
@@ -62,18 +60,21 @@ function Home_backuptransfer() {
   }, []);
 
 
-
   //get all projects to select from rest api
   useEffect(() => {
     const fetchAllProjects = async () => {
     const user_id = localStorage.getItem("user_id");
     const token = localStorage.getItem("token");
+    const user_lang = localStorage.getItem("user_lang");
     console.log(user_id);
       try {
         const projectResponse = await axios.get(`https://backend.expressbild.org/index.php/rest/backuptransfer/projects`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Token ${token}`,
+            },
+            params: {
+                lang: user_lang
             }
         });
         console.log('projectResponse', projectResponse);
@@ -91,17 +92,6 @@ function Home_backuptransfer() {
   }, [projects]);
 
 
-  // handle file change
-  const handleFileChange = (event) => {
-    setFiles((prevFiles) => [...prevFiles, ...Array.from(event.target.files)]);
-  };
-
-  // deleting files
-  const handleDelete = (index) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  };
-
-
 
 
 
@@ -110,11 +100,10 @@ function Home_backuptransfer() {
     if (files.length === 0) return;
         const token = localStorage.getItem("token");
         const user_id = localStorage.getItem("user_id");
-        console.log('token', token);
         setIsUploading(true);
         setUploadProgress({ uploaded: 0, total: files.length });
 
-        //update bt_projects table 
+        //Update bt_projects table 
         const data = {
             project_uuid: chosenProjectUuid,
             projectname: chosenProjectName,
@@ -130,17 +119,14 @@ function Home_backuptransfer() {
             console.log('failed when uploading data to bt_projects', error);
             return;
         }
-        // upload files to tus.io-server
+        //Upload files to tus.io-server
         for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 setUploadFile(file.name);
-                console.log('file.path', file.path);
+                console.log('file', file);
                 console.log('file.name', file.name);
-                console.log('file.size', file.size);
-                console.log('chosenProjectUuid', chosenProjectUuid);
-                console.log('token', token);
                 try {
-                    const response = await window.api.uploadFileToTus(file.path, file.name, file.size, chosenProjectUuid, token);
+                    const response = await window.api.uploadFileToTus(file.path, file.name, chosenProjectUuid, token);
                     console.log("Upload response TUS:", response);
                     if (response.status === "success") {
                         setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
@@ -153,6 +139,7 @@ function Home_backuptransfer() {
                             file_path: file.path
                         }
                         console.log('fileData', fileData);
+                        //Update bt_files table 
                         try {
                             const responseFile = await window.api.createNewBTFile(fileData)
                             console.log('responseFile (createNewBTFile)', responseFile);
@@ -175,37 +162,82 @@ function Home_backuptransfer() {
                 }
         }
         // Notify user when all uploads are completed
-        Swal.fire({
-            title: "Backuptransfer!",
-            text: "All files have been uploaded",
-            icon: "success",
-            confirmButtonText: "Close",
-            customClass: {
-                popup: 'custom-popup',
-                title: 'custom-title',
-                content: 'custom-text',
-                confirmButton: 'custom-confirm-button'
-            }
-        });
+        showSuccessMessage() // show success message
         setIsUploading(false);
         setChooseNewProjectName("");
         setChosenProjectName("");
         setFiles([]);
   };
 
+  const showSuccessMessage = () => {
+    Swal.fire({
+        title: "Backuptransfer!",
+        text: "All files have been uploaded",
+        icon: "success",
+        confirmButtonText: "Close",
+        customClass: {
+            popup: 'custom-popup',
+            title: 'custom-title',
+            content: 'custom-text',
+            confirmButton: 'custom-confirm-button'
+        }
+    });
+  }
 
 
-  // callback from main-proccess to track upload progress while uploading files
   useEffect(() => {
-    const handleUploadProgress = (event, { percentage }) => {
-      console.log(`${percentage}%`);
-      setUploadPercentage(percentage);
+    const handleUploadProgress = (event, { fileName, eventData }) => {
+      const progress = parseInt(eventData, 10);  
+      console.log(`Progress: ${progress}%`);
+      setUploadPercentage(progress);
+  
+      if (progress === 100) {
+        console.log(`DONE! - ${fileName}: upload complete.`);
+      }
     };
-    window.api.on("upload-progress", handleUploadProgress);
+    window.api.on("upload-tus-progress", handleUploadProgress);
     return () => {
-      window.api.removeAllListeners("upload-progress");
+      window.api.removeAllListeners("upload-tus-progress", handleUploadProgress);
     };
   }, []);
+
+    // callback from main-proccess to track upload progress while uploading files
+    //   useEffect(() => {
+    //     const handleUploadProgress = (event, { percentage }) => {
+    //       console.log(`${percentage}%`);
+    //       setUploadPercentage(percentage);
+    //     };
+    //     window.api.on("upload-tus-progress", handleUploadProgress);
+    //     return () => {
+    //       window.api.removeAllListeners("upload-tus-progress");
+    //     };
+    //   }, []);
+
+
+    //   // callback from main-proccess to track upload progress while uploading files
+    //   useEffect(() => {
+    //         const handleUploadProgress = (event, { fileName, eventData }) => {
+    //             console.log(`${eventData}`);
+    //             setUploadPercentage(eventData);
+
+    //         };
+    //         window.api.on("upload-tus-progress", handleUploadProgress);
+    //         return () => {
+    //         window.api.removeAllListeners("upload-tus-progress");
+    //         };
+    //     }, []);
+
+  
+    // useEffect(() => {
+    //     const handleUploadProgress = (event, { fileName }) => {
+    //       console.log(`${fileName} fninshed uploading!`);
+    //     };
+    //     window.api.on("success", handleUploadProgress);
+    //     return () => {
+    //       window.api.removeAllListeners("success");
+    //     };
+    // }, []);
+    
 
   // callback from main-proccess to track errors while uploading files
   useEffect(() => {
@@ -228,10 +260,8 @@ function Home_backuptransfer() {
       setChosenProjectName(selectedOption.label);
       setChosenProjectUuid(selectedOption.value);
       setChosenProjectLang(selectedOption.lang);
-    //   setProjectName(selectedOption);
     } else {
       setChosenProjectName("");
-    //   setProjectName("");
       setChosenProjectUuid("");
       console.log("No project selected");
     }
@@ -242,7 +272,6 @@ function Home_backuptransfer() {
     const uuid = "47f1eddc-77f5-4242-a72b-88a17113c038";
     setChosenProjectName(value);
     // const randomUuid = generateRandomUuid();
-    // console.log('randomUuid', randomUuid);
     setChosenProjectUuid(uuid);
     console.log(value);
   };
@@ -264,6 +293,24 @@ function Home_backuptransfer() {
         console.log('chosenProjectUuid', chosenProjectUuid);
     }, [chosenProjectName, chosenProjectUuid]);
     
+
+
+    
+  
+  // handle file change
+  const handleFileChange = (event) => {
+    setFiles((prevFiles) => [...prevFiles, ...Array.from(event.target.files)]);
+  };
+  // deleting files
+  const handleDelete = (index) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  };
+  useEffect(() => {
+    console.log('files (updated):', files);
+  }, [files]);
+
+
+
 
 
   // Custom styles for the Select component

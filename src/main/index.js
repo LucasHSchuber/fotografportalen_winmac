@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 const electron = require('electron');
 const log = require("electron-log");
 const path = require("path");
+const { spawn } = require('child_process');
 const fs = require("fs");
 const fsa = require("fs/promises");
 const util = require("util");
@@ -26,8 +27,8 @@ const ftp = require("basic-ftp");
 const bcrypt = require("bcrypt");
 // const tus = require("tus-js-client");
 const saltRounds = 10;
-import * as tus from "tus-js-client";
-const uploadCacheDir = path.join(__dirname, "upload-cache.json");
+// import * as tus from "tus-js-client";
+const tus = require("tus-js-client");
 
 // // using electron-reloader in dev mode only
 // if (isDev) {
@@ -538,9 +539,6 @@ if (isDev) {
   dbPath = path.join(__dirname, "..", "..", "resources", "fp.db");
 } else {
   // Production mode path
-  // dbPath = path
-  //   .join(__dirname, "../../resources/fp.db")
-  //   .replace("app.asar", "app.asar.unpacked");
   dbPath = path.join(app.getPath("userData"), "fp.db");
 }
 
@@ -3923,68 +3921,171 @@ ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
 
 
 // BACKUP TRANSFER
+// ipcMain.handle('uploadFileToTus', async (event, { filePath, fileName, projectUuid, token }) => {
+//   return new Promise((resolve, reject) => {
+//     let scriptPath;
+//     if (isDev) {
+//       // Development mode path
+//       scriptPath = path.join(__dirname, "..", "..", "src", "renderer", "src", "assets", "js", "uploadScript.js");
+//     } else {
+//       // Production mode path
+//       scriptPath = path.join(app.getAppPath(), "resources", "app", "src", "renderer", "src", "assets", "js", "uploadScript.js");
+//     }
+//     console.log("scriptPath", scriptPath);
 
-//upload files to tus.io server
-ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, fileSize, projectUuid, token}) => {
-  log.info("uploadFileToTus triggered in Main Process")
-  return new Promise((resolve, reject) => {
-    try {
-      log.info("uploadFileToTus triggered in Main Process2")
-      const fileStream = fs.createReadStream(filePath);
-      log.info("File stream created for:", filePath);
-      log.info("File path:", filePath);
-      if (!fs.existsSync(filePath)) {
-        log.error("File does not exist:", filePath);
-      } else {
-        log.info("File exists. Proceeding with upload...");
-      }
-      log.info("File stream:", fileStream);
+//     // Spawn a process to run the script
+//     const uploadProcess = spawn('node', [scriptPath, filePath, fileName, projectUuid, token]);
+
+//     uploadProcess.stdout.on('data', (data) => {
+//       console.log(`stdout: ${data}`);
+//       const progressMatch = data.toString().match(/Uploading (.*?): (\d+\.\d+)%/);
+//       if (progressMatch) {
+//         const fileName = progressMatch[1];
+//         const percentage = parseFloat(progressMatch[2]);
+//         event.sender.send("upload-test-progress", { progress: percentage });
+//       }
+//     });
+
+//     uploadProcess.stderr.on('data', (data) => {
+//       console.error(`stderr: ${data}`);
+//     });
+
+//     uploadProcess.on('close', (code) => {
+//       if (code === 0) {
+//         resolve({ status: "success", filename: fileName });
+//       } else {
+//         reject(new Error('Upload process failed.'));
+//       }
+//     });
+//   });
+// })
 
 
-      let upload = new tus.Upload(fileStream, {
-        endpoint: "https://backuptransfer.ebx.nu/",
-        retryDelays: [0, 3000, 5000, 10000], 
-        metadata: { filename: fileName, project_uuid: projectUuid, filetype: "application/octet-stream" },
-        chunkSize: 5 * 1024 * 1024, 
-        headers: {
-          Authorization: `Token ${token}`,  
-        },
-        urlStorage: new tus.FileUrlStorage(uploadCacheDir),
-        onProgress: (bytesUploaded, bytesTotal) => {
-          log.info("uploadFileToTus onProgress")
-          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-          console.log(`Uploading ${fileName}: ${percentage}%`);
-          event.sender.send("upload-progress", { fileName, percentage });
-        },
-        onError: (error) => {
-          log.info("uploadFileToTus onError")
-          console.error("Tus upload failed:", error);
-          log.info("uploadFileToTus upload error: ", error)
-          event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
-          reject(new Error(`Upload failed: ${error.message}`));
-        },
-        onSuccess: () => {
-          log.info("uploadFileToTus onSuccess")
-          console.log(`File ${fileName} uploaded successfully.`);
-          resolve({ status: "success", filename: fileName });
-        },
-      });
+// //upload files to tus.io server
+// ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUuid, token}) => {
+//   log.info("uploadFileToTus triggered in Main Process")
+//   return new Promise((resolve, reject) => {
+//     try {
+//       log.info("uploadFileToTus triggered in Main Process2")
       
-      // upload.findPreviousUploads().then((previousUploads) => {
-      //   if (previousUploads.length > 0) {
-      //     // Keep uploading from previous upload if cancelled
-      //     upload.resumeFromPreviousUpload(previousUploads[0]);
-      //   }
-        log.info("Upload object:", upload);
-        log.info("Starting upload...");
-        upload.start();
-      // });
-    } catch (error) {
-      console.error("Error in uploadFileToTus:", error);
-      log.info("uploadFileToTus upload error: ", error)
-      event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
-      reject(new Error("Upload error: " + error.message));
-    }
+//       if (!tus.isSupported) {
+//         console.error("TUS uploads are not supported in this environment.");
+//         log.info("TUS uploads are not supported in this environment.");
+//         return;
+//       }
+
+//       if (!tus.canStoreURLs) {
+//         console.warn("This environment does not support storing upload URLs. Uploads may not resume after a page reload.");
+//         log.info("This environment does not support storing upload URLs. Uploads may not resume after a page reload.");
+//       }
+
+//       const fileStream = fs.createReadStream(filePath);
+//       log.info("File stream created for:", filePath);
+//       log.info("File path:", filePath);
+//       if (!fs.existsSync(filePath)) {
+//         log.error("File does not exist:", filePath);
+//       } else {
+//         log.info("File exists. Proceeding with upload...");
+//       }
+//       log.info("File stream:", fileStream);
+
+//       let upload = new tus.Upload(fileStream, {
+//         endpoint: "https://backuptransfer.ebx.nu/",
+//         retryDelays: [0, 3000, 5000, 10000], 
+//         metadata: { filename: fileName, project_uuid: projectUuid, filetype: "application/octet-stream" },
+//         chunkSize: 5 * 1024 * 1024, 
+//         headers: {
+//           Authorization: `Token ${token}`,  
+//         },
+
+//         onProgress: (bytesUploaded, bytesTotal) => {
+//           log.info("uploadFileToTus onProgress")
+//           const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+//           console.log(`Uploading ${fileName}: ${percentage}%`);
+//           event.sender.send("upload-tus-progress", { fileName, percentage });
+//         },
+//         onSuccess: () => {
+//           log.info("uploadFileToTus onSuccess")
+//           console.log(`File ${fileName} uploaded successfully.`);
+//           resolve({ status: "success", filename: fileName });
+//         },
+//         onError: (error) => {
+//           log.info("uploadFileToTus onError")
+//           console.error("Tus upload failed:", error);
+//           log.info("uploadFileToTus upload error: ", error)
+//           event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
+//           reject(new Error(`Upload failed: ${error.message}`));
+//         },
+//       });
+      
+//       // upload.findPreviousUploads().then((previousUploads) => {
+//       //   if (previousUploads.length > 0) {
+//       //     // Keep uploading from previous upload if cancelled
+//       //     upload.resumeFromPreviousUpload(previousUploads[0]);
+//       //   }
+//         log.info("Starting upload...");
+//         upload.start();
+//       // });
+//     } catch (error) {
+//       console.error("Error in uploadFileToTus:", error);
+//       log.info("uploadFileToTus upload error: ", error)
+//       event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
+//       reject(new Error("Upload error: " + error.message));
+//     }
+//   });
+// });
+
+ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUuid, token}) => {
+  return new Promise((resolve, reject) => {
+      
+      const childProcessPath = isDev 
+        ? path.join(__dirname, "BackupTransferChildProcess.exe") 
+        : path.join(process.resourcesPath, "BackupTransferChildProcess.exe"); 
+
+      log.info(`Starting child process: ${childProcessPath}`);
+      
+      const tusProcess = spawn("BackupTransferChildProcess.exe", [filePath, projectUuid, token]);
+
+      tusProcess.on("error", (err) => {
+          console.error("Failed to start process:", err);
+          reject(new Error(`Failed to start process: ${err.message}`));
+      });
+
+      let successReceived = false;
+
+      tusProcess.stdout.on("data", (data) => {
+          const messages = `${data}`.trim().split("\n"); 
+          messages.forEach((message) => {
+              console.log(`[DEBUG] Received stdout: ${message}`);
+              let parts = message.split(",");
+              let eventName = parts[0].trim();
+              let eventData = parts.length > 1 ? parts[1].trim() : null;
+      
+              if (eventName === "OnError") {
+                  console.error(`Upload failed: ${eventData}`);
+                  reject(new Error(`Upload failed: ${eventData}`));
+              } else if (eventName === "OnProgress") {
+                  log.info(`Upload.. ${eventData}`)
+                  console.log(`Upload.. ${eventData}`)
+                  event.sender.send("upload-tus-progress", { fileName, eventData });
+              } else if (eventName === "OnSuccess") {
+                  console.log(`Upload success event received`);
+                  successReceived = true;
+              }
+          });
+      });
+      tusProcess.on("close", (code) => {
+        console.log(`Process exited with code ${code} (successReceived=${successReceived})`);
+        if (code !== 0) {
+            reject(new Error(`Process exited with code ${code}`));
+        } else if (!successReceived) {
+            console.error("No success event received before process exit.");
+            reject(new Error("No success event received before process exit."));
+        } else {
+            resolve({ status: "success", filename: fileName }); 
+        }
+    });
+    
   });
 });
 

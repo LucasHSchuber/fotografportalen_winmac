@@ -44,6 +44,7 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
 
         <div style={{ marginLeft: "5em" }}>
           <h6 className="mb-3" style={{ fontWeight: "700" }}>Uploading files:</h6>
+
           {files.map((file, index) => (
             <div key={index} className="d-flex ml-2">
               <FontAwesomeIcon icon={faCircle} style={{ fontSize: "0.3em", marginTop: "0.8em", marginRight: "1em" }} />
@@ -56,17 +57,19 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
                   style={{ width: "100%", height: "20px",marginTop: "-1.2em", marginLeft: "1em", backgroundColor: uploadedFilesArray.includes(file.name) ? "#69ee2a" : "",
                   }}
                 ></progress>
+
                 <div className="d-flex">
-                  <h6 style={{ marginTop: "-1.6em", marginLeft: "2em", fontSize: "0.8em", color: uploadedFilesArray.includes(file.name) ? "#518b0c" : "" }}>          
-                    {uploadedFilesArray.includes(file.name) ? "100%" : (file.name === uploadFile ? `${uploadPercentage}%` : "0%")}
-                  </h6>
-                  <h6 style={{ marginTop: "-1.6em", marginLeft: "0.5em", fontSize: "0.8em", color: uploadedFilesArray.includes(file.name) ? "#518b0c" : "" }}>
-                    {uploadedFilesArray.includes(file.name) ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faCloudArrowUp} />}
-                  </h6>
+                    <h6 style={{ marginTop: "-1.9em", marginLeft: "1em", fontSize: "0.8em", color: uploadedFilesArray.includes(file.name) ? "#518b0c" : "" }}>          
+                      {uploadedFilesArray.includes(file.name) ? "100%" : (file.name === uploadFile ? `${uploadPercentage}%` : "0%")}
+                    </h6>
+                    <h6 style={{ marginTop: "-1.9em", marginLeft: "0.5em", fontSize: "0.8em", color: uploadedFilesArray.includes(file.name) ? "#518b0c" : "" }}>
+                      {uploadedFilesArray.includes(file.name) ? <FontAwesomeIcon icon={faCheck} /> : <FontAwesomeIcon icon={faCloudArrowUp} />}
+                    </h6>
                 </div>  
               </div>
             </div>
           ))}
+
       </div>
 
 

@@ -95,7 +95,7 @@ const api = {
   getUnsentFTProjects: (user_id) => ipcRenderer.invoke('getUnsentFTProjects', user_id), // Pass user_id to get all unsent Filestransfer projects
 
   // BACKUPTRANSFER
-  uploadFileToTus: (filePath, fileName, fileSize, projectUuid, token) => ipcRenderer.invoke("uploadFileToTus", { filePath, fileName, fileSize, projectUuid, token }),
+  uploadFileToTus: (filePath, fileName, projectUuid, token) => ipcRenderer.invoke("uploadFileToTus", { filePath, fileName, projectUuid, token }),
   createNewBTProject: (data) => ipcRenderer.invoke('createNewBTProject', data),
   createNewBTFile: (fileData) => ipcRenderer.invoke('createNewBTFile', fileData),
   getBackuptransferData: (user_id) => ipcRenderer.invoke('getBackuptransferData', user_id),
@@ -112,7 +112,7 @@ const api = {
 
 
   on: (channel, callback) => {
-    const validChannels = ["upload-progress", "update-not-available", "update-available", "download-progress", "update-downloaded", "update-error", "upload-error"]; 
+    const validChannels = ["upload-progress", "update-not-available", "update-available", "download-progress", "update-downloaded", "update-error", "upload-error", "upload-tus-progress", "success"]; 
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, callback);
     }

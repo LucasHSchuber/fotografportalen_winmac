@@ -58,13 +58,13 @@ function Sidemenu() {
                 <div title="Filetransfer" className="link-box">
                     <NavLink to="/home_filetransfer" exact="true" >
                         <img className="link-img" src={cloud} alt="Filestransfer" />
-                        <p>Filetransfer</p>
+                        <p>FileTransfer</p>
                     </NavLink>
                 </div>
                 <div title="BackupTransfer" className="link-box">
                     <NavLink to="/home_backuptransfer" exact="true" >
                         <img className="link-img" src={backuptransfer} alt="BackupTransfer" />
-                        <p>Backuptransfer</p>
+                        <p>BackupTransfer</p>
                     </NavLink>
                 </div>
                 {/* <div title="Time Report" className="link-box">

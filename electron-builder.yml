@@ -3,11 +3,16 @@ productName: Photographer Portal
 directories:
   buildResources: build
 files:
+  - dist/**
+  - out/**
   - '!**/.vscode/*'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+extraFiles:
+  - from: 'BackupTransferChildProcess.exe'
+    to: './BackupTransferChildProcess.exe'
 asarUnpack:
   - "node_modules/sqlite3/build/Release/*.node"
   - resources/**
@@ -17,7 +22,7 @@ win:
       arch:
         - x64
         - ia32
-  icon: resources/logo.png 
+  icon: resources/logo.ico 
   executableName: Photographer Portal
   asarUnpack: ["**/*.node"]
 nsis:

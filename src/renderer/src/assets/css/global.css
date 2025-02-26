@@ -5,18 +5,14 @@
 ::-webkit-scrollbar {
     display: none;
 }
-
 *::-webkit-scrollbar {
-    width: 10px; 
-    height: 8px; 
+    width: 6px;
 }
-
 *::-webkit-scrollbar-thumb {
     background-color: #2f2f2f; 
     border-radius: 10px; 
     border: 2px solid #f1f1f1; 
 }
-
 
 
 
