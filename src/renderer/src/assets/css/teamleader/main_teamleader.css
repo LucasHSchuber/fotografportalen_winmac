@@ -248,8 +248,10 @@
 }
 
 .verifyprojectmodal-content {
-    border: 1px solid red;
-    background: #fff;
+    border: 1px solid rgb(229, 0, 0);
+    background: #fff6f6;
+    color: rgb(255, 0, 0);
+    font-weight: 500;
     padding: 2em;
     border-radius: 8px;
     max-width: 400px;
@@ -392,7 +394,7 @@
     font-size: 0.9em;
 }
 .portal-edit-box,
-.portal-delete-box {
+.portal-delete-box, .portal-copy-box {
     background-color: rgb(237, 237, 237);
     padding: 0.8em 1em 0 1em;
     border-radius: 7px;
@@ -404,6 +406,11 @@
     background-color: #00b3ff;
     transition: 0.2s;
     cursor: pointer;
+}
+.portal-copy-box:hover {
+    background-color: #818181;
+    transition: 0.2s;
+    cursor: copy;
 }
 .portal-delete-box:hover {
     background-color: #ff6262;

@@ -365,6 +365,7 @@ function Index() {
       // ----------- GET ALL CURRENT PROJECTS BY USER -----------
       //get all current projects with user_id
       let user_id = localStorage.getItem("user_id");
+      let user_lang = localStorage.getItem("user_lang");
       const getAllProjects = async () => {
         try {
           const projects = await window.api.getAllCurrentProjects(user_id);
@@ -465,7 +466,9 @@ function Index() {
       fetchUser();
       getAllUnsubmittedProjects();
       getLastReportPeriodProjects();
-      getUnsentFTProjects();
+      if (user_lang !== "FI") {
+        getUnsentFTProjects();
+      } 
       getAllProjects();
       runGdprProtection();
   }, []);
@@ -613,7 +616,7 @@ const triggerSwalFire = (title, text) => {
         {/* Alerts teamleader   */}
         {projectsArray && projectsArray.length > 0 && (
           <div className="index-box">
-            <h1 className="index-title red">Alerts - <em>Worksapce</em></h1>
+            <h1 className="index-title red">Alerts - <em>Workspace</em></h1>
             <h6>
               <b>
                 You have{" "}

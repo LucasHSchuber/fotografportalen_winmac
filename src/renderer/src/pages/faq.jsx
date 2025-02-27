@@ -67,7 +67,7 @@
       backuptransfer: {
         categoryName: "Backuptransfer",
         questions: [
-        { id: 1, image: "", question: "What is the purpose of Backuptransfer?", answer: "" },
+        { id: 1, image: "", question: "What is the purpose of Backuptransfer?", answer: "The purpose for Backuptransfer is to backup your image files" },
         { id: 2, image: "", question: "How to upload large files?", answer: "To upload files in Backuptransfer, select a project from the list, choose a file to upload, and click the Upload button." },
         { id: 3, image: "", question: "What should I do if the Filetransfer upload fails?", answer: (
             <div>

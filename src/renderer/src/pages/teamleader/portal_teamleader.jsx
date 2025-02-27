@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { faUser, faMinus, faPeopleGroup, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { faCalendarPlus, faCalendarMinus } from '@fortawesome/free-regular-svg-icons';
-import { faPencilAlt, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faPlus, faCopy } from '@fortawesome/free-solid-svg-icons';
 import running_black from "../../assets/images/running_black.png";
 import academic_black from "../../assets/images/academic_black.png";
 
@@ -30,30 +30,33 @@ function Portal_teamleader() {
     const [teamName, setTeamName] = useState("");
     const [teamId, setTeamId] = useState("");
     const [editTeam, setEditTeam] = useState({});
-
     const [loading, setLoading] = useState(true);
-
     const [showAnomalyReport, setShowAnomalyReport] = useState(false); 
     const [showDeleteTeamModal, setShowDeleteTeamModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-
     const [feedbackMessage, setFeedbackMessage] = useState('');
-
     const { project_id } = useParams();
-    // Accessing feedbackMessage from query parameters 
-    // const searchParams = new URLSearchParams(location.search);
 
     //methods passed from components
     const handleClose = () => setShowDeleteTeamModal(false);
     const handleCloseEditModal = () => setShowEditModal(false);
 
     const navigate = useNavigate();
+    //navigate user to newteam_teamleader page
+    const createNewTeam = () => {
+        console.log("new team");
+        if (projectType === "sport") {
+            navigate("/addleaderinfo_teamleader");
+        } else {
+            navigate("/newteam_teamleader");
+        }
+    }
+
 
     // Function to update feedback message from new team
     useEffect(() => {
         const updateFeedbackMessage = () => {
             let feedbackMessage_newteam = sessionStorage.getItem("feedbackMessage_newteam");
-
             if (feedbackMessage_newteam) {
                 setTimeout(() => {
                     setFeedbackMessage(feedbackMessage_newteam);
@@ -78,31 +81,46 @@ function Portal_teamleader() {
         }, 3000);
     };
 
+
+    // Method to toggle anomaly report
     const toggleAnomalyReport = () => {
         setShowAnomalyReport(!showAnomalyReport);
     };
 
+    // Method to open delete team modal
     const openDeleteTeamModal = (team_id, team_name) => {
         setTeamName(team_name);
         setTeamId(team_id);
         setShowDeleteTeamModal(true);
     }
 
+    
     const openEditModal = async (team_id, data) => {
         setTeamId(team_id);
         setEditTeam(data);
         setShowEditModal(true);
     };
 
-    //navigate user to newteam_teamleader page
-    const createNewTeam = () => {
-        console.log("new team");
-        if (projectType === "sport") {
-            navigate("/addleaderinfo_teamleader");
-        } else {
-            navigate("/newteam_teamleader");
-        }
+
+    // Method to copy photolink name
+    const copyPhotolinkName = (teamname) => {
+        console.log('teamname', teamname);
+        console.log('projectName', projectName);
+        //Split string and copies to clipboard
+        const projectnameSplit = projectName.split(" - ");
+        const firstSplit = projectnameSplit[0].split("-")
+        const photolinkName = firstSplit[firstSplit.length-1] + " - " + teamname;
+        console.log('photolinkName', photolinkName);
+        //copy to clipboard
+        navigator.clipboard.writeText(photolinkName).then(() => {
+            console.log('copied to clipbord: ', photolinkName);
+            updateFeedbackMessage("Photolink name copied!");   
+        }).catch(error => {
+            console.log('failed to copy to clipbord: ', photolinkName);
+            console.log('Error: ', error);
+        })
     }
+
 
     //fetch projects and teams data
     useEffect(() => {
@@ -133,21 +151,17 @@ function Portal_teamleader() {
                 }, 3000);
             }
         };
-
         const fetchTeamsByProjectId = async () => {
             try {
                 const teamsData = await window.api.getTeamsByProjectId(project_id);
                 console.log('Teams:', teamsData.teams);
                 setTeams(teamsData.teams);
-                // setLoading(false); // Set loading to false when data is fetched
             } catch (error) {
                 console.error('Error fetching teams:', error);
             }
         };
-
         fetchProject();
         fetchTeamsByProjectId();
-
         const timer = setTimeout(() => {
             setLoading(false);
         }, 1000);
@@ -197,7 +211,7 @@ function Portal_teamleader() {
             ) : (
 
                 <>
-                    {project && ( // Check if project is available
+                    {project && ( 
                         <div className="portal-teamleader-content">
 
                             <>
@@ -244,6 +258,11 @@ function Portal_teamleader() {
                                                     onClick={() => openEditModal(data.team_id, data)}
                                                 >
                                                     <p><FontAwesomeIcon icon={faPencilAlt} /></p>
+                                                </div>
+                                                <div className="portal-copy-box ml-2" title={`${projectType === "sport" ? "Copy photolink team name" : "Copy photolink class name"}`}
+                                                    onClick={() => copyPhotolinkName(data.teamname)}
+                                                >
+                                                    <p><FontAwesomeIcon icon={faCopy} /></p>
                                                 </div>
                                                 <div className="portal-delete-box ml-2" title={`${projectType === "sport" ? "Delete team" : "Delete class"}`}
                                                     onClick={() => openDeleteTeamModal(data.team_id, data.teamname)}

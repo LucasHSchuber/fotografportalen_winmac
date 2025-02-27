@@ -37,6 +37,7 @@ function Home_backuptransfer() {
   const [finishedUploading, setFinishedUploading] = useState([]);
 
   const inputRef = useRef(null);
+  const canceledTusUploadRef = useRef(false);
 
 
 
@@ -97,13 +98,11 @@ function Home_backuptransfer() {
 
   // METHOD to sumbit
   const handleSubmit = async () => {
-    if (files.length === 0) return;
+        if (files.length === 0) return;
         const token = localStorage.getItem("token");
         const user_id = localStorage.getItem("user_id");
         setIsUploading(true);
         setUploadProgress({ uploaded: 0, total: files.length });
-
-        //Update bt_projects table 
         const data = {
             project_uuid: chosenProjectUuid,
             projectname: chosenProjectName,
@@ -117,58 +116,103 @@ function Home_backuptransfer() {
             bt_project_id = responseProject.bt_project_id;
         } catch (error) {
             console.log('failed when uploading data to bt_projects', error);
+            Swal.fire({
+                title: "BackupTransfer - Error",
+                text: `Error creating project data in local database: ${error}`,
+                icon: "error",
+                confirmButtonText: "Close",
+            });
+            setIsUploading(false);
             return;
         }
         //Upload files to tus.io-server
+        let fileCount = 0;
         for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 setUploadFile(file.name);
-                console.log('file', file);
-                console.log('file.name', file.name);
+                const fileData = {
+                    bt_project_id: bt_project_id,
+                    project_uuid: chosenProjectUuid,
+                    filename: file.name,
+                    file_size: file.size,
+                    file_path: file.path
+                }
+                console.log('fileData', fileData);
                 try {
                     const response = await window.api.uploadFileToTus(file.path, file.name, chosenProjectUuid, token);
                     console.log("Upload response TUS:", response);
                     if (response.status === "success") {
                         setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
                         setFinishedUploading(response);
-                        const fileData = {
-                            bt_project_id: bt_project_id,
-                            project_uuid: chosenProjectUuid,
-                            filename: file.name,
-                            file_size: file.size,
-                            file_path: file.path
-                        }
-                        console.log('fileData', fileData);
-                        //Update bt_files table 
+                        //Update bt_files table  (with is_sent = 1)
                         try {
                             const responseFile = await window.api.createNewBTFile(fileData)
                             console.log('responseFile (createNewBTFile)', responseFile);
+                            fileCount++;
                         } catch (error) {
-                            console.log('failed when creating file in bt_files', error);
+                            console.log('failed when creating file in bt_files', error); 
+                            Swal.fire({
+                                title: "BackupTransfer - Error",
+                                text: `Error creating file data in local database: ${error}`,
+                                icon: "error",
+                                confirmButtonText: "Close",
+                            });
+                            setIsUploading(false);
+                            return;
                         }
                     } else {
                         console.log('Failed to upload file to tus (uploadFileToTus)');
                     } 
                 } catch (error) {
-                    console.error("Error uploading file:", error);
-                    Swal.fire({
-                        title: "BackupTransfer - Upload Error",
-                        text: `Error uploading ${file.name}: ${error.message}`,
-                        icon: "error",
-                        confirmButtonText: "Close",
-                    });
-                    setIsUploading(false);
-                    return;
+                        console.error("Error uploading file:", error);
+                        if (canceledTusUploadRef.current) {
+                            Swal.fire({
+                                title: "Upload cancelled",
+                                text: "The upload was cancelled.",
+                                icon: "info",
+                                confirmButtonText: "Close",
+                            });
+                            canceledTusUploadRef.current = false;
+                            setIsUploading(false);
+                            const user_id = localStorage.getItem("user_id");
+                            if (fileCount === 0) {
+                                try {
+                                    const responseDelete = await window.api.deleteBTProject(bt_project_id, user_id);
+                                    console.log('responseDelete:', responseDelete);
+                                } catch (error) {
+                                    console.error("Failed to set to deleted:", error);
+                                }
+                            }    
+                            return;
+                        } else {
+                            //Update bt_files  (with is_sent = 0)
+                            try {
+                                const responseFile = await window.api.createNewFailedBTFile(fileData);
+                                console.log('responseFile (createNewFailedBTFile):', responseFile);
+                            } catch (error) {
+                                console.error("Failed to mark file as failed in bt_files:", error);
+                            }
+                            Swal.fire({
+                                title: "BackupTransfer - Upload Error",
+                                text: `Error uploading ${file.name}: ${error.message}`,
+                                icon: "error",
+                                confirmButtonText: "Close",
+                            });
+                            setIsUploading(false);
+                            return;
+                        }
                 }
         }
         // Notify user when all uploads are completed
-        showSuccessMessage() // show success message
-        setIsUploading(false);
-        setChooseNewProjectName("");
-        setChosenProjectName("");
-        setFiles([]);
+        setTimeout(() => {
+            showSuccessMessage() // show success message
+            setIsUploading(false);
+            setChooseNewProjectName("");
+            setChosenProjectName("");
+            setFiles([]);
+        }, 500);
   };
-
+  // Method to show success-message
   const showSuccessMessage = () => {
     Swal.fire({
         title: "Backuptransfer!",
@@ -183,14 +227,34 @@ function Home_backuptransfer() {
         }
     });
   }
+  const canceledUpload = () => {
+    window.api.cancelTus()
+  }
+
+  // Listens for upload-canceled
+  useEffect(() => {
+    const handleCancel = (event, { response }) => {
+      console.log('response', response);
+      if (response){
+        canceledTusUploadRef.current = true;
+      }
+    };
+    window.api.on("upload-canceled", handleCancel);
+    return () => {
+      window.api.removeAllListeners("upload-canceled", handleCancel);
+    };
+  }, []);
 
 
+
+
+
+  // callback from main-proccess to track upload progress while uploading files
   useEffect(() => {
     const handleUploadProgress = (event, { fileName, eventData }) => {
       const progress = parseInt(eventData, 10);  
       console.log(`Progress: ${progress}%`);
       setUploadPercentage(progress);
-  
       if (progress === 100) {
         console.log(`DONE! - ${fileName}: upload complete.`);
       }
@@ -200,43 +264,6 @@ function Home_backuptransfer() {
       window.api.removeAllListeners("upload-tus-progress", handleUploadProgress);
     };
   }, []);
-
-    // callback from main-proccess to track upload progress while uploading files
-    //   useEffect(() => {
-    //     const handleUploadProgress = (event, { percentage }) => {
-    //       console.log(`${percentage}%`);
-    //       setUploadPercentage(percentage);
-    //     };
-    //     window.api.on("upload-tus-progress", handleUploadProgress);
-    //     return () => {
-    //       window.api.removeAllListeners("upload-tus-progress");
-    //     };
-    //   }, []);
-
-
-    //   // callback from main-proccess to track upload progress while uploading files
-    //   useEffect(() => {
-    //         const handleUploadProgress = (event, { fileName, eventData }) => {
-    //             console.log(`${eventData}`);
-    //             setUploadPercentage(eventData);
-
-    //         };
-    //         window.api.on("upload-tus-progress", handleUploadProgress);
-    //         return () => {
-    //         window.api.removeAllListeners("upload-tus-progress");
-    //         };
-    //     }, []);
-
-  
-    // useEffect(() => {
-    //     const handleUploadProgress = (event, { fileName }) => {
-    //       console.log(`${fileName} fninshed uploading!`);
-    //     };
-    //     window.api.on("success", handleUploadProgress);
-    //     return () => {
-    //       window.api.removeAllListeners("success");
-    //     };
-    // }, []);
     
 
   // callback from main-proccess to track errors while uploading files
@@ -253,7 +280,6 @@ function Home_backuptransfer() {
 
 
 
-
   // method to change states corresponding to selected project in select list
   const handleProjectChange = (selectedOption) => {
     if (selectedOption) {
@@ -267,32 +293,20 @@ function Home_backuptransfer() {
     }
   };
 
+
+
   // When typing in an own project name
   const handleProjectChangeNew = (value) => {
     const uuid = "47f1eddc-77f5-4242-a72b-88a17113c038";
     setChosenProjectName(value);
-    // const randomUuid = generateRandomUuid();
     setChosenProjectUuid(uuid);
     console.log(value);
   };
-//   // Method to generate random uuid for when user creates an own projectname
-//   const generateRandomUuid = () => {
-//     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-//         var r = Math.random() * 16 | 0;
-//         var v = c === 'x' ? r : (r & 0x3 | 0x8);
-//         return v.toString(16);
-//       });
-//   }
+
 
   const newProjectName = () => {
     setChooseNewProjectName((prevState) => !prevState);
   };
-
-    useEffect(() => {
-        console.log('choosenProjectName', chosenProjectName);
-        console.log('chosenProjectUuid', chosenProjectUuid);
-    }, [chosenProjectName, chosenProjectUuid]);
-    
 
 
     
@@ -463,7 +477,7 @@ function Home_backuptransfer() {
 
           <Sidemenu_backuptransfer />
           {isUploading && (
-            <Loadingbar_backuptransfer files={files} uploadProgress={uploadProgress} uploadPercentage={uploadPercentage} uploadFile={uploadFile} finishedUploading={finishedUploading} />
+            <Loadingbar_backuptransfer files={files} uploadProgress={uploadProgress} uploadPercentage={uploadPercentage} uploadFile={uploadFile} finishedUploading={finishedUploading} canceledUpload={canceledUpload} />
           )}
 
         </div>

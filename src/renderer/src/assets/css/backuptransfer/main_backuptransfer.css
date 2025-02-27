@@ -121,7 +121,7 @@
 }
 .backuptransfer-history-box h6{
     font-size: 1em;
-    font-weight: 600;
+    /* font-weight: 600; */
 }
 .backuptransfer-history-box ul li{
     font-size: 0.9em;

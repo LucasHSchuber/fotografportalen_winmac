@@ -8,7 +8,7 @@ import { faCheck, faCloudArrowUp, faCircle } from "@fortawesome/free-solid-svg-i
 
 import "../../assets/css/filetransfer/components_filetransfer.css";
 
-const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading }) => {
+const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading, canceledUpload }) => {
   //define states
   const [uploadedFilesArray, setUploadedFilesArray] = useState([]);
 
@@ -33,9 +33,10 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
   }, [finishedUploading]);
 
 
-  useEffect(() => {
-    console.log('uploadedFilesArray', uploadedFilesArray);
-  }, [finishedUploading]);
+  // Methiod to cancel upload
+  const cancelUpload = () => {
+    canceledUpload()
+  }
 
   
 
@@ -69,7 +70,7 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
               </div>
             </div>
           ))}
-
+          <button className="mt-2 ml-2 cancel-upload-ft" title="Cancel upload" onClick={cancelUpload}>Cancel Upload</button>
       </div>
 
 

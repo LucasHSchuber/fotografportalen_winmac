@@ -27,45 +27,59 @@ function History_filetransfer() {
           console.log("error getting FT projects and files:", error);
         }
       };
-    
       useEffect(() => {
         fetchInitialData();
       }, []);
-    
+
+
+      // Clone data array if user input search
       useEffect(() => {
-        const fetchData = async () => {
-          const user_id = localStorage.getItem("user_id");
-          console.log(user_id);
+        if (searchString) {
+            const clonedData = allFTData.filter(item => item.projectname.toLowerCase().includes(searchString.toLowerCase()));
+            console.log('clonedData', clonedData);
+            setAllFTData(clonedData);
+        } else {
+            fetchInitialData()
+        }
+    }, [searchString]);
+
     
-          if (searchString !== "") {
-            console.log("search entered...");
-            try {
-              const allFTdata = await window.api.getAllFTDataBySearch(user_id, searchString);
-              console.log("FT search data:", allFTdata);
+    const handleSearchString = (e) => {
+      console.log(e);
+      setSearchString(e);
+  }
+
+  
+      // useEffect(() => {
+      //   const fetchData = async () => {
+      //     const user_id = localStorage.getItem("user_id");
+      //     console.log(user_id);
     
-              if (allFTdata.statusCode === 1) {
-                const sortedData = allFTdata.projects.sort((a, b) => new Date(b.created) - new Date(a.created));
-                setAllFTData(sortedData);
-                console.log("Project data:", sortedData);
-              } else {
-                console.error("Error fetching projects:", allFTdata.errorMessage);
-              }
-            } catch (error) {
-              console.log("error getting FT projects and files:", error);
-            }
-          } else {
-            fetchInitialData();
-          }
-        };
+      //     if (searchString !== "") {
+      //       console.log("search entered...");
+      //       try {
+      //         const allFTdata = await window.api.getAllFTDataBySearch(user_id, searchString);
+      //         console.log("FT search data:", allFTdata);
     
-        fetchData();
-      }, [searchString]);
+      //         if (allFTdata.statusCode === 1) {
+      //           const sortedData = allFTdata.projects.sort((a, b) => new Date(b.created) - new Date(a.created));
+      //           setAllFTData(sortedData);
+      //           console.log("Project data:", sortedData);
+      //         } else {
+      //           console.error("Error fetching projects:", allFTdata.errorMessage);
+      //         }
+      //       } catch (error) {
+      //         console.log("error getting FT projects and files:", error);
+      //       }
+      //     } else {
+      //       fetchInitialData();
+      //     }
+      //   };
+      //   fetchData();
+      // }, [searchString]);
 
     //when. search input is done 
-    const handleSearchString = (e) => {
-        console.log(e);
-        setSearchString(e);
-    }
+ 
 
   return (
     <div className="filetransfer-wrapper">
@@ -98,11 +112,11 @@ function History_filetransfer() {
             <div key={data.ft_project_id} className="mb-1 filetransfer-history-box">
               <div className="d-flex justify-content-between">
                 <h6><b>{data.projectname}</b></h6> 
-                <h6><em>Created: {data.created}</em></h6>
+                <h6><em>created: {data.created}</em></h6>
               </div>
               <ul>
                 {data.files.map(file => (
-                    <li key={file.ft_file_id}>{file.filename} <em>(uploaded: {file && file.uploaded_at})</em></li>
+                    <li style={{ color: file.is_sent === 0 ? "red" : "" }} key={file.ft_file_id}>{file.filename}<em className="ml-2">{file.is_sent === 0 ? `(upload failed)` : `(uploaded: ${file && file.uploaded_at})`} </em></li>
                 ))}
               </ul>
             </div>

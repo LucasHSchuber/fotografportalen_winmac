@@ -91,14 +91,19 @@ const api = {
   createNewFTProject: (data) => ipcRenderer.invoke('createNewFTProject', data),
   addFTFile: (fileData) => ipcRenderer.invoke('addFTFile', fileData),
   getAllFTData: (user_id) => ipcRenderer.invoke('getAllFTData', user_id), // Pass user_id to get all FT projects and files by user
-  getAllFTDataBySearch: (user_id ,searchString) => ipcRenderer.invoke('getAllFTDataBySearch', user_id, searchString), // Pass user_id to get all FT projects and files by user and search
+  // getAllFTDataBySearch: (user_id ,searchString) => ipcRenderer.invoke('getAllFTDataBySearch', user_id, searchString), // Pass user_id to get all FT projects and files by user and search
   getUnsentFTProjects: (user_id) => ipcRenderer.invoke('getUnsentFTProjects', user_id), // Pass user_id to get all unsent Filestransfer projects
+  cancelFtpUpload: () => ipcRenderer.invoke('cancelFtpUpload'), // Cancel ftp server upload
 
   // BACKUPTRANSFER
   uploadFileToTus: (filePath, fileName, projectUuid, token) => ipcRenderer.invoke("uploadFileToTus", { filePath, fileName, projectUuid, token }),
   createNewBTProject: (data) => ipcRenderer.invoke('createNewBTProject', data),
+  deleteBTProject: (bt_project_id, user_id) => ipcRenderer.invoke('deleteBTProject', bt_project_id, user_id), // Pass bt_project_id and user_id to delete in bt_projects
   createNewBTFile: (fileData) => ipcRenderer.invoke('createNewBTFile', fileData),
+  createNewFailedBTFile: (fileData) => ipcRenderer.invoke('createNewFailedBTFile', fileData),
   getBackuptransferData: (user_id) => ipcRenderer.invoke('getBackuptransferData', user_id),
+  cancelTus: () => ipcRenderer.invoke('cancelTus'),
+  // SetBTprojectAsSent: (bt_project_id) => ipcRenderer.invoke("SetBTprojectAsSent", bt_project_id),
 
   // TIME REPORT
   getAllTimereports: (user_id) => ipcRenderer.invoke('getAllTimereports', user_id), // Pass user_id to get all Timereport data
@@ -112,7 +117,7 @@ const api = {
 
 
   on: (channel, callback) => {
-    const validChannels = ["upload-progress", "update-not-available", "update-available", "download-progress", "update-downloaded", "update-error", "upload-error", "upload-tus-progress", "success"]; 
+    const validChannels = ["upload-progress", "update-not-available", "update-available", "download-progress", "update-downloaded", "update-error", "upload-error", "upload-tus-progress", "success", "upload-canceled"]; 
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, callback);
     }

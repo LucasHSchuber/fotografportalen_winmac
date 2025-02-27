@@ -41,6 +41,7 @@ function Home_filetransfer() {
   const [finishedUploading, setFinishedUploading] = useState([]);
 
   const inputRef = useRef(null);
+  const canceledFTPUploadRef = useRef(false);
 
 
   useEffect(() => {
@@ -78,13 +79,18 @@ function Home_filetransfer() {
       console.log("Unsent FT Projects:", unsentFTProjects.data);
         if (unsentFTProjects.data.length > 0) {
           setUnsentFTProjects(unsentFTProjects.data)
+        } else {
+          setUnsentFTProjects([]);
         }
     } catch (error) {
       console.error("Error fetching unsent FT projects:", error);
     }
   };
   useEffect(() => {
-    getUnsentFTProjects();
+    let user_lang = localStorage.getItem("user_lang");
+    if (user_lang !== "FI"){
+      getUnsentFTProjects();
+    }
   }, []);
   useEffect(() => {
     console.log('useeffect unsentFTProjects: ', unsentFTProjects);
@@ -179,7 +185,7 @@ function Home_filetransfer() {
           setFTProjectId(ft_project_id);
           sessionStorage.setItem("ft_project_id", ft_project_id);
           console.log("ft_project_id:", ft_project_id);
-      }catch (error){
+      } catch (error){
           console.log("error creating FT project", error);
       }
       
@@ -190,12 +196,10 @@ function Home_filetransfer() {
         try {
             const response = await window.api.uploadFile(file.path, chosenProjectLang, file.size); // uploading tile to ftp server
             console.log("response uploadFile:", response);
-            
-            if (response.statusCode === 200) {
+          if (response.statusCode === 200) {
                 setProgress(((i + 1) / files.length) * 100);
                 console.log(`File uploaded successfully: ${file.name}`);
                 setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
-
                 // send file data and project_uuid to rest api to verify upload
                 const data = {
                   filename: file.name,
@@ -209,12 +213,9 @@ function Home_filetransfer() {
                   }
                 });
                 console.log('response', response);  
-        
                 //Create new FT-file in database
                 if (response.status === 200) {
-                    console.log(FTProjectId);
                     let _ft_project_id = sessionStorage.getItem("ft_project_id");
-                    console.log(_ft_project_id);
                     const fileData = {
                       filename: file.name,
                       filepath: file.path,
@@ -245,22 +246,16 @@ function Home_filetransfer() {
                       }
                     });
                 }
-          } else {
-                MySwal.fire({
-                  title: 'Upload Failed',
-                  text: `Failed to upload file: ${file.name}. Error: ${response.message}`,
-                  icon: 'error',
-                  confirmButtonText: 'Close',
-                  customClass: {
-                    popup: 'custom-popup',
-                    title: 'custom-title',
-                    content: 'custom-text',
-                    confirmButton: 'custom-confirm-button'
-                  }
-                });
-                setIsUploading(false);
-                return;
-          }
+          } else if (response.message === "User closed client during task") {
+                  Swal.fire({
+                      title: "Upload cancelled",
+                      text: "The upload was cancelled.",
+                      icon: "info",
+                      confirmButtonText: "Close",
+                  });
+                  setIsUploading(false); 
+                  return;
+            }
         } catch (error) {
             MySwal.fire({
               title: 'Upload Error',
@@ -278,27 +273,49 @@ function Home_filetransfer() {
             return;
         }
       }
-      // Notify user
-      MySwal.fire({
-        title: 'Filetransfer!',
-        text: 'All files have been uploaded',
-        icon: 'success',
-        confirmButtonText: 'Close',
-        customClass: {
-          popup: 'custom-popup',
-          title: 'custom-title',
-          content: 'custom-text',
-          confirmButton: 'custom-confirm-button'
-        }
-      });
-      setIsUploading(false);
-      setChooseNewProjectName("");
-      setChosenProjectName("");
-      setFiles([]);
-      getUnsentFTProjects();
-    }
+
+      setTimeout(() => {
+          setIsUploading(false);
+          setChooseNewProjectName("");
+          setChosenProjectName("");
+          setFiles([]);
+          getUnsentFTProjects();
+          // Notify user
+          MySwal.fire({
+            title: 'Filetransfer!',
+            text: 'All files have been uploaded',
+            icon: 'success',
+            confirmButtonText: 'Close',
+            customClass: {
+              popup: 'custom-popup',
+              title: 'custom-title',
+              content: 'custom-text',
+              confirmButton: 'custom-confirm-button'
+            }
+          });
+      }, 500);
+    } 
   };
 
+  // Method to cancel file upload to ftp server
+  const canceledUpload = async () => {
+    const response = window.api.cancelFtpUpload();
+    console.log('response', response);
+  }
+  
+  // Listens for upload-canceled
+  useEffect(() => {
+    const handleCancel = (event, { response }) => {
+      console.log('response', response);
+      if (response){
+        console.log('response', response);
+      }
+    };
+    window.api.on("upload-canceled", handleCancel);
+    return () => {
+      window.api.removeAllListeners("upload-canceled", handleCancel);
+    };
+  }, []);
 
 
   // Method for when selecting project in list
@@ -510,7 +527,7 @@ function Home_filetransfer() {
 
           <Sidemenu_filetransfer />
           {isUploading && (
-            <Loadingbar_filetransfer files={files} uploadProgress={uploadProgress} uploadPercentage={uploadPercentage} uploadFile={uploadFile} finishedUploading={finishedUploading} />
+            <Loadingbar_filetransfer files={files} uploadProgress={uploadProgress} uploadPercentage={uploadPercentage} uploadFile={uploadFile} finishedUploading={finishedUploading} canceledUpload={canceledUpload} />
           )}
 
         </div>

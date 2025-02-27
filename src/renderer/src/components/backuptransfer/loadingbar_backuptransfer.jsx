@@ -8,7 +8,7 @@ import { faCheck, faCloudArrowUp, faCircle } from "@fortawesome/free-solid-svg-i
 
 import "../../assets/css/backuptransfer/components_backuptransfer.css";
 
-const Loadingbar_backuptransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading }) => {
+const Loadingbar_backuptransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading, canceledUpload }) => {
   //define states
   const [uploadedFilesArray, setUploadedFilesArray] = useState([]);
 
@@ -29,13 +29,16 @@ const Loadingbar_backuptransfer = ({ files, uploadProgress, uploadPercentage, up
       }
     });
   }, [finishedUploading]);
-
-
   useEffect(() => {
     console.log('uploadedFilesArray', uploadedFilesArray);
   }, [finishedUploading]);
 
   
+  // Methiod to cancel upload
+  const cancelUpload = () => {
+    canceledUpload()
+  }
+
 
   return (
     <div className="loadingbar-backuptransfer">
@@ -65,10 +68,10 @@ const Loadingbar_backuptransfer = ({ files, uploadProgress, uploadPercentage, up
                         </h6>
                     </div>  
 
-                </div>
+                </div>                
             </div>
           ))}
-
+        <button className="mt-2 ml-2 cancel-upload-bt" title="Cancel upload" onClick={cancelUpload}>Cancel Upload</button>
       </div>
     </div>
   );

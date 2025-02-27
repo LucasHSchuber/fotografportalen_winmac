@@ -22,7 +22,9 @@ function History_backuptransfer() {
         try {
           const response = await window.api.getBackuptransferData(user_id);
           console.log("response:", response);
-          const sortedData = response.data.sort((a, b) => new Date(b.created) - new Date(a.created));
+          const filteredData = response.data.filter(item => item.files.length !== 0); // Filter out if files array is empty
+          console.log('filteredData', filteredData);
+          const sortedData = filteredData.sort((a, b) => new Date(b.created) - new Date(a.created)); // Sort after created column
           setData(sortedData);
           console.log("sorted data:", sortedData);
         } catch (error) {
@@ -64,12 +66,12 @@ function History_backuptransfer() {
             />{" "}
                 Backup History
             </h4>
-            <p>This is your history of uploaded files in each job</p>
+            <p>This is your history of uploaded files in each project</p>
         </div>
         
         <div className="mb-3">
                 <div>
-                    <h6>Search for jobs:</h6>
+                    <h6>Search for projects:</h6>
                 </div>
                 <div>
                     <input className="form-input-field-ft form-search-ft fixed" placeholder="Search.." value={searchString} onChange={(e) => handleSearchString(e.target.value)}></input>
@@ -81,10 +83,14 @@ function History_backuptransfer() {
         <div>
             {data && data.map(item => (
                 <div key={item.bt_project_id} className="mb-1 backuptransfer-history-box">
-                    <h6>{item.projectname} <em>(created: {item.created})</em></h6>
+
+                    <div className="d-flex justify-content-between">
+                        <h6><b>{item.projectname}</b></h6> 
+                        <h6><em>created: {item.created}</em></h6>
+                    </div>
                     <ul>
                     {item.files.map(file => (
-                        <li key={file.bt_file_id}>{file.filename} <em>(uploaded: {file && file.uploaded_at})</em></li>
+                        <li style={{ color: file.is_sent === 0 ? "red" : "" }} key={file.bt_file_id}>{file.filename} <em className="ml-2">{file.is_sent === 0 ? `(upload failed)` : `(uploaded: ${file && file.uploaded_at})`} </em></li>
                     ))}
                     </ul>
                 </div>

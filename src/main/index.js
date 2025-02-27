@@ -530,6 +530,7 @@ log.info(process.resourcesPath);
 // Import external db files
 import alterTable from "./alterTable_db"
 import applySchemaUpdates from "./applySchemaUpdates_db"
+import { use } from "react";
 
 //Database Connection And Instance
 // Construct the absolute path to the SQLite database file
@@ -747,6 +748,7 @@ function createTables() {
           project_uuid TEXT, 
           projectname TEXT,
           user_id INTEGER,
+          is_deleted BOOLEAN DEFAULT 0,
           created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(user_id)
         )
@@ -762,6 +764,7 @@ function createTables() {
           filename TEXT NOT NULL,
           file_path TEXT,     
           file_size INTEGER,
+          is_sent BOOLEAN NOT NULL,
           uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (bt_project_id) REFERENCES bt_projects(bt_project_id),
           FOREIGN KEY (project_uuid) REFERENCES bt_projects(project_uuid) ON DELETE CASCADE
@@ -3245,33 +3248,8 @@ ipcMain.handle("gdprProtection", async (event) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-// ipcMain.handle("gdprProtection", async (event) => {
-//   const updateQuery =
-//     // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
-//     // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
-//     "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < date('now', '-12 months')";
 
-//   try {
-//     const result = await new Promise((resolve, reject) => {
-//       const db = new sqlite3.Database(dbPath);
 
-//       db.run(updateQuery, function (error) {
-//         if (error) {
-//           db.close();
-//           reject({ statusCode: 0, errorMessage: error });
-//         } else {
-//           db.close();
-//           resolve({ rowsAffected: this.changes });
-//         }
-//       });
-//     });
-
-//     return { statusCode: 1, result };
-//   } catch (error) {
-//     console.error("Error clearing GDPR data:", error);
-//     return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
 //GDPR protection teams_history
 ipcMain.handle("gdprProtection_teamshistory", async (event) => {
   const updateQuery =
@@ -3289,33 +3267,6 @@ ipcMain.handle("gdprProtection_teamshistory", async (event) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-
-// async function executeUpdateWithRetry(query, params = [], retries = 5, delay = 1000) {
-//   return new Promise((resolve, reject) => {
-//     const db = new sqlite3.Database(dbPath);
-//     function attempt() {
-//       db.run(query, params, function (error) {
-//         if (error) {
-//           if (error.code === 'SQLITE_BUSY' && retries > 0) {
-//             log.info('Database is busy, retrying...', { retries, delay });
-//             setTimeout(() => {
-//               attempt(--retries); // Decrement retries and try again
-//             }, delay);
-//           } else {
-//             log.error('Database error:', error.message);
-//             db.close();
-//             reject(error);
-//           }
-//         } else {
-//           const lastID = this.lastID;
-//           db.close();
-//           resolve(lastID); // Resolve with the last inserted row ID
-//         }
-//       });
-//     }
-//     attempt();
-//   });
-// }
 async function executeUpdateWithRetry(
   db,
   query,
@@ -3341,35 +3292,11 @@ async function executeUpdateWithRetry(
   });
 }
 
-// ipcMain.handle("gdprProtection_teamshistory", async (event) => {
-//   const updateQuery =
-//     // "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 12 MONTH)";
-//     // const updateQuery = "UPDATE teams SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x' WHERE created < DATE_SUB(NOW(), INTERVAL 6 MONTH);";
-//     "UPDATE teams_history SET leader_ssn = 'x', leader_firstname = 'x', leader_lastname = 'x', leader_email = 'x', leader_mobile = 'x',  leader_address = 'x',  leader_county = 'x',  leader_postalcode = 'x'  WHERE created < date('now', '-12 months')";
-
-//   try {
-//     const result = await new Promise((resolve, reject) => {
-//       const db = new sqlite3.Database(dbPath);
-
-//       db.run(updateQuery, function (error) {
-//         if (error) {
-//           db.close();
-//           reject({ statusCode: 0, errorMessage: error });
-//         } else {
-//           db.close();
-//           resolve({ rowsAffected: this.changes });
-//         }
-//       });
-//     });
-
-//     return { statusCode: 1, result };
-//   } catch (error) {
-//     console.error("Error clearing GDPR data in teams_history:", error);
-//     return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
 
 
+
+
+// KNOWLEDGEBASE
 
 
 //Creating window for showing file in knowledge base
@@ -3621,10 +3548,19 @@ ipcMain.handle('downloadLocallyKnowledgeBaseFile', async (event, filename) => {
 
 
 
+
+// FILETRANSFER
+
+
+let cancelledFtpUpload = false;
+
+ipcMain.handle("cancelFtpUpload", async (event) => {
+  cancelledFtpUpload = true;
+  log.info("FTP upload canceled by user.");
+});
 //upload file in filetransfer
 ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
   log.info("uploadFile triggered");
-
   let country = "";
   if (lang === "SE") {
     country = "Sweden";
@@ -3637,7 +3573,6 @@ ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
   } else if (lang === "DK") {
     country = "Denmark";
   }
-
   try {
     log.info("starting file upload");
     const result = await uploadFileToFTP(event, filePath, ftpConfig, country, filesize);
@@ -3652,6 +3587,7 @@ ipcMain.handle("uploadFile", async (event, filePath, lang, filesize) => {
 
 //uploadfiletoFTP method
 async function uploadFileToFTP(event, filePath, ftpConfig, country, filesize) {
+  cancelledFtpUpload = false;
   const client = new ftp.Client();
   client.ftp.verbose = true;
   try {
@@ -3677,6 +3613,15 @@ async function uploadFileToFTP(event, filePath, ftpConfig, country, filesize) {
       const percentage = ((info.bytesOverall / filesize) * 100).toFixed(2);
       console.log(`Upload Progress: ${percentage}%`);
       event.sender.send("upload-progress", { percentage });
+
+      // If user cancels the upload
+      if (cancelledFtpUpload) {
+        client.close();
+        event.sender.send("upload-canceled", { response: 'Upload canceled by user' });
+        log.info("Upload aborted by the user.");
+        return;
+      }
+
     });
 
     await client.uploadFrom(filePath, remotePath);
@@ -3684,7 +3629,8 @@ async function uploadFileToFTP(event, filePath, ftpConfig, country, filesize) {
     return "Upload successful!";
   } catch (err) {
     log.info("Error uploading file:", err);
-    throw new Error(`Error uploading file: ${err.message}`);
+    // return { statusCode: 500, status: "failure", message: err.message };
+    throw new Error(`${err.message}`);
   } finally {
     client.close();
   }
@@ -3745,11 +3691,11 @@ ipcMain.handle("addFTFile", async (event, fileData) => {
 
       const query = `
             INSERT INTO ft_files (
-              filename, ft_project_id, filepath 
+              filename, ft_project_id, filepath, is_sent
             )
-            VALUES (?, ?, ?)
+            VALUES (?, ?, ?, ?)
           `;
-      const params = [filename, ft_project_id, filepath];
+      const params = [filename, ft_project_id, filepath, 1];
 
       db.run(query, params, function (err) {
         if (err) {
@@ -3770,11 +3716,11 @@ ipcMain.handle("addFTFile", async (event, fileData) => {
 ipcMain.handle("getAllFTData", async (event, user_id) => {
   return new Promise((resolve, reject) => {
     const query = `
-          SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, f.ft_file_id, f.filename, f.filepath, f.uploaded_at
+          SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, f.ft_file_id, f.filename, f.filepath, f.uploaded_at, f.is_sent
           FROM ft_projects p
           INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
-          WHERE p.user_id = ?
-        `;
+          WHERE p.user_id = ? AND f.is_sent = 1;
+        `; 
 
     db.all(query, [user_id], (err, rows) => {
       if (err) {
@@ -3789,7 +3735,6 @@ ipcMain.handle("getAllFTData", async (event, user_id) => {
               ft_project_id: row.ft_project_id,
               project_uuid: row.project_uuid,
               projectname: row.projectname,
-              is_sent: row.is_sent,
               created: row.created,
               user_id: row.user_id,
               project_id: row.project_id,
@@ -3800,6 +3745,7 @@ ipcMain.handle("getAllFTData", async (event, user_id) => {
             ft_file_id: row.ft_file_id,
             filename: row.filename,
             filepath: row.filepath,
+            is_sent: row.is_sent,
             uploaded_at: row.uploaded_at,
           });
         });
@@ -3816,66 +3762,66 @@ ipcMain.handle("getAllFTData", async (event, user_id) => {
 });
 
 
-//get all previous projects by user_id
-ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
-  const retrieveQuery = `
-        SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, 
-               f.ft_file_id, f.filename, f.filepath, f.uploaded_at
-               FROM ft_projects p
-               INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
-               WHERE p.user_id = ? AND p.projectname LIKE ?
-      `;
+// //get all previous projects by user_id
+// ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
+//   const retrieveQuery = `
+//         SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, 
+//                f.ft_file_id, f.filename, f.filepath, f.uploaded_at
+//                FROM ft_projects p
+//                INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
+//                WHERE p.user_id = ? AND p.projectname LIKE ?
+//       `;
 
-  console.log("SQL Query:", retrieveQuery, "Parameters:", [
-    user_id,
-    `%${searchString}%`,
-  ]);
+//   console.log("SQL Query:", retrieveQuery, "Parameters:", [
+//     user_id,
+//     `%${searchString}%`,
+//   ]);
 
-  try {
-    const projects = await new Promise((resolve, reject) => {
-      const db = new sqlite3.Database(dbPath);
+//   try {
+//     const projects = await new Promise((resolve, reject) => {
+//       const db = new sqlite3.Database(dbPath);
 
-      db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
-        if (error) {
-          db.close();
-          return reject({ statusCode: 0, errorMessage: error.message });
-        }
+//       db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
+//         if (error) {
+//           db.close();
+//           return reject({ statusCode: 0, errorMessage: error.message });
+//         }
 
-        const projects = {};
+//         const projects = {};
 
-        rows.forEach((row) => {
-          if (!projects[row.ft_project_id]) {
-            projects[row.ft_project_id] = {
-              ft_project_id: row.ft_project_id,
-              project_uuid: row.project_uuid,
-              projectname: row.projectname,
-              is_sent: row.is_sent,
-              created: row.created,
-              user_id: row.user_id,
-              project_id: row.project_id,
-              files: [],
-            };
-          }
-          projects[row.ft_project_id].files.push({
-            ft_file_id: row.ft_file_id,
-            filename: row.filename,
-            filepath: row.filepath,
-            uploaded_at: row.uploaded_at,
-          });
-        });
+//         rows.forEach((row) => {
+//           if (!projects[row.ft_project_id]) {
+//             projects[row.ft_project_id] = {
+//               ft_project_id: row.ft_project_id,
+//               project_uuid: row.project_uuid,
+//               projectname: row.projectname,
+//               is_sent: row.is_sent,
+//               created: row.created,
+//               user_id: row.user_id,
+//               project_id: row.project_id,
+//               files: [],
+//             };
+//           }
+//           projects[row.ft_project_id].files.push({
+//             ft_file_id: row.ft_file_id,
+//             filename: row.filename,
+//             filepath: row.filepath,
+//             uploaded_at: row.uploaded_at,
+//           });
+//         });
 
-        db.close(() => {
-          resolve({ statusCode: 1, projects: Object.values(projects) });
-        });
-      });
-    });
+//         db.close(() => {
+//           resolve({ statusCode: 1, projects: Object.values(projects) });
+//         });
+//       });
+//     });
 
-    return projects;
-  } catch (error) {
-    console.error("Error fetching searched projects:", error);
-    return { statusCode: 0, errorMessage: error.message };
-  }
-});
+//     return projects;
+//   } catch (error) {
+//     console.error("Error fetching searched projects:", error);
+//     return { statusCode: 0, errorMessage: error.message };
+//   }
+// });
 
 
 // get all unsent ft data with project_date > 3 days ago
@@ -3887,13 +3833,12 @@ ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
     LEFT JOIN ft_projects ftp ON p.project_id = ftp.project_id
     WHERE 
       p.is_deleted = 0
+      AND p.type IS NOT "school"
       AND p.project_date < DATE('now', '-3 days')
       AND ftp.project_id IS NULL
       AND p.user_id = ?;
   `;
-  // console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
   const db = new sqlite3.Database(dbPath);
-
   try {
     const rows = await executeQueryWithRetry(db, retrieveQuery, [user_id]);
 
@@ -3920,121 +3865,11 @@ ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
 
 
 
-// BACKUP TRANSFER
-// ipcMain.handle('uploadFileToTus', async (event, { filePath, fileName, projectUuid, token }) => {
-//   return new Promise((resolve, reject) => {
-//     let scriptPath;
-//     if (isDev) {
-//       // Development mode path
-//       scriptPath = path.join(__dirname, "..", "..", "src", "renderer", "src", "assets", "js", "uploadScript.js");
-//     } else {
-//       // Production mode path
-//       scriptPath = path.join(app.getAppPath(), "resources", "app", "src", "renderer", "src", "assets", "js", "uploadScript.js");
-//     }
-//     console.log("scriptPath", scriptPath);
 
-//     // Spawn a process to run the script
-//     const uploadProcess = spawn('node', [scriptPath, filePath, fileName, projectUuid, token]);
+// BACKUPTRANSFER
 
-//     uploadProcess.stdout.on('data', (data) => {
-//       console.log(`stdout: ${data}`);
-//       const progressMatch = data.toString().match(/Uploading (.*?): (\d+\.\d+)%/);
-//       if (progressMatch) {
-//         const fileName = progressMatch[1];
-//         const percentage = parseFloat(progressMatch[2]);
-//         event.sender.send("upload-test-progress", { progress: percentage });
-//       }
-//     });
-
-//     uploadProcess.stderr.on('data', (data) => {
-//       console.error(`stderr: ${data}`);
-//     });
-
-//     uploadProcess.on('close', (code) => {
-//       if (code === 0) {
-//         resolve({ status: "success", filename: fileName });
-//       } else {
-//         reject(new Error('Upload process failed.'));
-//       }
-//     });
-//   });
-// })
-
-
-// //upload files to tus.io server
-// ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUuid, token}) => {
-//   log.info("uploadFileToTus triggered in Main Process")
-//   return new Promise((resolve, reject) => {
-//     try {
-//       log.info("uploadFileToTus triggered in Main Process2")
-      
-//       if (!tus.isSupported) {
-//         console.error("TUS uploads are not supported in this environment.");
-//         log.info("TUS uploads are not supported in this environment.");
-//         return;
-//       }
-
-//       if (!tus.canStoreURLs) {
-//         console.warn("This environment does not support storing upload URLs. Uploads may not resume after a page reload.");
-//         log.info("This environment does not support storing upload URLs. Uploads may not resume after a page reload.");
-//       }
-
-//       const fileStream = fs.createReadStream(filePath);
-//       log.info("File stream created for:", filePath);
-//       log.info("File path:", filePath);
-//       if (!fs.existsSync(filePath)) {
-//         log.error("File does not exist:", filePath);
-//       } else {
-//         log.info("File exists. Proceeding with upload...");
-//       }
-//       log.info("File stream:", fileStream);
-
-//       let upload = new tus.Upload(fileStream, {
-//         endpoint: "https://backuptransfer.ebx.nu/",
-//         retryDelays: [0, 3000, 5000, 10000], 
-//         metadata: { filename: fileName, project_uuid: projectUuid, filetype: "application/octet-stream" },
-//         chunkSize: 5 * 1024 * 1024, 
-//         headers: {
-//           Authorization: `Token ${token}`,  
-//         },
-
-//         onProgress: (bytesUploaded, bytesTotal) => {
-//           log.info("uploadFileToTus onProgress")
-//           const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-//           console.log(`Uploading ${fileName}: ${percentage}%`);
-//           event.sender.send("upload-tus-progress", { fileName, percentage });
-//         },
-//         onSuccess: () => {
-//           log.info("uploadFileToTus onSuccess")
-//           console.log(`File ${fileName} uploaded successfully.`);
-//           resolve({ status: "success", filename: fileName });
-//         },
-//         onError: (error) => {
-//           log.info("uploadFileToTus onError")
-//           console.error("Tus upload failed:", error);
-//           log.info("uploadFileToTus upload error: ", error)
-//           event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
-//           reject(new Error(`Upload failed: ${error.message}`));
-//         },
-//       });
-      
-//       // upload.findPreviousUploads().then((previousUploads) => {
-//       //   if (previousUploads.length > 0) {
-//       //     // Keep uploading from previous upload if cancelled
-//       //     upload.resumeFromPreviousUpload(previousUploads[0]);
-//       //   }
-//         log.info("Starting upload...");
-//         upload.start();
-//       // });
-//     } catch (error) {
-//       console.error("Error in uploadFileToTus:", error);
-//       log.info("uploadFileToTus upload error: ", error)
-//       event.sender.send("upload-error", { error: `Error uploading ${fileName}: ${error.message}` });
-//       reject(new Error("Upload error: " + error.message));
-//     }
-//   });
-// });
-
+// Upload file with BackupTransferChildProcess
+let activeTusProcesses = new Map();
 ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUuid, token}) => {
   return new Promise((resolve, reject) => {
       
@@ -4045,6 +3880,7 @@ ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUui
       log.info(`Starting child process: ${childProcessPath}`);
       
       const tusProcess = spawn("BackupTransferChildProcess.exe", [filePath, projectUuid, token]);
+      activeTusProcesses.set(fileName, tusProcess);
 
       tusProcess.on("error", (err) => {
           console.error("Failed to start process:", err);
@@ -4063,6 +3899,7 @@ ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUui
       
               if (eventName === "OnError") {
                   console.error(`Upload failed: ${eventData}`);
+                  event.sender.send("upload-error", { fileName, eventData });
                   reject(new Error(`Upload failed: ${eventData}`));
               } else if (eventName === "OnProgress") {
                   log.info(`Upload.. ${eventData}`)
@@ -4076,6 +3913,7 @@ ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUui
       });
       tusProcess.on("close", (code) => {
         console.log(`Process exited with code ${code} (successReceived=${successReceived})`);
+        activeTusProcesses.delete(fileName);
         if (code !== 0) {
             reject(new Error(`Process exited with code ${code}`));
         } else if (!successReceived) {
@@ -4087,6 +3925,23 @@ ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUui
     });
     
   });
+});
+
+// Cancel Tus upload
+ipcMain.handle("cancelTus", (event) => {
+  if (activeTusProcesses.size > 0) {
+      console.log(`Cancelling all uploads...`);
+      activeTusProcesses.forEach((process, fileName) => {
+          console.log(`Killing process for: ${fileName}`);
+          process.kill(); 
+      });
+      activeTusProcesses.clear(); 
+      event.sender.send("upload-canceled", { response: 'Upload canceled by user' });
+      // throw new Error('upload-cancelled');
+  } else {
+      console.log("No active uploads found.");
+      event.sender.send("upload-canceled", { response: 'Upload canceled by user' });
+  }
 });
 
 
@@ -4132,7 +3987,9 @@ ipcMain.handle("createNewBTProject", async (event, data) => {
 });
 
 
-//add new BT file
+
+
+//add new BT file with is_sent = 1
 ipcMain.handle("createNewBTFile", async (event, fileData) => {
   return new Promise((resolve, reject) => {
     try {
@@ -4143,15 +4000,13 @@ ipcMain.handle("createNewBTFile", async (event, fileData) => {
       if (!filename || !bt_project_id || !project_uuid) {
         throw new Error("Missing required data for createNewFTFile");
       }
-
       const query = `
             INSERT INTO bt_files (
-              project_uuid, filename, bt_project_id, file_path, file_size 
+              project_uuid, filename, bt_project_id, file_path, file_size, is_sent
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
           `;
-      const params = [project_uuid, filename, bt_project_id, file_path, file_size];
-
+      const params = [project_uuid, filename, bt_project_id, file_path, file_size, 1];
       db.run(query, params, function (err) {
         if (err) {
           log.error("Error adding new createNewFTFile:", err.message);
@@ -4169,14 +4024,71 @@ ipcMain.handle("createNewBTFile", async (event, fileData) => {
 });
 
 
+// Set project as deleted if uploading of file is cancelled for any reason
+ipcMain.handle("deleteBTProject", async (event, bt_project_id, user_id) => {
+    log.info("bt_project_id (deleteBTProject)", bt_project_id)
+    if (!bt_project_id || !user_id) {throw new Error("Data missing for 'deleteBTProject'")}
+    const query = `
+      UPDATE bt_projects SET is_deleted = 1 WHERE bt_project_id = ? AND user_id = ?;
+    `;
+    const db = new sqlite3.Database(dbPath);
+    try {
+      const res = await executeQueryWithRetry(db, query, [bt_project_id, user_id]);
+      log.info("Succesfully updated is_deleted to 1 in ft_projects table")
+      return ({ status: 200, data: res, message: "Succesfully updated is_deleted to 1 in bt_projects table", bt_project_id: bt_project_id})
+    } catch (error) {
+      log.info("Error when updating is_deleted to 1 in bt_projects table")
+      return ({ status: 500, message: "Error when updating is_deleted to 1 in bt_projects table"})
+    } finally{
+      db.close();
+    }
+})
+
+
+//add new BT file with is_sent = 0
+ipcMain.handle("createNewFailedBTFile", async (event, fileData) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!fileData || typeof fileData !== "object") {
+        throw new Error("Invalid arguments received for createNewFailedBTFile");
+      }
+      const { filename, bt_project_id, file_path, project_uuid, file_size } = fileData;
+      if (!filename || !bt_project_id || !project_uuid) {
+        throw new Error("Missing required data for createNewFailedBTFile");
+      }
+      const query = `
+            INSERT INTO bt_files (
+              project_uuid, filename, bt_project_id, file_path, file_size, is_sent
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+          `;
+      const params = [project_uuid, filename, bt_project_id, file_path, file_size, 0];
+      db.run(query, params, function (err) {
+        if (err) {
+          log.error("Error adding new createNewFailedBTFile:", err.message);
+          reject({status: 400, error: err.message });
+        } else {
+          log.info(`createNewFailedBTFile added successfully`);
+          resolve({ status: 201, success: true, message: "success", filename: filename });
+        }
+      });
+    } catch (err) {
+      log.error("Error adding new createNewFailedBTFile:", err.message);
+      reject({ status: 400, error: err.message });
+    }
+  });
+});
+
+
+
 // Get backuptransfer data, bt_projects with bt_files on left join
 ipcMain.handle("getBackuptransferData", async (event, user_id) => {
-  if (!user_id) { throw new Error("Missing user_id for getBackuptransferData")}
+  if (!user_id) { throw new Error("Missing user_id for getBackuptransferData") }
   const query = `
     SELECT btp.*, btf.* 
     FROM bt_projects btp
     LEFT JOIN bt_files btf ON btp.bt_project_id = btf.bt_project_id
-    WHERE btp.user_id = ?
+    WHERE btp.user_id = ? AND btp.is_deleted = 0;
   `;
   const db = new sqlite3.Database(dbPath);
   try {
@@ -4188,7 +4100,11 @@ ipcMain.handle("getBackuptransferData", async (event, user_id) => {
         let project = projects.find(p => p.bt_project_id === row.bt_project_id);
         if (!project){
           project = {
-            ...row, 
+            bt_project_id: row.bt_project_id,
+            created: row.created,
+            project_uuid: row.project_uuid,
+            projectname: row.projectname,
+            user_id: row.user_id, 
             files: [] 
           };
           projects.push(project);
@@ -4200,12 +4116,11 @@ ipcMain.handle("getBackuptransferData", async (event, user_id) => {
             filename: row.filename,
             file_path: row.file_path,
             file_size: row.file_size,
+            is_sent: row.is_sent,
             uploaded_at: row.uploaded_at
           });
         }
       });
-
-
       return { status: 200, success: true, message: "success", data: projects }
     } else {
       return { status: 204, success: true, message: "No data" } 
@@ -4217,6 +4132,9 @@ ipcMain.handle("getBackuptransferData", async (event, user_id) => {
     await closeDatabase(db);
   }
 })
+
+
+
 
 
 
@@ -4385,22 +4303,18 @@ ipcMain.handle("changeCompleted", async (event, args) => {
       throw new Error("Invalid arguments received for changeCompleted");
     }
     const { project_id, user_id } = args;
-
     if ( !project_id || !user_id ) {
       throw new Error("Missing required data (project_id, user_id) for changeCompleted");
     }
-
       const updateResult = await db.run(
         `
         UPDATE timereport SET is_sent = 0 WHERE project_id = ? AND user_id = ?
         `,
         [project_id, user_id]
       );
-
       console.log(`Updated is_sent to 0 for project_id: ${project_id}`, updateResult);
       event.sender.send("changeCompleted-response", { statusCode: 200, success: true });
-      return { statusCode: 200, success: true };
-        
+      return { statusCode: 200, success: true }; 
   } catch (err) {
     console.error("Error inserting timereport:", err.message);
     event.sender.send("changeCompleted-response", { error: err.message });

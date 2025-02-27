@@ -14,6 +14,10 @@ export default function alterTable(db, currentVersion) {
       {
         version: 103.1,
         query: `ALTER TABLE timereport ADD COLUMN is_deleted BOOLEAN DEFAULT 0;`,
+      },
+      {
+        version: 103.2,
+        query: `ALTER TABLE ft_files ADD COLUMN is_sent BOOLEAN DEFAULT 0;`,
       }
     ];
   
