@@ -21,6 +21,7 @@ function Register_window() {
   const navigate = useNavigate();
 
 
+  
   useEffect(() => {
     setUsername(localStorage.getItem("username") ? localStorage.getItem("username") : "");  
     console.log(getBaseUrl());
@@ -42,6 +43,7 @@ function Register_window() {
 
 
 
+  // Method to register user
   const registerUser = async () => {
     if (password === "" && username === "") {
       console.log("Enter username and password");
@@ -68,8 +70,6 @@ function Register_window() {
     if (password !== "" && username !== "") {
       console.log("password and username entered");
       localStorage.setItem("username", username);
-      // localStorage.setItem("password", password);
-
       try {
         console.log("activating user.... ");
         const url = getBaseUrl().url;
@@ -79,7 +79,7 @@ function Register_window() {
           'email': username,
           'password': password
         });
-
+        console.log('response', response);
         if (response.status === 200) {
           console.log('User:', response.data);
           console.log('User result:', response.data.result);
@@ -112,9 +112,11 @@ function Register_window() {
         if (error.response.status === 403) {
           console.log('response:', error.response.data.error);
           setErrorLogginginMessage("Invalid password.");
+          setSuccessRegisterMessage("");
        } else if (error.response.status === 401){ // Username does not exists in global database
           console.log("user does not exists in local database or global database");
           setErrorLogginginMessage("User not found. Try another email or contact ExpressBild for further help.");
+          setSuccessRegisterMessage("");
         return;
        }
         return null;

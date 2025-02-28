@@ -1,5 +1,3 @@
-
-
 // function alterTable(db, currentVersion) {
 export default function alterTable(db, currentVersion) {
     const updates = [
@@ -17,8 +15,12 @@ export default function alterTable(db, currentVersion) {
       },
       {
         version: 103.2,
-        query: `ALTER TABLE ft_files ADD COLUMN is_sent BOOLEAN DEFAULT 0;`,
-      }
+        query: `ALTER TABLE ft_files ADD COLUMN is_sent INTEGER DEFAULT 0;`,
+      },
+      {
+        version: 103.3,
+        query: `ALTER TABLE ft_projects ADD COLUMN is_deleted INTEGER DEFAULT 0;`,
+      },
     ];
   
     // Sort updates by version to ensure correct order

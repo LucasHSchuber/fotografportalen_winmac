@@ -20,6 +20,11 @@ export default function applySchemaUpdates(db, currentVersion) {
         query: `
           CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_user ON timereport (project_id, user_id);
         `,
+      },
+      {
+        version: 103.4,
+        query: `UPDATE ft_files SET is_sent = 1;
+        `,
       }
     ];
     // Filter updates that need to be applied

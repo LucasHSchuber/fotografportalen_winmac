@@ -82,10 +82,8 @@ function Login_window() {
     } else {
       setUsernameMessage("");
     }
-
     if (password !== "" && username !== "") {
       console.log("password and username entered");
-
       const data = { 
         email: username, 
         password: password 
@@ -168,12 +166,6 @@ function Login_window() {
             <em>Photographer Portal</em>
           </p>
         </div>
-        {/* <div className="loading-bar-text">
-          <p><b>Loading..</b></p>
-        </div> */}
-        {/* <div className="loading-bar-container-login">
-          <div className="loading-bar-login"></div>
-        </div> */}
       </div>
     );
   }
@@ -183,7 +175,6 @@ function Login_window() {
     return (
       <div>
         <div className="spinning-logo-login" style={{ marginTop: "6em" }}>
-          {/* <p><b>Successfull!</b> <br></br><em>Signing in...</em></p> */}
           <p>
             <em>Signing in...</em>
           </p>
@@ -260,18 +251,6 @@ function Login_window() {
             Activate account
           </button>
         </div>
-        {/* <a
-          href="#"
-          role="button"
-          className="register-link-login"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/register_window");
-          }}
-          style={{ color: "black" }}
-        >
-          Dont have an account? Register here!
-        </a> */}
       </div>
     </div>
   );

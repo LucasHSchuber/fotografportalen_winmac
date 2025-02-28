@@ -528,12 +528,10 @@ log.info(process.resourcesPath);
 // ------ DATABASE -----
 
 // Import external db files
+import dropTables from "./dropTables_db"
 import alterTable from "./alterTable_db"
 import applySchemaUpdates from "./applySchemaUpdates_db"
-import { use } from "react";
-
-//Database Connection And Instance
-// Construct the absolute path to the SQLite database file
+//Database Connection 
 let dbPath;
 if (isDev) {
   // Development mode path
@@ -550,19 +548,16 @@ const db = new sqlite3.Database(dbPath, async (err) => {
     console.error("Error opening database:", err.message);
   } else {
     console.log("Connected to SQLite database");
-  
     try {
-      // Drop tables (if needed), then create and alter tables
+      // Drop tables
       // await dropTables();
+      await dropTables(db);
+      // Create tables
       await createTables();
-
+      // Get currect version of updates
       const currentVersion = await getCurrentSchemaVersion();
-      log.info("Current Schema Version: ", currentVersion);
-
       // Add columns to tables
       await alterTable(db, currentVersion);
-      console.log("alterTable updates applied successfully");
-
       // Add constraints and foreign keys
       await applySchemaUpdates(db, currentVersion);
       console.log("Schema updates applied successfully");
@@ -855,147 +850,6 @@ function createTables() {
   });
 }
 
-// // Function to drop tables
-// function dropTables() {
-//   const tablesToDrop = [];
-//   let remainingDrops = tablesToDrop.length;
-
-//   return new Promise((resolve, reject) => {
-//     if (tablesToDrop.length > 0) {
-//       tablesToDrop.forEach((table) => {
-//         db.run(`DROP TABLE IF EXISTS ${table};`, (err) => {
-//           if (err) {
-//             reject(`Error dropping ${table} table: ${err.message}`);
-//           } else {
-//             console.log(`${table} table dropped successfully.`);
-//             remainingDrops--;
-//             if (remainingDrops === 0) {
-//               resolve();
-//             }
-//           }
-//         });
-//       });
-//     } else {
-//       console.log("No tables to drop")
-//       resolve();
-//     }
-//   });
-// }
-
-
-// function alterTable(currentVersion) {
-//   const updates = [
-//     {
-//       version: 102.1,
-//       query: `ALTER TABLE news ADD COLUMN user_id INTEGER;`,
-//     },
-//     {
-//       version: 102.2,
-//       query: `ALTER TABLE timereport ADD COLUMN is_sent_permanent BOOLEAN DEFAULT 0;`,
-//     },
-//   ];
-
-//   // Sort updates by version to ensure correct order
-//   const sortedUpdates = updates.filter((update) => update.version > currentVersion);
-
-//   // Map updates to Promises
-//   const updatePromises = sortedUpdates.map((update) => {
-//     return new Promise((resolve, reject) => {
-//       db.run(update.query, (err) => {
-//         if (err) {
-//           console.error(`Error applying update to version ${update.version}:`, err.message);
-//           reject(err);
-//         } else {
-//           console.log(`Successfully applied schema update to version ${update.version}`);
-//           db.run(
-//             `INSERT INTO schema_version (version) VALUES (?)`,
-//             [update.version],
-//             (insertErr) => {
-//               if (insertErr) {
-//                 console.error("Error updating schema version:", insertErr.message);
-//                 reject(insertErr); 
-//               } else {
-//                 console.log(`Schema version updated to ${update.version}`);
-//                 resolve(); 
-//               }
-//             }
-//           );
-//         }
-//       });
-//     });
-//   });
-
-//   // Return Promise.all for aggregated results
-//   return Promise.all(updatePromises)
-//     .then(() => {
-//       console.log("All schema updates have been applied successfully.");
-//     })
-//     .catch((err) => {
-//       console.error("One or more schema updates failed:", err.message);
-//     });
-// }
-
-
-
-// // Aplly updates based on version
-// function applySchemaUpdates(currentVersion) {
-//   const updates = [
-//     {
-//       version: 102.3,
-//       query: `
-//         CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_uuid ON _projects (project_uuid);
-//       `,
-//     },
-//     {
-//       version: 102.4,
-//       query: `
-//         CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_news_id_user_id ON news (id, user_id);
-//       `,
-//     },
-//     {
-//       version: 102.5,
-//       query: `
-//         CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_project_user ON timereport (project_id, user_id);
-//       `,
-//     }
-//   ];
-//   // Filter updates that need to be applied
-//   const updatesToApply = updates.filter((update) => update.version > currentVersion);
-//   const updatePromises = updatesToApply.map((update) => {
-//     return new Promise((resolve, reject) => {
-//       db.run(update.query, (err) => {
-//         if (err) {
-//           console.error(`Error applying update to version ${update.version}:`, err.message);
-//           reject(err); 
-//         } else {
-//           console.log(`Applied schema update to version ${update.version}`);
-//           db.run(
-//             `INSERT INTO schema_version (version) VALUES (?)`,
-//             [update.version],
-//             (insertErr) => {
-//               if (insertErr) {
-//                 console.error("Error updating schema version:", insertErr.message);
-//                 reject(insertErr);
-//               } else {
-//                 console.log(`Schema version updated to ${update.version}`);
-//                 resolve(); 
-//               }
-//             }
-//           );
-//         }
-//       });
-//     });
-//   });
-
-//   // Use Promise.all to ensure all updates are applied
-//   return Promise.all(updatePromises)
-//     .then(() => {
-//       console.log("All schema updates have been successfully applied.");
-//     })
-//     .catch((err) => {
-//       console.error("One or more schema updates failed:", err.message);
-//     });
-// }
 
 
 
@@ -1466,43 +1320,7 @@ async function executeGetWithRetry(
     attempt();
   });
 }
-// ipcMain.handle("getUser", async (event, id) => {
-//   const retrieveQuery = "SELECT * FROM users WHERE user_id = ?";
 
-//   try {
-//     const user = await new Promise((resolve, reject) => {
-//       const db = new sqlite3.Database(dbPath);
-
-//       db.get(retrieveQuery, [id], (error, row) => {
-//         if (error) {
-//           db.close();
-//           reject({ statusCode: 0, errorMessage: error });
-//         } else if (!row) {
-//           db.close();
-//           reject({ statusCode: 0, errorMessage: "User not found" });
-//         } else {
-//           db.close();
-//           resolve({
-//             user_id: row.user_id,
-//             email: row.email,
-//             firstname: row.firstname,
-//             lastname: row.lastname,
-//             city: row.city,
-//             mobile: row.mobile,
-//             lang: row.lang,
-//             token: row.token,
-//             created: row.created,
-//           });
-//         }
-//       });
-//     });
-
-//     return { statusCode: 1, user: user };
-//   } catch (error) {
-//     console.error("Error fetching user data:", error);
-//     return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
 
 //get all users
 ipcMain.handle("getAllUsers", async (event, args) => {
@@ -1534,7 +1352,7 @@ ipcMain.handle("getAllUsers", async (event, args) => {
       });
     });
 
-    return { statusCode: 1, users: users }; // Corrected to return 'users' instead of 'allUsers'
+    return { statusCode: 1, users: users }; 
   } catch (error) {
     console.error("Error fetching user data:", error);
     return { statusCode: 0, errorMessage: error.message };
@@ -1674,7 +1492,7 @@ const getUserDetails = (email) => {
       } else if (row) {
         resolve(row);
       } else {
-        resolve(null); // No user found
+        resolve(null);
       }
     });
   });

@@ -247,7 +247,6 @@ function Index() {
         console.log("No internet connection. Unable to scan news table");
         return;
       }
-
       const user_id = localStorage.getItem("user_id");
       try {
         let responseAllUnsentNews = await window.api.getAllUnsentNews(user_id);
@@ -623,7 +622,7 @@ const triggerSwalFire = (title, text) => {
                 {projectsArray && projectsArray.length > 0
                   ? projectsArray.length
                   : 0}{" "}
-                unsent job{projectsArray.length > 1 ? "s" : ""}:
+                unsubmitted job{projectsArray.length > 1 ? "s" : ""}:
               </b>
             </h6>
             <ul>
@@ -743,7 +742,7 @@ const triggerSwalFire = (title, text) => {
             <div><p>Please wait while loading news...</p></div>
           ) : 
             allNews && allNews.map((news) => (
-              <div key={news.id} className="mb-4">
+              <div key={news.id} className="mb-4 mt-3">
                 <div className="d-flex">
                   <h6>
                     <b>{news.title}</b>
