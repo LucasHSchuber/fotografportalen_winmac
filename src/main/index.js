@@ -549,13 +549,13 @@ const db = new sqlite3.Database(dbPath, async (err) => {
   } else {
     console.log("Connected to SQLite database");
     try {
-      // Drop tables
-      // await dropTables();
-      await dropTables(db);
-      // Create tables
-      await createTables();
       // Get currect version of updates
       const currentVersion = await getCurrentSchemaVersion();
+      // Drop tables
+      // await dropTables();
+      await dropTables(db, currentVersion);
+      // Create tables
+      await createTables();
       // Add columns to tables
       await alterTable(db, currentVersion);
       // Add constraints and foreign keys

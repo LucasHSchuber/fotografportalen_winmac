@@ -27,8 +27,13 @@ export default function applySchemaUpdates(db, currentVersion) {
         `,
       }
     ];
-    // Filter updates that need to be applied
     const updatesToApply = updates.filter((update) => update.version > currentVersion);
+
+    if (updatesToApply.length === 0) {
+      console.log("No tables needs updating.");
+      return Promise.resolve();
+    }
+
     const updatePromises = updatesToApply.map((update) => {
       return new Promise((resolve, reject) => {
         db.run(update.query, (err) => {
@@ -55,7 +60,6 @@ export default function applySchemaUpdates(db, currentVersion) {
       });
     });
   
-    // Use Promise.all to ensure all updates are applied
     return Promise.all(updatePromises)
       .then(() => {
         console.log("All schema updates have been successfully applied.");

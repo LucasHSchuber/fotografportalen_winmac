@@ -26,6 +26,11 @@ export default function alterTable(db, currentVersion) {
     // Sort updates by version to ensure correct order
     const sortedUpdates = updates.filter((update) => update.version > currentVersion);
   
+    if (sortedUpdates.length === 0) {
+      console.log("No tables needs updating.");
+      return Promise.resolve();
+    }
+
     // Map updates to Promises
     const updatePromises = sortedUpdates.map((update) => {
       return new Promise((resolve, reject) => {
@@ -53,7 +58,6 @@ export default function alterTable(db, currentVersion) {
       });
     });
   
-    // Return Promise.all for aggregated results
     return Promise.all(updatePromises)
       .then(() => {
         console.log("All schema updates have been applied successfully.");
