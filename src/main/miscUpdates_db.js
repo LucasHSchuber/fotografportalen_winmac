@@ -1,7 +1,6 @@
 
-// Aplly updates based on version
-// function applySchemaUpdates(currentVersion) {
-export default function applySchemaUpdates(db, currentVersion) {
+//Misc update
+export default function miscUpdates(db, currentVersion) {
     const updates = [
       {
         version: 102.3,
@@ -30,7 +29,7 @@ export default function applySchemaUpdates(db, currentVersion) {
     const updatesToApply = updates.filter((update) => update.version > currentVersion);
 
     if (updatesToApply.length === 0) {
-      console.log("No tables needs updating.");
+      console.log("No tables needs updating (miscUpdates).");
       return Promise.resolve();
     }
 

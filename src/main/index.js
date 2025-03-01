@@ -530,7 +530,8 @@ log.info(process.resourcesPath);
 // Import external db files
 import dropTables from "./dropTables_db"
 import alterTable from "./alterTable_db"
-import applySchemaUpdates from "./applySchemaUpdates_db"
+// import applySchemaUpdates from "./applySchemaUpdates_db"
+import miscUpdates from "./miscUpdates_db";
 //Database Connection 
 let dbPath;
 if (isDev) {
@@ -559,7 +560,7 @@ const db = new sqlite3.Database(dbPath, async (err) => {
       // Add columns to tables
       await alterTable(db, currentVersion);
       // Add constraints and foreign keys
-      await applySchemaUpdates(db, currentVersion);
+      await miscUpdates(db, currentVersion);
       console.log("Schema updates applied successfully");
     } catch (err) {
       console.error("Error during table operations:", err);

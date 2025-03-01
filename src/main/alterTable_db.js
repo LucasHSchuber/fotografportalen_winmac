@@ -27,7 +27,7 @@ export default function alterTable(db, currentVersion) {
     const sortedUpdates = updates.filter((update) => update.version > currentVersion);
   
     if (sortedUpdates.length === 0) {
-      console.log("No tables needs updating.");
+      console.log("No tables needs updating (alterTable).");
       return Promise.resolve();
     }
 
