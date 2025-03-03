@@ -162,7 +162,8 @@
                   <input className="mb-3 faq-searchbox" placeholder="Search for a question.." onChange={(e) => handleSearch(e.target.value)}></input>
                 </div>    
                 {/* <div className="questions-box"> */}
-                  {filteredFaqData.map((category) => (
+                  {filteredFaqData.length > 0 ?
+                    filteredFaqData.map((category) => (
                     <div key={category.categoryName + category.id} className="category">
                       <h6 style={{ fontSize: "0.85em", fontWeight: "600" }}>
                         {category.categoryName}
@@ -184,7 +185,9 @@
                         ))}
                       </ul>
                     </div>
-                  ))}
+                  )) : (
+                    <h6 style={{ fontSize: "0.8em" }}><em>No search results</em></h6>
+                  )}
                 {/* </div> */}
               </div>
 

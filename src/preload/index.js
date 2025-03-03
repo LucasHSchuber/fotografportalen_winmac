@@ -91,7 +91,6 @@ const api = {
   createNewFTProject: (data) => ipcRenderer.invoke('createNewFTProject', data),
   addFTFile: (fileData) => ipcRenderer.invoke('addFTFile', fileData),
   getAllFTData: (user_id) => ipcRenderer.invoke('getAllFTData', user_id), // Pass user_id to get all FT projects and files by user
-  // getAllFTDataBySearch: (user_id ,searchString) => ipcRenderer.invoke('getAllFTDataBySearch', user_id, searchString), // Pass user_id to get all FT projects and files by user and search
   getUnsentFTProjects: (user_id) => ipcRenderer.invoke('getUnsentFTProjects', user_id), // Pass user_id to get all unsent Filestransfer projects
   cancelFtpUpload: () => ipcRenderer.invoke('cancelFtpUpload'), // Cancel ftp server upload
 
@@ -103,7 +102,6 @@ const api = {
   createNewFailedBTFile: (fileData) => ipcRenderer.invoke('createNewFailedBTFile', fileData),
   getBackuptransferData: (user_id) => ipcRenderer.invoke('getBackuptransferData', user_id),
   cancelTus: () => ipcRenderer.invoke('cancelTus'),
-  // SetBTprojectAsSent: (bt_project_id) => ipcRenderer.invoke("SetBTprojectAsSent", bt_project_id),
 
   // TIME REPORT
   getAllTimereports: (user_id) => ipcRenderer.invoke('getAllTimereports', user_id), // Pass user_id to get all Timereport data
@@ -126,9 +124,7 @@ const api = {
 }
 
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
+// Use `contextBridge` APIs to expose Electron APIs to renderer only if context isolation is enabled, otherwise just add to the DOM global.
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)

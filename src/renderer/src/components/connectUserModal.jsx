@@ -69,8 +69,6 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
                 });
                 if (response.status === 200) {
                     console.log('User:', response.data);
-                    console.log('User result:', response.data.result);
-
                     try {
                         const updatedResult = { ...response.data.result, password };
                         console.log(updatedResult);

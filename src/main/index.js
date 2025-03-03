@@ -550,18 +550,35 @@ const db = new sqlite3.Database(dbPath, async (err) => {
   } else {
     console.log("Connected to SQLite database");
     try {
+      log.info("Running all databas methods...")
+      let currentVersion;
+      // Make sure the schema_table exists (even if the entire database is deleted (the getCurrentSchemaVersion will still be able to run))
+      await ensureSchemaVersionTable();
       // Get currect version of updates
-      const currentVersion = await getCurrentSchemaVersion();
-      // Drop tables
-      // await dropTables();
-      await dropTables(db, currentVersion);
-      // Create tables
-      await createTables();
-      // Add columns to tables
-      await alterTable(db, currentVersion);
-      // Add constraints and foreign keys
-      await miscUpdates(db, currentVersion);
-      console.log("Schema updates applied successfully");
+      currentVersion = await getCurrentSchemaVersion();
+      // Run Drop tables
+      const dropRes = await dropTables(db, currentVersion);
+
+      // if one or more tables has been dropped
+      if (dropRes.status === 200){   
+            log.info("dropRes.status === 200")     
+            // Run Create tables
+            await createTables();
+            // Set current version to 0 to run all updates in alterTable and miscUpdates
+            const resetCurrentVersion = 0; 
+            // Run Alter table
+            await alterTable(db, resetCurrentVersion);
+            // Run Misc updates
+            await miscUpdates(db, resetCurrentVersion);
+      } else {
+          log.info("dropRes.status !!! 200")     
+            // Run Create tables
+            await createTables();
+            // Run Alter table
+            await alterTable(db, currentVersion);
+            // Run Misc updates
+            await miscUpdates(db, currentVersion);
+      }
     } catch (err) {
       console.error("Error during table operations:", err);
     }
@@ -575,7 +592,40 @@ db.exec("PRAGMA journal_mode=WAL;", (err) => {
     console.log("WAL mode enabled");
   }
 });
-
+async function dropSchemaVersionTable() {
+  return new Promise((resolve, reject) => {
+      db.run(
+          `DROP TABLE IF EXISTS schema_version;`,
+          (err) => {
+              if (err) {
+                  console.error("Error dropping schema_version table:", err.message);
+                  reject(err);
+              } else {
+                  resolve();
+              }
+          }
+      );
+  });
+}
+async function ensureSchemaVersionTable() {
+  return new Promise((resolve, reject) => {
+      db.run(
+          `CREATE TABLE IF NOT EXISTS schema_version (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              version INTEGER NOT NULL,
+              applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+          );`,
+          (err) => {
+              if (err) {
+                  console.error("Error ensuring schema_version table:", err.message);
+                  reject(err);
+              } else {
+                  resolve();
+              }
+          }
+      );
+  });
+}
 // Get latest version from schema_version table
 function getCurrentSchemaVersion() {
   return new Promise((resolve, reject) => {
@@ -589,7 +639,6 @@ function getCurrentSchemaVersion() {
     });
   });
 }
-
 // Function to create tables
 function createTables() {
   const tableDefinitions = [
@@ -597,7 +646,7 @@ function createTables() {
       name: "users",
       query: `
         CREATE TABLE IF NOT EXISTS users (
-          user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER PRIMARY KEY,
           email TEXT NOT NULL,
           firstname TEXT NOT NULL,
           lastname TEXT NOT NULL,
@@ -836,19 +885,49 @@ function createTables() {
   return new Promise((resolve, reject) => {
     let createdTables = 0;
     tableDefinitions.forEach(({ name, query }) => {
-      db.run(query, (err) => {
+      // First check if the table exists
+      db.get(`PRAGMA table_info(${name});`, (err, row) => {
         if (err) {
-          reject(`Error creating ${name} table: ${err.message}`);
+          reject(`Error checking if ${name} table exists: ${err.message}`);
         } else {
-          console.log(`${name} table created successfully`);
-          createdTables++;
-          if (createdTables === tableDefinitions.length) {
-            resolve();
+          if (row === undefined) {
+            db.run(query, (err) => {
+              if (err) {
+                reject(`Error creating ${name} table: ${err.message}`);
+              } else {
+                console.log(`${name} table created successfully`);
+                createdTables++;
+                if (createdTables === tableDefinitions.length) {
+                  resolve();
+                }
+              }
+            });
+          } else {
+            createdTables++;
+            if (createdTables === tableDefinitions.length) {
+              resolve();
+            }
           }
         }
       });
     });
   });
+  // return new Promise((resolve, reject) => {
+  //   let createdTables = 0;
+  //   tableDefinitions.forEach(({ name, query }) => {
+  //     db.run(query, (err) => {
+  //       if (err) {
+  //         reject(`Error creating ${name} table: ${err.message}`);
+  //       } else {
+  //         console.log(`${name} table created successfully`);
+  //         createdTables++;
+  //         if (createdTables === tableDefinitions.length) {
+  //           resolve();
+  //         }
+  //       }
+  //     });
+  //   });
+  // });
 }
 
 
@@ -1367,13 +1446,14 @@ ipcMain.handle("createUser", async (event, args) => {
       throw new Error("Invalid arguments received for createUser");
     }
 
-    const { email, firstname, surname, password, language, token } = args;
+    const { id, email, firstname, surname, password, language, token } = args;
+    console.log("id", id)
 
-    if (!email || !firstname || !surname || !language || !token || !password) {
+    if (!id || !email || !firstname || !surname || !language || !token || !password) {
       throw new Error("Missing required user data for createUser");
     }
 
-    const userExists = await checkUsernameInDatabase(email);
+    const userExists = await checkUserIdDatabase(email);
     if (userExists) {
       event.sender.send("createUser-response", {
         success: false,
@@ -1387,10 +1467,10 @@ ipcMain.handle("createUser", async (event, args) => {
       // Insert the new user into the database
       await db.run(
         `
-        INSERT INTO users (email, firstname, lastname, password, lang, token)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO users (user_id, email, firstname, lastname, password, lang, token)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         `,
-        [email, firstname, surname, hashedPassword, language, token],
+        [id, email, firstname, surname, hashedPassword, language, token],
       );
 
       console.log("User added successfully");
@@ -1403,19 +1483,16 @@ ipcMain.handle("createUser", async (event, args) => {
     return { error: err.message };
   }
 });
-const checkUsernameInDatabase = (email) => {
+const checkUserIdDatabase = (email) => {
   return new Promise((resolve, reject) => {
     // Prepare the SQL query to check if the email and password match
     const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
-    // Execute the SQL query
     db.get(checkUserQuery, [email], (err, row) => {
       if (err) {
-        // Reject with error if query execution fails
-        console.error("Error checking username in database:", err);
+        console.error("Error checking email in database:", err);
         reject(err);
         return;
       }
-      // Resolve with the result of the query
       resolve(row.count === 1);
     });
   });
@@ -1506,25 +1583,7 @@ const comparePassword = (password, hash) => {
     return false;
   }
 };
-// const checkUserInDatabase = (email, password) => {
-//   return new Promise((resolve, reject) => {
-//     // Prepare the SQL query to check if the email and password match
-//     const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ? AND password = ?`;
 
-//     // Execute the SQL query
-//     db.get(checkUserQuery, [email, password], (err, row) => {
-//       if (err) {
-//         // Reject with error if query execution fails
-//         console.error("Error checking user in database:", err);
-//         reject(err);
-//         return;
-//       }
-
-//       // Resolve with the result of the query
-//       resolve(row.count === 1);
-//     });
-//   });
-// };
 
 //edit user data
 ipcMain.handle("editUser", async (event, args) => {

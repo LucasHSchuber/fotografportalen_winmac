@@ -82,7 +82,6 @@ function Register_window() {
         console.log('response', response);
         if (response.status === 200) {
           console.log('User:', response.data);
-          console.log('User result:', response.data.result);
           try {
             const updatedResult = { ...response.data.result, password };
             console.log(updatedResult);
@@ -95,7 +94,6 @@ function Register_window() {
               setPassword("");
               setUsername("");
               setErrorLogginginMessage("");
-              // navigate("/login_window");
             } else {
               console.log("Error creating user");
               setErrorLogginginMessage("User already exists. Proceed to log in!");
