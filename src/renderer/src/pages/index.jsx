@@ -742,7 +742,7 @@ const triggerSwalFire = (title, text) => {
             <div><p>Please wait while loading news...</p></div>
           ) : 
             allNews && allNews.map((news) => (
-              <div key={news.id} className="mb-4 mt-3">
+              <div key={news.id} className="mb-4 mt-2">
                 <div className="d-flex">
                   <h6>
                     <b>{news.title}</b>

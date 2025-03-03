@@ -1,11 +1,11 @@
 export default function alterTable(db, currentVersion) {
   console.log("alterTable currentVersion", currentVersion)
   const updates = [
-      { version: 10201, table: "news", column: "user_id", query: `ALTER TABLE news ADD COLUMN user_id INTEGER;` },
-      { version: 10202, table: "timereport", column: "is_sent_permanent", query: `ALTER TABLE timereport ADD COLUMN is_sent_permanent BOOLEAN DEFAULT 0;` },
+      // { version: 10201, table: "news", column: "user_id", query: `ALTER TABLE news ADD COLUMN user_id INTEGER;` },
+      { version: 10201, table: "timereport", column: "is_sent_permanent", query: `ALTER TABLE timereport ADD COLUMN is_sent_permanent BOOLEAN DEFAULT 0;` },
       { version: 10301, table: "timereport", column: "is_deleted", query: `ALTER TABLE timereport ADD COLUMN is_deleted BOOLEAN DEFAULT 0;` },
-      { version: 10302, table: "ft_files", column: "is_sent", query: `ALTER TABLE ft_files ADD COLUMN is_sent INTEGER DEFAULT 0;` },
-      { version: 10303, table: "ft_projects", column: "is_deleted", query: `ALTER TABLE ft_projects ADD COLUMN is_deleted INTEGER DEFAULT 0;` },
+      // { version: 10302, table: "ft_files", column: "is_sent", query: `ALTER TABLE ft_files ADD COLUMN is_sent INTEGER DEFAULT 0;` },
+      // { version: 10303, table: "ft_projects", column: "is_deleted", query: `ALTER TABLE ft_projects ADD COLUMN is_deleted INTEGER DEFAULT 0;` },
   ];
 
   const updatesToApply = updates.filter(update => update.version > currentVersion);

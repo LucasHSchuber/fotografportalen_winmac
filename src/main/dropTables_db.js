@@ -1,39 +1,32 @@
-// import fs from 'fs';
-// import path from 'path';
-// import isDev from "electron-is-dev";
-// import { fileURLToPath } from 'url';
-
-// const __dirname = path.dirname(fileURLToPath(import.meta.url)); 
 
 // Drop tables
-export default async function dropTables(db, currentVersion) {
+export default async function dropTables(db, currentVersion, fs, path, isDev, app) {
 
     // Only drop the tables specified in the drops array
     const drops = [
-        { version: 10305, query: `DROP TABLE IF EXISTS users;` },
-        { version: 10306, query: `DROP TABLE IF EXISTS bt_files;` },
-        { version: 10307, query: `DROP TABLE IF EXISTS bt_projects;` },
-        { version: 10308, query: `DROP TABLE IF EXISTS ft_files;` },
-        { version: 10309, query: `DROP TABLE IF EXISTS ft_projects;` },
-        { version: 10310, query: `DROP TABLE IF EXISTS news;` },
-        { version: 10311, query: `DROP TABLE IF EXISTS teams;` },
-        { version: 10312, query: `DROP TABLE IF EXISTS projects;` },
+        { version: 10303, query: `DROP TABLE IF EXISTS users;` },
+        { version: 10304, query: `DROP TABLE IF EXISTS bt_files;` },
+        { version: 10305, query: `DROP TABLE IF EXISTS bt_projects;` },
+        { version: 10306, query: `DROP TABLE IF EXISTS ft_files;` },
+        { version: 10307, query: `DROP TABLE IF EXISTS ft_projects;` },
+        { version: 10308, query: `DROP TABLE IF EXISTS news;` },
+        { version: 10309, query: `DROP TABLE IF EXISTS teams;` },
+        { version: 10310, query: `DROP TABLE IF EXISTS projects;` },
     ];
 
-    // const dropsToQuery = drops.filter(d => d.version > currentVersion);
-    // if (dropsToQuery.length > 0 && !isDev){
-    //     try {
-    //         await backupDatabase();
-    //         console.log("Backup completed. Proceeding with table drops...");
-    //     } catch (error) {
-    //         console.error("Backup failed. Aborting table drop process.");
-    //         return Promise.reject(error);
-    //     }
-    // }
+    const dropsToQuery = drops.filter(d => d.version > currentVersion);
+    // Create a db backup if running in prod mode 
+    if (dropsToQuery.length > 0 && !isDev){
+        try {
+            await backupDatabase(fs, path, app);
+            console.log("Backup completed. Proceeding with table drops...");
+        } catch (error) {
+            console.error("Backup failed. Aborting table drop process.");
+            return Promise.reject(error);
+        }
+    }
 
     return new Promise((resolve, reject) => {
-        const dropsToQuery = drops.filter(d => d.version > currentVersion);
-        
         if (dropsToQuery.length === 0) {
             console.log("No tables need to be dropped.");
             return resolve({ status: 400, message: "No tables need to be dropped" });
@@ -41,7 +34,7 @@ export default async function dropTables(db, currentVersion) {
 
         console.log(`Dropping selected tables: ${dropsToQuery.map(d => d.query).join(" ")}`);
 
-        // Drop the selected tables and update schema version
+        // Drop and update schema version
         const dropPromises = dropsToQuery.map((update) => {
             return new Promise((resolve, reject) => {
                 db.run(update.query, (err) => {
@@ -78,6 +71,37 @@ export default async function dropTables(db, currentVersion) {
         });
     });
 }
+
+
+async function backupDatabase(fs, path, app) {
+
+    const dbPath = path.join(app.getPath("userData"), "fp.db");
+    const backupFolder = path.join(app.getPath("userData"), 'database_backups');
+
+    try {
+        
+        const fileExists = await fs.promises.access(dbPath).then(() => true).catch(() => false);
+        if (!fileExists) {
+            console.warn(`Database file not found at ${dbPath}, skipping backup.`);
+            return { status: 404, message: "Database file not found, backup skipped" };
+        }
+        
+        await fs.promises.mkdir(backupFolder, { recursive: true });
+
+        const timestamp = new Date().toISOString().replace(/T/, '-').replace(/[:.]/g, '').split('.')[0];
+        const backupPath = path.join(backupFolder, `fp_backup_${timestamp}.db`);
+
+        await fs.promises.copyFile(dbPath, backupPath);
+        console.log(`Database backed up successfully to ${backupPath}`);
+
+        return { status: 200, message: "Backup created successfully" };
+    } catch (err) {
+        console.error("Error backing up the database:", err);
+        throw err;
+    }
+}
+
+
 
 // // Backup database before making changes
 // export async function backupDatabase() {

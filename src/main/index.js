@@ -557,7 +557,7 @@ const db = new sqlite3.Database(dbPath, async (err) => {
       // Get currect version of updates
       currentVersion = await getCurrentSchemaVersion();
       // Run Drop tables
-      const dropRes = await dropTables(db, currentVersion);
+      const dropRes = await dropTables(db, currentVersion, fs, path, isDev, app);
 
       // if one or more tables has been dropped
       if (dropRes.status === 200){   
@@ -647,7 +647,7 @@ function createTables() {
       query: `
         CREATE TABLE IF NOT EXISTS users (
           user_id INTEGER PRIMARY KEY,
-          email TEXT NOT NULL,
+          email TEXT NOT NULL UNIQUE,
           firstname TEXT NOT NULL,
           lastname TEXT NOT NULL,
           password TEXT NOT NULL,
@@ -767,6 +767,7 @@ function createTables() {
           created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           user_id INTEGER,
           project_id INTEGER,
+          is_deleted INTEGER DEFAULT 0,
           FOREIGN KEY (user_id) REFERENCES users(user_id),
           FOREIGN KEY (project_id) REFERENCES projects(project_id)
         )
@@ -780,6 +781,7 @@ function createTables() {
           filename VARCHAR(255) NOT NULL,
           filepath VARCHAR(255),
           uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          is_sent INTEGER DEFAULT 0,
           ft_project_id INTEGER,
           FOREIGN KEY (ft_project_id) REFERENCES ft_projects(ft_project_id)
         )
@@ -826,6 +828,7 @@ function createTables() {
           author TEXT,
           created_at TEXT,
           updated_at TEXT,
+          user_id INTEGER,
           is_read BOOLEAN DEFAULT 0,
           is_sent_date TIMESTAMP DEFAULT NULL,
           deleted BOOLEAN DEFAULT 0

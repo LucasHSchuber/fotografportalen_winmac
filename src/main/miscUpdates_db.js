@@ -1,10 +1,10 @@
 export default function miscUpdates(db, currentVersion) {
   console.log("miscUpdates currentVersion", currentVersion)
   const updates = [
-      { version: 10203, table: "_projects", index: "idx_unique_project_uuid", query: `CREATE UNIQUE INDEX idx_unique_project_uuid ON _projects (project_uuid);` },
-      { version: 10204, table: "news", index: "idx_unique_news_id_user_id", query: `CREATE UNIQUE INDEX idx_unique_news_id_user_id ON news (id, user_id);` },
-      { version: 10205, table: "timereport", index: "idx_unique_project_user", query: `CREATE UNIQUE INDEX idx_unique_project_user ON timereport (project_id, user_id);` },
-      { version: 10304, query: `UPDATE ft_files SET is_sent = 1;` } 
+      { version: 10202, table: "_projects", index: "idx_unique_project_uuid", query: `CREATE UNIQUE INDEX idx_unique_project_uuid ON _projects (project_uuid);` },
+      { version: 10203, table: "news", index: "idx_unique_news_id_user_id", query: `CREATE UNIQUE INDEX idx_unique_news_id_user_id ON news (id, user_id);` },
+      { version: 10204, table: "timereport", index: "idx_unique_project_user", query: `CREATE UNIQUE INDEX idx_unique_project_user ON timereport (project_id, user_id);` },
+      { version: 10302, query: `UPDATE ft_files SET is_sent = 1;` } 
   ];
 
   const updatesToApply = updates.filter(update => update.version > currentVersion);
