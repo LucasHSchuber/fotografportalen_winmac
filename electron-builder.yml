@@ -3,8 +3,6 @@ productName: Photographer Portal
 directories:
   buildResources: build
 files:
-  - dist/**
-  - out/**
   - '!**/.vscode/*'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'

@@ -767,7 +767,7 @@ function createTables() {
           created TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           user_id INTEGER,
           project_id INTEGER,
-          is_deleted INTEGER DEFAULT 0,
+          is_deleted INTEGER DEFAULT 0, 
           FOREIGN KEY (user_id) REFERENCES users(user_id),
           FOREIGN KEY (project_id) REFERENCES projects(project_id)
         )
@@ -937,7 +937,7 @@ function createTables() {
 
 
 
-//Get user token
+//Updates user token
 ipcMain.handle("updateUserToken", async (event, token, user_id) => {
   try {
     if (!user_id || !token) {
@@ -945,11 +945,8 @@ ipcMain.handle("updateUserToken", async (event, token, user_id) => {
         "Missing required data (token, user_id) for updateUserToken",
       );
     }
-
     const result = await db.run(
-      `
-      UPDATE users
-      SET 
+      `UPDATE users SET 
         token = ? WHERE user_id = ?
       `,
       [token, user_id],

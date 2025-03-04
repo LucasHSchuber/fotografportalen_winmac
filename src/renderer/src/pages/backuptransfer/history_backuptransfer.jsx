@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import convertToLocalTime from "../../assets/js/convertToLocalTime";
 import uploadedfile_black from "../../assets/images/uploadedfile_black.png";
 
 import Sidemenu_backuptransfer from "../../components/backuptransfer/sidemenu_backuptransfer";
 
 import "../../assets/css/backuptransfer/main_backuptransfer.css";
 import "../../assets/css/backuptransfer/buttons_backuptransfer.css";
+import { validRange } from "semver";
 
 function History_backuptransfer() {
   // define states
@@ -54,6 +56,9 @@ function History_backuptransfer() {
         setSearchString(e);
     }
 
+
+
+
     
     return (
     <div className="backuptransfer-wrapper">
@@ -86,11 +91,11 @@ function History_backuptransfer() {
 
                     <div className="d-flex justify-content-between">
                         <h6><b>{item.projectname}</b></h6> 
-                        <h6><em>created: {item.created}</em></h6>
+                        <h6><em>created: {convertToLocalTime(item.created)}</em></h6>
                     </div>
                     <ul>
                     {item.files.map(file => (
-                        <li style={{ color: file.is_sent === 0 ? "red" : "" }} key={file.bt_file_id}>{file.filename} <em className="ml-2">{file.is_sent === 0 ? `(upload failed)` : `(uploaded: ${file && file.uploaded_at})`} </em></li>
+                        <li style={{ color: file.is_sent === 0 ? "red" : "" }} key={file.bt_file_id}>{file.filename} <em className="ml-2">{file.is_sent === 0 ? `(upload failed)` : `(uploaded: ${file && convertToLocalTime(file.uploaded_at)})`} </em></li>
                     ))}
                     </ul>
                 </div>

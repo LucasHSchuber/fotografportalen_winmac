@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import convertToLocalTime from "../../assets/js/convertToLocalTime";
 import uploadedfile_black from "../../assets/images/uploadedfile_black.png";
 
 import Sidemenu_filetransfer from "../../components/filetransfer/sidemenu_filetransfer";
@@ -112,11 +113,11 @@ function History_filetransfer() {
             <div key={data.ft_project_id} className="mb-1 filetransfer-history-box">
               <div className="d-flex justify-content-between">
                 <h6><b>{data.projectname}</b></h6> 
-                <h6><em>created: {data.created}</em></h6>
+                <h6><em>created: {convertToLocalTime(data.created)}</em></h6>
               </div>
               <ul>
                 {data.files.map(file => (
-                    <li style={{ color: file.is_sent === 0 ? "red" : "" }} key={file.ft_file_id}>{file.filename}<em className="ml-2">{file.is_sent === 0 ? `(upload failed)` : `(uploaded: ${file && file.uploaded_at})`} </em></li>
+                    <li style={{ color: file.is_sent === 0 ? "red" : "" }} key={file.ft_file_id}>{file.filename}<em className="ml-2">{file.is_sent === 0 ? `(upload failed)` : `(uploaded: ${file && convertToLocalTime(file.uploaded_at)})`} </em></li>
                 ))}
               </ul>
             </div>
