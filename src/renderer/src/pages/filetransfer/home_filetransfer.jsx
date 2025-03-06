@@ -141,6 +141,21 @@ function Home_filetransfer() {
 
   // METHOD to sumbit
   const handleSubmit = async () => {
+    if (!navigator.onLine){
+      MySwal.fire({
+        title: 'Internet Connection Error!',
+        text: `Filetransfer could not find a stable internet connection. The upload was cancelled.`,
+        icon: 'error',
+        confirmButtonText: 'Close',
+        customClass: {
+          popup: 'custom-popup',
+          title: 'custom-title',
+          content: 'custom-text',
+          confirmButton: 'custom-confirm-button'
+        }
+      });
+      return;
+    }
     let user_id = localStorage.getItem("user_id");
     console.log("Sending files from filetransfer to company database...");
     console.log(files);

@@ -15,9 +15,9 @@
 
     "header2": "Kalenteritiedot",
     "sportcalendar": "Urheilukalenteri",
-    "salestextsheader": "Voitto: 30 EURO/pelaaja joukkueen kassaan!",
-    "salestextstart": "Urheilukalenterien myynti on tapa ansaita rahaa joukkueen kassaan. Myymällä kolme kalenteria pelaajaa kohden ansaitsette 30 EURO pelaajaa kohden. Jos ette onnistu myymään kaikkia kalentereita, voitte palauttaa ne ilmaiseksi meille, ettekä menetä rahaa.",
-    "salestextcosts": "Hinta: 20 EURO/kpl (joista 10 EURO/myydyltä kalenterilta menee joukkueen kassaan)",
+    "salestextsheader": "Voitto: 30 €/pelaaja joukkueen kassaan!",
+    "salestextstart": "Urheilukalenterien myynti on tapa ansaita rahaa joukkueen kassaan. Myymällä kolme kalenteria pelaajaa kohden ansaitsette 30 € pelaajaa kohden. Jos ette onnistu myymään kaikkia kalentereita, voitte palauttaa ne ilmaiseksi meille, ettekä menetä rahaa.",
+    "salestextcosts": "Hinta: 20 €/kpl (joista 10 €/myydyltä kalenterilta menee joukkueen kassaan)",
     "linkheader": "Miksi myydä kalentereita?",
     "link1": "https://example.com/link1",
     "link2": "https://example.com/link1",
@@ -42,7 +42,7 @@
     "tacHeader1": "Ehdot",
     "tacLink1": "Kaikki kalenterit lähetetään kotiin. Sinulla on täysi palautusoikeus kaikille kalentereille 40 päivän sisällä niiden vastaanottamisesta.",
     "tacLink2": "Jokaiselle pelaajalle lähetetään kolme kalenteria.",
-    "tacLink3": "Kalenterien hinta on 20 EURO/kpl, josta 10 EURO/myydyltä kalenterilta menee joukkueelle.",
+    "tacLink3": "Kalenterien hinta on 20 €/kpl, josta 10 €/myydyltä kalenterilta menee joukkueelle.",
     "tacText": "Olette vastuussa myymättömien kalentereiden palauttamisesta ja myytyjen kalentereiden maksamisesta Express-Bildille. Jos meidän täytyy muistuttaa teitä, perimme muistutusmaksun voimassa olevan lain mukaisesti.",
     "tacHeader2": "Henkilötietojen käsittely (GDPR):",
     "tacP1": "Express-Bild vastaa henkilötietojesi käsittelystä. Asiakas suostuu siihen, että Express-Bild kerää ja tallentaa henkilötietoja. Kerätyt henkilötiedot ovat (etunimi, sukunimi, henkilötunnus, osoite, postinumero, paikkakunta, puhelinnumero, yhdistyksen ja joukkueen jäsenyys) sekä rekisteröintiajankohta. Jos asiakas niin haluaa, lähetämme kalentereita kotiin tarkasteltavaksi ja mahdollista ostoaietta varten.",
@@ -60,5 +60,5 @@
 
     "calendarText": "Joukkueen kokonaistulot:",
     "calendarPrice": "10",
-    "currency": "EURO"
+    "currency": "€"
 }

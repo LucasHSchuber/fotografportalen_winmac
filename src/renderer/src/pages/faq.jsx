@@ -43,8 +43,7 @@
             </div>
             ) 
           },
-          { id: 6, image: "", question: "What's the difference between 'Portrait', 'Group' and 'Portrait + Group'?", answer: "The difference between 'Portrait', 'Group' and 'Portrait + Group' is that 'Group' and 'Portrait + Group' include calendar sale. If you know that your job you're about to start includes group photography, you would want to choose either 'Group' or 'Portrait + Group', to make sure to include calendar sale. If you know in advance that you are only going to take group images then choose 'Group', if both portrait and group then choose 'Portrait + Group'" },
-          ],
+          { id: 6, image: "", question: "What's the difference between 'Portrait', 'Group' and 'Portrait + Group'?", answer: "The difference between 'Portrait', 'Group' and 'Portrait + Group' is that 'Group' and 'Portrait + Group' include calendar sale. If you know that your job you're about to start includes group photography, you would want to choose either 'Group' or 'Portrait + Group', to make sure to include calendar sale. If you know in advance that you are only going to take group images then choose 'Group', if both portrait and group then choose 'Portrait + Group'" },          ],
       },
       filetransfer: {
           categoryName: "Filetransfer",
@@ -79,12 +78,13 @@
             </div>
           ) 
         },
+        { id: 4, image: "", question: "Why can't I see any projects in the list?", answer: "If you cannot see any projects in the list, it's most likely due to an unstable internet connection. The projects in the list are loaded from a remote database and needs an internet connection to work. Make sure you are connected to the internet and try again. If the issue persists, please contact the IT department." },
       ],
     },
     general: {
         categoryName: "General",
         questions: [
-        { id: 1, image: "", question: "Can I reset my password?", answer: "No, resetting your password is not possible right now. Please contact the IT team if you have forgotten your password or are unable to log in" },
+        { id: 1, image: "", question: "Can I reset my password?", answer: "No, resetting your password is not possible right now. Please contact the IT team if you would forget your password or would be unable to log in" },
         { id: 2, image: "", question: "Can I use the Photographer Portal on multiple devices?", answer: "Yes, you can access the Photographer Portal from multiple devices. Simply connect your account in Photographer Portal from another device and switch user by logging in with your registered account details." },
         { id: 3, image: connectuser, question: "How do I connect a new photographer to the Photographer Portal?", answer: (
             <div>
@@ -102,7 +102,8 @@
         { id: 4, image: "", question: "How do I update the Photographer Portal software?", answer: "Photographer Portal includes an auto updater, which means that when a new version of Photographer Portal is released, the application will automatically install the latest version the next time you launch it. If a new version is released meanwhile you are using the application, you will see a Restart button on the Home page. Simply click the button if you want to restart and install the latest version of the application" },
         { id: 5, image: "", question: "Why is the blender icon in the left menu spinning?", answer: "Then blender icon spinning indicates that you have a stable internet connection. If the blender does not spin, it means you are running the software in an offline mode, and certain function as submitting a job or uploading files in Filetransfer will not work." },
         { id: 6, image: roger_that, question: "What does the 'Roger That' button under the News & Updates section do?", answer: "Clicking the 'Roger That' button lets Express-Bild know that you've read and understood the news article. This helps the admin track which photographers have acknowledged the news."},      
-        { id: 7, image: "", question: "Can I use Photographer Portal without internet connection?", answer: "Yes, you can use the application without internet connection. Altohugh, some functionalities like submitting a job in Workspace will not be working in offline mode."},      
+        { id: 7, image: "", question: "Can I use Photographer Portal without internet connection?", answer: "Yes, you can use the application without internet connection. Altohugh, some functionalities like submitting a job in Workspace or uploading images and files in Filetransfer and Backuptransfer will not be working in offline mode."},      
+        { id: 8, image: "", question: "What are the alert messages on the Home page?", answer: "For Sweden, Norway, Denmark and Germany alert messages will appear on the Home page notifying you that you have unsubmitted jobs and/or images that needs to be submitted. Notice that alert messages will only show for 'sport photography', and will dissapear once images and the job is subtmitted." },
       ],
     },
     };

@@ -355,7 +355,7 @@ const EditTeamModal = ({
         if (!updatedFields.leader_county) errorsSport.leader_county = true;
         if (!updatedFields.leader_postalcode)
           errorsSport.leader_postalcode = true;
-        if (user_lang === "SE" || user_lang === "DE") {
+        if (user_lang === "SE") {
           if (!updatedFields.leader_ssn) errorsSport.leader_ssn = true;
         }
         if (!updatedFields.calendar_amount) errorsSport.calendar_amount = true;
@@ -379,7 +379,7 @@ const EditTeamModal = ({
       }
     }
 
-    if (user_lang === "SE" || user_lang === "DE") {
+    if (user_lang === "SE") {
       if (showInputFields === true) {
         if (teamData.leader_ssn === null && formData.leader_ssn === "") {
           console.log("missing required leader data");
@@ -619,7 +619,7 @@ const EditTeamModal = ({
 
               {showInputFields && (
                 <div className="mt-4">
-                  {user_lang && (user_lang === "SE" || user_lang === "DE") && (
+                  {user_lang && (user_lang === "SE") && (
                     <div>
                       <label>Leader social security number:</label>
                       <input

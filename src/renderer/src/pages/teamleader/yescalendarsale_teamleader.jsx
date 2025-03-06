@@ -119,7 +119,7 @@ function Calendarsale_teamleader() {
     if (!formData.leader_address) errors.leader_address = true;
     if (!formData.leader_postalcode) errors.leader_postalcode = true;
     if (!formData.leader_county) errors.leader_county = true;
-    if (user_lang === "SE" || user_lang === "DE") {
+    if (user_lang === "SE") {
       if (!formData.leader_ssn) errors.leader_ssn = true;
     }
 
@@ -239,7 +239,7 @@ function Calendarsale_teamleader() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="">
+          <div>
             <div>
               <input
                 className={`form-input-field ${errorMessage.calendar_amount ? "error-border" : ""}`}
@@ -268,8 +268,8 @@ function Calendarsale_teamleader() {
                 {languageTexts?.calendaramounttext}
               </h6>
             </div>
-             {/* only show SSN input if SWEDISH OR GERMAN */}
-            {user_lang && (user_lang === "SE" || user_lang === "DE") && (
+             {/* only show SSN input if SWEDISH */}
+            {user_lang && (user_lang === "SE") && (
               <div style={{}}>
                 <input
                   className={`form-input-field ${errorMessage.leader_ssn ? "error-border" : ""}`}
@@ -289,31 +289,6 @@ function Calendarsale_teamleader() {
               </div>
             )}
           </div>
-
-          {/* <div className="mt-3 header">
-                <h6><b>{languageTexts?.deliveryheader}:</b></h6>
-          </div> */}
-
-          {/* <div>
-            <input
-              className={`form-input-field ${errorMessage.delivery_first_name ? "error-border" : ""}`}
-              type="text"
-              name="delivery_first_name"
-              defaultValue={formData.delivery_first_name}
-              onChange={handleChange}
-              placeholder={languageTexts?.deliveryfirstname}
-            />
-          </div>
-          <div>
-            <input
-              className={`form-input-field ${errorMessage.delivery_last_name ? "error-border" : ""}`}
-              type="text"
-              name="delivery_last_name"
-              defaultValue={formData.delivery_last_name}
-              onChange={handleChange}
-              placeholder={languageTexts?.deliverylastname}
-            />
-          </div> */}
           <div>
             <input
               className={`form-input-field ${errorMessage.leader_address ? "error-border" : ""}`}
@@ -379,7 +354,7 @@ function Calendarsale_teamleader() {
           >
             {languageTexts?.backButton}
           </button>
-          <button className="button standard fixed-width" type="submit">
+          <button className="button standard" type="submit">
             {languageTexts?.finishButton}
           </button>
         </form>

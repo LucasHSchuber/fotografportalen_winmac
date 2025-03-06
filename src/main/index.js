@@ -167,8 +167,6 @@ app.on("ready", async () => {
 
     log.info("Ready!!");
     log.info("User Data Path:", app.getPath("userData"));
-    // const programsFolder = path.join(os.homedir(), "Applications");
-    // log.info("Programs folder:", programsFolder);
     log.info("Current App Version:", app.getVersion());
 
     if (!loginWindow && !updateApplicationWindow) {
@@ -1058,8 +1056,6 @@ ipcMain.handle("create_Projects", async (event, projects) => {
 
 //add news to SQLlite news table
 ipcMain.handle("create_news", async (event, news, user_id) => {
-  // log.info("news: ", news);
-  // log.info("user_id", user_id);
   try {
     if (!Array.isArray(news)) {
       throw new Error("Invalid data received for create_news,");
@@ -1148,7 +1144,7 @@ ipcMain.handle("create_news", async (event, news, user_id) => {
         );
       });
     };
-    // Go through each incoming news item and update `is_read` status
+    // Go through each incoming news item and update is_read status
     for (const newsItem of news) {
       await updateReadStatus(newsItem);
     }
@@ -1485,7 +1481,6 @@ ipcMain.handle("createUser", async (event, args) => {
 });
 const checkUserIdDatabase = (email) => {
   return new Promise((resolve, reject) => {
-    // Prepare the SQL query to check if the email and password match
     const checkUserQuery = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
     db.get(checkUserQuery, [email], (err, row) => {
       if (err) {

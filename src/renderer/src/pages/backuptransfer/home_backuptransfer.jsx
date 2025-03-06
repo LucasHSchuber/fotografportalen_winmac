@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
-// import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faRepeat, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
-// import { TailSpin } from "react-loader-spinner";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
@@ -19,17 +17,14 @@ import "../../assets/css/backuptransfer/buttons_backuptransfer.css";
 function Home_backuptransfer() {
   // Define states
   const [loading, setLoading] = useState(true);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
   const [chooseNewProjectName, setChooseNewProjectName] = useState("");
   const [files, setFiles] = useState([]);
-//   const [projectName, setProjectName] = useState("");
   const [chosenProjectName, setChosenProjectName] = useState("");
   const [chosenProjectUuid, setChosenProjectUuid] = useState("");
   const [chosenProjectLang, setChosenProjectLang] = useState("");
-//   const [chosenProject_id, setChosenProject_id] = useState("");
   const [projects, setProjects] = useState([]);
-//   const [FTProjectId, setFTProjectId] = useState("");
-//   const [isDragging, setIsDragging] = useState(false);
-//   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
   const [uploadPercentage, setUploadPercentage] = useState(0);
@@ -63,11 +58,15 @@ function Home_backuptransfer() {
 
   //get all projects to select from rest api
   useEffect(() => {
-    const fetchAllProjects = async () => {
-    const user_id = localStorage.getItem("user_id");
-    const token = localStorage.getItem("token");
-    const user_lang = localStorage.getItem("user_lang");
-    console.log(user_id);
+      if (!navigator.onLine){
+        setNetworkError(true);
+        return;
+      }
+      const user_id = localStorage.getItem("user_id");
+      const token = localStorage.getItem("token");
+      const user_lang = localStorage.getItem("user_lang");
+      const fetchAllProjects = async () => {
+      setLoadingProjects(true);
       try {
         const projectResponse = await axios.get(`https://backend.expressbild.org/index.php/rest/backuptransfer/projects`, {
             headers: {
@@ -81,16 +80,17 @@ function Home_backuptransfer() {
         console.log('projectResponse', projectResponse);
         if (projectResponse.status === 200){
             setProjects(projectResponse.data.result);
+            setLoadingProjects(false);
         }
       } catch (error) {
         console.log("error getting pojects:", error);
+        setLoadingProjects(false);
+      } finally {
+        setLoadingProjects(false);
       }
     };
     fetchAllProjects();
   }, []);
-  useEffect(() => {
-    console.log('projects', projects);
-  }, [projects]);
 
 
 
@@ -99,6 +99,22 @@ function Home_backuptransfer() {
   // METHOD to sumbit
   const handleSubmit = async () => {
         if (files.length === 0) return;
+        if (!navigator.onLine){
+          MySwal.fire({
+            title: 'Internet Connection Error!',
+            text: `Backuptransfer could not find a stable internet connection. The upload was cancelled.`,
+            icon: 'error',
+            confirmButtonText: 'Close',
+            customClass: {
+              popup: 'custom-popup',
+              title: 'custom-title',
+              content: 'custom-text',
+              confirmButton: 'custom-confirm-button'
+            }
+          });
+          return;
+        }
+
         const token = localStorage.getItem("token");
         const user_id = localStorage.getItem("user_id");
         setIsUploading(true);
@@ -293,19 +309,19 @@ function Home_backuptransfer() {
     }
   };
 
-
-
   // When typing in an own project name
   const handleProjectChangeNew = (value) => {
     const uuid = "47f1eddc-77f5-4242-a72b-88a17113c038";
     setChosenProjectName(value);
     setChosenProjectUuid(uuid);
-    console.log(value);
   };
 
-
+  // Toggle custo name or name from list
   const newProjectName = () => {
     setChooseNewProjectName((prevState) => !prevState);
+    setChosenProjectName("");
+    setChosenProjectUuid("");
+    setChosenProjectLang("");
   };
 
 
@@ -381,13 +397,16 @@ function Home_backuptransfer() {
                 <Select
                 //   value={projectName}
                   onChange={handleProjectChange}
-                  options={projects.length > 0 ? 
-                    projects.map((project) => ({
-                      value: project.project_uuid,
-                      label: project.project_name,
-                      lang: project.lang,
-                    }))
-                    : []
+                  options={
+                    loadingProjects
+                      ? [{ value: "", label: "Loading projects...", isDisabled: true }]
+                      : networkError
+                      ? [{ value: "", label: "Internet connection error", isDisabled: true }]
+                      : projects.map((project) => ({
+                          value: project.project_uuid,
+                          label: project.project_name,
+                          lang: project.lang,
+                        }))
                   }
                   isClearable
                   placeholder="Select a job"

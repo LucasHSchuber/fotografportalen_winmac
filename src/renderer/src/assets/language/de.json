@@ -15,9 +15,9 @@
     
     "header2": "Kalenderinformationen",
     "sportcalendar": "Sportkalender",
-    "salestextsheader": "Gewinn: 30 EURO/Spieler für die Teamkasse!",
-    "salestextstart": "Der Verkauf von Sportkalendern ist eine Möglichkeit für Ihr Team, Geld für die Teamkasse zu verdienen. Durch den Verkauf von drei Kalendern pro Spieler verdienen Sie 30 EURO pro Spieler. Wenn es Ihnen nicht gelingt, alle Kalender zu verkaufen, werden diese kostenlos an uns zurückgeschickt und Sie verlieren kein Geld.",
-    "salestextcosts": "Kosten: 20 EURO/Stk. (davon 10 EURO/pro verkauftem Kalender für Ihre Teamkasse)",
+    "salestextsheader": "Gewinn: 20 €/Spieler für die Teamkasse!",
+    "salestextstart": "Der Verkauf von Sportkalendern ist eine Möglichkeit für Ihr Team, Geld für die Teamkasse zu verdienen. Durch den Verkauf von drei Kalendern pro Spieler verdienen Sie 20 € pro Spieler. Wenn es Ihnen nicht gelingt, alle Kalender zu verkaufen, werden diese kostenlos an uns zurückgeschickt und Sie verlieren kein Geld.",
+    "salestextcosts": "Kosten: 20 €/Stk. (davon 10 €/pro verkauftem Kalender für Ihre Teamkasse)",
     "linkheader": "Warum Kalender verkaufen?",
     "link1": "https://example.com/link1",
     "link2": "https://example.com/link1",
@@ -42,7 +42,7 @@
     "tacHeader1": "Bedingungen",
     "tacLink1": "Alle Kalender werden Ihnen nach Hause geschickt. Sie haben volles Rückgaberecht für alle Kalender bis zu 40 Tage nach Erhalt.",
     "tacLink2": "Drei Stk. Kalender/Spieler werden verschickt.",
-    "tacLink3": "Die Kalender kosten 20 EURO/Stk., wovon 10 EURO/pro verkauftem Kalender dem Team zukommen.",
+    "tacLink3": "Die Kalender kosten 20 €/Stk., wovon 10 €/pro verkauftem Kalender dem Team zukommen.",
     "tacText": "Sie sind dafür verantwortlich, nicht verkaufte Kalender zurückzugeben, und für die Bezahlung der verkauften Kalender an Express-Bild. Falls wir Sie darauf hinweisen müssen, fällt gemäß geltendem Recht eine Mahngebühr an.",
     "tacHeader2": "Datenverarbeitung (DSGVO):",
     "tacP1": "Express-Bild ist für die Verarbeitung Ihrer personenbezogenen Daten verantwortlich. Der Kunde erklärt sich damit einverstanden, dass Express-Bild personenbezogene Daten erhebt und speichert. Die gesammelten personenbezogenen Daten umfassen (Vorname, Nachname, Personennummer, Adresse, Postleitzahl, Ort, Telefonnummer, Vereins- und Teamzugehörigkeit) sowie den Zeitpunkt der Registrierung. Wenn der Kunde dies wünscht, senden wir auch Kalender zur Ansicht nach Hause, um den Kauf von Kalendern anzubieten.",
@@ -60,6 +60,6 @@
 
     "calendarText": "Gesamte mögliche Einnahmen des Teams:",
     "calendarPrice": "10",
-    "currency": "EURO"
+    "currency": "€"
   }
   

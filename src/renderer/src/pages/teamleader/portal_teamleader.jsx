@@ -21,6 +21,7 @@ import '../../assets/css/teamleader/main_teamleader.css';
 function Portal_teamleader() {
     const location = useLocation();
     // Define states
+    const [userLang, setUserLang] = useState("");
     const [project, setProject] = useState({});
     const [projectType, setProjectType] = useState({});
     const [projectName, setProjectName] = useState("");
@@ -51,6 +52,12 @@ function Portal_teamleader() {
             navigate("/newteam_teamleader");
         }
     }
+
+    // Get user_lang from local storage
+    useEffect(() => {
+      const user_lang = localStorage.getItem("user_lang");
+      setUserLang(user_lang);
+    }, []);
 
 
     // Function to update feedback message from new team
@@ -195,6 +202,23 @@ function Portal_teamleader() {
         }
     };
 
+    // Method to get short for amount
+    const getShortForAmount = (user_lang) => {
+        switch (user_lang) {
+            case "SE":
+                return "st";
+            case "FI":
+                return "kpl";
+            case "DE":
+                return "Stk";
+            case "DK":
+            case "NO":
+                return "stk";
+            default:
+                return ""; 
+        }
+    };
+    
 
     return (
         <div className="teamleader-wrapper">
@@ -246,7 +270,7 @@ function Portal_teamleader() {
                                                         <p className="mx-4" title="Portrait">{data.portrait === 1 ? <FontAwesomeIcon icon={faUser} /> : <FontAwesomeIcon icon={faMinus} />}</p>
                                                     )} */}
                                                     <p className="mx-4 " title="Group photo">{data.crowd === 1 ? <FontAwesomeIcon icon={faPeopleGroup} /> : <FontAwesomeIcon icon={faMinus} />}</p>
-                                                    <p style={{ cursor: "default" }} className="ml-4 mr-2">{data.amount}st</p>
+                                                    <p style={{ cursor: "default" }} className="ml-4 mr-2">{data.amount}{getShortForAmount(userLang ?? userLang)}</p>
                                                     {projectType === "sport" ? (
                                                         <p className="mx-4" title="Sold calendar">{projectType === "sport" ? data.sold_calendar && data.sold_calendar === 1 ? <FontAwesomeIcon style={{ color: "#30c427" }} icon={faCalendarPlus} /> : <FontAwesomeIcon style={{ color: "#ff5050" }} icon={faCalendarMinus} /> : ""}</p>
                                                     ) : (
