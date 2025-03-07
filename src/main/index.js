@@ -1339,6 +1339,12 @@ ipcMain.handle("addSentDateToNews", async (event, news_id, user_id) => {
   }
 });
 
+
+
+
+
+// USERS
+
 //get spcific user
 ipcMain.handle("getUser", async (event, id) => {
   const retrieveQuery = "SELECT * FROM users WHERE user_id = ?";
@@ -1451,10 +1457,6 @@ ipcMain.handle("createUser", async (event, args) => {
 
     const userExists = await checkUserIdDatabase(email);
     if (userExists) {
-      event.sender.send("createUser-response", {
-        success: false,
-        error: "User already exists",
-      });
       return { success: false, error: "User already exists" };
     } else {
       //hashing password
@@ -1470,12 +1472,12 @@ ipcMain.handle("createUser", async (event, args) => {
       );
 
       console.log("User added successfully");
-      event.sender.send("createUser-response", { success: true });
+      // event.sender.send("createUser-response", { success: true });
       return { success: true };
     }
   } catch (err) {
     console.error("Error adding new user data:", err.message);
-    event.sender.send("createUser-response", { error: err.message });
+    // event.sender.send("createUser-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -1518,16 +1520,17 @@ ipcMain.handle("loginUser", async (event, args) => {
     const hashedPassword = await getUserHashedPassword(email);
     log.info(hashedPassword);
     if (hashedPassword === null) {
-      event.sender.send("loginUser-response", { success: false });
+      // event.sender.send("loginUser-response", { success: false });
       return { status: 202, success: false, message: "User with email not found in local database" };
     }
 
-    if (hashedPassword && (await comparePassword(password, hashedPassword))) {
+    if (hashedPassword && (await verifyGlobalPassword(password, hashedPassword))) {
+    // if (hashedPassword && (await comparePassword(password, hashedPassword))) {
       // If the user exists and the password matches, send success response
       const user = await getUserDetails(email);
       log.info(user);
 
-      event.sender.send("loginUser-response", { success: true, user });
+      // event.sender.send("loginUser-response", { success: true, user });
       return {status: 200, success: true, user };
     } else {
       // If the user doesn't exist or password doesn't match, send error response
@@ -1535,7 +1538,7 @@ ipcMain.handle("loginUser", async (event, args) => {
     }
   } catch (err) {
     console.error("Error logging user:", err.message);
-    event.sender.send("loginUser-response", { error: err.message });
+    // event.sender.send("loginUser-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -1570,14 +1573,41 @@ const getUserDetails = (email) => {
     });
   });
 };
-const comparePassword = (password, hash) => {
-  try {
-    return bcrypt.compare(password, hash);
-  } catch (error) {
-    console.error("Comparison error:", error);
-    return false;
-  }
-};
+// Verify the user input password with the hashed password from global database from /login response
+const verifyGlobalPassword = async (password, hash) => {
+  hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
+  const match = await bcrypt.compare(password, hash);
+  return match; // return true if match otherwise false
+}
+
+// const comparePassword = (password, hash) => {
+//   try {
+//     return bcrypt.compare(password, hash);
+//   } catch (error) {
+//     console.error("Comparison error:", error);
+//     return false;
+//   }
+// };
+
+
+// Check if user exists  by email
+ipcMain.handle("findUserByEmail", async (event, email) => {
+  if (!email) { throw new Error("Mssing required data for findUserByEmail")}
+  return new Promise((resolve, reject) => {
+    const query = `SELECT email FROM users WHERE email = ?`;
+    
+    db.get(query, [email], (err, row) => {
+      if (err) {
+        console.error("Error fetching user from database:", err);
+        reject(err);
+      } else {
+        resolve(row ? row.email : null); 
+      }
+    });
+  });
+});
+
+
 
 
 //edit user data
@@ -1609,6 +1639,50 @@ ipcMain.handle("editUser", async (event, args) => {
     return { error: err.message };
   }
 });
+
+
+
+// Add new password in local db if not matches with global database password
+ipcMain.handle("verifyGlobalWithLocalPassword", async (event, email, user_id, password, hashPassword) => {
+  console.log("email", email)
+  console.log("user_id",user_id )
+  console.log("password", password)
+  console.log("hashPassword", hashPassword)
+
+  if (!email || !user_id || !password || !hashPassword) { throw new Error("Missing required data for verifyGlobalPassword")}
+
+  try { 
+      // Step 1: get user password by user_id/eamil
+      const hashedUserLocalPassword = await getUserHashedPassword(email);
+      if (!hashedUserLocalPassword) {
+        return { status: 404, success: false, message: "User with email not found in local database" };
+      }
+      // // Step 2. Verify global user passwords
+      // const passwordMatches = await verifyGlobalPassword(password, hashedUserLocalPassword);
+      // if (!passwordMatches) {
+      //   return { status: 401, success: false, message: "Invalid password, password does not match with hashed_password in local database" };
+      // }
+      const query = await db.run(
+        `UPDATE users SET 
+          password = ? WHERE user_id = ?
+        `,
+        [hashPassword, user_id],
+      );
+      console.log(`Password updated successfully for user_id`)
+      log.info(`Password updated successfully for user_id: ${user_id}`);
+      return { success: true, status: 200, result: query, message: "New password hashed and updated succesfully in local database" };
+  } catch (error) {
+      log.info(`Error when updating user table with new password`);
+      return { success: false, status: 500, message: "Error when updating user table with new password", error };
+  } 
+})
+
+
+
+
+
+// PROJECTS
+
 
 //get all current projects by user_id
 ipcMain.handle("getAllProjects", async (event, user_id) => {
@@ -1647,51 +1721,7 @@ ipcMain.handle("getAllProjects", async (event, user_id) => {
     return { statusCode: 0, errorMessage: error.message };
   }
 });
-// ipcMain.handle("getAllProjects", async (event, user_id) => {
-//   const retrieveQuery =
-//     "SELECT * FROM projects WHERE user_id = ? AND files_uploaded = 0 AND is_deleted = 0";
-//   console.log("SQL Query:", retrieveQuery, "Parameters:", [user_id]);
 
-//   try {
-//     const projects = await new Promise((resolve, reject) => {
-//       const db = new sqlite3.Database(dbPath);
-
-//       db.all(retrieveQuery, [user_id], (error, rows) => {
-//         if (error != null) {
-//           db.close();
-//           reject({ statusCode: 0, errorMessage: error });
-//         }
-
-//         const allProjects = rows.map((row) => ({
-//           project_id: row.project_id,
-//           project_uuid: row.project_uuid,
-//           projectname: row.projectname,
-//           type: row.type,
-//           anomaly: row.anomaly,
-//           merged_teams: row.merged_teams,
-//           unit: row.unit,
-//           lang: row.lang,
-//           alert_sale: row.alert_sale,
-//           is_deleted: row.is_deleted,
-//           is_sent: row.is_sent,
-//           sent_date: row.sent_date,
-//           user_id: row.user_id,
-//           project_date: row.project_date,
-//           created: row.created,
-//         }));
-
-//         db.close(() => {
-//           resolve({ statusCode: 1, projects: allProjects });
-//         });
-//       });
-//     });
-
-//     return projects;
-//   } catch (error) {
-//     console.error("Error fetching projects (getAllProjects):", error);
-//     return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
 
 //get all current projects by user_id
 ipcMain.handle("getAllCurrentProjects", async (event, user_id) => {
@@ -2407,14 +2437,14 @@ ipcMain.handle("createNewTeam", async (event, args) => {
 
     console.log(`Team added successfully`);
 
-    event.sender.send("createNewTeam-response", {
-      success: true,
-      statusCode: 1,
-    });
+    // event.sender.send("createNewTeam-response", {
+    //   success: true,
+    //   statusCode: 1,
+    // });
     return { success: true, statusCode: 1 };
   } catch (err) {
     console.error("Error adding new team:", err.message);
-    event.sender.send("createNewTeam-response", { error: err.message });
+    // event.sender.send("createNewTeam-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -2588,12 +2618,12 @@ ipcMain.handle("addDataToTeam", async (event, args) => {
     console.log(`Team updated successfully`);
 
     // Send success response to the frontend
-    event.sender.send("addDataToTeam-response", { success: true });
+    // event.sender.send("addDataToTeam-response", { success: true });
     return { success: true };
   } catch (err) {
     console.error("Error updating team:", err.message);
     // Send error response to the frontend
-    event.sender.send("addDataToTeam-response", { error: err.message });
+    // event.sender.send("addDataToTeam-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -2688,12 +2718,12 @@ ipcMain.handle("createNewClass", async (event, args) => {
     console.log(`Class added successfully`);
 
     // Send success response to the frontend
-    event.sender.send("createNewClass-response", { success: true });
+    // event.sender.send("createNewClass-response", { success: true });
     return { success: true };
   } catch (err) {
     console.error("Error adding new class:", err.message);
     // Send error response to the frontend
-    event.sender.send("createNewClass-response", { error: err.message });
+    // event.sender.send("createNewClass-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -2788,12 +2818,12 @@ ipcMain.handle("addTeamDataToTeam", async (event, args) => {
     console.log(`Team data added successfully`);
 
     // Send success response to the frontend
-    event.sender.send("addTeamDataToTeam-response", { success: true });
+    // event.sender.send("addTeamDataToTeam-response", { success: true });
     return { success: true };
   } catch (err) {
     console.error("Error adding data to team:", err.message);
     // Send error response to the frontend
-    event.sender.send("addTeamDataToTeam-response", { error: err.message });
+    // event.sender.send("addTeamDataToTeam-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -3010,12 +3040,12 @@ ipcMain.handle("addAnomalyToProject", async (event, args) => {
     console.log(`Data (anomaly and/or merged_teams) added successfully`);
 
     // Send success response to the frontend
-    event.sender.send("addAnomalyToProject-response", { success: true });
+    // event.sender.send("addAnomalyToProject-response", { success: true });
     return { success: true };
   } catch (err) {
     console.error("Error adding data to team:", err.message);
     // Send error response to the frontend
-    event.sender.send("addAnomalyToProject-response", { error: err.message });
+    // event.sender.send("addAnomalyToProject-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -3494,9 +3524,7 @@ async function uploadFileToFTP(event, filePath, ftpConfig, country, filesize) {
         log.info("Upload aborted by the user.");
         return;
       }
-
     });
-
     await client.uploadFrom(filePath, remotePath);
     log.info("Upload successful!");
     return "Upload successful!";
@@ -3634,67 +3662,6 @@ ipcMain.handle("getAllFTData", async (event, user_id) => {
   });
 });
 
-
-// //get all previous projects by user_id
-// ipcMain.handle("getAllFTDataBySearch", async (event, user_id, searchString) => {
-//   const retrieveQuery = `
-//         SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, 
-//                f.ft_file_id, f.filename, f.filepath, f.uploaded_at
-//                FROM ft_projects p
-//                INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
-//                WHERE p.user_id = ? AND p.projectname LIKE ?
-//       `;
-
-//   console.log("SQL Query:", retrieveQuery, "Parameters:", [
-//     user_id,
-//     `%${searchString}%`,
-//   ]);
-
-//   try {
-//     const projects = await new Promise((resolve, reject) => {
-//       const db = new sqlite3.Database(dbPath);
-
-//       db.all(retrieveQuery, [user_id, `%${searchString}%`], (error, rows) => {
-//         if (error) {
-//           db.close();
-//           return reject({ statusCode: 0, errorMessage: error.message });
-//         }
-
-//         const projects = {};
-
-//         rows.forEach((row) => {
-//           if (!projects[row.ft_project_id]) {
-//             projects[row.ft_project_id] = {
-//               ft_project_id: row.ft_project_id,
-//               project_uuid: row.project_uuid,
-//               projectname: row.projectname,
-//               is_sent: row.is_sent,
-//               created: row.created,
-//               user_id: row.user_id,
-//               project_id: row.project_id,
-//               files: [],
-//             };
-//           }
-//           projects[row.ft_project_id].files.push({
-//             ft_file_id: row.ft_file_id,
-//             filename: row.filename,
-//             filepath: row.filepath,
-//             uploaded_at: row.uploaded_at,
-//           });
-//         });
-
-//         db.close(() => {
-//           resolve({ statusCode: 1, projects: Object.values(projects) });
-//         });
-//       });
-//     });
-
-//     return projects;
-//   } catch (error) {
-//     console.error("Error fetching searched projects:", error);
-//     return { statusCode: 0, errorMessage: error.message };
-//   }
-// });
 
 
 // get all unsent ft data with project_date > 3 days ago
@@ -4186,11 +4153,11 @@ ipcMain.handle("changeCompleted", async (event, args) => {
         [project_id, user_id]
       );
       console.log(`Updated is_sent to 0 for project_id: ${project_id}`, updateResult);
-      event.sender.send("changeCompleted-response", { statusCode: 200, success: true });
+      // event.sender.send("changeCompleted-response", { statusCode: 200, success: true });
       return { statusCode: 200, success: true }; 
   } catch (err) {
     console.error("Error inserting timereport:", err.message);
-    event.sender.send("changeCompleted-response", { error: err.message });
+    // event.sender.send("changeCompleted-response", { error: err.message });
     return { error: err.message };
   }
 });
@@ -4231,12 +4198,12 @@ ipcMain.handle("markActivityAsCompleted", async (event, args) => {
     );
 
     console.log("Timereport added successfully");
-    event.sender.send("markActivityAsCompleted-response", { statusCode: 201, success: true });
+    // event.sender.send("markActivityAsCompleted-response", { statusCode: 201, success: true });
     return { statusCode: 201, success: true };
   } catch (err) {
     console.error("Error inserting timereport:", err.message);
     // Send error response to the frontend
-    event.sender.send("markActivityAsCompleted-response", { error: err.message });
+    // event.sender.send("markActivityAsCompleted-response", { error: err.message });
     return { error: err.message };
   }
 });

@@ -57,12 +57,15 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
 
         if (password !== "" && username !== "") {
             console.log("password and username entered");
-            // localStorage.setItem("username", username);
-            // localStorage.setItem("password", password);
+          
+            if (!navigator.onLine) {
+                console.log('No internet connection');
+                setErrorLogginginMessage("You need internet connection to add a photographer");
+                return;
+            }
 
             try {
                 console.log("Connecting user.... ");
-
                 const response = await axios.post('https://backend.expressbild.org/index.php/rest/photographer_portal/login', {
                     'email': username,
                     'password': password
@@ -95,18 +98,29 @@ const connectUserModal = ({ handleCloseConnectUserModal, showConnectUserModal, r
                     return null;
                 }
             } catch (error) {
-                if (axios.isAxiosError(error)) {
-                    if (!error.response) {
-                        console.error('Network Error: Please check your internet connection');
-                        setErrorLogginginMessage("Network error connection");
-                    } else {
-                        console.error('Request failed with status code:', error.response.status);
-                        setErrorLogginginMessage("Username and password doesn't exists in company database. Contact the office if problem is not resolved.");
-                    }
-                } else {
-                    console.error('Error fetching projects:', error.message);
-                }
-                return null;
+                // if (axios.isAxiosError(error)) {
+                //     if (!error.response) {
+                //         console.error('Network Error: Please check your internet connection');
+                //         setErrorLogginginMessage("Network error connection");
+                //     } else {
+                //         console.error('Request failed with status code:', error.response.status);
+                //         setErrorLogginginMessage("Username and password doesn't exists in company database. Contact the office if problem is not resolved.");
+                //     }
+                // } else {
+                //     console.error('Error fetching projects:', error.message);
+                // }
+                // return null;
+                if (error.response.status === 403) {
+                    console.log('response:', error.response.data.error);
+                    setErrorLogginginMessage("Invalid password.");
+                    setSuccessRegisterMessage("");
+                 } else if (error.response.status === 401){ // Username does not exists in global database
+                    console.log("user does not exists in local database or global database");
+                    setErrorLogginginMessage("User not found. Try another email or contact ExpressBild for further help.");
+                    setSuccessRegisterMessage("");
+                  return;
+                 }
+                  return null;
             }
         }
     };

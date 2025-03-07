@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import fp from "../assets/images/diaphragm_black.png";
+import { faTableCellsLarge } from "@fortawesome/free-solid-svg-icons";
 
 // Determine the base URL based on the environment
 const apiBaseUrl = process.env.NODE_ENV === 'development'
@@ -49,12 +50,15 @@ function Login_window() {
     }
   }, []);
 
+
+  // Handle username
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
     console.log("e.target.value");
     setUsernameMessage("");
     setErrorLogginginMessage("");
   };
+  // Handle password
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     console.log("e.target.value");
@@ -62,25 +66,28 @@ function Login_window() {
     setErrorLogginginMessage("");
   };
 
-  
+
+
+
+  // Method to login user
   const loginUser = async () => {
     if (password === "" && username === "") {
-      console.log("Enter username and password");
-      setPasswordMessage(true);
-      setUsernameMessage(true);
-      setErrorLogginginMessage("");
+        console.log("Enter username and password");
+        setPasswordMessage(true);
+        setUsernameMessage(true);
+        setErrorLogginginMessage("");
     }
     if (password === "") {
-      console.log("Enter password");
-      setPasswordMessage(true);
+        console.log("Enter password");
+        setPasswordMessage(true);
     } else {
-      setPasswordMessage("");
+        setPasswordMessage("");
     }
     if (username === "") {
-      console.log("Enter username");
-      setUsernameMessage(true);
+        console.log("Enter username");
+        setUsernameMessage(true);
     } else {
-      setUsernameMessage("");
+        setUsernameMessage("");
     }
     if (password !== "" && username !== "") {
       console.log("password and username entered");
@@ -99,37 +106,89 @@ function Login_window() {
             timeout: 10000,
           });
           console.log('response', response);
-
           if (response.status === 200) {
             console.log('GLOBAL DATABSE USER OK');
+            // Check if user password from global database matches password in local database
+            const userData = response.data.result
+            console.log('data', data);
+            console.log('userData', userData);
+            try {
+              const passResponse = await window.api.verifyGlobalWithLocalPassword(userData.email, userData.id, data.password, userData.password_hash);
+              console.log('passResponse', passResponse); 
+              if (passResponse.success) {
+                console.log('passResponse success');
+                proceedLogin(username, password)
+              } else if (passResponse.status === 404) {
+                setErrorLogginginMessage("Activate your account by clicking the 'Activate account' button below.");
+                return;
+              } else if (passResponse.status === 401) {
+                setErrorLogginginMessage("Invalid password.");
+              }
+            } catch (error) {
+              console.log('error', error);
+              return;
+            }
           } else {
-            console.log('GLOBAL DATABSE USER NOT OK');
+            console.log('ops');
+            return;
           }
+        } else {  // If no internet connection - proceed with check to local database
+            proceedLogin(username, password)
         }
-
       } catch (error) {
-        console.log('response:', error.response.data.error);
+          console.log('response:', error.response.data.error);
+           // Check if email exists in local database. If it does, print message to interface
+           console.log('username', username);
+           let userExistsInSqlite;
+           try {
+            const userExistsResponse = await window.api.findUserByEmail(username);
+            console.log('userExistsResponse', userExistsResponse);
+            if (userExistsResponse) {
+              setErrorLogginginMessage("Invalid password.");
+              userExistsInSqlite = true;
+              return;
+            } else {
+              userExistsInSqlite = false;
+              // setErrorLogginginMessage("A user with the email was not found in the local database!");
+              // return;
+            }
+          } catch (error) {
+            console.log('error', error);
+          }
          // Username exists in global database
          if (error.response.status === 403) {
-          console.log('response:', error.response.data.error);
+            console.log('response:', error.response.data.error);
+            if (userExistsInSqlite) {
+              setErrorLogginginMessage("Invalid password.");
+            } else {
+              setErrorLogginginMessage("Activate your account by clicking the 'Activate account' button below.");
+            }
+            
          } else { // Username does not exists in global database
-          console.log("user does not exists in local database or global database");
-          setErrorLogginginMessage("User not found. Try another email or contact ExpressBild for further help.");
-          return;
+            console.log("user does not exists in local database or global database");
+            setErrorLogginginMessage("User not found. Try another email or contact ExpressBild for further help.");
+            return;
          }
       }
+     
+    } else {
+        console.error("Password or Username is missing");
+        return null;
+    }
+  };
 
-      try {
-        // Then check user to local database
-        const data = { 
+  const proceedLogin = async (username, password) => {
+    console.log('username', username);
+    console.log('password', password);
+    try {
+      // Then check user to local database
+      const data = { 
           email: username, 
           password: password 
-        };
-
-        const responseData = await window.api.loginUser(data);
-        console.log(responseData);
-
-        if (responseData.status === 200) {
+      };
+      const responseData = await window.api.loginUser(data);
+      console.log(responseData);
+      if (responseData.status === 200) {
           console.log("Log in successful");
           localStorage.setItem("user_id", responseData.user.user_id);
           localStorage.setItem("username", username);
@@ -140,21 +199,17 @@ function Login_window() {
           const timeout = setTimeout(() => {
             window.api.createMainWindow();
           }, 2400);
-        } else if (responseData.status === 202) { // User not found in local database
-          console.log("User not found in local database");
+      } else if (responseData.status === 202) { // User not found in local database
+          console.log("Activate your account by clicking the 'Activate account' button below.");
           setErrorLogginginMessage("Activate your account by clicking the 'Activate account' button below.");
-        } else {
-          console.log("Invalid username or/and password");
+      } else {
+          console.log("Invalid password");
           setErrorLogginginMessage("Invalid password.");
-        }
-      } catch (error) {
-        console.log("error:", error);
       }
-    } else {
-      console.error("Password or Username is missing");
-      return null;
+    } catch (error) {
+        console.log("error:", error);
     }
-  };
+  }
 
   if (isLoading) {
     // Render loading indicator while content is loading

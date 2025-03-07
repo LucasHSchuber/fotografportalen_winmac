@@ -69,6 +69,23 @@ function Register_window() {
 
     if (password !== "" && username !== "") {
       console.log("password and username entered");
+
+      if (!navigator.onLine) {
+        // Check if email exists in local database. If it does, print message to interface
+        try {
+          const userExistsResponse = await window.api.findUserByEmail(username);
+          console.log('userExistsResponse', userExistsResponse);
+          if (userExistsResponse) {
+            setErrorLogginginMessage("A user with the email already exists in the local database. Try to log in!");
+            return;
+          }
+        } catch (error) {
+          console.log('error', error);
+        }
+        setErrorLogginginMessage("You need to be connected to an internet connection to register a user");
+        return;
+      }
+
       localStorage.setItem("username", username);
       try {
         console.log("activating user.... ");
@@ -103,11 +120,21 @@ function Register_window() {
             console.log("error:", error);
           }
         } else {
-          console.error('Empty response received');
           return null;
         }
       } catch (error) {
         if (error.response.status === 403) {
+           // Check if email exists in local database. If it does, print message to interface
+           try {
+            const userExistsResponse = await window.api.findUserByEmail(username);
+            console.log('userExistsResponse', userExistsResponse);
+            if (userExistsResponse) {
+              setErrorLogginginMessage("A user with the email has already been added to the local database but with another password!");
+              return;
+            }
+          } catch (error) {
+            console.log('error', error);
+          }
           console.log('response:', error.response.data.error);
           setErrorLogginginMessage("Invalid password.");
           setSuccessRegisterMessage("");

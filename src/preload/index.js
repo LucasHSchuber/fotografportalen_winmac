@@ -33,9 +33,11 @@ const api = {
   // TEAMLEADER
   createUser: args => ipcRenderer.invoke('createUser', args),  // create user
   loginUser: args => ipcRenderer.invoke('loginUser', args),  // login user
+  findUserByEmail: (email) => ipcRenderer.invoke('findUserByEmail', email), // Pass email to find a user 
   getUser: args => ipcRenderer.invoke('getUser', args), // Pass id to getUser 
   getAllUsers: args => ipcRenderer.invoke('getAllUsers', args), // getAllUsers 
   editUser: args => ipcRenderer.invoke('editUser', args), // Edit user
+  verifyGlobalWithLocalPassword: (email, user_id, password, hashPassword) => ipcRenderer.invoke('verifyGlobalWithLocalPassword', email, user_id, password, hashPassword), // Check local password with global password
 
   create_Projects: projects => ipcRenderer.invoke('create_Projects', projects), // Database Call For Create Project
   get_Projects: (user_lang) => ipcRenderer.invoke('get_Projects', user_lang), // Pass workname to getUser handler in main process
@@ -79,7 +81,6 @@ const api = {
   createNewuserWindow: () => ipcRenderer.invoke('createNewuserWindow'), // NOT EXISTS??? create main window
   createKnowledgebaseWindow: (url) => ipcRenderer.invoke('createknowledgebasewindow', url), // create knowledgebase window
   
-  // downloadKnowledgebaseFile: (filepath, filename) => ipcRenderer.invoke('downloadKnowledgebaseFile', filepath, filename), // download knowledgebase file
   getKnowledgebaseArticles: (user_lang) => ipcRenderer.invoke('getKnowledgebaseArticles', user_lang), // get all articles in knowledgebase table based on user language
   createKnowledgebaseArticles: data => ipcRenderer.invoke('createKnowledgebaseArticles', data), // Database Call For Create articles for knowledge base
   donwloadKnowledgeBaseFiles: data => ipcRenderer.invoke('donwloadKnowledgeBaseFiles', data), // Donwloading files in knowledge base to locale computer

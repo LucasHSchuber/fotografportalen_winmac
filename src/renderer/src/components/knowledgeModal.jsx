@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleQuestion, faBook, faFolderOpen, faDownload, faEye } from "@fortawesome/free-solid-svg-icons";
 import { faFile } from "@fortawesome/free-regular-svg-icons";
-
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css'; 
 
@@ -17,10 +15,8 @@ const MySwal = withReactContent(Swal);
 import "../assets/css/components.css"
 
 const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
-
     //define states
   const [runningOnline, setRunningOnline] = useState(true);
-
 
 
   // Method to check internet connection every 2 seconds
@@ -35,15 +31,14 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
   }
   // Check internet connection every 2 seconds
   useEffect(() => {
-    const intervalId = setInterval(checkInternetConnection, 2000);
-    return () => clearInterval(intervalId);
+      const intervalId = setInterval(checkInternetConnection, 2000);
+      return () => clearInterval(intervalId);
   }, []);
     
 
-
    // Close modal
    const closeModal = () => {
-      handleKnowledgeModal(false); 
+        handleKnowledgeModal(false); 
    };
 
 
@@ -55,78 +50,22 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
 
   // Download file
   const downloadFile = async (file_id, fileName) => {
-    console.log("DownloadFile method triggered");    
-    if (navigator.onLine) {
-      const fileUrl = `https://fs.ebx.nu/download/${file_id}`;
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = fileName || "downloaded_file"; 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link); 
-    } else {
-      console.log('No internet, cannot download file');
-      // window.api.downloadLocallyKnowledgeBaseFile(fileName)
-      // .then(response => {
-      //   if (response.statusCode === 200) {
-      //     console.log('File downloaded successfully:', response.fileName);
-      //   } else if (response.statusCode === 0) {
-      //     console.log('Download was canceled by the user');
-      //   } else {
-      //     console.error('Error downloading file:', response.message);
-      //   }
-      // })
-      // .catch(error => {
-      //   console.error('IPC call failed:', error);
-      // });
-    }
+      console.log("DownloadFile method triggered");    
+      if (navigator.onLine) {
+        const fileUrl = `https://fs.ebx.nu/download/${file_id}`;
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = fileName || "downloaded_file"; 
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link); 
+      } else {
+        console.log('No internet, cannot download file');
+      }
   };
 
 
-
-  //  // SweetAlert2 error modal
-  //  const showErrorModal = (message) => {
-  //   MySwal.fire({
-  //     title: 'Error!',
-  //     text: message,
-  //     icon: 'error',
-  //     confirmButtonText: 'Close',
-  //     customClass: {
-  //       title: 'my-custom-title',
-  //       content: 'my-custom-content',
-  //       confirmButton: 'my-custom-confirm-button'
-  //     },
-  //     didOpen: () => {
-  //       const content = document.querySelector('.swal2-html-container');
-  //       if (content) {
-  //         content.style.fontSize = '0.9em';
-  //       }
-  //     }
-  //   });
-  // };
-  //   // SweetAlert2 success modal
-  //   const showSuccessModal = (message) => {
-  //       MySwal.fire({
-  //         title: 'Success!',
-  //         text: message,
-  //         icon: 'success',
-  //         confirmButtonText: 'Close',
-  //         customClass: {
-  //           title: 'my-custom-title',
-  //           content: 'my-custom-content',
-  //           confirmButton: 'my-custom-confirm-button'
-  //         },
-  //         didOpen: () => {
-  //           const content = document.querySelector('.swal2-html-container');
-  //           if (content) {
-  //             content.style.fontSize = '0.9em';
-  //           }
-  //         }
-  //       });
-  //   };
-
-
-    return (
+  return (
         <>
             <Modal className="mt-5" show={showKnowledgeModal} onHide={closeModal}>
                 <Modal.Body className="mt-3 mb-3 px-5">
