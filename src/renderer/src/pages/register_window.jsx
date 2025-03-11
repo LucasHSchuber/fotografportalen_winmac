@@ -82,7 +82,7 @@ function Register_window() {
         } catch (error) {
           console.log('error', error);
         }
-        setErrorLogginginMessage("You need to be connected to an internet connection to register a user");
+        setErrorLogginginMessage("You need an internet connection to register a new account");
         return;
       }
 
@@ -224,7 +224,8 @@ function Register_window() {
           }}
           style={{ color: "black" }}
         >
-          Already have an account? Log in here!</a>
+          Already activated your account? <br></br> Log in here!
+        </a>
 
       </div>
     </div >

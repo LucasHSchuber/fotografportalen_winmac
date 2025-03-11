@@ -1407,7 +1407,6 @@ async function executeGetWithRetry(
 //get all users
 ipcMain.handle("getAllUsers", async (event, args) => {
   const retrieveQuery = "SELECT * FROM users";
-
   try {
     const users = await new Promise((resolve, reject) => {
       const db = new sqlite3.Database(dbPath);
@@ -1590,6 +1589,7 @@ const verifyGlobalPassword = async (password, hash) => {
 // };
 
 
+
 // Check if user exists  by email
 ipcMain.handle("findUserByEmail", async (event, email) => {
   if (!email) { throw new Error("Mssing required data for findUserByEmail")}
@@ -1606,8 +1606,6 @@ ipcMain.handle("findUserByEmail", async (event, email) => {
     });
   });
 });
-
-
 
 
 //edit user data
@@ -1641,27 +1639,15 @@ ipcMain.handle("editUser", async (event, args) => {
 });
 
 
-
 // Add new password in local db if not matches with global database password
 ipcMain.handle("verifyGlobalWithLocalPassword", async (event, email, user_id, password, hashPassword) => {
-  console.log("email", email)
-  console.log("user_id",user_id )
-  console.log("password", password)
-  console.log("hashPassword", hashPassword)
-
   if (!email || !user_id || !password || !hashPassword) { throw new Error("Missing required data for verifyGlobalPassword")}
 
   try { 
-      // Step 1: get user password by user_id/eamil
       const hashedUserLocalPassword = await getUserHashedPassword(email);
       if (!hashedUserLocalPassword) {
         return { status: 404, success: false, message: "User with email not found in local database" };
       }
-      // // Step 2. Verify global user passwords
-      // const passwordMatches = await verifyGlobalPassword(password, hashedUserLocalPassword);
-      // if (!passwordMatches) {
-      //   return { status: 401, success: false, message: "Invalid password, password does not match with hashed_password in local database" };
-      // }
       const query = await db.run(
         `UPDATE users SET 
           password = ? WHERE user_id = ?

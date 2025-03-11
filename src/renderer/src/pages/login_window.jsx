@@ -97,44 +97,42 @@ function Login_window() {
       };
       console.log(data);
       try {
-        // First check user to global database if internet
-        if (navigator.onLine){
-          const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, data, {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            timeout: 10000,
-          });
-          console.log('response', response);
-          if (response.status === 200) {
-            console.log('GLOBAL DATABSE USER OK');
-            // Check if user password from global database matches password in local database
-            const userData = response.data.result
-            console.log('data', data);
-            console.log('userData', userData);
-            try {
-              const passResponse = await window.api.verifyGlobalWithLocalPassword(userData.email, userData.id, data.password, userData.password_hash);
-              console.log('passResponse', passResponse); 
-              if (passResponse.success) {
-                console.log('passResponse success');
-                proceedLogin(username, password)
-              } else if (passResponse.status === 404) {
-                setErrorLogginginMessage("Activate your account by clicking the 'Activate account' button below.");
+          // First check user to global database if internet
+          if (navigator.onLine){
+            const response = await axios.post(`${apiBaseUrl}/rest/photographer_portal/login`, data, {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              timeout: 10000,
+            });
+            console.log('response', response);
+            if (response.status === 200) {
+              console.log('GLOBAL DATABSE USER OK');
+              // Check if user password from global database matches password in local database
+              const userData = response.data.result
+              console.log('data', data);
+              console.log('userData', userData);
+              try {
+                const passResponse = await window.api.verifyGlobalWithLocalPassword(userData.email, userData.id, data.password, userData.password_hash);
+                console.log('passResponse', passResponse); 
+                if (passResponse.success) {
+                  console.log('passResponse success');
+                  proceedLogin(username, password)
+                } else if (passResponse.status === 404) {
+                  setErrorLogginginMessage("Activate your account by clicking the 'Activate account' button below.");
+                  return;
+                } 
+              } catch (error) {
+                console.log('error', error);
                 return;
-              } else if (passResponse.status === 401) {
-                setErrorLogginginMessage("Invalid password.");
               }
-            } catch (error) {
-              console.log('error', error);
+            } else {
+              console.log('ops');
               return;
             }
-          } else {
-            console.log('ops');
-            return;
+          } else {  // If no internet connection - proceed with check to local database
+              proceedLogin(username, password)
           }
-        } else {  // If no internet connection - proceed with check to local database
-            proceedLogin(username, password)
-        }
       } catch (error) {
           console.log('response:', error.response.data.error);
            // Check if email exists in local database. If it does, print message to interface
@@ -149,8 +147,6 @@ function Login_window() {
               return;
             } else {
               userExistsInSqlite = false;
-              // setErrorLogginginMessage("A user with the email was not found in the local database!");
-              // return;
             }
           } catch (error) {
             console.log('error', error);
@@ -163,14 +159,12 @@ function Login_window() {
             } else {
               setErrorLogginginMessage("Activate your account by clicking the 'Activate account' button below.");
             }
-            
          } else { // Username does not exists in global database
-            console.log("user does not exists in local database or global database");
+            console.log("User does not exists in local database or global database");
             setErrorLogginginMessage("User not found. Try another email or contact ExpressBild for further help.");
             return;
          }
       }
-     
     } else {
         console.error("Password or Username is missing");
         return null;
@@ -178,8 +172,6 @@ function Login_window() {
   };
 
   const proceedLogin = async (username, password) => {
-    console.log('username', username);
-    console.log('password', password);
     try {
       // Then check user to local database
       const data = { 
@@ -211,6 +203,8 @@ function Login_window() {
     }
   }
 
+
+
   if (isLoading) {
     // Render loading indicator while content is loading
     return (
@@ -224,7 +218,6 @@ function Login_window() {
       </div>
     );
   }
-
   if (isLoadingConfirm) {
     // Render loading indicator while content is loading
     return (
@@ -290,13 +283,27 @@ function Login_window() {
         </div>
 
         <div>
-          <button
-            className="button normal fixed-width mt-3 mb-2"
-            onClick={loginUser}
+          <div>
+            <button
+              className="button normal fixed-width mt-3 mb-2"
+              onClick={loginUser}
+            >
+              Log in
+            </button>
+          </div>
+          <a 
+            className="register-link-login" 
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/register_window");
+            }}
+            style={{ color: "black" }}
           >
-            Log in
-          </button>
-          <button
+            Activate your account here!
+        </a>
+
+
+          {/* <button
             className="button activate-account-button fixed-width mb-2"
             onClick={(e) => {
               e.preventDefault();
@@ -304,7 +311,7 @@ function Login_window() {
             }}
           >
             Activate account
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
