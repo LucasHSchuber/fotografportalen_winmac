@@ -66,46 +66,46 @@ const knowledgeModal = ({ showKnowledgeModal, handleKnowledgeModal, item }) => {
 
 
   return (
-        <>
-            <Modal className="mt-5" show={showKnowledgeModal} onHide={closeModal}>
-                <Modal.Body className="mt-3 mb-3 px-5">
-                <Modal.Title>
-                    <h6 style={{ textDecoration: "underline" }} className="mt-3 mb-5"><b>{item && item.title}</b></h6>
-                </Modal.Title>
-                <div style={{ textAlign: "left", fontSize: "0.85em" }}>
-                    {item && (
-                    <div>
-                        <h6 style={{ fontSize: "0.95em", fontWeight: "600" }}>Description:</h6>
-                        <p>{item.description}</p>
-                        <h6 style={{ fontSize: "0.95em", fontWeight: "600" }}>Files:</h6>
-                        {item.files.map((file) => (
-                          <div key={file.name} className="mb-1 d-flex">
-                              <h6 style={{ fontSize: "0.85em" }}><FontAwesomeIcon icon={faFile} className="mr-2" style={{ color: "#0083ce" }} /> {file.name}</h6>
-                              <div style={{ marginTop: "-0.4em" }}>
-                                <button className="ml-3 mr-2 download-file-button" title={`View File ${file.name}`}  onClick={() => viewFile(file.file_id, file.name)}>
-                                  View File 
-                                  {/* <FontAwesomeIcon icon={faEye} /> */}
-                                </button>   
-                                {runningOnline ? (
-                                  <button className="download-file-button" title={`Download File ${file.name}`} onClick={() => downloadFile(file.file_id, file.name)}>
-                                  <FontAwesomeIcon icon={faDownload} />
-                                </button>
-                                ) : null }
-                              </div>  
-                          </div>
-                        ))}
-                    </div>
-                    )}
+      <>
+        <Modal className="mt-5" show={showKnowledgeModal} onHide={closeModal}>
+            <Modal.Body className="mt-3 mb-3 px-5">
+            <Modal.Title>
+                <h6 style={{ textDecoration: "underline" }} className="mt-3 mb-5"><b>{item && item.title}</b></h6>
+            </Modal.Title>
+            <div style={{ textAlign: "left", fontSize: "0.85em" }}>
+                {item && (
+                <div>
+                    <h6 style={{ fontSize: "0.95em", fontWeight: "600" }}>Description:</h6>
+                    <p>{item.description}</p>
+                    <h6 style={{ fontSize: "0.95em", fontWeight: "600" }}>Files:</h6>
+                    {item.files.map((file) => (
+                      <div key={file.name} className="mb-1 d-flex justify-content-between">
+                          <h6 style={{ fontSize: "0.85em" }}><FontAwesomeIcon icon={faFile} className="mr-2" style={{ color: "#0083ce" }} /> {file.name}</h6>
+                          <div className="d-flex" style={{ marginTop: "-0.4em" }}>
+                            <button className="mx-1 view-file-button" title={`View File ${file.name}`}  onClick={() => viewFile(file.file_id, file.name)}>
+                              View File 
+                              {/* <FontAwesomeIcon icon={faEye} /> */}
+                            </button>   
+                            {runningOnline ? (
+                              <button className="download-file-button" title={`Download File ${file.name}`} onClick={() => downloadFile(file.file_id, file.name)}>
+                              <FontAwesomeIcon icon={faDownload} />
+                            </button>
+                            ) : null }
+                          </div>  
+                      </div>
+                    ))}
                 </div>
+                )}
+            </div>
 
-                <div className="mt-5">
-                    <Button className="button cancel" onClick={closeModal}>
-                    Close
-                    </Button>
-                </div>
-                </Modal.Body>
-            </Modal>
-        </>
+            <div className="mt-5">
+                <Button className="button cancel" onClick={closeModal}>
+                Close
+                </Button>
+            </div>
+            </Modal.Body>
+        </Modal>
+      </>
     );
 };
 

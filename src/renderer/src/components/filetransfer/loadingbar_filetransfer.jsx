@@ -72,42 +72,6 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
           ))}
           <button className="mt-2 ml-2 cancel-upload-ft" title="Cancel upload" onClick={cancelUpload}>Cancel Upload</button>
       </div>
-
-
-      {/* <div className="">
-
-          <div>
-              <h6 style={{ fontSize: "0.85em"}}>Files uploaded:</h6>
-              <p style={{ fontWeight: "700", fontSize: "1.25em"}}>{uploadProgress && uploadProgress.uploaded}/{uploadProgress && uploadProgress.total}</p>
-          </div>
-
-          <hr style={{ width: "65%" }}></hr>
-
-          <div>
-              <p style={{ fontSize: "0.8em"}}><span style={{ fontWeight: "700" }}>({uploadFile})</span></p>
-            
-              <div className="progress-container">
-                <progress
-                  className="progress-bar"
-                  value={uploadPercentage}
-                  max="100"
-                  style={{ width: "100%", height: "20px" }}
-                ></progress>
-                <h6 style={{ marginTop: "0.4em", fontSize: "0.8em", }}>{uploadPercentage}%</h6>
-              </div>
-          </div>
-
-      </div> */}
-
-      {/* <div className="tailspin">
-        <Bars
-          height="30"
-          width="40"
-          color="red"
-          ariaLabel="bars-loading"
-          visible={true}
-        />
-      </div> */}
     </div>
   );
 };

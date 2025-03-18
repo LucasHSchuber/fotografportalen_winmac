@@ -95,7 +95,8 @@
 
 
 .download-file-button{
-  /* cursor: pointer; */
+  height: 2em;
+  width: 2.5em;
   color: rgb(0, 0, 0);
   background-color: inherit;
   border: 1px solid rgb(237, 237, 237);
@@ -109,7 +110,25 @@
   border: 1px solid rgb(159, 159, 159);
 }
 .download-file-button:focus{
-  outline: 1px solid black;
+  outline: 1px solid rgb(65, 65, 65);
+}
+.view-file-button{
+  height: 2em;
+  width: 6em;
+  color: rgb(0, 0, 0);
+  background-color: inherit;
+  border: 1px solid rgb(237, 237, 237);
+  font-size: 0.9em;
+  border-radius: 2px;
+  padding: 0.1em 0.6em;
+  transition: 0.1s;
+}
+.view-file-button:hover{
+  background-color: rgb(247, 247, 247);
+  border: 1px solid rgb(159, 159, 159);
+}
+.view-file-button:focus{
+  outline: 1px solid rgb(65, 65, 65);
 }
 
 .index-swal-fire-button {
