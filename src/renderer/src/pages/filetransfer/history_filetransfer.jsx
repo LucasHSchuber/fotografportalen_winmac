@@ -50,36 +50,7 @@ function History_filetransfer() {
       setSearchString(e);
   }
 
-  
-      // useEffect(() => {
-      //   const fetchData = async () => {
-      //     const user_id = localStorage.getItem("user_id");
-      //     console.log(user_id);
-    
-      //     if (searchString !== "") {
-      //       console.log("search entered...");
-      //       try {
-      //         const allFTdata = await window.api.getAllFTDataBySearch(user_id, searchString);
-      //         console.log("FT search data:", allFTdata);
-    
-      //         if (allFTdata.statusCode === 1) {
-      //           const sortedData = allFTdata.projects.sort((a, b) => new Date(b.created) - new Date(a.created));
-      //           setAllFTData(sortedData);
-      //           console.log("Project data:", sortedData);
-      //         } else {
-      //           console.error("Error fetching projects:", allFTdata.errorMessage);
-      //         }
-      //       } catch (error) {
-      //         console.log("error getting FT projects and files:", error);
-      //       }
-      //     } else {
-      //       fetchInitialData();
-      //     }
-      //   };
-      //   fetchData();
-      // }, [searchString]);
 
-    //when. search input is done 
  
 
   return (

@@ -9,8 +9,8 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
 extraFiles:
-  - from: 'BackupTransferChildProcess.exe'
-    to: './BackupTransferChildProcess.exe'
+  - from: 'TransferChildProcess.exe'
+    to: './TransferChildProcess.exe'
 asarUnpack:
   - "node_modules/sqlite3/build/Release/*.node"
   - resources/**

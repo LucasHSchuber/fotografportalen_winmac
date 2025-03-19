@@ -1,62 +1,63 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import axios from "axios";
-// import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { faRepeat, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import { faRepeat, faExclamationCircle, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
-// import { TailSpin } from "react-loader-spinner";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
-
 import Sidemenu_filetransfer from "../../components/filetransfer/sidemenu_filetransfer";
-import Loadingbar_filetransfer from "../../components/filetransfer/loadingbar_filetransfer";
+// import Loadingbar_filetransfer from "../../components/filetransfer/loadingbar_filetransfer";
 
 import "../../assets/css/filetransfer/main_filetransfer.css";
 import "../../assets/css/filetransfer/buttons_filetransfer.css";
 
-function Home_filetransfer() {
+function Home_filetransfer({ 
+    showFTSuccess, 
+    startUpload,
+    cancelTusUploadRef, 
+    isUploading, 
+    setIsUploading, 
+    uploadPercentage, 
+    setUploadPercentage, 
+    setFinishedUploading, 
+    finishedUploading, 
+    chosenProjectName, 
+    chosenProjectUuid, 
+    setChosenProjectName,
+    setChosenProjectUuid,
+    files, 
+    setFiles, 
+    uploadFile, 
+    setUploadFile,
+    setChosenProject_id,
+    chosenProject_id
+}) {
   // Define states
   const [loading, setLoading] = useState(true);
   const [chooseNewProjectName, setChooseNewProjectName] = useState("");
-  const [files, setFiles] = useState([]);
-  // const [projectName, setProjectName] = useState("");
-  const [chosenProjectName, setChosenProjectName] = useState("");
-  const [chosenProjectUuid, setChosenProjectUuid] = useState("");
-  const [chosenProjectLang, setChosenProjectLang] = useState("");
-  const [chosenProject_id, setChosenProject_id] = useState("");
   const [projects, setProjects] = useState([]);
-  const [FTProjectId, setFTProjectId] = useState("");
   const [unsentFTProjects, setUnsentFTProjects] = useState([]);
+  
+  console.log('isUploading', isUploading);
 
-  // const [isDragging, setIsDragging] = useState(false);
-
-  const [progress, setProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({ uploaded: 0, total: 0 });
-  const [uploadPercentage, setUploadPercentage] = useState(0);
-  const [uploadFile, setUploadFile] = useState("");
-  const [finishedUploading, setFinishedUploading] = useState([]);
-
-  const inputRef = useRef(null);
-  const canceledFTPUploadRef = useRef(false);
-
+  //Listen for success from app.jsx
+  // useEffect(() => {
+  //     console.log('Upload cancelled or completed');
+  // }, [showFTSuccess]);
 
   useEffect(() => {
-    console.log('finishedUploading', finishedUploading);
-  }, [finishedUploading]);
-
-
+    if (!isUploading){ // trigger when isUploading is false (sent from app.jsx when upload is completed)
+      getUnsentFTProjects()
+    }
+  }, [isUploading])
 
   //load loading bar on load
   useEffect(() => {
-    // Check if the loading bar has been shown before
     const hasHomeFiletransferLoadingBarShown = sessionStorage.getItem(
       "hasHomeFiletransferLoadingBarShown",
     );
-    // If it has not been shown before, show the loading bar
     if (!hasHomeFiletransferLoadingBarShown) {
       const timer = setTimeout(() => {
         setLoading(false);
@@ -92,9 +93,6 @@ function Home_filetransfer() {
       getUnsentFTProjects();
     }
   }, []);
-  useEffect(() => {
-    console.log('useeffect unsentFTProjects: ', unsentFTProjects);
-  }, [unsentFTProjects]);
 
 
   //get all projects
@@ -125,181 +123,17 @@ function Home_filetransfer() {
   };
 
 
-  useEffect(() => {
-    const handleUploadProgress = (event, { percentage }) => {
-      console.log(`${percentage}%`);
-      setUploadPercentage(percentage);
-    };
-    window.api.on("upload-progress", handleUploadProgress);
-    return () => {
-      window.api.removeAllListeners("upload-progress");
-    };
-  }, []);
-
-
-
-
-  // METHOD to sumbit
-  const handleSubmit = async () => {
-    if (!navigator.onLine){
-      MySwal.fire({
-        title: 'Internet Connection Error!',
-        text: `Filetransfer could not find a stable internet connection. The upload was cancelled.`,
-        icon: 'error',
-        confirmButtonText: 'Close',
-        customClass: {
-          popup: 'custom-popup',
-          title: 'custom-title',
-          content: 'custom-text',
-          confirmButton: 'custom-confirm-button'
-        }
-      });
+  const handleSubmit = () => {
+    if (isUploading) {
+      console.log('Upload already in porgress');
       return;
     }
-    let user_id = localStorage.getItem("user_id");
-    console.log("Sending files from filetransfer to company database...");
-    console.log(files);
-    const data = {
-      uuid: chosenProjectUuid,
-      projectname: chosenProjectName,
-      files: files,
-    };
-    console.log("data:", data);
-    if (files.length > 0) {
-      setIsUploading(true);
-      setUploadProgress({ uploaded: 0, total: files.length });
-      
-      //Create new FT-project in database
-      const projectData = {
-          project_uuid: chosenProjectUuid,
-          projectname: chosenProjectName,
-          user_id: user_id,
-          project_id: chosenProject_id
-      }
-      console.log("projectData: ", projectData);
-      try{
-          let FT_response = await window.api.createNewFTProject(projectData); // creating new row in ft_projects
-          console.log("FT response:", FT_response);
-          if (FT_response.status !== 200) {
-            MySwal.fire({
-              title: 'Error',
-              text: `Failed when creating new filetransfer data to local database`,
-              icon: 'error',
-              confirmButtonText: 'Close',
-              customClass: {
-                popup: 'custom-popup',
-                title: 'custom-title',
-                content: 'custom-text',
-                confirmButton: 'custom-confirm-button'
-              }
-            });
-            setIsUploading(false);
-            return;
-          }
-          const ft_project_id = FT_response.ft_project_id;
-          setFTProjectId(ft_project_id);
-          sessionStorage.setItem("ft_project_id", ft_project_id);
-          console.log("ft_project_id:", ft_project_id);
-      } catch (error){
-          console.log("error creating FT project", error);
-      }
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        //upload files to FTP-server
-        setUploadFile(file.name);
-        try {
-            const response = await window.api.uploadFile(file.path, chosenProjectLang, file.size); // uploading tile to ftp server
-            console.log("response uploadFile:", response);
-          if (response.statusCode === 200) {
-                setProgress(((i + 1) / files.length) * 100);
-                console.log(`File uploaded successfully: ${file.name}`);
-                setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
-                // send file data and project_uuid to rest api to verify upload
-                const data = {
-                  filename: file.name,
-                  project_uuid: chosenProjectUuid
-                }
-                const token = localStorage.getItem("token");
-                const response = await axios.post(`https://backend.expressbild.org/index.php/rest/filetransfer/uploaddata`, data, {
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${token}`,
-                  }
-                });
-                console.log('response', response);  
-                //Create new FT-file in database
-                if (response.status === 200) {
-                    let _ft_project_id = sessionStorage.getItem("ft_project_id");
-                    const fileData = {
-                      filename: file.name,
-                      filepath: file.path,
-                      ft_project_id: _ft_project_id
-                    }
-                    console.log(fileData);
-                    try{
-                      let FTfile_response = await window.api.addFTFile(fileData); // creating new row in ft_files
-                      console.log("FT file response:", FTfile_response);
-                      if (FTfile_response.status === 201){
-                        console.log('addFTFile completed', FTfile_response.filename);
-                        setFinishedUploading(FTfile_response);
-                      }
-                    }catch (error){
-                      console.log("error creating FT file", error);
-                    }
-                } else {
-                    MySwal.fire({
-                      title: 'Error',
-                      text: `Failed when verifying upload to filetransfer`,
-                      icon: 'error',
-                      confirmButtonText: 'Close',
-                      customClass: {
-                        popup: 'custom-popup',
-                        title: 'custom-title',
-                        content: 'custom-text',
-                        confirmButton: 'custom-confirm-button'
-                      }
-                    });
-                }
-          } else if (response.message === "User closed client during task") {
-                  Swal.fire({
-                      title: "Upload cancelled",
-                      text: "The upload was cancelled.",
-                      icon: "info",
-                      confirmButtonText: "Close",
-                  });
-                  setIsUploading(false); 
-                  return;
-            }
-        } catch (error) {
-            MySwal.fire({
-              title: 'Upload Error',
-              text: `Error during file upload: ${error.message}`,
-              icon: 'error',
-              confirmButtonText: 'Close',
-              customClass: {
-                popup: 'custom-popup',
-                title: 'custom-title',
-                content: 'custom-text',
-                confirmButton: 'custom-confirm-button'
-              }
-            });
-            setIsUploading(false);
-            return;
-        }
-      }
-
-      setTimeout(() => {
-          setIsUploading(false);
-          setChooseNewProjectName("");
-          setChosenProjectName("");
-          setFiles([]);
-          getUnsentFTProjects();
-          // Notify user
+    if (files.length === 0) return;
+        if (!navigator.onLine){
           MySwal.fire({
-            title: 'Filetransfer!',
-            text: 'All files have been uploaded',
-            icon: 'success',
+            title: 'Internet Connection Error!',
+            text: `Filetransfer could not find a stable internet connection. The upload was cancelled.`,
+            icon: 'error',
             confirmButtonText: 'Close',
             customClass: {
               popup: 'custom-popup',
@@ -308,29 +142,216 @@ function Home_filetransfer() {
               confirmButton: 'custom-confirm-button'
             }
           });
-      }, 500);
-    } 
+          return;
+        }
+    if (files.length > 0) {
+      startUpload("filetransfer") // trigger in app.jsx
+    }
   };
 
-  // Method to cancel file upload to ftp server
-  const canceledUpload = async () => {
-    const response = window.api.cancelFtpUpload();
-    console.log('response', response);
-  }
-  
-  // Listens for upload-canceled
-  useEffect(() => {
-    const handleCancel = (event, { response }) => {
-      console.log('response', response);
-      if (response){
-        console.log('response', response);
-      }
-    };
-    window.api.on("upload-canceled", handleCancel);
-    return () => {
-      window.api.removeAllListeners("upload-canceled", handleCancel);
-    };
-  }, []);
+  // // METHOD to sumbit
+  // const handleSubmit = async () => {
+  //     if (files.length === 0) return;
+  //     if (!navigator.onLine){
+  //       MySwal.fire({
+  //         title: 'Internet Connection Error!',
+  //         text: `Filetransfer could not find a stable internet connection. The upload was cancelled.`,
+  //         icon: 'error',
+  //         confirmButtonText: 'Close',
+  //         customClass: {
+  //           popup: 'custom-popup',
+  //           title: 'custom-title',
+  //           content: 'custom-text',
+  //           confirmButton: 'custom-confirm-button'
+  //         }
+  //       });
+  //       return;
+  //     }
+
+  //     const token = localStorage.getItem("token");
+  //     let user_id = localStorage.getItem("user_id");
+  //     setIsUploading(true);
+  //     setUploadProgress({ uploaded: 0, total: files.length });
+  //     const projectData = {
+  //       project_uuid: chosenProjectUuid,
+  //       projectname: chosenProjectName,
+  //       user_id: user_id,
+  //       project_id: chosenProject_id
+  //     }
+  //     console.log("projectData: ", projectData);
+  //     let ft_project_id;
+  //     try{
+  //         let FT_response = await window.api.createNewFTProject(projectData); 
+  //         console.log("FT response:", FT_response);
+  //         if (FT_response.status !== 200) {
+  //           MySwal.fire({
+  //             title: 'FileTransfer - Error',
+  //             text: `Failed when creating new filetransfer data to local database`,
+  //             icon: 'error',
+  //             confirmButtonText: 'Close',
+  //             customClass: {
+  //               popup: 'custom-popup',
+  //               title: 'custom-title',
+  //               content: 'custom-text',
+  //               confirmButton: 'custom-confirm-button'
+  //             }
+  //           });
+  //           setIsUploading(false);
+  //           return;
+  //         } else {
+  //           ft_project_id = FT_response.ft_project_id;
+  //         }
+  //     } catch (error){
+  //         console.log("error creating FT project", error);
+  //         Swal.fire({
+  //           title: "FileTransfer - Error",
+  //           text: `Error creating project data in local database: ${error}`,
+  //           icon: "error",
+  //           confirmButtonText: "Close",
+  //       });
+  //       setIsUploading(false);
+  //     }
+
+  //     let fileCount = 0;
+  //     for (let i = 0; i < files.length; i++) {
+  //       const file = files[i];
+  //       setUploadFile(file.name);
+  //       const fileData = {
+  //         filename: file.name,
+  //         filepath: file.path,
+  //         ft_project_id: ft_project_id
+  //       }
+  //       console.log('fileData', fileData);
+  //       try {
+  //         const response = await window.api.uploadFileToTus(file.path, file.name, chosenProjectUuid, token);
+  //         console.log("Upload response TUS:", response);
+  //           if (response.status === "success") {
+  //               setProgress(((i + 1) / files.length) * 100);
+  //               setUploadProgress((prev) => ({ uploaded: prev.uploaded + 1, total: prev.total }));
+  //               console.log(fileData);
+  //               try{
+  //                 let FTfile_response = await window.api.addFTFile(fileData);
+  //                 console.log("FT file response:", FTfile_response);
+  //                 if (FTfile_response.status === 201){
+  //                   console.log('addFTFile completed', FTfile_response.filename);
+  //                   setFinishedUploading(FTfile_response);
+  //                   fileCount++;
+  //                 }
+  //               } catch (error){
+  //                   console.log('failed when creating file in ft_files', error); 
+  //                   Swal.fire({
+  //                       title: "FileTransfer - Error",
+  //                       text: `Error creating file data in local database: ${error}`,
+  //                       icon: "error",
+  //                       confirmButtonText: "Close",
+  //                   });
+  //                   setIsUploading(false);
+  //                   return;
+  //               }
+  //         } else {
+  //           console.log('Failed to upload file to tus (uploadFileToTus)');
+  //         } 
+  //       } catch (error) {
+  //           console.error("Error uploading file:", error);
+  //           if (canceledTusUploadRef.current) {
+  //               Swal.fire({
+  //                   title: "Upload cancelled",
+  //                   text: "The upload was cancelled.",
+  //                   icon: "info",
+  //                   confirmButtonText: "Close",
+  //               });
+  //               canceledTusUploadRef.current = false;
+  //               setIsUploading(false);
+  //               const user_id = localStorage.getItem("user_id");
+  //               if (fileCount === 0) {
+  //                   try {
+  //                       const responseDelete = await window.api.deleteFTProject(ft_project_id, user_id); 
+  //                       console.log('responseDelete:', responseDelete);
+  //                   } catch (error) {
+  //                       console.error("Failed to set to deleted:", error);
+  //                   }
+  //               }    
+  //               return;
+  //             } else {
+  //               //Update ft_files  (with is_sent = 0)
+  //               try {
+  //                   const responseFile = await window.api.createNewFailedFTFile(fileData); 
+  //                   console.log('responseFile (createNewFailedBTFile):', responseFile);
+  //               } catch (error) {
+  //                   console.error("Failed to mark file as failed in bt_files:", error);
+  //               }
+  //               Swal.fire({
+  //                   title: "FileTransfer - Upload Error",
+  //                   text: `Error uploading ${file.name}: ${error.message}`,
+  //                   icon: "error",
+  //                   confirmButtonText: "Close",
+  //               });
+  //               setIsUploading(false);
+  //               return;
+  //           }
+  //       }
+  //     }
+      
+  //     setTimeout(() => {
+  //         showSuccessMessage() // show success message
+  //         setIsUploading(false);
+  //         setChooseNewProjectName("");
+  //         setChosenProjectName("");
+  //         setFiles([]);
+  //     }, 500);
+  // };
+
+  // // Method to show success-message
+  // const showSuccessMessage = () => {
+  //   Swal.fire({
+  //       title: "FileTransfer!",
+  //       text: "All files have been uploaded",
+  //       icon: "success",
+  //       confirmButtonText: "Close",
+  //       customClass: {
+  //           popup: 'custom-popup',
+  //           title: 'custom-title',
+  //           content: 'custom-text',
+  //           confirmButton: 'custom-confirm-button'
+  //       }
+  //   });
+  // }
+
+
+  // const canceledUpload = () => {
+  //   window.api.cancelTus()
+  //   canceledTusUploadRef.current = true;
+  // }
+
+
+  // // Listens for upload-canceled
+  // useEffect(() => {
+  //     const handleCancel = (event, { response }) => {
+  //       console.log('response', response);
+  //       if (response){
+  //         canceledTusUploadRef.current = true;
+  //       }
+  //     };
+  //     window.api.on("upload-canceled", handleCancel);
+  //     return () => {
+  //       window.api.removeAllListeners("upload-canceled", handleCancel);
+  //     };
+  // }, []);
+
+
+  // // Listens for upload-canceled
+  // useEffect(() => {
+  //   const handleCancel = (event, { response }) => {
+  //     console.log('response', response);
+  //     if (response){
+  //       console.log('response', response);
+  //     }
+  //   };
+  //   window.api.on("upload-canceled", handleCancel);
+  //   return () => {
+  //     window.api.removeAllListeners("upload-canceled", handleCancel);
+  //   };
+  // }, []);
 
 
   // Method for when selecting project in list
@@ -339,7 +360,7 @@ function Home_filetransfer() {
     if (selectedOption) {
       setChosenProjectName(selectedOption.label);
       setChosenProjectUuid(selectedOption.value);
-      setChosenProjectLang(selectedOption.lang);
+      // setChosenProjectLang(selectedOption.lang);
       setChosenProject_id(selectedOption.project_id);
       // setProjectName(selectedOption);
     } else {
@@ -381,10 +402,10 @@ function Home_filetransfer() {
     control: (styles, { isFocused }) => ({
       ...styles,
       width: "35em",
-      borderColor: isFocused ? "#ff6f6f" : "#ccc", 
-      boxShadow: isFocused ? "0 0 0 0.2rem rgba(255, 111, 111, 0.1)" : "none",
+      borderColor: isFocused ? "#858585" : "#ccc", 
+      boxShadow: isFocused ? "0 0 0 0.2rem rgba(133, 133, 133, 0.1)" : "none",
       "&:hover": {
-        borderColor: isFocused ? "#ff6f6f" : "#ccc", 
+        borderColor: isFocused ? "#858585" : "#858585", 
       },
     }),
     option: (provided) => ({
@@ -441,109 +462,118 @@ function Home_filetransfer() {
                 </div>
             )}
 
-            <div className="d-flex mb-3">
-              <div style={{  display: chooseNewProjectName ? "none" : "block" }}>
-                <Select
-                  // value={projectName}
-                  onChange={handleProjectChange}
-                  options={
-                    projects &&
-                    projects.map((project) => ({
-                      value: project.project_uuid,
-                      label: project.projectname,
-                      lang: project.lang,
-                      project_id: project.project_id,
-                    }))
-                  }
-                  isClearable
-                  placeholder="Select a job"
-                  styles={customStyles}
-                />
-              </div>
-              <input
-                style={{
-                  display: chooseNewProjectName ? "block" : "none",
-                  width: "35em",
-                  height: "2.38em",
-                  borderRadius: "5px",
-                  border: "1px solid #CACACA",
-                  paddingLeft: "0.6em",
-                }}
-                placeholder="Create your own job name for upload"
-                onChange={(e) => handleProjectChangeNew(e.target.value)}
-              />
-              <button
-                style={{
-                  border: "none",
-                  backgroundColor: "inherit",
-                  cursor: "pointer",
-                }}
-                className="ml-2"
-                onClick={newProjectName}
-                title="Create your own job name for upload"
-              >
-                <FontAwesomeIcon icon={faRepeat} />
-              </button>
-            </div>
 
+            {!isUploading ? (
             <div>
-              <input
-                  disabled={isUploading}
-                  className="mt-3"
-                  type="file"
-                  onChange={handleFileChange}
-                  multiple
-                  placeholder="sdfsdf"
-                  accept=".zip, .rar, .pdf"
-                  style={{ color: "white" }}
-              />
-              <div
-                  className="my-4"
-                  style={{ borderLeft: "1.5px solid #ccc", paddingLeft: "1em" }}
-              >
-                {chosenProjectName && (
+                  <div className="d-flex mb-3">
+                    <div style={{  display: chooseNewProjectName ? "none" : "block" }}>
+                      <Select
+                        // value={projectName}
+                        onChange={handleProjectChange}
+                        options={
+                          projects &&
+                          projects.map((project) => ({
+                            value: project.project_uuid,
+                            label: project.projectname,
+                            lang: project.lang,
+                            project_id: project.project_id,
+                          }))
+                        }
+                        isClearable
+                        placeholder="Select a job"
+                        styles={customStyles}
+                      />
+                    </div>
+                    <input
+                      style={{
+                        display: chooseNewProjectName ? "block" : "none",
+                        width: "35em",
+                        height: "2.38em",
+                        borderRadius: "5px",
+                        border: "1px solid #CACACA",
+                        paddingLeft: "0.6em",
+                      }}
+                      placeholder="Create your own job name for upload"
+                      onChange={(e) => handleProjectChangeNew(e.target.value)}
+                    />
+                    <button
+                      style={{
+                        border: "none",
+                        backgroundColor: "inherit",
+                        cursor: "pointer",
+                      }}
+                      className="ml-2"
+                      onClick={newProjectName}
+                      title="Create your own job name for upload"
+                    >
+                      <FontAwesomeIcon icon={faRepeat} />
+                    </button>
+                  </div>
+
                   <div>
-                    <b>{chosenProjectName}</b>
+                    <input
+                        disabled={isUploading}
+                        className="mt-3"
+                        type="file"
+                        onChange={handleFileChange}
+                        multiple
+                        placeholder="sdfsdf"
+                        accept=".zip, .rar, .pdf"
+                        style={{ color: "white" }}
+                    />
+                    <div
+                        className="my-4"
+                        style={{ borderLeft: "1.5px solid #ccc", paddingLeft: "1em" }}
+                    >
+                      {chosenProjectName && (
+                        <div>
+                          <b>{chosenProjectName}</b>
+                        </div>
+                      )}
+                      {files.length > 0 && (
+                        <div style={{ fontSize: "0.85em" }}>
+                          <ul>
+                            {files.map((file, index) => (
+                              <li key={index}>
+                                {file.name}
+                                <button
+                                  disabled={isUploading}
+                                  title="Delete File"
+                                  className="delete-ft"
+                                  onClick={() => handleDelete(index)}
+                                  style={{ marginLeft: "10px" }}
+                                >
+                                  <FontAwesomeIcon icon={faTrashAlt} />
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}{" "}
+                    </div>
+                    {files.length > 0 && chosenProjectName && (
+                      <div className="mt-4">
+                        <button
+                          disabled={isUploading}
+                          className="button upload-ft px-5"
+                          onClick={handleSubmit}
+                        >
+                          Upload files
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-                {files.length > 0 && (
-                  <div style={{ fontSize: "0.85em" }}>
-                    <ul>
-                      {files.map((file, index) => (
-                        <li key={index}>
-                          {file.name}
-                          <button
-                            title="Delete File"
-                            className="delete-ft"
-                            onClick={() => handleDelete(index)}
-                            style={{ marginLeft: "10px" }}
-                          >
-                            <FontAwesomeIcon icon={faTrashAlt} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}{" "}
-              </div>
-              {files.length > 0 && chosenProjectName && (
-                <div className="mt-4">
-                  <button
-                    disabled={isUploading}
-                    className="button upload-ft px-5"
-                    onClick={handleSubmit}
-                  >
-                    Upload files
-                  </button>
-                </div>
-              )}
             </div>
+             ) : (
+              <h6 style={{ color: "black" }}><em>Upload in progress... <FontAwesomeIcon className="fileuploadspinner" icon={faSpinner} /></em></h6>
+            )}
           </div>
+         
 
           <Sidemenu_filetransfer />
-          {isUploading && (
+          {/* {isUploading && (
             <Loadingbar_filetransfer files={files} uploadProgress={uploadProgress} uploadPercentage={uploadPercentage} uploadFile={uploadFile} finishedUploading={finishedUploading} canceledUpload={canceledUpload} />
-          )}
+          )} */}
 
         </div>
         

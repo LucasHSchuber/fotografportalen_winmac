@@ -45,6 +45,7 @@ Tracks projects with files uploaded to the FTP server.
   - `project_uuid` (TEXT)
   - `projectname` (TEXT)
   - `is_sent` (BOOLEAN, DEFAULT `0`)
+  - `is_deleted` (BOOLEAN, DEFAULT `0`)
   - `created` (TEXT, DEFAULT `CURRENT_TIMESTAMP`)
   - `user_id` (INTEGER)
   - `project_id` (INTEGER)

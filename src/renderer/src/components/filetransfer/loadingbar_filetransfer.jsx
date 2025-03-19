@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { TailSpin } from "react-loader-spinner";
-import { Bars } from "react-loader-spinner";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faCloudArrowUp, faCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCloudArrowUp, faCircle, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 
 import "../../assets/css/filetransfer/components_filetransfer.css";
 
 const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading, canceledUpload }) => {
   //define states
   const [uploadedFilesArray, setUploadedFilesArray] = useState([]);
+  const [hasBeenMinimized, setHasBeenMinimized] = useState(false);
 
   console.log("files", files);
   console.log("finishedUploading", finishedUploading);
@@ -32,19 +30,30 @@ const Loadingbar_filetransfer = ({ files, uploadProgress, uploadPercentage, uplo
     });
   }, [finishedUploading]);
 
+  
 
-  // Methiod to cancel upload
+  // Triggers cancelUpload in app.jsx when cancelling the upload
   const cancelUpload = () => {
+    setUploadedFilesArray([])
     canceledUpload()
   }
+
+  // minimizing/maximizing the loadingbar component
+  const minimizeLoadingBar = () => {
+    setHasBeenMinimized(!hasBeenMinimized)
+  };
 
   
 
   return (
-    <div className="loadingbar-filetransfer">
+    <div className={`loadingbar-filetransfer ${hasBeenMinimized ? "loadingbar-filetransfer-minimized" : ""}`}>
 
         <div style={{ marginLeft: "5em" }}>
-          <h6 className="mb-3" style={{ fontWeight: "700" }}>Uploading files:</h6>
+        <div className="d-flex">
+            {/* <h6 className="mb-3" style={{ fontWeight: "700" }}>Uploading files:</h6> */}
+            <h6 className="mb-3" style={{ fontWeight: "700", marginBottom: "-0.1em" }}>FileTransfer:</h6>
+            <button title={`${hasBeenMinimized ? "Show" : "Hide"}`} className={`minimizeloadingbar-button ${hasBeenMinimized ? "minimizeloadingbar-minimized-button" : ""}`} onClick={minimizeLoadingBar}> <FontAwesomeIcon icon={hasBeenMinimized ? faChevronUp : faChevronDown}  /></button>
+          </div>
 
           {files.map((file, index) => (
             <div key={index} className="d-flex ml-2">

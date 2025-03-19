@@ -1,23 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { TailSpin } from "react-loader-spinner";
-import { Bars } from "react-loader-spinner";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faCloudArrowUp, faCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCloudArrowUp, faCircle, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 
 import "../../assets/css/backuptransfer/components_backuptransfer.css";
 
-const Loadingbar_backuptransfer = ({ files, uploadProgress, uploadPercentage, uploadFile, finishedUploading, canceledUpload }) => {
+
+const Loadingbar_backuptransfer = ({ programName, files, uploadPercentage, uploadFile, finishedUploading, canceledUpload }) => {
   //define states
   const [uploadedFilesArray, setUploadedFilesArray] = useState([]);
+  const [hasBeenMinimized, setHasBeenMinimized] = useState(false);
 
-  // console.log("files", files);
-  console.log("finishedUploading", finishedUploading);
-  // console.log("uploadProgress", uploadProgress);
-  // console.log("uploadPercentage", uploadPercentage);
-  // console.log("uploadFile", uploadFile);
-
+  console.log('files', files);
+  console.log('uploadFile', uploadFile);
+  console.log('uploadPercentage', uploadPercentage);
+  console.log('finishedUploading', finishedUploading);
+  
 
   useEffect(() => {
     files.forEach(file => {
@@ -29,22 +26,30 @@ const Loadingbar_backuptransfer = ({ files, uploadProgress, uploadPercentage, up
       }
     });
   }, [finishedUploading]);
-  useEffect(() => {
-    console.log('uploadedFilesArray', uploadedFilesArray);
-  }, [finishedUploading]);
 
-  
-  // Methiod to cancel upload
+
+  // Triggers cancelUpload in app.jsx when cancelling the upload
   const cancelUpload = () => {
+    setUploadedFilesArray([])
     canceledUpload()
   }
 
+  // minimizing/maximizing the loadingbar component
+  const minimizeLoadingBar = () => {
+    setHasBeenMinimized(!hasBeenMinimized)
+  };
+
 
   return (
-    <div className="loadingbar-backuptransfer">
-
+    <div className={`loadingbar-backuptransfer ${hasBeenMinimized ? "loadingbar-backuptransfer-minimized" : ""}`}>
         <div style={{ marginLeft: "5em" }}>
-          <h6 className="mb-3" style={{ fontWeight: "700" }}>Uploading files:</h6>
+          <div className="d-flex">
+            {/* <div> */}
+              <h6 className="mb-3" style={{ fontWeight: "700", marginBottom: "-0.1em" }}>BackupTransfer:</h6>
+              {/* <h6 className="mb-3" style={{ fontWeight: "500", fontSize: "0.9em" }}>Uploading files:</h6> */}
+            {/* </div> */}
+            <button title={`${hasBeenMinimized ? "Show" : "Hide"}`} className={`minimizeloadingbar-button ${hasBeenMinimized ? "minimizeloadingbar-minimized-button" : ""}`} onClick={minimizeLoadingBar}> <FontAwesomeIcon icon={hasBeenMinimized ? faChevronUp : faChevronDown}  /></button>
+          </div>
 
           {files.map((file, index) => (
             <div key={index} className="d-flex ml-2">

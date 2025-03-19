@@ -30,12 +30,14 @@ const saltRounds = 10;
 // import * as tus from "tus-js-client";
 const tus = require("tus-js-client");
 
-// // using electron-reloader in dev mode only
-// if (isDev) {
-//   try {
-//     require("electron-reloader")(module);
-//   } catch (_) {}
-// }
+
+// using electron-reloader in dev mode only
+const electron_reloader = false; // Set to true if using hot reload
+if (isDev && electron_reloader) {
+  try {
+    require("electron-reloader")(module);
+  } catch (_) {}
+}
 
 
 import express from "express";
@@ -3606,7 +3608,7 @@ ipcMain.handle("getAllFTData", async (event, user_id) => {
           SELECT p.ft_project_id, p.project_uuid, p.projectname, p.is_sent, p.created, p.user_id, p.project_id, f.ft_file_id, f.filename, f.filepath, f.uploaded_at, f.is_sent
           FROM ft_projects p
           INNER JOIN ft_files f ON p.ft_project_id = f.ft_project_id
-          WHERE p.user_id = ? AND f.is_sent = 1;
+          WHERE p.user_id = ? AND f.is_sent = 1 AND p.is_deleted = 0;
         `; 
 
     db.all(query, [user_id], (err, rows) => {
@@ -3696,16 +3698,17 @@ ipcMain.handle("getUnsentFTProjects", async (event, user_id) => {
 
 // Upload file with BackupTransferChildProcess
 let activeTusProcesses = new Map();
-ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUuid, token}) => {
+ipcMain.handle("uploadFileToTus", async (event, { filePath, fileName, projectUuid, token, type}) => {
+  log.info("type: ", type)
   return new Promise((resolve, reject) => {
       
       const childProcessPath = isDev 
-        ? path.join(__dirname, "BackupTransferChildProcess.exe") 
-        : path.join(process.resourcesPath, "BackupTransferChildProcess.exe"); 
+        ? path.join(__dirname, "TransferChildProcess.exe") 
+        : path.join(process.resourcesPath, "TransferChildProcess.exe"); 
 
       log.info(`Starting child process: ${childProcessPath}`);
       
-      const tusProcess = spawn("BackupTransferChildProcess.exe", [filePath, projectUuid, token]);
+      const tusProcess = spawn("TransferChildProcess.exe", [filePath, projectUuid, token, type]);
       activeTusProcesses.set(fileName, tusProcess);
 
       tusProcess.on("error", (err) => {
@@ -3812,6 +3815,61 @@ ipcMain.handle("createNewBTProject", async (event, data) => {
   });
 });
 
+
+// Set project as deleted if uploading of file is cancelled
+ipcMain.handle("deleteFTProject", async (event, ft_project_id, user_id) => {
+  log.info("ft_project_id (deleteFTProject)", ft_project_id)
+  if (!ft_project_id || !user_id) {throw new Error("Data missing for 'deleteFTProject'")}
+  const query = `
+    UPDATE ft_projects SET is_deleted = 1 WHERE ft_project_id = ? AND user_id = ?;
+  `;
+  const db = new sqlite3.Database(dbPath);
+  try {
+    const res = await executeQueryWithRetry(db, query, [ft_project_id, user_id]);
+    log.info("Succesfully updated is_deleted to 1 in ft_projects table")
+    return ({ status: 200, data: res, message: "Succesfully updated is_deleted to 1 in ft_projects table", ft_project_id: ft_project_id})
+  } catch (error) {
+    log.info("Error when updating is_deleted to 1 in ft_projects table")
+    return ({ status: 500, message: "Error when updating is_deleted to 1 in ft_projects table"})
+  } finally{
+    db.close();
+  }
+});
+
+
+//add new BT file with is_sent = 0
+ipcMain.handle("createNewFailedFTFile", async (event, fileData) => {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!fileData || typeof fileData !== "object") {
+        throw new Error("Invalid arguments received for createNewFailedFTFile");
+      }
+      const { filename, ft_project_id, file_path, project_uuid } = fileData;
+      if (!filename || !ft_project_id || !project_uuid) {
+        throw new Error("Missing required data for createNewFailedFTFile");
+      }
+      const query = `
+            INSERT INTO ft_files (
+              filename, ft_project_id, file_path, is_sent
+            )
+            VALUES (?, ?, ?, ?)
+          `;
+      const params = [filename, ft_project_id, file_path, 0];
+      db.run(query, params, function (err) {
+        if (err) {
+          log.error("Error adding new createNewFailedFTFile:", err.message);
+          reject({status: 400, error: err.message });
+        } else {
+          log.info(`createNewFailedFTFile added successfully`);
+          resolve({ status: 201, success: true, message: "success", filename: filename });
+        }
+      });
+    } catch (err) {
+      log.error("Error adding new createNewFailedBTFile:", err.message);
+      reject({ status: 400, error: err.message });
+    }
+  });
+});
 
 
 

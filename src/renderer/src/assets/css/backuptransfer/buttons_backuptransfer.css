@@ -2,21 +2,6 @@
 
 
 
-/* .cancel {
-    background-color: rgb(41, 41, 41);
-    transition: 0.2s;
-    color: white;
-}
-
-.cancel:hover {
-    background-color: rgb(0, 0, 0);
-}
-
-.cancel:active {
-    background-color: #000000 !important;
-    outline-color: #2d2d2d !important;
-} */
-
 .upload-bt {
     background-color: rgb(41, 41, 41);
     transition: 0.2s;
@@ -70,4 +55,31 @@
     background-color: #4f4f4f !important;
   }
 
-  
+  .minimizeloadingbar-button{
+    position: fixed; 
+    bottom: 13.5em; 
+    left: 9.5em;
+    border: 1px solid rgb(224, 224, 224);
+    background-color: white;
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: bottom 0.2s ease-in-out; 
+  }
+  .minimizeloadingbar-button:hover{
+    background-color: rgb(244, 244, 244);
+    border: 1px solid rgb(206, 206, 206);
+  }
+  .minimizeloadingbar-button:focus{
+    outline: none;
+  }
+  .minimizeloadingbar-minimized-button{
+    position: fixed; 
+    bottom: 2em; 
+    left: 9.5em;
+    border: 1px solid rgb(224, 224, 224);
+    background-color: white;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: bottom 0.2s ease-in-out; 
+  }

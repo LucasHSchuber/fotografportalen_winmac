@@ -91,12 +91,14 @@ const api = {
   uploadFile: (filePath, lang, filesize) => ipcRenderer.invoke('uploadFile', filePath, lang, filesize),
   createNewFTProject: (data) => ipcRenderer.invoke('createNewFTProject', data),
   addFTFile: (fileData) => ipcRenderer.invoke('addFTFile', fileData),
+  deleteFTProject: (ft_project_id, user_id) => ipcRenderer.invoke('deleteFTProject', ft_project_id, user_id), // Pass ft_project_id and user_id to delete in ft_projects
+  createNewFailedFTFile: (fileData) => ipcRenderer.invoke('createNewFailedFTFile', fileData),
   getAllFTData: (user_id) => ipcRenderer.invoke('getAllFTData', user_id), // Pass user_id to get all FT projects and files by user
   getUnsentFTProjects: (user_id) => ipcRenderer.invoke('getUnsentFTProjects', user_id), // Pass user_id to get all unsent Filestransfer projects
   cancelFtpUpload: () => ipcRenderer.invoke('cancelFtpUpload'), // Cancel ftp server upload
 
   // BACKUPTRANSFER
-  uploadFileToTus: (filePath, fileName, projectUuid, token) => ipcRenderer.invoke("uploadFileToTus", { filePath, fileName, projectUuid, token }),
+  uploadFileToTus: (filePath, fileName, projectUuid, token, type) => ipcRenderer.invoke("uploadFileToTus", { filePath, fileName, projectUuid, token, type }),
   createNewBTProject: (data) => ipcRenderer.invoke('createNewBTProject', data),
   deleteBTProject: (bt_project_id, user_id) => ipcRenderer.invoke('deleteBTProject', bt_project_id, user_id), // Pass bt_project_id and user_id to delete in bt_projects
   createNewBTFile: (fileData) => ipcRenderer.invoke('createNewBTFile', fileData),
