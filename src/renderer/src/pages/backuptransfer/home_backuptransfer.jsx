@@ -75,36 +75,45 @@ function Home_backuptransfer({
         setNetworkError(true);
         return;
       }
-      // const user_id = localStorage.getItem("user_id");
-      const token = localStorage.getItem("token");
-      const user_lang = localStorage.getItem("user_lang");
       const fetchAllProjects = async () => {
-      setLoadingProjects(true);
-      try {
-        const projectResponse = await axios.get(`https://backend.expressbild.org/index.php/rest/backuptransfer/projects`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Token ${token}`,
-            },
-            params: {
-                lang: user_lang
-            }
-        });
-        console.log('projectResponse', projectResponse);
-        if (projectResponse.status === 200){
-            setProjects(projectResponse.data.result);
-            setLoadingProjects(false);
+         // const user_id = localStorage.getItem("user_id");
+        const token = localStorage.getItem("token");
+        const user_lang = localStorage.getItem("user_lang");
+        const lang = getLang(user_lang);
+        console.log('lang', lang);
+        setLoadingProjects(true);
+        try {
+          const projectResponse = await axios.get(`https://backend.expressbild.org/index.php/rest/backuptransfer/projects`, {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Token ${token}`,
+              },
+              params: {
+                  lang: lang
+              }
+          });
+          console.log('projectResponse', projectResponse);
+          if (projectResponse.status === 200){
+              setProjects(projectResponse.data.result);
+              setLoadingProjects(false);
+          }
+        } catch (error) {
+          console.log("error getting pojects:", error);
+          setLoadingProjects(false);
+        } finally {
+          setLoadingProjects(false);
         }
-      } catch (error) {
-        console.log("error getting pojects:", error);
-        setLoadingProjects(false);
-      } finally {
-        setLoadingProjects(false);
-      }
     };
     fetchAllProjects();
   }, []);
 
+  const getLang = (user_lang) => {
+    if (user_lang === "SE") {return "SE,STSE";}
+    if (user_lang === "NO") {return "NO,STNO";}
+    if (user_lang === "DK") {return "DK,STDK";}
+    if (user_lang === "FI") {return "FI,STFI";}
+    if (user_lang === "DE") {return "DE";}
+  }
 
 
 

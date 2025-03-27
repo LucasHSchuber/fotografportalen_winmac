@@ -143,7 +143,7 @@ autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
 
 import _env from "../renderer/src/assets/js/env"
-console.log("_env", _env);
+
 if (_env.production){
  // UPDATE SETFEEDURL WHEN IN PRODUCTION 
   autoUpdater.setFeedURL({

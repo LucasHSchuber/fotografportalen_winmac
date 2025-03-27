@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import profile from "../assets/images/photographer.png";
 import semver from "semver";
@@ -8,7 +8,7 @@ import withReactContent from 'sweetalert2-react-content';
 const MySwal = withReactContent(Swal);
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquareCheck } from "@fortawesome/free-regular-svg-icons";
+// import { faSquareCheck } from "@fortawesome/free-regular-svg-icons";
 import { faCheck, faCheckDouble } from "@fortawesome/free-solid-svg-icons";
 
 import Sidemenu from "../components/sidemenu";
@@ -18,7 +18,7 @@ import { gdprProtectionMethod, gdprProtectionMethod_teamshistory } from "../asse
 import fetchNews from "../assets/js/fetchNews";
 import env from "../assets/js/env";
 import DOMPurify from "dompurify";
-import { elements } from "chart.js";
+// import { elements } from "chart.js";
 
 
 
@@ -27,7 +27,7 @@ function Index() {
   const [loadingNews, setLoadingNews] = useState(false);
 
   const [user, setUser] = useState({});
-  const [homeDir, setHomeDir] = useState("");
+  // const [homeDir, setHomeDir] = useState("");
   const [projectsArray, setProjectsArray] = useState([]);
   const [unsubmittedTimeReportProjects, setUnsubmittedTimeReportProjects] = useState([]);
   const [previousPeriodProjects, setPreviousPeriodProjects] = useState([]);
@@ -101,110 +101,110 @@ function Index() {
       }
 
       // gtting home dir
-      try {
-        const homedir = window.api.homeDir();
-        console.log("homedir", homedir);
-      } catch (error) {
-        console.log("error fetching homedir:", error);
-      }
+      // try {
+      //   const homedir = window.api.homeDir();
+      //   console.log("homedir", homedir);
+      // } catch (error) {
+      //   console.log("error fetching homedir:", error);
+      // }
     };
     checkForUpdates();
   }, []);
 
 
-  //donwload latest version method
-  const downloadLatestVersion = async () => {
-    console.log("downloading latest version");
-    // finding users platform
-    let platform;
-    try {
-      platform = await window.api.getPlatform();
-      console.log('platform', platform);
-    } catch (error) {
-      console.error('Error fetching platform:', error);
-      showErrorModal('Failed to fetch platform information.');
-      return;
-    }
-    let fileExtension;
-    if (platform === 'win32') {
-      fileExtension = '.exe';
-    } else if (platform === 'darwin') {
-      fileExtension = '.dmg';
-    } else {
-      console.error("Unsupported platform - unable to find installation file");
-      showErrorModal('Unsupported platform.');
-      return;
-    }
-    // finding the correct installation file with correct extension
-    try {
-      const githubResponse = await axios.get(githubURL);
-      const latestRelease = githubResponse.data;
-      const downloadUrl = latestRelease.assets.find((asset) =>
-        asset.name.endsWith(fileExtension),
-      )?.browser_download_url;
+  // //donwload latest version method
+  // const downloadLatestVersion = async () => {
+  //   console.log("downloading latest version");
+  //   // finding users platform
+  //   let platform;
+  //   try {
+  //     platform = await window.api.getPlatform();
+  //     console.log('platform', platform);
+  //   } catch (error) {
+  //     console.error('Error fetching platform:', error);
+  //     showErrorModal('Failed to fetch platform information.');
+  //     return;
+  //   }
+  //   let fileExtension;
+  //   if (platform === 'win32') {
+  //     fileExtension = '.exe';
+  //   } else if (platform === 'darwin') {
+  //     fileExtension = '.dmg';
+  //   } else {
+  //     console.error("Unsupported platform - unable to find installation file");
+  //     showErrorModal('Unsupported platform.');
+  //     return;
+  //   }
+  //   // finding the correct installation file with correct extension
+  //   try {
+  //     const githubResponse = await axios.get(githubURL);
+  //     const latestRelease = githubResponse.data;
+  //     const downloadUrl = latestRelease.assets.find((asset) =>
+  //       asset.name.endsWith(fileExtension),
+  //     )?.browser_download_url;
 
-      if (!downloadUrl) {
-        throw new Error(`No ${fileExtension} file found in the latest release`);
-      }
-      console.log(downloadUrl);
-      console.log("Update available, preparing to download from url", downloadUrl);
-      // propting user, and starting update
-      const userConfirmed = await promptUserToCloseApp();
-      if (userConfirmed) {
-        if (!navigator.onLine) {
-            console.log("No internet access");
-            showErrorModal('No internet connection! Please connect to internet and try again.');
-            return;
-        }
-        setLoading(true);
-        console.log("User confirmed, proceeding with update...");
-        try {
-          localStorage.setItem("pendingUpdateUrl", downloadUrl);
-          await window.api.applyUpdates(downloadUrl);
-          console.log("Update applied successfully.");
-        } catch (error) {
-          console.error("Error applying update:", error);
-          showErrorModal('Failed to apply the update.');
-        } finally {
-          setLoading(false); 
-        }
-      } else {
-        console.log("User canceled the update.");
-      }
-    } catch (error) {
-      console.error("Download error:", error);
-      showErrorModal('Failed to download the update.');
+  //     if (!downloadUrl) {
+  //       throw new Error(`No ${fileExtension} file found in the latest release`);
+  //     }
+  //     console.log(downloadUrl);
+  //     console.log("Update available, preparing to download from url", downloadUrl);
+  //     // propting user, and starting update
+  //     const userConfirmed = await promptUserToCloseApp();
+  //     if (userConfirmed) {
+  //       if (!navigator.onLine) {
+  //           console.log("No internet access");
+  //           showErrorModal('No internet connection! Please connect to internet and try again.');
+  //           return;
+  //       }
+  //       setLoading(true);
+  //       console.log("User confirmed, proceeding with update...");
+  //       try {
+  //         localStorage.setItem("pendingUpdateUrl", downloadUrl);
+  //         await window.api.applyUpdates(downloadUrl);
+  //         console.log("Update applied successfully.");
+  //       } catch (error) {
+  //         console.error("Error applying update:", error);
+  //         showErrorModal('Failed to apply the update.');
+  //       } finally {
+  //         setLoading(false); 
+  //       }
+  //     } else {
+  //       console.log("User canceled the update.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Download error:", error);
+  //     showErrorModal('Failed to download the update.');
 
-    }
-  };
+  //   }
+  // };
 
-  const promptUserToCloseApp = async () => {
-    const result = await MySwal.fire({
-      title: 'Update Available',
-      text: "The Application is about to start downloading the new installation file to your desktop. Once it's finished, the application will automatically quit. The download might take a few minutes. Do you wish to continue?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, start download',
-      cancelButtonText: 'No, cancel',
-      customClass: {
-        confirmButton: 'custom-confirm-button',
-        cancelButton: 'custom-cancel-button' 
-      },
-      didOpen: () => {
-        // Style the title
-        const title = document.querySelector('.swal2-title');
-        if (title) {
-          title.style.fontSize = '1.2em';  
-        }
-        // Style the content text
-        const content = document.querySelector('.swal2-html-container');
-        if (content) {
-          content.style.fontSize = '0.85em';  
-        }
-      }
-    });
-    return result.isConfirmed;
-  };
+  // const promptUserToCloseApp = async () => {
+  //   const result = await MySwal.fire({
+  //     title: 'Update Available',
+  //     text: "The Application is about to start downloading the new installation file to your desktop. Once it's finished, the application will automatically quit. The download might take a few minutes. Do you wish to continue?",
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Yes, start download',
+  //     cancelButtonText: 'No, cancel',
+  //     customClass: {
+  //       confirmButton: 'custom-confirm-button',
+  //       cancelButton: 'custom-cancel-button' 
+  //     },
+  //     didOpen: () => {
+  //       // Style the title
+  //       const title = document.querySelector('.swal2-title');
+  //       if (title) {
+  //         title.style.fontSize = '1.2em';  
+  //       }
+  //       // Style the content text
+  //       const content = document.querySelector('.swal2-html-container');
+  //       if (content) {
+  //         content.style.fontSize = '0.85em';  
+  //       }
+  //     }
+  //   });
+  //   return result.isConfirmed;
+  // };
 
 
 
@@ -360,7 +360,7 @@ function Index() {
 
 
 
-    useEffect(() => {
+  useEffect(() => {
       // ----------- GET ALL CURRENT PROJECTS BY USER -----------
       //get all current projects with user_id
       let user_id = localStorage.getItem("user_id");
@@ -477,94 +477,94 @@ function Index() {
 
   // combine previousPeriodProjects with unsubmittedTimeReportProjects
   useEffect(() => {
-    // Ensure both arrays are truthy before proceeding
-    if (!previousPeriodProjects || !unsubmittedTimeReportProjects) return;
-  
-    console.log("LastMonthsTimeReportProjects:", unsubmittedTimeReportProjects);
-    console.log("previousPeriodProjects:", previousPeriodProjects);
-  
-    // Filter out submitted projects from unsubmittedTimeReportProjects
-    const filteredOutSubmitted = unsubmittedTimeReportProjects.filter(item => item.timereport_is_sent_permanent === 0);
-    console.log("filteredOutSubmitted:", filteredOutSubmitted);
-    // Filter previousPeriodProjects to remove items already in unsubmittedTimeReportProjects
-    const filteredProjects = previousPeriodProjects.filter(element =>
-      !unsubmittedTimeReportProjects.some(unsubmitted => unsubmitted.project_id === element.project_id)
-    );
-    // Log the projects from previousPeriodProjects not in unsubmittedTimeReportProjects
-    filteredProjects.forEach(project => {
-      console.log("Project from previousPeriodProjects not in unsubmittedTimeReportProjects:", project);
-    });
-    // Combine filtered previousPeriodProjects and filteredOutSubmitted
-    const combinedArray = [...filteredProjects, ...filteredOutSubmitted];
-    console.log("Combined Array:", combinedArray);
-    setCombinedUnsubmittedArray(combinedArray)
-    if (combinedArray.length > 0) {
-      // triggerSwalFire("Time Report!", "You have jobs from last report period that needs to be submitted.");
-    }
+      // Ensure both arrays are truthy before proceeding
+      if (!previousPeriodProjects || !unsubmittedTimeReportProjects) return;
+    
+      console.log("LastMonthsTimeReportProjects:", unsubmittedTimeReportProjects);
+      console.log("previousPeriodProjects:", previousPeriodProjects);
+    
+      // Filter out submitted projects from unsubmittedTimeReportProjects
+      const filteredOutSubmitted = unsubmittedTimeReportProjects.filter(item => item.timereport_is_sent_permanent === 0);
+      console.log("filteredOutSubmitted:", filteredOutSubmitted);
+      // Filter previousPeriodProjects to remove items already in unsubmittedTimeReportProjects
+      const filteredProjects = previousPeriodProjects.filter(element =>
+        !unsubmittedTimeReportProjects.some(unsubmitted => unsubmitted.project_id === element.project_id)
+      );
+      // Log the projects from previousPeriodProjects not in unsubmittedTimeReportProjects
+      filteredProjects.forEach(project => {
+        console.log("Project from previousPeriodProjects not in unsubmittedTimeReportProjects:", project);
+      });
+      // Combine filtered previousPeriodProjects and filteredOutSubmitted
+      const combinedArray = [...filteredProjects, ...filteredOutSubmitted];
+      console.log("Combined Array:", combinedArray);
+      setCombinedUnsubmittedArray(combinedArray)
+      if (combinedArray.length > 0) {
+        // triggerSwalFire("Time Report!", "You have jobs from last report period that needs to be submitted.");
+      }
   }, [previousPeriodProjects, unsubmittedTimeReportProjects]);
   
   
 
   // Method to calculate the diff between the jobs project_date and the current datetime
   const getDaysSinceTimestamp = (project_date) => {
-    const currentDateTime = getCurrentDateTime() // call method
-    const projectDate = new Date(project_date)
-    const currentDate = new Date(currentDateTime)
-    const diffms = currentDate - projectDate;
-    const diffInDays = Math.floor(diffms / (1000 * 60 * 60 * 24));
-    return diffInDays;
+      const currentDateTime = getCurrentDateTime() // call method
+      const projectDate = new Date(project_date)
+      const currentDate = new Date(currentDateTime)
+      const diffms = currentDate - projectDate;
+      const diffInDays = Math.floor(diffms / (1000 * 60 * 60 * 24));
+      return diffInDays;
   }
   // Method to return current datetime
   const getCurrentDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); 
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');    
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0'); 
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');    
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 
-// Method to trigger swal fire 
-const triggerSwalFire = (title, text) => {
-  MySwal.fire({
-    title: title,
-    text: text, 
-    icon: 'warning',
-    confirmButtonText: 'Ok',
-    customClass: {
-      confirmButton: 'index-swal-fire-button',
-      icon: 'index-swal-fire-icon',
-    },
-    didOpen: () => {
-      // Style the title
-      const title = document.querySelector('.swal2-title');
-      if (title) {
-        title.style.fontSize = '1.2em';  
-      }
-      // Style the content text
-      const content = document.querySelector('.swal2-html-container');
-      if (content) {
-        content.style.fontSize = '0.9em';  
-      }
-    }
-  });
-}
+// // Method to trigger swal fire 
+// const triggerSwalFire = (title, text) => {
+//     MySwal.fire({
+//       title: title,
+//       text: text, 
+//       icon: 'warning',
+//       confirmButtonText: 'Ok',
+//       customClass: {
+//         confirmButton: 'index-swal-fire-button',
+//         icon: 'index-swal-fire-icon',
+//       },
+//       didOpen: () => {
+//         // Style the title
+//         const title = document.querySelector('.swal2-title');
+//         if (title) {
+//           title.style.fontSize = '1.2em';  
+//         }
+//         // Style the content text
+//         const content = document.querySelector('.swal2-html-container');
+//         if (content) {
+//           content.style.fontSize = '0.9em';  
+//         }
+//       }
+//     });
+// }
 
   
 
   
-  // SweetAlert2 error modal
-  const showErrorModal = (errorMessage) => {
-      MySwal.fire({
-        title: 'Error!',
-        text: errorMessage,
-        icon: 'error',
-        confirmButtonText: 'Close',
-      });
-  };
+  // // SweetAlert2 error modal
+  // const showErrorModal = (errorMessage) => {
+  //     MySwal.fire({
+  //       title: 'Error!',
+  //       text: errorMessage,
+  //       icon: 'error',
+  //       confirmButtonText: 'Close',
+  //     });
+  // };
 
 
 
