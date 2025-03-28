@@ -1,11 +1,10 @@
-// Creating app-update.yml and publishing to latest release in github
+
 
 const fs = require('fs');
 const path = require('path');
 
 require('dotenv').config();
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
 
 
 async function main() {

@@ -1,3 +1,4 @@
+### ISOLATED
 ### Guide to try autoupdater in isolated environment.
 
 ### Steps:

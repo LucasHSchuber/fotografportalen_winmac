@@ -11,6 +11,7 @@ This is an Express Bild software currently consists of three programs integrated
 1. Workspace
 2. Filetransfer
 3. Time Report
+4. Backuptransfer
 These programs are designed to digitalize and streamline photographer work into a single centralized platform.
 
 ## Software Description
@@ -25,6 +26,8 @@ The SQLITE database used in the software comprises several tables, each serving 
 - **teams_history:** Keeps track of historical data related to teams, allowing users to view past team configurations and changes.
 - **ft_projects:** Tracks projects that have files thats's been uploaded to the FTP server
 - **ft_files:** A table that stores all files that have been uploading to the FTP server for each corresponding table.
+- **bt_projects:** Tracks projects that have files thats's been uploaded in backuptransfer program
+- **bt_files:** A table that stores all files that have been uploaded in backuptransfer program
 - **news:** Manages news entries, including their content and read status.
 - **knowledgebase:** Stores different kind of files (e.g. .pdf) for user to open and download in the application in offline mode.
 - **timereport:** Logs time reports for projects, including details on start and end times, expenses, and user association.
