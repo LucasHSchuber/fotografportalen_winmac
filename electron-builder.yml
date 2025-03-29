@@ -52,7 +52,7 @@ appImage:
 npmRebuild: false
 publish:
   provider: github
-  owner: LucasHSchuber
+  owner: Zinal001
   repo: fotografportalen_winmac
   releaseType: release
   token: token

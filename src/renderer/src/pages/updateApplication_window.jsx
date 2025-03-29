@@ -10,7 +10,7 @@ function UpdateApplication_window() {
   const [errorMessage, setErrorMessage] = useState("");
   const [downloadProgress, setDownloadProgress] = useState("0");
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  console.log(window.api);
+  // console.log(window.api);
 
 
   useEffect(() => {

@@ -60,10 +60,6 @@ function Index() {
     let env_file = env;
     let github_url = env_file.githubUrl;
     const githubToken = env_file.githubToken;
-    console.log("api object:", window.api);
-    console.log("env file:", env_file);
-    console.log("github token:", githubToken);
-    console.log("github url:", github_url);
     setGithubURL(github_url + "/latest");
 
     const checkForUpdates = async () => {

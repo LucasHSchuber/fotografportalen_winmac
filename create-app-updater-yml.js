@@ -16,8 +16,8 @@ async function main() {
   console.log("package.json version", version);
 
   const config = {
-    owner: 'LucasHSchuber',
-    repo: 'fotografportalen_winmac',
+    owner: process.env.OWNER,
+    repo: process.env.REPO,
     provider: 'github',
     releaseType: 'release',
     updateCacheDirName: 'photographerportal-update',
@@ -84,7 +84,6 @@ async function main() {
         },
       });
       console.log("uploadResponse", uploadResponse);
-
       console.log(`app-update.yml uploaded successfully to release ID: ${releaseId}`);
     } catch (error) {
       console.error('Error uploading file:', error);

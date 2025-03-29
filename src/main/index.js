@@ -149,7 +149,8 @@ if (_env.production){
   autoUpdater.setFeedURL({
     provider: _env.provider,
     owner: _env.owner,
-    repo: _env.repo
+    repo: _env.repo,
+    token: _env.githubToken  // Need this if repo is private
   });
 } else {
   // SETFEEDURL WHEN TESTING UPDATES 
